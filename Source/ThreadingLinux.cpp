@@ -11,6 +11,8 @@
 #include <CoreFoundation/CoreFoundation.h>
 #endif
 
+#include "Console.h"
+
 namespace vl
 {
 	using namespace threading_internal;
@@ -307,51 +309,50 @@ Semaphore
 		internalData = new SemaphoreData;
 #if defined(__APPLE__)
         
-        AString auuid;
-        if(name.Length() == 0)
-        {
-            CFUUIDRef cfuuid = CFUUIDCreate(kCFAllocatorDefault);
-            CFStringRef cfstr = CFUUIDCreateString(kCFAllocatorDefault, cfuuid);
-            auuid = CFStringGetCStringPtr(cfstr, kCFStringEncodingASCII);
+		AString auuid;
+		if(name.Length() == 0)
+		{
+			CFUUIDRef cfuuid = CFUUIDCreate(kCFAllocatorDefault);
+			CFStringRef cfstr = CFUUIDCreateString(kCFAllocatorDefault, cfuuid);
+			auuid = CFStringGetCStringPtr(cfstr, kCFStringEncodingASCII);
 
 			CFRelease(cfstr);
 			CFRelease(cfuuid);
-        }
-        auuid = auuid.Insert(0, "/");
-        // OSX SEM_NAME_LENGTH = 31
-        if(auuid.Length() >= 30)
-            auuid = auuid.Sub(0, 30);
+		}
+		auuid = auuid.Insert(0, "/");
+		// OSX SEM_NAME_LENGTH = 31
+		if(auuid.Length() >= 30)
+			auuid = auuid.Sub(0, 30);
         
-        if ((internalData->semNamed = sem_open(auuid.Buffer(), O_CREAT, O_RDWR, initialCount)) == SEM_FAILED)
-        {
-            delete internalData;
-            internalData = 0;
-            return false;
-        }
+		if ((internalData->semNamed = sem_open(auuid.Buffer(), O_CREAT, O_RDWR, initialCount)) == SEM_FAILED)
+		{
+			delete internalData;
+			internalData = 0;
+			return false;
+		}
         
 #else
-        if (name == L"")
-        {
-            if(sem_init(&internalData->semUnnamed, 0, (int)initialCount) == -1)
-            {
-                delete internalData;
-                internalData = 0;
-                return false;
-            }
-        }
-        else
-        {
-            AString astr = wtoa(name);
+		if (name == L"")
+		{
+			if(sem_init(&internalData->semUnnamed, 0, (int)initialCount) == -1)
+			{
+				delete internalData;
+				internalData = 0;
+				return false;
+			}
+		}
+        	else
+        	{
+			AString astr = wtoa(name);
             
-            if ((internalData->semNamed = sem_open(astr.Buffer(), O_CREAT, 0777, initialCount)) == SEM_FAILED)
-            {
-                delete internalData;
-                internalData = 0;
-                return false;
-            }
-        }
+			if ((internalData->semNamed = sem_open(astr.Buffer(), O_CREAT, 0777, initialCount)) == SEM_FAILED)
+			{
+				delete internalData;
+				internalData = 0;
+				return false;
+			}
+		}
 #endif
-        
 
 		Release(initialCount);
 		return true;
