@@ -48,10 +48,12 @@ WString GetTestOutputPath()
 
 int wmain(vint argc , wchar_t* args[])
 {
-	Folder folder(GetTestOutputPath());
-	if (!folder.Exists())
 	{
-		TEST_ASSERT(folder.Create(false) == true);
+		Folder folder(GetTestOutputPath());
+		if (!folder.Exists())
+		{
+			TEST_ASSERT(folder.Create(false) == true);
+		}
 	}
 	unittest::UnitTest::RunAndDisposeTests();
 	FinalizeGlobalStorage();
