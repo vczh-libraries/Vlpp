@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<codegen>
+  <folders>
+    <folder path="..\Source" />
+  </folders>
+  <categories>
+    <category name="vlpp" pattern="\Source\"/>
+  </categories>
+  <output path=".">
+    <codepair category="vlpp" filename="Vlpp" generate="true"/>
+  </output>
+</codegen>
