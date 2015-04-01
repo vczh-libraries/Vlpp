@@ -6,6 +6,7 @@ make clean
 make
 cp makefile~ makefile
 rm makefile~
+mkdir ../Output
 Bin/UnitTest
 mkdir Coverage
 cd Coverage
