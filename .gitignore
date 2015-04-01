@@ -3,6 +3,7 @@
 
 #Vczh Libraries
 Test/Output/
+Test/Linux/Coverage/
 
 # User-specific files
 *.suo
