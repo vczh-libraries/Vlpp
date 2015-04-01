@@ -1,1 +1,1 @@
-..\..\..\Tools\ParserGen.exe Parser.Calculator.parser.txt
+..\..\..\..\Tools\Tools\ParserGen.exe Parser.Calculator.parser.txt
