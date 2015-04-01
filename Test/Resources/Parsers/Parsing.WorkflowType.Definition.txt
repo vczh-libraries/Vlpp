@@ -1,0 +1,59 @@
+class Type
+{
+}
+
+class ReferenceType : Type
+{
+	token					name;
+}
+
+class SharedPointerType : Type
+{
+	Type					element;
+}
+
+class EnumerableType : Type
+{
+	Type					element;
+}
+
+class MapType : Type
+{
+	Type					key;
+	Type					value;
+}
+
+class FunctionType : Type
+{
+	Type					result;
+	Type[]					arguments;
+}
+
+class ChildType : Type
+{
+	Type					parent;
+	token					name;
+}
+
+token EXP = "/^";
+token SCOPE_DELIMITER = "::";
+token COLON = ":";
+token COMMA = ",";
+token OPEN_ARRAY = "/[";
+token CLOSE_ARRAY = "/]";
+token OPEN_BRACE = "/{";
+token CLOSE_BRACE = "/}";
+token OPEN_BRACKET = "/(";
+token CLOSE_BRACKET = "/)";
+token KEYWORD_FUNC = "func";
+token NAME = "[a-zA-Z_]/w*";
+discardtoken SPACE = "/s+";
+
+rule Type WorkflowType
+	= NAME : name as ReferenceType
+	= "func" "(" [WorkflowType : arguments {"," WorkflowType : arguments}] ")" ":" WorkflowType : result as FunctionType
+	= WorkflowType : element "^" as SharedPointerType
+	= WorkflowType : element "{" "}" as EnumerableType
+	= WorkflowType : value "[" [WorkflowType : key] "]" as MapType
+	= WorkflowType : parent "::" NAME : name as ChildType
+	;

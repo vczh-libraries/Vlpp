@@ -1,0 +1,55 @@
+folder VLPP_BASIC = .
+	h = *.h
+	cpp = *.cpp
+
+folder VLPP_COLLECTIONS = ./Collections
+	h = *.h
+	cpp = *.cpp
+
+folder VLPP_REGEX = ./Regex
+	h = *.h
+	cpp = *.cpp
+
+folder VLPP_STREAM = ./Stream
+	h = *.h
+	cpp = *.cpp
+
+folder VLPP_REFLECTION = ./Reflection
+	h = *.h
+	cpp = *.cpp
+
+folder VLPP_PARSING = ./Parsing
+	h = *.h
+	cpp = *.cpp
+
+folder VLPP_XML = ./Parsing/Xml
+	h = *.h
+	cpp = *.cpp
+
+folder VLPP_JSON = ./Parsing/Json
+	h = *.h
+	cpp = *.cpp
+
+folder VLPP_UNITTEST = ./UnitTest
+	h = *.h
+	cpp = *.cpp
+
+group VLPP = VLPP_BASIC VLPP_COLLECTIONS VLPP_REGEX VLPP_STREAM VLPP_REFLECTION VLPP_PARSING VLPP_XML VLPP_JSON
+
+dependency
+	VLPP_COLLECTIONS:h < VLPP_BASIC:h
+	VLPP_STREAM:h < VLPP_COLLECTIONS:h
+	VLPP_PARSING:h < VLPP_STREAM:h
+	VLPP_XML:h < VLPP_PARSING:h
+	VLPP_JSON:h < VLPP_PARSING:h
+	VLPP_REFLECTION:h < VLPP_STREAM:h
+	VLPP_UNITTEST:h < VLPP_BASIC:h
+	VLPP_BASIC:cpp < VLPP_BASIC:h
+	VLPP_COLLECTIONS:cpp < VLPP_COLLECTIONS:h
+	VLPP_REGEX:cpp < VLPP_REGEX:h
+	VLPP_STREAM:cpp < VLPP_STREAM:h
+	VLPP_REFLECTION:cpp < VLPP_REFLECTION:h
+	VLPP_PARSING:cpp < VLPP_PARSING:h
+	VLPP_XML:cpp < VLPP_XML:h
+	VLPP_UNITTEST:cpp < VLPP_UNITTEST:h
+	VLPP_JSON:cpp < VLPP_JSON:h
