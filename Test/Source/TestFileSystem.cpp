@@ -13,13 +13,6 @@ extern WString GetTestOutputPath();
 void ClearTestFolders()
 {
 	FilePath path = GetTestOutputPath();
-	{
-		Folder folder(path);
-		if (!folder.Exists())
-		{
-			TEST_ASSERT(folder.Create(false) == true);
-		}
-	}
 	TEST_ASSERT(path.IsFolder());
 
 	Folder folder(GetTestOutputPath() + L"FileSystem");

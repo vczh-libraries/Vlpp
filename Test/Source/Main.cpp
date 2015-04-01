@@ -5,9 +5,11 @@
 #include "../../Source/String.h"
 #include "../../Source/Threading.h"
 #include "../../Source/GlobalStorage.h"
+#include "../../Source/FileSystem.h"
 #include "../../Source/UnitTest/UnitTest.h"
 
 using namespace vl;
+using namespace vl::filesystem;
 
 WString GetExePath()
 {
@@ -46,6 +48,11 @@ WString GetTestOutputPath()
 
 int wmain(vint argc , wchar_t* args[])
 {
+	Folder folder(GetTestOutputPath());
+	if (!folder.Exists())
+	{
+		TEST_ASSERT(folder.Create(false) == true);
+	}
 	unittest::UnitTest::RunAndDisposeTests();
 	FinalizeGlobalStorage();
 	_CrtDumpMemoryLeaks();
