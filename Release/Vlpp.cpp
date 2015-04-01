@@ -5,7 +5,7 @@ DEVELOPER: Zihan Chen(vczh)
 #include "Vlpp.h"
 
 /***********************************************************************
-Basic.cpp
+BASIC.CPP
 ***********************************************************************/
 #if defined VCZH_MSVC
 #include <Windows.h>
@@ -271,7 +271,7 @@ Interface
 }
 
 /***********************************************************************
-Console.cpp
+CONSOLE.CPP
 ***********************************************************************/
 #if defined VCZH_MSVC
 #elif defined VCZH_GCC
@@ -390,7 +390,7 @@ Console
 }
 
 /***********************************************************************
-Exception.cpp
+EXCEPTION.CPP
 ***********************************************************************/
 
 namespace vl
@@ -453,7 +453,7 @@ ParsingException
 }
 
 /***********************************************************************
-FileSystem.cpp
+FILESYSTEM.CPP
 ***********************************************************************/
 #if defined VCZH_MSVC
 #include <Shlwapi.h>
@@ -960,7 +960,86 @@ Folder
 }
 
 /***********************************************************************
-HttpUtility.cpp
+GLOBALSTORAGE.CPP
+***********************************************************************/
+
+namespace vl
+{
+	using namespace collections;
+
+	class GlobalStorageManager
+	{
+	public:
+		Ptr<Dictionary<WString, GlobalStorage*>> storages;
+
+		GlobalStorageManager()
+		{
+		}
+	};
+
+	GlobalStorageManager& GetGlobalStorageManager()
+	{
+		static GlobalStorageManager globalStorageManager;
+		return globalStorageManager;
+	}
+
+/***********************************************************************
+GlobalStorage
+***********************************************************************/
+
+	GlobalStorage::GlobalStorage(const wchar_t* key)
+		:cleared(false)
+	{
+		InitializeGlobalStorage();
+		GetGlobalStorageManager().storages->Add(key, this);
+	}
+
+	GlobalStorage::~GlobalStorage()
+	{
+	}
+
+	bool GlobalStorage::Cleared()
+	{
+		return cleared;
+	}
+
+/***********************************************************************
+辅助函数
+***********************************************************************/
+
+	GlobalStorage* GetGlobalStorage(const wchar_t* key)
+	{
+		return GetGlobalStorage(WString(key, false));
+	}
+
+	GlobalStorage* GetGlobalStorage(const WString& key)
+	{
+		return GetGlobalStorageManager().storages->Get(key);
+	}
+
+	void InitializeGlobalStorage()
+	{
+		if(!GetGlobalStorageManager().storages)
+		{
+			GetGlobalStorageManager().storages=new Dictionary<WString, GlobalStorage*>;
+		}
+	}
+
+	void FinalizeGlobalStorage()
+	{
+		if(GetGlobalStorageManager().storages)
+		{
+			for(vint i=0;i<GetGlobalStorageManager().storages->Count();i++)
+			{
+				GetGlobalStorageManager().storages->Values().Get(i)->ClearResource();
+			}
+			GetGlobalStorageManager().storages=0;
+		}
+	}
+}
+
+/***********************************************************************
+HTTPUTILITY.CPP
 ***********************************************************************/
 
 #ifdef VCZH_MSVC
@@ -1303,7 +1382,7 @@ Utilities
 #endif
 
 /***********************************************************************
-Locale.cpp
+LOCALE.CPP
 ***********************************************************************/
 #if defined VCZH_MSVC
 #elif defined VCZH_GCC
@@ -2005,759 +2084,2303 @@ Locale
 }
 
 /***********************************************************************
-Parsing\Json\ParsingJson.cpp
+STRING.CPP
 ***********************************************************************/
+#include <stdlib.h>
+#if defined VCZH_MSVC
+#elif defined VCZH_GCC
+#define _strtoi64 strtoll
+#define _strtoui64 strtoull
+#define _wcstoi64 wcstoll
+#define _wcstoui64 wcstoull
+#endif
 
 namespace vl
 {
-	namespace parsing
+#if defined VCZH_GCC
+	void _itoa_s(vint32_t value, char* buffer, size_t size, vint radix)
 	{
-		namespace json
+		sprintf(buffer, "%d", value);
+	}
+
+	void _itow_s(vint32_t value, wchar_t* buffer, size_t size, vint radix)
+	{
+		swprintf(buffer, size - 1, L"%d", value);
+	}
+
+	void _i64toa_s(vint64_t value, char* buffer, size_t size, vint radix)
+	{
+		sprintf(buffer, "%ld", value);
+	}
+
+	void _i64tow_s(vint64_t value, wchar_t* buffer, size_t size, vint radix)
+	{
+		swprintf(buffer, size - 1, L"%ld", value);
+	}
+
+	void _uitoa_s(vuint32_t value, char* buffer, size_t size, vint radix)
+	{
+		sprintf(buffer, "%u", value);
+	}
+
+	void _uitow_s(vuint32_t value, wchar_t* buffer, size_t size, vint radix)
+	{
+		swprintf(buffer, size - 1, L"%u", value);
+	}
+
+	void _ui64toa_s(vuint64_t value, char* buffer, size_t size, vint radix)
+	{
+		sprintf(buffer, "%lu", value);
+	}
+
+	void _ui64tow_s(vuint64_t value, wchar_t* buffer, size_t size, vint radix)
+	{
+		swprintf(buffer, size - 1, L"%lu", value);
+	}
+
+	void _gcvt_s(char* buffer, size_t size, double value, vint numberOfDigits)
+	{
+		sprintf(buffer, "%f", value);
+		char* point = strchr(buffer, '.');
+		if(!point) return;
+		char* zero = buffer + strlen(buffer);
+		while(zero[-1] == '0')
 		{
-			using namespace stream;
-			using namespace collections;
-
-/***********************************************************************
-Unescaping Function Foward Declarations
-***********************************************************************/
-
-			void JsonUnescapingString(vl::parsing::ParsingToken& value, const vl::collections::List<vl::regex::RegexToken>& tokens)
-			{
-				MemoryStream stream;
-				{
-					StreamWriter writer(stream);
-					JsonUnescapeString(value.value.Sub(1, value.value.Length()-2), writer);
-				}
-				stream.SeekFromBegin(0);
-				{
-					StreamReader reader(stream);
-					value.value=reader.ReadToEnd();
-				}
-			}
-
-/***********************************************************************
-JsonPrintVisitor
-***********************************************************************/
-
-			class JsonPrintVisitor : public Object, public JsonNode::IVisitor
-			{
-			public:
-				TextWriter&					writer;
-
-				JsonPrintVisitor(TextWriter& _writer)
-					:writer(_writer)
-				{
-				}
-
-				void Visit(JsonLiteral* node)
-				{
-					switch(node->value)
-					{
-					case JsonLiteral::JsonValue::True:
-						writer.WriteString(L"true");
-						break;
-					case JsonLiteral::JsonValue::False:
-						writer.WriteString(L"false");
-						break;
-					case JsonLiteral::JsonValue::Null:
-						writer.WriteString(L"null");
-						break;
-					}
-				}
-
-				void Visit(JsonString* node)
-				{
-					writer.WriteChar(L'\"');
-					JsonEscapeString(node->content.value, writer);
-					writer.WriteChar(L'\"');
-				}
-
-				void Visit(JsonNumber* node)
-				{
-					writer.WriteString(node->content.value);
-				}
-
-				void Visit(JsonArray* node)
-				{
-					writer.WriteChar(L'[');
-					FOREACH_INDEXER(Ptr<JsonNode>, item, i, node->items)
-					{
-						if(i>0) writer.WriteChar(L',');
-						item->Accept(this);
-					}
-					writer.WriteChar(L']');
-				}
-
-				void Visit(JsonObjectField* node)
-				{
-					writer.WriteChar(L'\"');
-					JsonEscapeString(node->name.value, writer);
-					writer.WriteString(L"\":");
-					node->value->Accept(this);
-				}
-
-				void Visit(JsonObject* node)
-				{
-					writer.WriteChar(L'{');
-					FOREACH_INDEXER(Ptr<JsonObjectField>, field, i, node->fields)
-					{
-						if(i>0) writer.WriteChar(L',');
-						field->Accept(this);
-					}
-					writer.WriteChar(L'}');
-				}
-			};
-
-/***********************************************************************
-API
-***********************************************************************/
-
-			void JsonEscapeString(const WString& text, stream::TextWriter& writer)
-			{
-				const wchar_t* reading=text.Buffer();
-				while(wchar_t c=*reading++)
-				{
-					switch(c)
-					{
-					case L'\"': writer.WriteString(L"\\\""); break;
-					case L'\\': writer.WriteString(L"\\\\"); break;
-					case L'/': writer.WriteString(L"\\/"); break;
-					case L'\b': writer.WriteString(L"\\b"); break;
-					case L'\f': writer.WriteString(L"\\f"); break;
-					case L'\n': writer.WriteString(L"\\n"); break;
-					case L'\r': writer.WriteString(L"\\r"); break;
-					case L'\t': writer.WriteString(L"\\t"); break;
-					default: writer.WriteChar(c);
-					}
-				}
-			}
-
-			vuint16_t GetHex(wchar_t c)
-			{
-				if(L'0'<=c && c<=L'9')
-				{
-					return c-L'0';
-				}
-				else if(L'A'<=c && c<=L'F')
-				{
-					return c-L'A';
-				}
-				else if(L'a'<=c && c<=L'f')
-				{
-					return c-L'a';
-				}
-				else
-				{
-					return 0;
-				}
-			}
-
-			void JsonUnescapeString(const WString& text, stream::TextWriter& writer)
-			{
-				const wchar_t* reading=text.Buffer();
-				while(wchar_t c=*reading++)
-				{
-					if(c==L'\\' && *reading)
-					{
-						switch(c=*reading++)
-						{
-						case L'b': writer.WriteChar(L'\b'); break;
-						case L'f': writer.WriteChar(L'\f'); break;
-						case L'n': writer.WriteChar(L'\n'); break;
-						case L'r': writer.WriteChar(L'\r'); break;
-						case L't': writer.WriteChar(L'\t'); break;
-						case L'u':
-							{
-								wchar_t h1, h2, h3, h4;
-								if((h1=reading[0]) && (h2=reading[1]) && (h3=reading[2]) && (h4=reading[3]))
-								{
-									reading+=4;
-									wchar_t h=(wchar_t)(vuint16_t)(
-										(GetHex(h1)<<12) +
-										(GetHex(h2)<<8) +
-										(GetHex(h3)<<4) +
-										(GetHex(h4)<<0)
-										);
-									writer.WriteChar(h);
-								}
-							}
-							break;
-						default: writer.WriteChar(c);
-						}
-					}
-					else
-					{
-						writer.WriteChar(c);
-					}
-				}
-			}
-
-			void JsonPrint(Ptr<JsonNode> node, stream::TextWriter& writer)
-			{
-				JsonPrintVisitor visitor(writer);
-				node->Accept(&visitor);
-			}
-
-			WString JsonToString(Ptr<JsonNode> node)
-			{
-				MemoryStream stream;
-				{
-					StreamWriter writer(stream);
-					JsonPrint(node, writer);
-				}
-				stream.SeekFromBegin(0);
-				{
-					StreamReader reader(stream);
-					return reader.ReadToEnd();
-				}
-			}
+			*--zero = '\0';
 		}
+		if(zero[-1] == '.') *--zero = '\0';
+	}
+
+	void _strlwr_s(char* buffer, size_t size)
+	{
+		while(*buffer)
+		{
+			*buffer=(char)tolower(*buffer);
+			buffer++;
+		}
+	}
+
+	void _strupr_s(char* buffer, size_t size)
+	{
+		while(*buffer)
+		{
+			*buffer=(char)toupper(*buffer);
+			buffer++;
+		}
+	}
+
+	void _wcslwr_s(wchar_t* buffer, size_t size)
+	{
+		while(*buffer)
+		{
+			*buffer=(char)towlower(*buffer);
+			buffer++;
+		}
+	}
+
+	void _wcsupr_s(wchar_t* buffer, size_t size)
+	{
+		while(*buffer)
+		{
+			*buffer=(char)towupper(*buffer);
+			buffer++;
+		}
+	}
+#endif
+
+	vint atoi_test(const AString& string, bool& success)
+	{
+		char* endptr = 0;
+		vint result = strtol(string.Buffer(), &endptr, 10);
+		success = endptr == string.Buffer() + string.Length() && itoa(result) == string;
+		return result;
+	}
+
+	vint wtoi_test(const WString& string, bool& success)
+	{
+		wchar_t* endptr = 0;
+		vint result = wcstol(string.Buffer(), &endptr, 10);
+		success = endptr == string.Buffer() + string.Length() && itow(result) == string;
+		return result;
+	}
+
+	vint64_t atoi64_test(const AString& string, bool& success)
+	{
+		char* endptr = 0;
+		vint64_t result = _strtoi64(string.Buffer(), &endptr, 10);
+		success = endptr == string.Buffer() + string.Length() && i64toa(result) == string;
+		return result;
+	}
+
+	vint64_t wtoi64_test(const WString& string, bool& success)
+	{
+		wchar_t* endptr = 0;
+		vint64_t result = _wcstoi64(string.Buffer(), &endptr, 10);
+		success = endptr == string.Buffer() + string.Length() && i64tow(result) == string;
+		return result;
+	}
+
+	vuint atou_test(const AString& string, bool& success)
+	{
+		char* endptr = 0;
+		vuint result = strtoul(string.Buffer(), &endptr, 10);
+		success = endptr == string.Buffer() + string.Length() && utoa(result) == string;
+		return result;
+	}
+
+	vuint wtou_test(const WString& string, bool& success)
+	{
+		wchar_t* endptr = 0;
+		vuint result = wcstoul(string.Buffer(), &endptr, 10);
+		success = endptr == string.Buffer() + string.Length() && utow(result) == string;
+		return result;
+	}
+
+	vuint64_t atou64_test(const AString& string, bool& success)
+	{
+		char* endptr = 0;
+		vuint64_t result = _strtoui64(string.Buffer(), &endptr, 10);
+		success = endptr == string.Buffer() + string.Length() && u64toa(result) == string;
+		return result;
+	}
+
+	vuint64_t wtou64_test(const WString& string, bool& success)
+	{
+		wchar_t* endptr = 0;
+		vuint64_t result = _wcstoui64(string.Buffer(), &endptr, 10);
+		success = endptr == string.Buffer() + string.Length() && u64tow(result) == string;
+		return result;
+	}
+
+	double atof_test(const AString& string, bool& success)
+	{
+		char* endptr = 0;
+		double result = strtod(string.Buffer(), &endptr);
+		success = endptr == string.Buffer() + string.Length();
+		return result;
+	}
+
+	double wtof_test(const WString& string, bool& success)
+	{
+		wchar_t* endptr = 0;
+		double result = wcstod(string.Buffer(), &endptr);
+		success = endptr == string.Buffer() + string.Length();
+		return result;
+	}
+
+	vint atoi(const AString& string)
+	{
+		bool success = false;
+		return atoi_test(string, success);
+	}
+
+	vint wtoi(const WString& string)
+	{
+		bool success = false;
+		return wtoi_test(string, success);
+	}
+
+	vint64_t atoi64(const AString& string)
+	{
+		bool success = false;
+		return atoi64_test(string, success);
+	}
+
+	vint64_t wtoi64(const WString& string)
+	{
+		bool success = false;
+		return wtoi64_test(string, success);
+	}
+
+	vuint atou(const AString& string)
+	{
+		bool success = false;
+		return atou_test(string, success);
+	}
+
+	vuint wtou(const WString& string)
+	{
+		bool success = false;
+		return wtou_test(string, success);
+	}
+
+	vuint64_t atou64(const AString& string)
+	{
+		bool success = false;
+		return atou64_test(string, success);
+	}
+
+	vuint64_t wtou64(const WString& string)
+	{
+		bool success = false;
+		return wtou64_test(string, success);
+	}
+
+	double atof(const AString& string)
+	{
+		bool success = false;
+		return atof_test(string, success);
+	}
+
+	double wtof(const WString& string)
+	{
+		bool success = false;
+		return wtof_test(string, success);
+	}
+
+	AString itoa(vint number)
+	{
+		char buffer[100];
+		ITOA_S(number, buffer, sizeof(buffer) / sizeof(*buffer), 10);
+		return buffer;
+	}
+
+	WString itow(vint number)
+	{
+		wchar_t buffer[100];
+		ITOW_S(number, buffer, sizeof(buffer) / sizeof(*buffer), 10);
+		return buffer;
+	}
+
+	AString i64toa(vint64_t number)
+	{
+		char buffer[100];
+		I64TOA_S(number, buffer, sizeof(buffer) / sizeof(*buffer), 10);
+		return buffer;
+	}
+
+	WString i64tow(vint64_t number)
+	{
+		wchar_t buffer[100];
+		I64TOW_S(number, buffer, sizeof(buffer) / sizeof(*buffer), 10);
+		return buffer;
+	}
+
+	AString utoa(vuint number)
+	{
+		char buffer[100];
+		UITOA_S(number, buffer, sizeof(buffer) / sizeof(*buffer), 10);
+		return buffer;
+	}
+
+	WString utow(vuint number)
+	{
+		wchar_t buffer[100];
+		UITOW_S(number, buffer, sizeof(buffer) / sizeof(*buffer), 10);
+		return buffer;
+	}
+
+	AString u64toa(vuint64_t number)
+	{
+		char buffer[100];
+		UI64TOA_S(number, buffer, sizeof(buffer) / sizeof(*buffer), 10);
+		return buffer;
+	}
+
+	WString u64tow(vuint64_t number)
+	{
+		wchar_t buffer[100];
+		UI64TOW_S(number, buffer, sizeof(buffer) / sizeof(*buffer), 10);
+		return buffer;
+	}
+
+	AString ftoa(double number)
+	{
+		char buffer[320];
+		_gcvt_s(buffer, 320, number, 30);
+		vint len = (vint)strlen(buffer);
+		if (buffer[len - 1] == '.')
+		{
+			buffer[len - 1] = '\0';
+		}
+		return buffer;
+	}
+
+	WString ftow(double number)
+	{
+		return atow(ftoa(number));
+	}
+
+	vint _wtoa(const wchar_t* w, char* a, vint chars)
+	{
+#if defined VCZH_MSVC
+		return WideCharToMultiByte(CP_THREAD_ACP, 0, w, -1, a, (int)(a ? chars : 0), 0, 0);
+#elif defined VCZH_GCC
+		return wcstombs(a, w, chars-1)+1;
+#endif
+	}
+
+	AString wtoa(const WString& string)
+	{
+		vint len = _wtoa(string.Buffer(), 0, 0);
+		char* buffer = new char[len];
+		memset(buffer, 0, len*sizeof(*buffer));
+		_wtoa(string.Buffer(), buffer, (int)len);
+		AString s = buffer;
+		delete[] buffer;
+		return s;
+	}
+
+	vint _atow(const char* a, wchar_t* w, vint chars)
+	{
+#if defined VCZH_MSVC
+		return MultiByteToWideChar(CP_THREAD_ACP, 0, a, -1, w, (int)(w ? chars : 0));
+#elif defined VCZH_GCC
+		return mbstowcs(w, a, chars-1)+1;
+#endif
+	}
+
+	WString atow(const AString& string)
+	{
+		vint len = _atow(string.Buffer(), 0, 0);
+		wchar_t* buffer = new wchar_t[len];
+		memset(buffer, 0, len*sizeof(*buffer));
+		_atow(string.Buffer(), buffer, (int)len);
+		WString s = buffer;
+		delete[] buffer;
+		return s;
+	}
+
+	AString alower(const AString& string)
+	{
+		AString result = string.Buffer();
+		_strlwr_s((char*)result.Buffer(), result.Length() + 1);
+		return result;
+	}
+
+	WString wlower(const WString& string)
+	{
+		WString result = string.Buffer();
+		_wcslwr_s((wchar_t*)result.Buffer(), result.Length() + 1);
+		return result;
+	}
+
+	AString aupper(const AString& string)
+	{
+		AString result = string.Buffer();
+		_strupr_s((char*)result.Buffer(), result.Length() + 1);
+		return result;
+	}
+
+	WString wupper(const WString& string)
+	{
+		WString result = string.Buffer();
+		_wcsupr_s((wchar_t*)result.Buffer(), result.Length() + 1);
+		return result;
 	}
 }
 
 /***********************************************************************
-Parsing\Json\ParsingJson_Parser.cpp
+THREADING.CPP
 ***********************************************************************/
+#ifdef VCZH_MSVC
 
 namespace vl
 {
-	namespace parsing
+	using namespace threading_internal;
+	using namespace collections;
+
+/***********************************************************************
+WaitableObject
+***********************************************************************/
+
+	namespace threading_internal
 	{
-		namespace json
+		struct WaitableData
 		{
-/***********************************************************************
-ParserText
-***********************************************************************/
+			HANDLE			handle;
 
-const wchar_t parserTextBuffer[] = 
-L"\r\n" L""
-L"\r\n" L"class Node"
-L"\r\n" L"{"
-L"\r\n" L"}"
-L"\r\n" L""
-L"\r\n" L"class Literal:Node"
-L"\r\n" L"{"
-L"\r\n" L"\tenum Value"
-L"\r\n" L"\t{"
-L"\r\n" L"\t\tTrue,"
-L"\r\n" L"\t\tFalse,"
-L"\r\n" L"\t\tNull,"
-L"\r\n" L"\t}"
-L"\r\n" L""
-L"\r\n" L"\tValue value;"
-L"\r\n" L"}"
-L"\r\n" L""
-L"\r\n" L"class String:Node"
-L"\r\n" L"{"
-L"\r\n" L"\ttoken content(JsonUnescapingString)\t\t\t\t@Color(\"String\");"
-L"\r\n" L"}"
-L"\r\n" L""
-L"\r\n" L"class Number:Node"
-L"\r\n" L"{"
-L"\r\n" L"\ttoken content;"
-L"\r\n" L"}"
-L"\r\n" L""
-L"\r\n" L"class Array:Node"
-L"\r\n" L"{"
-L"\r\n" L"\tNode[] items;"
-L"\r\n" L"}"
-L"\r\n" L""
-L"\r\n" L"class ObjectField:Node"
-L"\r\n" L"{"
-L"\r\n" L"\ttoken name(JsonUnescapingString)\t\t\t\t@Color(\"AttName\");"
-L"\r\n" L"\tNode value;"
-L"\r\n" L"}"
-L"\r\n" L""
-L"\r\n" L"class Object:Node"
-L"\r\n" L"{"
-L"\r\n" L"\tObjectField[] fields;"
-L"\r\n" L"}"
-L"\r\n" L""
-L"\r\n" L"token TRUEVALUE = \"true\"\t\t\t\t\t\t\t@Color(\"Keyword\");"
-L"\r\n" L"token FALSEVALUE = \"false\"\t\t\t\t\t\t\t@Color(\"Keyword\");"
-L"\r\n" L"token NULLVALUE = \"null\"\t\t\t\t\t\t\t@Color(\"Keyword\");"
-L"\r\n" L"token OBJOPEN = \"\\{\"\t\t\t\t\t\t\t\t@Color(\"Boundary\");"
-L"\r\n" L"token OBJCLOSE = \"\\}\"\t\t\t\t\t\t\t\t@Color(\"Boundary\");"
-L"\r\n" L"token ARROPEN = \"\\[\"\t\t\t\t\t\t\t\t@Color(\"Boundary\");"
-L"\r\n" L"token ARRCLOSE = \"\\]\"\t\t\t\t\t\t\t\t@Color(\"Boundary\");"
-L"\r\n" L"token COMMA = \",\";"
-L"\r\n" L"token COLON = \":\";"
-L"\r\n" L"token NUMBER = \"[\\-]?\\d+(.\\d+)?([eE][+\\-]?\\d+)?\"\t@Color(\"Number\");"
-L"\r\n" L"token STRING = \"\"\"([^\\\\\"\"]|\\\\[^u]|\\\\u\\d{4})*\"\"\"\t\t@ContextColor();"
-L"\r\n" L""
-L"\r\n" L"discardtoken SPACE = \"\\s+\";"
-L"\r\n" L""
-L"\r\n" L"rule Node JLiteral"
-L"\r\n" L"\t= STRING:content as String"
-L"\r\n" L"\t= NUMBER:content as Number"
-L"\r\n" L"\t= \"true\" as Literal with {value = \"True\"}"
-L"\r\n" L"\t= \"false\" as Literal with {value = \"False\"}"
-L"\r\n" L"\t= \"null\" as Literal with {value = \"Null\"}"
-L"\r\n" L"\t;"
-L"\r\n" L""
-L"\r\n" L"rule ObjectField JField"
-L"\r\n" L"\t= STRING:name \":\" JValue:value as ObjectField"
-L"\r\n" L"\t;"
-L"\r\n" L""
-L"\r\n" L"rule Object JObject"
-L"\r\n" L"\t= \"{\" [JField:fields {\",\" JField:fields} ] \"}\" as Object"
-L"\r\n" L"\t;"
-L"\r\n" L""
-L"\r\n" L"rule Array JArray"
-L"\r\n" L"\t= \"[\" [JValue:items {\",\" JValue:items} ] \"]\" as Array"
-L"\r\n" L"\t;"
-L"\r\n" L""
-L"\r\n" L"rule Node JValue"
-L"\r\n" L"\t= !JLiteral"
-L"\r\n" L"\t= !JObject"
-L"\r\n" L"\t= !JArray"
-L"\r\n" L"\t;"
-L"\r\n" L""
-L"\r\n" L"rule Node JRoot"
-L"\r\n" L"\t= !JObject"
-L"\r\n" L"\t= !JArray"
-L"\r\n" L"\t;"
-;
-
-			vl::WString JsonGetParserTextBuffer()
+			WaitableData(HANDLE _handle)
+				:handle(_handle)
 			{
-				return parserTextBuffer;
 			}
+		};
+	}
 
-/***********************************************************************
-SerializedTable
-***********************************************************************/
+	WaitableObject::WaitableObject()
+		:waitableData(0)
+	{
+	}
 
-const vint parserBufferLength = 4034; // 15032 bytes before compressing
-const vint parserBufferBlock = 1024;
-const vint parserBufferRemain = 962;
-const vint parserBufferRows = 4;
-const char* parserBuffer[] = {
-"\x00\x0B\x00\x02\x9F\x71\x02\x80\x01\x7F\x05\x06\x83\x20\x0F\x30\x00\x36\x86\x00\x72\x00\x05\x82\x86\x02\x83\x29\x00\x74\x11\x80\x09\x30\x02\x36\x00\x67\x07\x94\x87\x89\x82\x83\x85\x86\x0F\x8D\x92\x83\x97\x06\x81\x21\x8C\x30\xCE\x00\x01\x30\x05\x34\x01\x32\x22\x86\x88\x8A\x80\x89\x97\x8C\x96\x06\xCB\x37\x80\x09\x38\x03\x3A\x88\x12\xE4\x39\x83\x85\x90\x03\x92\x87\x48\x93\x86\x8D\x92\x82\xA0\x9D\xA2\x47\xAA\x80\x0A\xA4\x82\x9D\xA7\xA7\x3E\xAB\x93\xA1\xA3\xA0\xAD\xA8\xAE\x23\xBB\xA6\x9D\x91\xAB\x90\x04\x83\x42\x10\xB5\x3E\x8B\xAB\x9B\x8D\xA2\x5D\xCC\xBC\x88\x9D\xB6\x83\xB6\x81\x71\x8D\xB3\xBF\x8A\xA4\x9A\x88\xBC\x69\xDF\xAC\xBA\xAE\xB0\xBA\xB8\xBA\x85\xF7\x8B\xA4\x9B\xB8\xA8\xC6\xBF\x8E\x82\xD0\xD6\xB7\xC3\xCA\xB4\xA7\x8B\xBF\x86\x96\x82\x82\x9B\xB8\x9B\x62\x43\x92\x99\xB7\x84\x05\xCB\x8F\x1A\xB8\xB8\x30\x90\xB1\xAA\x82\x00\x54\x80\x0D\xAF\x92\x8A\x88\x9A\xBC\xFF\x41\xF9\xCC\x2C\x88\x98\x9C\xDF\x50\xC1\xC1\xE4\x06\x82\x99\x86\xA5\x38\xCA\xFF\x64\xD0\x06\xD1\x9A\x00\xA9\xC7\xC7\x8A\xE4\xEF\x24\xEC\x00\x6A\x43\xA3\x30\x92\xE9\x82\x80\xEF\xA9\xE1\xF8\x83\xFA\x8E\x21\xE2\x9C\x0F\xDC\x9C\xF7\x80\x9A\x89\x8F\x8F\x21\xD2\xF9\xDB\xDB\x88\xE5\xA3\xA6\x1D\x71\x67\x77\x1C\xDB\x42\x76\x40\x71\x01\xAA\x66\x5F\x43\x4D\x76\x1B\x80\x00\x73\x51\x73\x7D\x69\x10\x97\x79\x77\x46\xB9\x63\x7D\x40\x6C\x43\x5C\x82\x75\x77\xDF\x6A\x70\x00\x7B\x00\x14\x76\x1B\x7B\x50\x4A\x54\x81\x79\x06\x68\x70\x7A\x78\x30\x6E\x7D\x44\x7C\x75\x4C\x72\x43\x47\x34\x76\x48\x4F\x48\xE6\x40\x0E\x8A\x88\x24\xB2\x83\x51\x7C\xBA\x46\x4E\x80\x4D\x0F\x51\x85\x83\x74\xF4\x5A\x46\x7C\x5D\x21\x59\x80\x44\x87\x38\x5C\x87\x6F\x03\x06\x64\x06\x40\x96\xB7\x5D\x9B\x92\x74\x5E\x83\x42\x76\x72\x61\x9F\x94\x99\x98\x63\x8A\x79\x02\x41\x54\x00\x02\x14\x00\x55\x00\x05\x10\x00\x56\x00\x0F\x48\x71\x71\xB3\x96\x8D\x7D\x15\xB8\x47\x6E\x00\x06\x4A\x06\x42\x7B\x77\x80\x08\x47\x9C\x75\x85\xA9\x9D\x91\x02\x67\x88\x90\x00\x04\xBB\x86\x43\x00\x06\x6B\x94\x85\x9C\xC4\x44\x79\xA0\x00\x78\xB2\x90\x03\x9E\x1F\x73\x5F\x43\x43\x80\x82\x4B\x9D\x6E\xDE\x71\x5A\x12\x8F\x00\x10\x1E\xA6\x4C\xA5\x80\x0C\x14\x00\x7B\x00\x04\xA6\x40\x4D\x7F\x5C\xAA\xAA\xA0\x44\x7E\x77\xA1\x00\x31\xA3\xAD\x1F\x9F\xA3\x63\x5A\x40\x2F\x6F\x9F\x9A\x77\xAE\xB3\x90\xAE\x41\xB3\x9B\x1C\xA0\x6E\x98\x48\xBE\x9B\xB5\x0B\x7E\xA6\xA2\xA7\xC2\x80\x0D\x15\x89\xD5\x93\xBB\x42\x77\x4D\x00\x05\xBB\x4B\x23\x6C\x04\xB6\x98\xC1\x4A\x6E\x76\xB6\x32\x63\x4A\x0C\x00\xBA\x9F\x8D\x70\x9C\xE6\x80\x01\x5F\x9C\x6F\x9F\x06\x42\xB4\xB3\xAD\x0E\xB4\x00\x3F\x32\xA5\x5F\x0A\x00\x28\x00\x02\x0B\x06\xCA\x58\xC1\x0A\x04\xC9\xC0\x02\xB4\x38\x73\x9F\xB6\xB4\x08\xC1\xC3\xC1\xC1\xB3\x8E\xC0\x00\xC4\x05\xD6\xA0\x02\xC8\xD4\x58\x4D\x9B\x9B\x49\x15\x70\x03\x11\x00\x1B\x06\x42\x08\x12\xD2\xBE\x16\xC1\xB3\xB0\xCF\xB4\x1F\x34\xD3\xC0\x03\xCC\x73\x77\xC9\xCF\x5C\x1D\xF4\xA0\x00\x0D\x00\x04\xB0\xC6\x0A\x00\x30\xC2\xA2\x40\x4B\xD2\x58\xAC\x7D\xAE\xAF\x4B\x43\x9C\xB7\x86\xC4\x80\xC2\x3D\x92\x7A\x96\x40\xBA\xAB\xA8\x82\x71\x1B\x4F\xA2\x06\x41\x5E\xC5\x72\x80\x72\x0F\x4C\xCF\x99\x43\x0D\x5A\x48\x46\x46\x86\x70\x4D\x02\x41\x40\x00\x00\x08\x00\x5A\xBC\x00\x01\xD9\x09\x9A\x7F\xA2\x0F\xF4\xA4\xDC\xA6\xD9\x0A\x8F\xAE\x02\xE0\x5F\xE7\xDF\x80\xC3\x6F\xDC\x60\x4E\x6B\x02\x75\xD7\xDE\xDE\x7C\xE0\xD8\xD8\x00\x80\xDD\xD3\xE1\xDF\x61\xD0\x5D\xD1\xE5\x8A\xCF\xAC\xC1\x0C\x00\x3A\x36\x40\xE5\x9B\xD6\xEF\x80\xE0\xF3\xB7\xD0\xCD\xA8\x50\x4F\x40\xCF\xDD\x34\x44\x87\xDD\xE2\x85\xD0\x52\xE6\x51\x84\xE8\x16\xDE\xD0\x77\xC7\x90\x56\x92\x77\xFD\x0F\xEC\xCC\xD6\x63\xA9\xD3\xEF\xC4\xB3\xD2\xA0\xEA\xB8\xFE\xD0\x54\xEB\xC7\xC0\x0E\xA0\x54\x91\x8B\xF4\xEC\xA4\xBF\xD1\xFD\xE7\x43\xBB\xC7\x59\x82\xEF\x77\xF5\xA1\xF3\x83\xC4\xC0\x06\xF2\xEB\x00\x2E\x7F\xA1\xF6\xB3\xC5\xD0\x02\xF3\x00\x10\xF4\xE2\xF4\x0F\x54\xF7\xDE\x4C\x71\xA5\xBB\xBF\xB5\x77\x6D\x77\x88\x53\x40\x6C\x0E\x5B\x7E\x76\x2A\x67\x37\x77\x5A\x35\x6E\xFA\x76\x7C\x73\x97\x7A\x7F\xF2\x4E\x4D\x4E\xED\x76\x28\x81\xDE\x77\x71\xF8\x3D\x7F\x76\xF3\x40\x02\x78\x49\x43\x29\xF1\x55\x7D\x4C\x89\x0A\x49\x7E\xCD\x60\x03\xF3\x7B\x69\x75\xD0\x53\x78\x00\x02\x86\x67\xB5\x29\x62\x26\x96\x41\x87\x77\x1A\x54\x2E\x80\x06\x87\x83\xDF\x4D\x77\x49\xF8\x20\x01\xDD\x1A\x79\x83",
-"\x07\x50\x00\x71\xF7\x7F\x7B\xC2\x57\x5C\x6C\x98\x33\x4C\x30\xF3\x79\x49\xFD\x2C\x85\x89\xBF\x7F\x75\x6E\xD4\x2B\x55\x9D\x0F\x5A\x48\xCD\x5B\x8B\x78\x43\x23\x76\xFA\x27\x7C\x85\x2F\xA1\x80\x27\x12\x81\x04\x15\xC9\x8A\x83\x28\xAB\x82\x8B\xE8\x63\x29\x1A\xAC\x8F\x46\x18\x5A\x25\x81\x2A\x93\x88\x1C\xDC\x82\x8E\x18\xBF\x72\x8D\xAB\x5C\x35\xE7\x45\x28\x8A\xC1\x42\x96\x3F\x81\x62\x21\x20\xFD\x36\x2F\xA2\x0C\x65\x06\x00\x0C\x10\x19\x8B\x9D\x37\x46\x98\x76\x8F\xEC\x72\x59\xFC\x52\x57\x6F\x3D\xA0\x88\x27\x37\x97\x6C\xE7\x36\x28\x81\xBA\x5E\x80\x66\xEA\x51\x7E\x27\xE7\x8F\x76\x01\xA3\x94\x7B\x77\x64\x5B\xDD\x5F\x5C\x7D\x6F\x71\x7D\x76\xBF\x67\x92\x25\x8E\x8C\x84\x5D\xBF\x37\x92\x02\x90\x66\x26\xBF\x7C\x93\x32\xB1\x88\x94\x98\x89\x88\x29\xC2\x8D\x83\xEA\x69\x97\x77\xAB\x95\x81\x28\xCA\x90\x96\xF9\x73\x95\x7A\xB6\x9F\x74\x2E\xF7\x6E\x96\xA2\x20\x5A\x91\xED\x68\x44\x91\x1A\x72\x48\x1A\x4A\x2C\x61\x33\x1E\x8E\x40\x28\x75\x9D\x14\x40\x9E\x87\x00\x07\x64\x00\x34\x8B\x65\x56\xBF\x70\x47\xD7\x28\x98\xCC\x73\x5A\x94\x3A\x47\x9E\x9E\xE7\x7C\x8C\x32\xDB\x9C\x55\xF4\x36\x89\x9C\x33\x4E\x9D\x21\xE0\x96\x8D\x0A\x87\x74\xA1\xFF\x8A\x6C\x44\x6D\x6E\x52\x28\xBD\x41\x6F\xC6\x82\xA3\x25\xF7\x6B\xA1\x5E\x8C\x97\x97\x9A\x7D\x9A\x23\x80\x02\x06\x4F\x6B\x9E\xA3\x95\x9F\x96\x04\xC2\x96\x83\x62\x91\x99\x7D\xAE\x80\x6F\x32\xE5\x7E\x98\x0B\xAF\xA2\x84\xC9\x8F\x94\x02\xB2\x93\x61\x5A\x96\x84\xA0\x22\xAC\x99\x16\xF6\x4F\xA2\x6F\xA1\xA5\xA8\x23\xA9\x9F\x9C\x27\xA4\x93\x41\xAF\x99\x93\x2D\xB0\x9A\x3F\x9A\xA3\x9A\x9D\x8D\x9C\x7D\xCF\x9B\x77\x4D\xC8\x91\xA6\x01\x73\xA6\x9A\x3D\xAB\x79\x36\x87\x89\x96\xA4\xAB\x5C\x8E\x21\x47\xA2\xC8\x2B\x55\x8F\xF5\x30\x27\x91\x00\x14\x13\x24\x85\xAF\x44\xB7\x9A\x23\xA5\x42\x7B\x92\x54\xED\x94\x49\x69\xA7\x41\xA1\x44\x45\x94\xF0\x4B\x7F\x99\x4E\x88\xA3\x48\x75\x3E\xAE\x38\xF5\x2B\xA7\xDF\x74\x93\x79\xC4\x57\x95\x35\xED\xA3\x80\x8D\x3C\x94\xAD\x69\xB6\xAF\x53\xCB\x75\x56\xBD\x86\xB4\xAF\x89\xA9\x9B\x5F\x88\xBA\x44\x66\xB4\xA0\xAB\x36\xA7\xB2\x39\x80\xA6\x7B\xC5\xA5\xB1\x96\x8E\xB5\x79\x64\xDA\x93\xB3\xCC\x95\xB7\x9B\x2C\x80\xB6\x52\x0F\xA9\xB6\xD7\x8B\x8B\x6D\x10\x3A\x23\x13\xF5\x27\xA2\x3D\xAA\xB6\x9D\x80\x7C\xA0\x6E\xCD\xA8\x90\xDE\x8C\xBE\x92\x12\xAD\x8A\x70\x9B\x35\xB8\xD4\x41\xA9\xB9\xCC\x8D\x2B\xAA\x40\xB4\xA3\xDC\x1B\xBB\xA2\x6F\xA0\x00\xE9\x25\x03\xAE\xEE\xB0\x23\x8E\xCF\xBF\x94\x1E\xEF\x8C\x89\xE0\x9B\xB0\x90\x74\xA0\x48\x4C\x75\x6E\xBB\xF8\xAA\xAA\x70\x94\xA4\x46\x18\xA9\x6C\xA8\xFB\x9A\xB0\xAF\x9D\xA6\xB6\xCE\x1F\xBE\xB6\xC5\x80\xB4\xB1\x57\xA4\xB1\x6A\xBA\xBC\xB5\xD1\xAB\xB5\xB1\xD7\x8C\x7F\x6C\xE4\xA7\x6F\xFC\xB0\x23\xA8\x41\xA7\xA9\x4A\xDE\x92\x8D\xA5\x86\xBF\xBA\xC9\x8C\xA4\xCC\x3B\x7E\xA5\xA9\x9F\x94\xB5\x56\xA7\xB6\x82\xFD\x9D\xA0\x98\xBF\x71\xC5\x60\xAF\xB2\xCD\x3F\xA5\x9B\xA0\xB5\xBE\xC2\x1A\x2B\xAE\x7F\xB7\xBC\x61\x92\xBC\xBE\xB8\x38\xDB\xB0\xCC\x01\xC7\x6F\x12\xCC\xC6\xC0\xA4\xB5\x9B\x29\x80\x05\xB1\xDE\x87\xC2\x29\x48\xCF\xC0\xF3\x31\xB2\xC2\x1A\xC8\x81\xC8\xF4\xB8\xBE\x6D\xA4\x4A\xC7\x20\xE8\x9B\x9E\x73\xA1\xC8\x80\xD1\xA4\xC1\x27\xCD\xC6\xB7\x08\x8B\xC9\x56\xFB\xA5\xC0\xD1\xA8\xCB\xCA\x11\xD0\xB2\x95\xBF\x71\xC8\xED\xAD\xBC\xA2\x73\x60\x9E\x79\x9A\x21\xBA\xF7\x83\xBA\x29\x4D\x78\xA3\x77\xD2\xBB\xA2\xA1\x82\x74\xC1\xE4\x9E\xB6\x18\xF3\x5D\xBE\x06\xD2\x82\x86\x28\x6A\x66\x0D\xC9\x98\x9E\x1D\x42\xC3\x9F\xA9\xAD\xC4\x4E\x82\x80\x84\x69\xBD\x85\xC2\x5B\xD1\x46\x6F\xB7\xC1\xD4\x8D\x1C\x48\xAD\x06\xBA\xB1\x9F\x94\xAF\xCE\x00\x10\x70\x6F\x40\xC5\xD5\xA1\x9D\xAB\x54\x44\xC7\xD2\xD1\x24\xAA\x9E\x71\x8E\xD9\x98\x48\xE0\xCD\x86\xAC\xB5\xD0\x4E\x98\xD3\xC4\xA9\x9A\xD4\xAB\xBF\x7D\xD1\xFA\x04\xA1\xC8\x06\xE4\xD1\xD5\xB7\xB1\x02\x96\xD0\xDA\xBF\x3B\xF0\x25\x71\x71\x7A\x23\xAB\xBB\x72\xD1\x1D\xE4\x40\x70\xCF\xD5\xAF\x6D\xF9\xC8\xD4\x71\xD5\xD8\xDB\x1B\x3A\x21\x8F\x3B\x78\x74\x31\xCB\xBC\xA8\x1B\xC5\x2B\x11\xE0\x91\xA9\x55\xD7\xD8\x26\xD9\xC0\x20\xDD\x3F\x7D\xDA\x10\xD8\xC6\xAC\xAF\xC9\xBC\x87\xDB\x50\x6F\x74\xF9\x89\x72\xBF\x76\xBA\x59\x80\x73\xA8\x06\xF3\xDE\xC9\x49\xD6\xDE\xDB\x78\xD6\xE1\x75\xFC\xDB\xD7\xBE\xAC\xE3\xAD\xE6\xC1\xE1\xE3\x84\x4C\x71\x14\xF2\x22\x46\x4D\x6C\xDC\x88\xEB\xB2\xE3\x10\xBA\xA3\xC3\xDB\xAF\xB6\xF0",
-"\x93\xE5\xE0\x22\xFA\xDC\xC2\xF7\x6D\xDB\x63\xD7\x93\xA8\x36\xFD\xE2\xCD\xA0\xE0\xE6\x98\x24\xE1\xE1\x19\xA7\xC4\xE0\x76\xCB\xCE\x00\x27\xD3\xD0\xEE\xB2\xE0\xC1\x8E\x73\xE5\x7D\xF4\xE6\xB8\x45\xE3\xEA\xE0\x45\xED\x46\xA4\xD4\xA4\xE7\x4C\xE3\x66\xD3\xD0\xEE\xE5\x4B\x84\x8C\x8D\x0F\x5F\x71\x0B\xB9\x79\x6D\x5C\xE6\x75\xBF\x55\x8F\x85\x30\xF4\x22\x54\xA8\x12\xB0\x83\x60\xEF\x53\xDD\x62\x70\x26\xF2\x43\xB2\xD9\x38\xAB\x7F\xF2\x49\x7E\xED\x29\xEB\xBE\xB8\x69\xF9\x7D\x88\xAD\xBF\x7D\xA1\x2F\xED\x7B\x71\xF0\x2B\xDC\x9C\x8A\xC4\xBC\xC8\x9A\xEF\x30\x6E\x7C\xF6\x06\xFE\xEE\x37\x80\xF1\xF1\x82\xE2\x80\xFF\x79\x5F\x7F\x37\x53\x99\x87\x54\x5A\x84\x6D\x88\x86\x3A\xD4\x0A\x47\xEF\x0F\x8A\x76\x15\xEB\xE4\x83\x13\xA3\xF0\xF1\x10\x8F\x43\xE2\xE3\x79\xC0\xC7\xFF\x70\xF2\xF1\x9B\x22\xEB\xB0\xB8\xF5\x35\xB1\xF3\xF5\xF0\x92\x9C\x3D\x93\xD2\x80\xD0\xC5\x80\x26\x14\xCB\xE8\x10\xA0\x2C\x99\x70\xF2\xB9\xC7\xD3\xC6\xDD\x78\xC4\x6F\xC7\x76\xF2\xD3\xCC\x9E\xA6\xE6\x3B\xD1\xCE\x9D\x34\xF5\xA5\x9F\x47\xCE\xCE\x99\x90\xC1\xAC\x98\x53\xC7\xD3\xDE\xD3\xBF\xBB\x99\xC6\x90\xB3\x8C\x64\x68\x1E\xCA\xE1\xBC\xC2\xCA\x67\xEC\xEC\xE5\xAA\x32\xAA\xCB\xF7\xC6\xDF\x9E\xFC\xDE\xAD\x9A\x3C\x52\x63\x03\x37\x78\xDC\x46\x56\xB4\x6E\x71\x75\x19\x68\x66\x6F\x7E\xBA\x6C\x4E\x19\x7D\x6B\xB9\x71\x69\xC0\x63\x4D\xC2\x6A\x4F\x7E\x4C\x62\xFD\x79\x4C\xB6\x79\x7C\xCD\x6E\x5B\x1D\x5F\x75\xBF\x70\x15\x7B\x2E\x1C\x75\x1E\x27\x68\x2A\x1C\xCE\x77\x50\x20\x24\x6D\x30\x17\x1B\x16\x0A\x13\x13\x28\x52\x4E\x5C\x1F\xF3\x77\x1B\x18\x00\x83\xC1\x1D\x70\xBE\x5D\x23\x1D\x86\x66\xB7\x1A\x01\x38\x8C\x24\x29\x77\x62\x23\x80\x11\xD0\x1D\x25\x1C\x01\x84\x44\x7D\x75\x45\x8F\x1C\x43\x17\x1B\x1E\x01\x84\x1C\x05\x2A\xAC\x1F\x0F\xB7\x13\x12\x65\x29\x85\x5A\x8A\x13\x69\x1B\x27\xB1\x25\x26\xB1\x2B\x27\xB7\x1D\x20\xFF\x4B\x27\x25\x45\x41\x20\x8A\x7A\x50\x15\x26\xC3\x18\x79\x5D\x29\x86\x2E\x4F\x10\x55\x8D\x14\x5F\x81\x26\x61\x81\x26\x64\x8A\x51\x4D\x12\x79\x0F\x19\x3D\x70\x84\x76\x59\x8D\x86\x21\x8F\x10\xB7\x1F\x87\xF8\x3E\x19\xD4\x15\x87\x5E\x27\x87\x5E\x29\x87\x44\x87\x2F\x6D\x7F\x10\x86\x8A\x44\x6C\x87\x20\x6E\x85\x88\x48\x43\x88\x68\x29\x16\xE4\x6A\x88\x5D\x21\x2B\x58\x87\x2C\x03\x4B\x21\xC7\x7A\x11\x98\x80\x4E\x81\x79\x85\xD4\x15\x7A\x0B\x4B\x11\xA7\x8E\x7B\x6A\x82\x87\x69\x1C\x5B\x9E\x8F\x27\x06\x11\x8A\x02\x12\x25\xA4\x8B\x43\x2D\x81\x2E\xA0\x30\x88\x65\x25\x32\x7C\x27\x1F\xCC\x7F\x8A\xBF\x87\x88\x9E\x13\x12\x55\x3B\x85\x9E\x1C\x88\x5D\x23\x12\x1D\x06\x10\xB1\x24\x1D\xD1\x8A\x85\x93\x87\x39\xCB\x8B\x85\x38\x7F\x4F\xCC\x8D\x8D\x5C\x8F\x8D\xB9\x8E\x8D\x07\x15\x35\xFF\x03\x8D\x61\x23\x12\x15\x02\x8D\xC6\x22\x10\xE9\x8A\x85\xDB\x8A\x51\xB8\x83\x2D\xB6\x77\x1B\x3A\x86\x66\xE5\x86\x10\x4D\x17\x85\x5B\x2A\x8E\x15\x1B\x8F\xEE\x82\x38\x36\x7E\x89\x00\x29\x7F\x04\x24\x8F\xED\x73\x7F\xF7\x8F\x34\x5E\x23\x12\x22\x36\x8E\x02\x12\x32\xC1\x80\x90\xFF\x42\x90\x06\x16\x55\x06\x94\x6F\x66\x52\x8E\x9B\x8A\x13\x4D\x3A\x2B\xCC\x85\x85\x3D\x20\x91\xE2\x85\x85\x3C\x2B\x85\xF1\x87\x1B\x3C\x82\x6B\x0C\x67\x91\xDA\x74\x24\x09\x97\x10\xB1\x2D\x34\xFA\x82\x10\xD2\x62\x10\xD9\x8E\x25\x29\x9C\x82\xED\x1E\x5B\x2C\x95\x6B\xBE\x54\x1D\x35\x9A\x8A\x1B\x79\x64\x9E\x86\x22\x6F\x67\x1B\x29\x8A\x59\x2F\x92\x93\xB7\x86\x10\xBC\x57\x93\x5D\x29\x93\xD2\x7B\x93\x3E\x8B\x8E\x2D\x95\x17\xD4\x1C\x5B\x11\x90\x4E\x0C\x65\x94\x06\x1E\x60\xDD\x7D\x25\x49\x97\x5B\x1A\x9F\x91\x69\x13\x12\xAF\x65\x26\x27\x98\x8F\x2E\x19\x91\x56\x92\x70\x78\x11\x2B\x2F\x94\x6E\x33\x90\x00\xFE\x26\x93\x5B\x84\x83\x4E\x5D\x93\xF0\x6E\x54\xD4\x17\x97\x42\x98\x91\xF3\x70\x95\x65\x2B\x84\x84\x6F\x92\x62\x8D\x94\x02\x15\x8D\xB6\x29\x97\x6D\x95\x83\x6F\x9D\x97\x88\x44\x8D\xDA\x87\x90\x4E\x54\x98\x61\x2F\x8E\x27\x6A\x91\x55\x8E\x85\x5B\x8B\x27\x4D\x12\x92\x5E\x2F\x6F\xF3\x7D\x14\x8C\x9B\x95\x41\x7C\x4A\x89\x9A\x90\x1F\x45\x86\x6C\x2A\x7B\x43\x17\x8D\x0F\x25\x89\x02\x19\x8A\xC6\x83\x76\x87\x83\x87\xFC\x89\x85\xA0\x95\x29\x95\x92\x98\x33\x86\x10\xA7\x99\x99\x12\x9A\x51\xAB\x92\x8F\xFF\x4B\x87\x0F\x2E\x87\x99\x81\x8B\x81\x86\x89\x9A\x87\x9B\xA9\x85\x85\x89\x8F\x99\x6C\x9F\x90\xBF\x92\x83\x88\x46\x9A\xD9\x9C\x72\xC7\x9E\x88\xAA\x90\x89\xB1\x39\x48\xB0\x81\x87\xCF\x95\x9B\x97\x8E\x8B",
-"\xB8\x9A\x44\x55\x89\x1B\x5A\x96\x87\xD7\x9A\x75\xFF\x80\x9C\xDB\x92\x9C\xDD\x96\x62\xAC\x4E\x19\x22\x37\x6A\x60\x81\x9F\xA2\x9D\x25\xA4\x91\x9C\x8B\x97\x9F\x36\x70\x8E\x07\x1D\x89\xD6\x9C\x9A\xFF\x9C\x97\x41\x5C\x9D\xF3\x99\x9A\x15\x41\x8F\xBA\x82\x7A\x55\x2D\x8B\x5C\x3D\x9C\xE6\x98\x9A\xAC\x87\x21\x12\x12\x9D\x6E\x85\x85\xB4\x89\xA0\xD3\x2B\xA0\x91\x9D\xA0\xF6\x9F\xA0\x2C\x72\xA1\x06\x16\x7C\xBC\x86\x8A\xEA\x96\x9B\xC4\x92\x10\x3F\x45\x1C\x41\x4E\xA1\xD1\x9B\x91\x03\x1A\x2B\x0F\x7E\x8D\x20\x96\x10\x41\x95\x96\x40\xAB\x85\x24\x96\x10\x63\x31\xA4\x9C\x99\x16\x3A\xA6\xA4\x20\xA6\x10\x13\x0B\x85\xB1\x2D\x14\xEF\x9E\x25\x63\x94\x22\xF1\x80\x2A\x76\x16\x69\x7C\x9B\x92\x06\xAF\x0F\x9E\x9A\x85\xBD\x92\x10\xFC\x91\xA3\xDA\x96\x49\x0E\xA1\x98\x10\xAA\x24\xDF\x96\x24\xAE\x92\x10\x67\x8D\x45\x18\xA0\x8C\x61\x22\x88\xCE\x96\xA3\xCE\x9A\x9B\x02\x15\x8B\x06\x1F\xA5\x46\x77\x9F\x26\xA3\xA0\x28\xA8\x9F\x15\x49\xA6\x02\x16\x7B\xCA\x95\x78\x38\x12\x9B\x8F\x24\x9B\xEB\x97\x39\x74\xA6\x9E\xD4\x9B\x9B\x65\x2A\xA7\x61\xA3\x9A\x96\x95\x9F\x7E\xA6\xA6\xDE\x98\x87\x6A\xA6\x9C\xE2\x9A\x3C\x88\xAB\x86\x71\xA0\x9D\x73\xAF\xA2\x1F\xA9\x16\xEE\x9E\xA4\xF1\x93\xA9\x00\xA5\xA9\x64\xA7\xA2\x98\xA0\xA8\x4A\x2A\x9F\xFE\x89\x85\x4F\xA3\xAB\xA8\x90\x97\xD3\x23\x9C\x94\xA3\x84\xAC\x45\x85\x1D\x95\x96\x55\x88\xA0\x5E\xA9\xAA\x7C\xA6\x56\x65\xA7\xAB\xB0\xA3\x14\x2A\xA2\x10\x2C\xAD\x21\x16\xA4\x9E\xC7\x84\x89\x62\xAB\xA1\x0A\x2D\xA8\x80\x8B\xA4\x77\xA2\xA2\x4D\x1A\xAA\x0C\xA6\xAC\xAE\xA8\xAC\x36\x7B\xAC\xA3\x84\xA1\xA2\x76\xAD\xC8\x82\xA6\x33\xA4\x8C\x21\x16\xAE\x94\x83\xA4\x02\x14\x01\x26\x99\x9D\x41\x68\x94\xD1\x7F\x7C\x30\x9A\x13\xB1\x24\x97\x8A\x96\x97\x93\x22\xAF\xB2\x64\xAF\xE0\x41\x64\x7F\x9B\x85\x53\xA0\x13\x98\x9D\x88\x53\x7D\x75\x88\x97\x8E\xAE\xA7\xB0\xB8\x53\xAF\xA2\x88\x59\x3A\x98\x5B\xBA\xA2\x96\xF5\xA7\x50\x0E\xBC\x97\x05\xA6\xA4\x5D\x28\xAD\x00\x0D\xA4\x5A\x85\xAB\x34\x94\xB0\x17\xBA\x59\x55\xA6\x10\x15\x8B\xAA\x5C\x9C\x93\x1C\xBD\xB1\x69\x1F\x6A\xED\x8D\xB2\x66\x9A\x13\x5D\xAC\x9B\xF1\x91\xB3\xC8\xAC\x60\xC7\xA2\xA6\x99\xA8\xB0\x83\xAB\xA6\xB9\x76\x42\xB1\x9F\xA6\xE7\xA2\xA5\xA2\xA9\xA1\xA4\xAA\x89\x76\xA1\x2C\xDA\xA6\x10\x38\xBC\xB3\x08\x8A\x14\x3B\xBB\xAB\x67\xA3\x14\x82\xAD\x9A\x7A\x83\x28\xCB\x93\xB4\xA8\x89\x9E\x46\xB8\x9E\x37\xA7\xA1\x5D\xBA\xB4\x69\x15\x9D\xC3\xAC\x9A\x4F\xB4\xB5\x3E\x96\x66\x53\xBA\xB2\x55\xB8\x13\x57\xB6\x7B\x45\x81\x89\xD0\xAB\xA8\xB3\x91\xAA\x60\xB3\xAA\x62\xB5\x9E\xD7\xA6\xAA\x4E\x98\xAA\x68\xB7\x9F\x3A\xBF\xAD\x50\xB5\xA0\x55\x8B\x9F\x80\xB3\x2D\x69\xBE\xB6\x6B\xB9\x64\x6D\xBA\xB1\xDC\x83\x10\x9C\x80\xA9\x61\x2A\xA7\x8B\xB9\xA5\xBE\x5F\xB8\x91\x91\xAE\x78\xB3\xAE\xA1\x76\x25\x49\xBA\xB7\x6E\xB4\xAD\xDA\x1C\xAE\x97\x3E\xB1\x78\xA6\x2A\x37\xB2\xB8\x99\xB4\xB8\x6A\xB9\xAC\x92\x2F\xB5\x9E\xB5\x8A\x6F\x84\xB4\xD2\xA4\xB5\xE9\xA0\x25\xB5\xB3\xB6\x75\xA9\x16\xB7\x17\x01\x32\xBD\x8D\xED\x9F\xB7\x1C\xB5\x85\xB7\x19\x01\xC1\xBC\xA3\x69\x18\xB8\x41\xA6\xBC\x06\x1E\x32\xC9\xB0\xAC\xB3\x8C\xA4\xF1\xA2\x10\x27\xB7\x23\x57\xAF\x84\x91\x9C\x60\xCE\xB7\xA9\xD1\xB7\x1B\x9D\x94\xB9\x5E\x25\x35\x9A\xBD\x8F\xBC\xA1\xA8\x9A\xAF\xB3\x9C\xAC\xA6\xB0\x97\xA8\xB6\xBC\xA8\x9D\xB0\xA3\x7B\xB1\xAD\xA7\xB9\x18\xE2\xBD\x25\xE4\xBE\xBA\x8C\xB0\xBB\xC5\x2E\xB3\x58\xB7\x62\x85\xA3\x79\xEE\xBC\xBB\x48\xB2\xBB\xF2\xB5\xB7\xD3\x95\xB6\xF7\xB7\x1B\xF9\xBE\xBD\x85\xB0\xB4\x63\x8B\xA9\x8F\x84\x21\x74\xBF\xA9\x84\x81\xBF\x5E\xB8\xC0\xA5\xAA\x13\xA7\xAA\x85\x23\x15\xBE\xEF\x66\xB8\xCB\xB6\xAB\x0C\xBC\x9A\x15\xB0\xB9\x1A\x5B\xA5\xC2\xA9\x85\x0D\xC0\x00\x27\xCB\xB9\xFF\x42\xAE\xCD\xA5\xA1\x2E\xA3\xBF\x76\xB9\xA8\xD3\xA5\x21\xA6\x75\xBA\xA1\xBE\xA8\xD3\xB9\xAD\x5A\x8D\xC2\x2F\xC6\xBE\x6F\xBE\x34\x16\xBC\xAC\x04\x4D\xA2\xBB\xBC\xB7\x45\xBE\xB6\xB9\xB5\xA3\x3D\xCD\xB7\x3A\x17\x1B\x80\x9F\xBD\x5E\x23\xBC\x02\x11\xA5\xCF\x81\x9F\x55\xC9\xBE\x2C\x45\x74\xB2\xA0\xA6\xD5\xB3\x2D\x5D\xCE\xBF\x56\x7F\xAC\x56\xC9\xC6\xB7\x10",
-};
+	void WaitableObject::SetData(threading_internal::WaitableData* data)
+	{
+		waitableData=data;
+	}
 
-			void JsonGetParserBuffer(vl::stream::MemoryStream& stream)
+	bool WaitableObject::IsCreated()
+	{
+		return waitableData!=0;
+	}
+
+	bool WaitableObject::Wait()
+	{
+		return WaitForTime(INFINITE);
+	}
+
+	bool WaitableObject::WaitForTime(vint ms)
+	{
+		if(IsCreated())
+		{
+			if(WaitForSingleObject(waitableData->handle, (DWORD)ms)==WAIT_OBJECT_0)
 			{
-				vl::stream::MemoryStream compressedStream;
-				for (vint i = 0; i < parserBufferRows; i++)
-				{
-					vint size = i == parserBufferRows - 1 ? parserBufferRemain : parserBufferBlock;
-					compressedStream.Write((void*)parserBuffer[i], size);
-				}
-				compressedStream.SeekFromBegin(0);
-				vl::stream::LzwDecoder decoder;
-				vl::stream::DecoderStream decoderStream(compressedStream, decoder);
-				vl::collections::Array<vl::vuint8_t> buffer(65536);
-				while (true)
-				{
-					vl::vint size = decoderStream.Read(&buffer[0], 65536);
-					if (size == 0) break;
-					stream.Write(&buffer[0], size);
-				}
-				stream.SeekFromBegin(0);
+				return true;
 			}
-/***********************************************************************
-Unescaping Function Foward Declarations
-***********************************************************************/
+		}
+		return false;
+	}
 
-			extern void JsonUnescapingString(vl::parsing::ParsingToken& value, const vl::collections::List<vl::regex::RegexToken>& tokens);
+	bool WaitableObject::WaitAll(WaitableObject** objects, vint count)
+	{
+		Array<HANDLE> handles(count);
+		for(vint i=0;i<count;i++)
+		{
+			handles[i]=objects[i]->waitableData->handle;
+		}
+		DWORD result=WaitForMultipleObjects((DWORD)count, &handles[0], TRUE, INFINITE);
+		return result==WAIT_OBJECT_0 || result==WAIT_ABANDONED_0;
 
-/***********************************************************************
-Parsing Tree Conversion Driver Implementation
-***********************************************************************/
+	}
 
-			class JsonTreeConverter : public vl::parsing::ParsingTreeConverter
-			{
-			public:
-				using vl::parsing::ParsingTreeConverter::SetMember;
+	bool WaitableObject::WaitAllForTime(WaitableObject** objects, vint count, vint ms)
+	{
+		Array<HANDLE> handles(count);
+		for(vint i=0;i<count;i++)
+		{
+			handles[i]=objects[i]->waitableData->handle;
+		}
+		DWORD result=WaitForMultipleObjects((DWORD)count, &handles[0], TRUE, (DWORD)ms);
+		return result==WAIT_OBJECT_0 || result==WAIT_ABANDONED_0;
+	}
 
-				bool SetMember(JsonLiteral::JsonValue& member, vl::Ptr<vl::parsing::ParsingTreeNode> node, const TokenList& tokens)
-				{
-					vl::Ptr<vl::parsing::ParsingTreeToken> token=node.Cast<vl::parsing::ParsingTreeToken>();
-					if(token)
-					{
-						if(token->GetValue()==L"True") { member=JsonLiteral::JsonValue::True; return true; }
-						else if(token->GetValue()==L"False") { member=JsonLiteral::JsonValue::False; return true; }
-						else if(token->GetValue()==L"Null") { member=JsonLiteral::JsonValue::Null; return true; }
-						else { member=JsonLiteral::JsonValue::True; return false; }
-					}
-					member=JsonLiteral::JsonValue::True;
-					return false;
-				}
-
-				void Fill(vl::Ptr<JsonNode> tree, vl::Ptr<vl::parsing::ParsingTreeObject> obj, const TokenList& tokens)
-				{
-				}
-
-				void Fill(vl::Ptr<JsonLiteral> tree, vl::Ptr<vl::parsing::ParsingTreeObject> obj, const TokenList& tokens)
-				{
-					SetMember(tree->value, obj->GetMember(L"value"), tokens);
-				}
-
-				void Fill(vl::Ptr<JsonString> tree, vl::Ptr<vl::parsing::ParsingTreeObject> obj, const TokenList& tokens)
-				{
-					if(SetMember(tree->content, obj->GetMember(L"content"), tokens))
-					{
-						JsonUnescapingString(tree->content, tokens);
-					}
-				}
-
-				void Fill(vl::Ptr<JsonNumber> tree, vl::Ptr<vl::parsing::ParsingTreeObject> obj, const TokenList& tokens)
-				{
-					SetMember(tree->content, obj->GetMember(L"content"), tokens);
-				}
-
-				void Fill(vl::Ptr<JsonArray> tree, vl::Ptr<vl::parsing::ParsingTreeObject> obj, const TokenList& tokens)
-				{
-					SetMember(tree->items, obj->GetMember(L"items"), tokens);
-				}
-
-				void Fill(vl::Ptr<JsonObjectField> tree, vl::Ptr<vl::parsing::ParsingTreeObject> obj, const TokenList& tokens)
-				{
-					if(SetMember(tree->name, obj->GetMember(L"name"), tokens))
-					{
-						JsonUnescapingString(tree->name, tokens);
-					}
-					SetMember(tree->value, obj->GetMember(L"value"), tokens);
-				}
-
-				void Fill(vl::Ptr<JsonObject> tree, vl::Ptr<vl::parsing::ParsingTreeObject> obj, const TokenList& tokens)
-				{
-					SetMember(tree->fields, obj->GetMember(L"fields"), tokens);
-				}
-
-				vl::Ptr<vl::parsing::ParsingTreeCustomBase> ConvertClass(vl::Ptr<vl::parsing::ParsingTreeObject> obj, const TokenList& tokens)override
-				{
-					if(obj->GetType()==L"Literal")
-					{
-						vl::Ptr<JsonLiteral> tree = new JsonLiteral;
-						vl::collections::CopyFrom(tree->creatorRules, obj->GetCreatorRules());
-						Fill(tree, obj, tokens);
-						Fill(tree.Cast<JsonNode>(), obj, tokens);
-						return tree;
-					}
-					else if(obj->GetType()==L"String")
-					{
-						vl::Ptr<JsonString> tree = new JsonString;
-						vl::collections::CopyFrom(tree->creatorRules, obj->GetCreatorRules());
-						Fill(tree, obj, tokens);
-						Fill(tree.Cast<JsonNode>(), obj, tokens);
-						return tree;
-					}
-					else if(obj->GetType()==L"Number")
-					{
-						vl::Ptr<JsonNumber> tree = new JsonNumber;
-						vl::collections::CopyFrom(tree->creatorRules, obj->GetCreatorRules());
-						Fill(tree, obj, tokens);
-						Fill(tree.Cast<JsonNode>(), obj, tokens);
-						return tree;
-					}
-					else if(obj->GetType()==L"Array")
-					{
-						vl::Ptr<JsonArray> tree = new JsonArray;
-						vl::collections::CopyFrom(tree->creatorRules, obj->GetCreatorRules());
-						Fill(tree, obj, tokens);
-						Fill(tree.Cast<JsonNode>(), obj, tokens);
-						return tree;
-					}
-					else if(obj->GetType()==L"ObjectField")
-					{
-						vl::Ptr<JsonObjectField> tree = new JsonObjectField;
-						vl::collections::CopyFrom(tree->creatorRules, obj->GetCreatorRules());
-						Fill(tree, obj, tokens);
-						Fill(tree.Cast<JsonNode>(), obj, tokens);
-						return tree;
-					}
-					else if(obj->GetType()==L"Object")
-					{
-						vl::Ptr<JsonObject> tree = new JsonObject;
-						vl::collections::CopyFrom(tree->creatorRules, obj->GetCreatorRules());
-						Fill(tree, obj, tokens);
-						Fill(tree.Cast<JsonNode>(), obj, tokens);
-						return tree;
-					}
-					else 
-						return 0;
-				}
-			};
-
-			vl::Ptr<vl::parsing::ParsingTreeCustomBase> JsonConvertParsingTreeNode(vl::Ptr<vl::parsing::ParsingTreeNode> node, const vl::collections::List<vl::regex::RegexToken>& tokens)
-			{
-				JsonTreeConverter converter;
-				vl::Ptr<vl::parsing::ParsingTreeCustomBase> tree;
-				converter.SetMember(tree, node, tokens);
-				return tree;
-			}
-
-/***********************************************************************
-Parsing Tree Conversion Implementation
-***********************************************************************/
-
-			vl::Ptr<JsonLiteral> JsonLiteral::Convert(vl::Ptr<vl::parsing::ParsingTreeNode> node, const vl::collections::List<vl::regex::RegexToken>& tokens)
-			{
-				return JsonConvertParsingTreeNode(node, tokens).Cast<JsonLiteral>();
-			}
-
-			vl::Ptr<JsonString> JsonString::Convert(vl::Ptr<vl::parsing::ParsingTreeNode> node, const vl::collections::List<vl::regex::RegexToken>& tokens)
-			{
-				return JsonConvertParsingTreeNode(node, tokens).Cast<JsonString>();
-			}
-
-			vl::Ptr<JsonNumber> JsonNumber::Convert(vl::Ptr<vl::parsing::ParsingTreeNode> node, const vl::collections::List<vl::regex::RegexToken>& tokens)
-			{
-				return JsonConvertParsingTreeNode(node, tokens).Cast<JsonNumber>();
-			}
-
-			vl::Ptr<JsonArray> JsonArray::Convert(vl::Ptr<vl::parsing::ParsingTreeNode> node, const vl::collections::List<vl::regex::RegexToken>& tokens)
-			{
-				return JsonConvertParsingTreeNode(node, tokens).Cast<JsonArray>();
-			}
-
-			vl::Ptr<JsonObjectField> JsonObjectField::Convert(vl::Ptr<vl::parsing::ParsingTreeNode> node, const vl::collections::List<vl::regex::RegexToken>& tokens)
-			{
-				return JsonConvertParsingTreeNode(node, tokens).Cast<JsonObjectField>();
-			}
-
-			vl::Ptr<JsonObject> JsonObject::Convert(vl::Ptr<vl::parsing::ParsingTreeNode> node, const vl::collections::List<vl::regex::RegexToken>& tokens)
-			{
-				return JsonConvertParsingTreeNode(node, tokens).Cast<JsonObject>();
-			}
-
-/***********************************************************************
-Visitor Pattern Implementation
-***********************************************************************/
-
-			void JsonLiteral::Accept(JsonNode::IVisitor* visitor)
-			{
-				visitor->Visit(this);
-			}
-
-			void JsonString::Accept(JsonNode::IVisitor* visitor)
-			{
-				visitor->Visit(this);
-			}
-
-			void JsonNumber::Accept(JsonNode::IVisitor* visitor)
-			{
-				visitor->Visit(this);
-			}
-
-			void JsonArray::Accept(JsonNode::IVisitor* visitor)
-			{
-				visitor->Visit(this);
-			}
-
-			void JsonObjectField::Accept(JsonNode::IVisitor* visitor)
-			{
-				visitor->Visit(this);
-			}
-
-			void JsonObject::Accept(JsonNode::IVisitor* visitor)
-			{
-				visitor->Visit(this);
-			}
-
-/***********************************************************************
-Parser Function
-***********************************************************************/
-
-			vl::Ptr<vl::parsing::ParsingTreeNode> JsonParseAsParsingTreeNode(const vl::WString& input, vl::Ptr<vl::parsing::tabling::ParsingTable> table, vl::collections::List<vl::Ptr<vl::parsing::ParsingError>>& errors, vl::vint codeIndex)
-			{
-				vl::parsing::tabling::ParsingState state(input, table, codeIndex);
-				state.Reset(L"JRoot");
-				vl::Ptr<vl::parsing::tabling::ParsingGeneralParser> parser=vl::parsing::tabling::CreateStrictParser(table);
-				vl::Ptr<vl::parsing::ParsingTreeNode> node=parser->Parse(state, errors);
-				return node;
-			}
-
-			vl::Ptr<vl::parsing::ParsingTreeNode> JsonParseAsParsingTreeNode(const vl::WString& input, vl::Ptr<vl::parsing::tabling::ParsingTable> table, vl::vint codeIndex)
-			{
-				vl::collections::List<vl::Ptr<vl::parsing::ParsingError>> errors;
-				return JsonParseAsParsingTreeNode(input, table, errors, codeIndex);
-			}
-
-			vl::Ptr<JsonNode> JsonParse(const vl::WString& input, vl::Ptr<vl::parsing::tabling::ParsingTable> table, vl::collections::List<vl::Ptr<vl::parsing::ParsingError>>& errors, vl::vint codeIndex)
-			{
-				vl::parsing::tabling::ParsingState state(input, table, codeIndex);
-				state.Reset(L"JRoot");
-				vl::Ptr<vl::parsing::tabling::ParsingGeneralParser> parser=vl::parsing::tabling::CreateStrictParser(table);
-				vl::Ptr<vl::parsing::ParsingTreeNode> node=parser->Parse(state, errors);
-				if(node && errors.Count()==0)
-				{
-					return JsonConvertParsingTreeNode(node, state.GetTokens()).Cast<JsonNode>();
-				}
-				return 0;
-			}
-
-			vl::Ptr<JsonNode> JsonParse(const vl::WString& input, vl::Ptr<vl::parsing::tabling::ParsingTable> table, vl::vint codeIndex)
-			{
-				vl::collections::List<vl::Ptr<vl::parsing::ParsingError>> errors;
-				return JsonParse(input, table, errors, codeIndex);
-			}
-
-/***********************************************************************
-Table Generation
-***********************************************************************/
-
-			vl::Ptr<vl::parsing::tabling::ParsingTable> JsonLoadTable()
-			{
-				vl::stream::MemoryStream stream;
-				JsonGetParserBuffer(stream);
-				vl::Ptr<vl::parsing::tabling::ParsingTable> table=new vl::parsing::tabling::ParsingTable(stream);
-				table->Initialize();
-				return table;
-			}
-
+	vint WaitableObject::WaitAny(WaitableObject** objects, vint count, bool* abandoned)
+	{
+		Array<HANDLE> handles(count);
+		for(vint i=0;i<count;i++)
+		{
+			handles[i]=objects[i]->waitableData->handle;
+		}
+		DWORD result=WaitForMultipleObjects((DWORD)count, &handles[0], FALSE, INFINITE);
+		if(WAIT_OBJECT_0 <= result && result<WAIT_OBJECT_0+count)
+		{
+			*abandoned=false;
+			return result-WAIT_OBJECT_0;
+		}
+		else if(WAIT_ABANDONED_0 <= result && result<WAIT_ABANDONED_0+count)
+		{
+			*abandoned=true;
+			return result-WAIT_ABANDONED_0;
+		}
+		else
+		{
+			return -1;
 		}
 	}
-}
-namespace vl
-{
-	namespace reflection
+
+	vint WaitableObject::WaitAnyForTime(WaitableObject** objects, vint count, vint ms, bool* abandoned)
 	{
-		namespace description
+		Array<HANDLE> handles(count);
+		for(vint i=0;i<count;i++)
 		{
-#ifndef VCZH_DEBUG_NO_REFLECTION
-			using namespace vl::parsing::json;
+			handles[i]=objects[i]->waitableData->handle;
+		}
+		DWORD result=WaitForMultipleObjects((DWORD)count, &handles[0], FALSE, (DWORD)ms);
+		if(WAIT_OBJECT_0 <= result && result<WAIT_OBJECT_0+count)
+		{
+			*abandoned=false;
+			return result-WAIT_OBJECT_0;
+		}
+		else if(WAIT_ABANDONED_0 <= result && result<WAIT_ABANDONED_0+count)
+		{
+			*abandoned=true;
+			return result-WAIT_ABANDONED_0;
+		}
+		else
+		{
+			return -1;
+		}
+	}
 
-			IMPL_TYPE_INFO_RENAME(vl::parsing::json::JsonNode, system::JsonNode)
-			IMPL_TYPE_INFO_RENAME(vl::parsing::json::JsonLiteral, system::JsonLiteral)
-			IMPL_TYPE_INFO_RENAME(vl::parsing::json::JsonLiteral::JsonValue, system::JsonLiteral::JsonValue)
-			IMPL_TYPE_INFO_RENAME(vl::parsing::json::JsonString, system::JsonString)
-			IMPL_TYPE_INFO_RENAME(vl::parsing::json::JsonNumber, system::JsonNumber)
-			IMPL_TYPE_INFO_RENAME(vl::parsing::json::JsonArray, system::JsonArray)
-			IMPL_TYPE_INFO_RENAME(vl::parsing::json::JsonObjectField, system::JsonObjectField)
-			IMPL_TYPE_INFO_RENAME(vl::parsing::json::JsonObject, system::JsonObject)
-			IMPL_TYPE_INFO_RENAME(vl::parsing::json::JsonNode::IVisitor, system::JsonNode::IVisitor)
+/***********************************************************************
+Thread
+***********************************************************************/
 
-			BEGIN_CLASS_MEMBER(JsonNode)
-				CLASS_MEMBER_METHOD(Accept, {L"visitor"})
+	namespace threading_internal
+	{
+		struct ThreadData : public WaitableData
+		{
+			DWORD						id;
 
-			END_CLASS_MEMBER(JsonNode)
-
-			BEGIN_CLASS_MEMBER(JsonLiteral)
-				CLASS_MEMBER_BASE(JsonNode)
-
-				CLASS_MEMBER_CONSTRUCTOR(vl::Ptr<JsonLiteral>(), NO_PARAMETER)
-
-
-				CLASS_MEMBER_FIELD(value)
-			END_CLASS_MEMBER(JsonLiteral)
-
-			BEGIN_ENUM_ITEM(JsonLiteral::JsonValue)
-				ENUM_ITEM_NAMESPACE(JsonLiteral::JsonValue)
-				ENUM_NAMESPACE_ITEM(True)
-				ENUM_NAMESPACE_ITEM(False)
-				ENUM_NAMESPACE_ITEM(Null)
-			END_ENUM_ITEM(JsonLiteral::JsonValue)
-
-			BEGIN_CLASS_MEMBER(JsonString)
-				CLASS_MEMBER_BASE(JsonNode)
-
-				CLASS_MEMBER_CONSTRUCTOR(vl::Ptr<JsonString>(), NO_PARAMETER)
-
-				CLASS_MEMBER_EXTERNALMETHOD(get_content, NO_PARAMETER, vl::WString(JsonString::*)(), [](JsonString* node){ return node->content.value; })
-				CLASS_MEMBER_EXTERNALMETHOD(set_content, {L"value"}, void(JsonString::*)(const vl::WString&), [](JsonString* node, const vl::WString& value){ node->content.value = value; })
-
-				CLASS_MEMBER_PROPERTY(content, get_content, set_content)
-			END_CLASS_MEMBER(JsonString)
-
-			BEGIN_CLASS_MEMBER(JsonNumber)
-				CLASS_MEMBER_BASE(JsonNode)
-
-				CLASS_MEMBER_CONSTRUCTOR(vl::Ptr<JsonNumber>(), NO_PARAMETER)
-
-				CLASS_MEMBER_EXTERNALMETHOD(get_content, NO_PARAMETER, vl::WString(JsonNumber::*)(), [](JsonNumber* node){ return node->content.value; })
-				CLASS_MEMBER_EXTERNALMETHOD(set_content, {L"value"}, void(JsonNumber::*)(const vl::WString&), [](JsonNumber* node, const vl::WString& value){ node->content.value = value; })
-
-				CLASS_MEMBER_PROPERTY(content, get_content, set_content)
-			END_CLASS_MEMBER(JsonNumber)
-
-			BEGIN_CLASS_MEMBER(JsonArray)
-				CLASS_MEMBER_BASE(JsonNode)
-
-				CLASS_MEMBER_CONSTRUCTOR(vl::Ptr<JsonArray>(), NO_PARAMETER)
-
-
-				CLASS_MEMBER_FIELD(items)
-			END_CLASS_MEMBER(JsonArray)
-
-			BEGIN_CLASS_MEMBER(JsonObjectField)
-				CLASS_MEMBER_BASE(JsonNode)
-
-				CLASS_MEMBER_CONSTRUCTOR(vl::Ptr<JsonObjectField>(), NO_PARAMETER)
-
-				CLASS_MEMBER_EXTERNALMETHOD(get_name, NO_PARAMETER, vl::WString(JsonObjectField::*)(), [](JsonObjectField* node){ return node->name.value; })
-				CLASS_MEMBER_EXTERNALMETHOD(set_name, {L"value"}, void(JsonObjectField::*)(const vl::WString&), [](JsonObjectField* node, const vl::WString& value){ node->name.value = value; })
-
-				CLASS_MEMBER_PROPERTY(name, get_name, set_name)
-				CLASS_MEMBER_FIELD(value)
-			END_CLASS_MEMBER(JsonObjectField)
-
-			BEGIN_CLASS_MEMBER(JsonObject)
-				CLASS_MEMBER_BASE(JsonNode)
-
-				CLASS_MEMBER_CONSTRUCTOR(vl::Ptr<JsonObject>(), NO_PARAMETER)
-
-
-				CLASS_MEMBER_FIELD(fields)
-			END_CLASS_MEMBER(JsonObject)
-
-			BEGIN_CLASS_MEMBER(JsonNode::IVisitor)
-				CLASS_MEMBER_BASE(vl::reflection::IDescriptable)
-				CLASS_MEMBER_EXTERNALCTOR(Ptr<JsonNode::IVisitor>(Ptr<IValueInterfaceProxy>), {L"proxy"}, &interface_proxy::JsonNode_IVisitor::Create)
-
-				CLASS_MEMBER_METHOD_OVERLOAD(Visit, {L"node"}, void(JsonNode::IVisitor::*)(JsonLiteral* node))
-				CLASS_MEMBER_METHOD_OVERLOAD(Visit, {L"node"}, void(JsonNode::IVisitor::*)(JsonString* node))
-				CLASS_MEMBER_METHOD_OVERLOAD(Visit, {L"node"}, void(JsonNode::IVisitor::*)(JsonNumber* node))
-				CLASS_MEMBER_METHOD_OVERLOAD(Visit, {L"node"}, void(JsonNode::IVisitor::*)(JsonArray* node))
-				CLASS_MEMBER_METHOD_OVERLOAD(Visit, {L"node"}, void(JsonNode::IVisitor::*)(JsonObjectField* node))
-				CLASS_MEMBER_METHOD_OVERLOAD(Visit, {L"node"}, void(JsonNode::IVisitor::*)(JsonObject* node))
-			END_CLASS_MEMBER(JsonNode)
-
-			class JsonTypeLoader : public vl::Object, public ITypeLoader
+			ThreadData()
+				:WaitableData(NULL)
 			{
-			public:
-				void Load(ITypeManager* manager)
-				{
-					ADD_TYPE_INFO(vl::parsing::json::JsonNode)
-					ADD_TYPE_INFO(vl::parsing::json::JsonLiteral)
-					ADD_TYPE_INFO(vl::parsing::json::JsonLiteral::JsonValue)
-					ADD_TYPE_INFO(vl::parsing::json::JsonString)
-					ADD_TYPE_INFO(vl::parsing::json::JsonNumber)
-					ADD_TYPE_INFO(vl::parsing::json::JsonArray)
-					ADD_TYPE_INFO(vl::parsing::json::JsonObjectField)
-					ADD_TYPE_INFO(vl::parsing::json::JsonObject)
-					ADD_TYPE_INFO(vl::parsing::json::JsonNode::IVisitor)
-				}
+				id=-1;
+			}
+		};
 
-				void Unload(ITypeManager* manager)
-				{
-				}
-			};
-#endif
+		class ProceduredThread : public Thread
+		{
+		private:
+			Thread::ThreadProcedure		procedure;
+			void*						argument;
+			bool						deleteAfterStopped;
 
-			bool JsonLoadTypes()
+		protected:
+			void Run()
 			{
-#ifndef VCZH_DEBUG_NO_REFLECTION
-				ITypeManager* manager=GetGlobalTypeManager();
-				if(manager)
+				bool deleteAfterStopped = this->deleteAfterStopped;
+				ThreadLocalStorage::FixStorages();
+				try
 				{
-					Ptr<ITypeLoader> loader=new JsonTypeLoader;
-					return manager->AddTypeLoader(loader);
+					procedure(this, argument);
+					threadState=Thread::Stopped;
+					ThreadLocalStorage::ClearStorages();
 				}
-#endif
+				catch (...)
+				{
+					ThreadLocalStorage::ClearStorages();
+					throw;
+				}
+				if(deleteAfterStopped)
+				{
+					delete this;
+				}
+			}
+		public:
+			ProceduredThread(Thread::ThreadProcedure _procedure, void* _argument, bool _deleteAfterStopped)
+				:procedure(_procedure)
+				,argument(_argument)
+				,deleteAfterStopped(_deleteAfterStopped)
+			{
+			}
+		};
+
+		class LambdaThread : public Thread
+		{
+		private:
+			Func<void()>				procedure;
+			bool						deleteAfterStopped;
+
+		protected:
+			void Run()
+			{
+				bool deleteAfterStopped = this->deleteAfterStopped;
+				ThreadLocalStorage::FixStorages();
+				try
+				{
+					procedure();
+					threadState=Thread::Stopped;
+					ThreadLocalStorage::ClearStorages();
+				}
+				catch (...)
+				{
+					ThreadLocalStorage::ClearStorages();
+					throw;
+				}
+				if(deleteAfterStopped)
+				{
+					delete this;
+				}
+			}
+		public:
+			LambdaThread(const Func<void()>& _procedure, bool _deleteAfterStopped)
+				:procedure(_procedure)
+				,deleteAfterStopped(_deleteAfterStopped)
+			{
+			}
+		};
+	}
+
+	void InternalThreadProc(Thread* thread)
+	{
+		thread->Run();
+	}
+
+	DWORD WINAPI InternalThreadProcWrapper(LPVOID lpParameter)
+	{
+		InternalThreadProc((Thread*)lpParameter);
+		return 0;
+	}
+
+	Thread::Thread()
+	{
+		internalData=new ThreadData;
+		internalData->handle=CreateThread(NULL, 0, InternalThreadProcWrapper, this, CREATE_SUSPENDED, &internalData->id);
+		threadState=Thread::NotStarted;
+		SetData(internalData);
+	}
+
+	Thread::~Thread()
+	{
+		if (internalData)
+		{
+			Stop();
+			CloseHandle(internalData->handle);
+			delete internalData;
+		}
+	}
+
+	Thread* Thread::CreateAndStart(ThreadProcedure procedure, void* argument, bool deleteAfterStopped)
+	{
+		if(procedure)
+		{
+			Thread* thread=new ProceduredThread(procedure, argument, deleteAfterStopped);
+			if(thread->Start())
+			{
+				return thread;
+			}
+			else
+			{
+				delete thread;
+			}
+		}
+		return 0;
+	}
+
+	Thread* Thread::CreateAndStart(const Func<void()>& procedure, bool deleteAfterStopped)
+	{
+		Thread* thread=new LambdaThread(procedure, deleteAfterStopped);
+		if(thread->Start())
+		{
+			return thread;
+		}
+		else
+		{
+			delete thread;
+		}
+		return 0;
+	}
+
+	void Thread::Sleep(vint ms)
+	{
+		::Sleep((DWORD)ms);
+	}
+
+	
+	vint Thread::GetCPUCount()
+	{
+		SYSTEM_INFO info;
+		GetSystemInfo(&info);
+		return info.dwNumberOfProcessors;
+	}
+
+	vint Thread::GetCurrentThreadId()
+	{
+		return (vint)::GetCurrentThreadId();
+	}
+
+	bool Thread::Start()
+	{
+		if(threadState==Thread::NotStarted && internalData->handle!=NULL)
+		{
+			if(ResumeThread(internalData->handle)!=-1)
+			{
+				threadState=Thread::Running;
+				return true;
+			}
+		}
+		return false;
+	}
+
+	bool Thread::Stop()
+	{
+		if(internalData->handle!=NULL)
+		{
+			if (SuspendThread(internalData->handle) != -1)
+			{
+				threadState=Thread::Stopped;
+				return true;
+			}
+		}
+		return false;
+	}
+
+	Thread::ThreadState Thread::GetState()
+	{
+		return threadState;
+	}
+
+	void Thread::SetCPU(vint index)
+	{
+		SetThreadAffinityMask(internalData->handle, (1<<index));
+	}
+
+/***********************************************************************
+Mutex
+***********************************************************************/
+
+	namespace threading_internal
+	{
+		struct MutexData : public WaitableData
+		{
+			MutexData(HANDLE _handle)
+				:WaitableData(_handle)
+			{
+			}
+		};
+	}
+
+	Mutex::Mutex()
+		:internalData(0)
+	{
+	}
+
+	Mutex::~Mutex()
+	{
+		if(internalData)
+		{
+			CloseHandle(internalData->handle);
+			delete internalData;
+		}
+	}
+
+	bool Mutex::Create(bool owned, const WString& name)
+	{
+		if(IsCreated())return false;
+		BOOL aOwned=owned?TRUE:FALSE;
+		LPCTSTR aName=name==L""?NULL:name.Buffer();
+		HANDLE handle=CreateMutex(NULL, aOwned, aName);
+		if(handle)
+		{
+			internalData=new MutexData(handle);
+			SetData(internalData);
+		}
+		return IsCreated();
+	}
+
+	bool Mutex::Open(bool inheritable, const WString& name)
+	{
+		if(IsCreated())return false;
+		BOOL aInteritable=inheritable?TRUE:FALSE;
+		HANDLE handle=OpenMutex(SYNCHRONIZE, aInteritable, name.Buffer());
+		if(handle)
+		{
+			internalData=new MutexData(handle);
+			SetData(internalData);
+		}
+		return IsCreated();
+	}
+
+	bool Mutex::Release()
+	{
+		if(IsCreated())
+		{
+			return ReleaseMutex(internalData->handle)!=0;
+		}
+		return false;
+	}
+
+/***********************************************************************
+Semaphore
+***********************************************************************/
+
+	namespace threading_internal
+	{
+		struct SemaphoreData : public WaitableData
+		{
+			SemaphoreData(HANDLE _handle)
+				:WaitableData(_handle)
+			{
+			}
+		};
+	}
+
+	Semaphore::Semaphore()
+		:internalData(0)
+	{
+	}
+
+	Semaphore::~Semaphore()
+	{
+		if(internalData)
+		{
+			CloseHandle(internalData->handle);
+			delete internalData;
+		}
+	}
+
+	bool Semaphore::Create(vint initialCount, vint maxCount, const WString& name)
+	{
+		if(IsCreated())return false;
+		LONG aInitial=(LONG)initialCount;
+		LONG aMax=(LONG)maxCount;
+		LPCTSTR aName=name==L""?NULL:name.Buffer();
+		HANDLE handle=CreateSemaphore(NULL, aInitial, aMax, aName);
+		if(handle)
+		{
+			internalData=new SemaphoreData(handle);
+			SetData(internalData);
+		}
+		return IsCreated();
+	}
+
+	bool Semaphore::Open(bool inheritable, const WString& name)
+	{
+		if(IsCreated())return false;
+		BOOL aInteritable=inheritable?TRUE:FALSE;
+		HANDLE handle=OpenSemaphore(SYNCHRONIZE, aInteritable, name.Buffer());
+		if(handle)
+		{
+			internalData=new SemaphoreData(handle);
+			SetData(internalData);
+		}
+		return IsCreated();
+	}
+
+	bool Semaphore::Release()
+	{
+		if(IsCreated())
+		{
+			return Release(1)!=-1;
+		}
+		return false;
+	}
+
+	vint Semaphore::Release(vint count)
+	{
+		if(IsCreated())
+		{
+			LONG previous=-1;
+			if(ReleaseSemaphore(internalData->handle, (LONG)count, &previous)!=0)
+			{
+				return (vint)previous;
+			}
+		}
+		return -1;
+	}
+
+/***********************************************************************
+EventObject
+***********************************************************************/
+
+	namespace threading_internal
+	{
+		struct EventData : public WaitableData
+		{
+			EventData(HANDLE _handle)
+				:WaitableData(_handle)
+			{
+			}
+		};
+	}
+
+	EventObject::EventObject()
+		:internalData(0)
+	{
+	}
+
+	EventObject::~EventObject()
+	{
+		if(internalData)
+		{
+			CloseHandle(internalData->handle);
+			delete internalData;
+		}
+	}
+
+	bool EventObject::CreateAutoUnsignal(bool signaled, const WString& name)
+	{
+		if(IsCreated())return false;
+		BOOL aSignaled=signaled?TRUE:FALSE;
+		LPCTSTR aName=name==L""?NULL:name.Buffer();
+		HANDLE handle=CreateEvent(NULL, FALSE, aSignaled, aName);
+		if(handle)
+		{
+			internalData=new EventData(handle);
+			SetData(internalData);
+		}
+		return IsCreated();
+	}
+
+	bool EventObject::CreateManualUnsignal(bool signaled, const WString& name)
+	{
+		if(IsCreated())return false;
+		BOOL aSignaled=signaled?TRUE:FALSE;
+		LPCTSTR aName=name==L""?NULL:name.Buffer();
+		HANDLE handle=CreateEvent(NULL, TRUE, aSignaled, aName);
+		if(handle)
+		{
+			internalData=new EventData(handle);
+			SetData(internalData);
+		}
+		return IsCreated();
+	}
+
+	bool EventObject::Open(bool inheritable, const WString& name)
+	{
+		if(IsCreated())return false;
+		BOOL aInteritable=inheritable?TRUE:FALSE;
+		HANDLE handle=OpenEvent(SYNCHRONIZE, aInteritable, name.Buffer());
+		if(handle)
+		{
+			internalData=new EventData(handle);
+			SetData(internalData);
+		}
+		return IsCreated();
+	}
+
+	bool EventObject::Signal()
+	{
+		if(IsCreated())
+		{
+			return SetEvent(internalData->handle)!=0;
+		}
+		return false;
+	}
+
+	bool EventObject::Unsignal()
+	{
+		if(IsCreated())
+		{
+			return ResetEvent(internalData->handle)!=0;
+		}
+		return false;
+	}
+
+/***********************************************************************
+ThreadPoolLite
+***********************************************************************/
+
+		struct ThreadPoolQueueProcArgument
+		{
+			void(*proc)(void*);
+			void* argument;
+		};
+
+		DWORD WINAPI ThreadPoolQueueProc(void* argument)
+		{
+			Ptr<ThreadPoolQueueProcArgument> proc=(ThreadPoolQueueProcArgument*)argument;
+			ThreadLocalStorage::FixStorages();
+			try
+			{
+				proc->proc(proc->argument);
+				ThreadLocalStorage::ClearStorages();
+			}
+			catch (...)
+			{
+				ThreadLocalStorage::ClearStorages();
+			}
+			return 0;
+		}
+
+		DWORD WINAPI ThreadPoolQueueFunc(void* argument)
+		{
+			Ptr<Func<void()>> proc=(Func<void()>*)argument;
+			ThreadLocalStorage::FixStorages();
+			try
+			{
+				(*proc.Obj())();
+				ThreadLocalStorage::ClearStorages();
+			}
+			catch (...)
+			{
+				ThreadLocalStorage::ClearStorages();
+			}
+			return 0;
+		}
+
+		ThreadPoolLite::ThreadPoolLite()
+		{
+		}
+
+		ThreadPoolLite::~ThreadPoolLite()
+		{
+		}
+
+		bool ThreadPoolLite::Queue(void(*proc)(void*), void* argument)
+		{
+			ThreadPoolQueueProcArgument* p=new ThreadPoolQueueProcArgument;
+			p->proc=proc;
+			p->argument=argument;
+			if(QueueUserWorkItem(&ThreadPoolQueueProc, p, WT_EXECUTEDEFAULT))
+			{
+				return true;
+			}
+			else
+			{
+				delete p;
 				return false;
 			}
 		}
+
+		bool ThreadPoolLite::Queue(const Func<void()>& proc)
+		{
+			Func<void()>* p=new Func<void()>(proc);
+			if(QueueUserWorkItem(&ThreadPoolQueueFunc, p, WT_EXECUTEDEFAULT))
+			{
+				return true;
+			}
+			else
+			{
+				delete p;
+				return false;
+			}
+		}
+
+/***********************************************************************
+CriticalSection
+***********************************************************************/
+
+	namespace threading_internal
+	{
+		struct CriticalSectionData
+		{
+			CRITICAL_SECTION		criticalSection;
+		};
+	}
+
+	CriticalSection::Scope::Scope(CriticalSection& _criticalSection)
+		:criticalSection(&_criticalSection)
+	{
+		criticalSection->Enter();
+	}
+
+	CriticalSection::Scope::~Scope()
+	{
+		criticalSection->Leave();
+	}
+			
+	CriticalSection::CriticalSection()
+	{
+		internalData=new CriticalSectionData;
+		InitializeCriticalSection(&internalData->criticalSection);
+	}
+
+	CriticalSection::~CriticalSection()
+	{
+		DeleteCriticalSection(&internalData->criticalSection);
+		delete internalData;
+	}
+
+	bool CriticalSection::TryEnter()
+	{
+		return TryEnterCriticalSection(&internalData->criticalSection)!=0;
+	}
+
+	void CriticalSection::Enter()
+	{
+		EnterCriticalSection(&internalData->criticalSection);
+	}
+
+	void CriticalSection::Leave()
+	{
+		LeaveCriticalSection(&internalData->criticalSection);
+	}
+
+/***********************************************************************
+ReaderWriterLock
+***********************************************************************/
+
+	namespace threading_internal
+	{
+		struct ReaderWriterLockData
+		{
+			SRWLOCK			lock;
+		};
+	}
+
+	ReaderWriterLock::ReaderScope::ReaderScope(ReaderWriterLock& _lock)
+		:lock(&_lock)
+	{
+		lock->EnterReader();
+	}
+
+	ReaderWriterLock::ReaderScope::~ReaderScope()
+	{
+		lock->LeaveReader();
+	}
+
+	ReaderWriterLock::WriterScope::WriterScope(ReaderWriterLock& _lock)
+		:lock(&_lock)
+	{
+		lock->EnterWriter();
+	}
+
+	ReaderWriterLock::WriterScope::~WriterScope()
+	{
+		lock->LeaveWriter();
+	}
+
+	ReaderWriterLock::ReaderWriterLock()
+		:internalData(new threading_internal::ReaderWriterLockData)
+	{
+		InitializeSRWLock(&internalData->lock);
+	}
+
+	ReaderWriterLock::~ReaderWriterLock()
+	{
+		delete internalData;
+	}
+
+	bool ReaderWriterLock::TryEnterReader()
+	{
+		return TryAcquireSRWLockShared(&internalData->lock)!=0;
+	}
+
+	void ReaderWriterLock::EnterReader()
+	{
+		AcquireSRWLockShared(&internalData->lock);
+	}
+
+	void ReaderWriterLock::LeaveReader()
+	{
+		ReleaseSRWLockShared(&internalData->lock);
+	}
+
+	bool ReaderWriterLock::TryEnterWriter()
+	{
+		return TryAcquireSRWLockExclusive(&internalData->lock)!=0;
+	}
+
+	void ReaderWriterLock::EnterWriter()
+	{
+		AcquireSRWLockExclusive(&internalData->lock);
+	}
+
+	void ReaderWriterLock::LeaveWriter()
+	{
+		ReleaseSRWLockExclusive(&internalData->lock);
+	}
+
+/***********************************************************************
+ConditionVariable
+***********************************************************************/
+
+	namespace threading_internal
+	{
+		struct ConditionVariableData
+		{
+			CONDITION_VARIABLE			variable;
+		};
+	}
+
+	ConditionVariable::ConditionVariable()
+		:internalData(new threading_internal::ConditionVariableData)
+	{
+		InitializeConditionVariable(&internalData->variable);
+	}
+
+	ConditionVariable::~ConditionVariable()
+	{
+		delete internalData;
+	}
+
+	bool ConditionVariable::SleepWith(CriticalSection& cs)
+	{
+		return SleepConditionVariableCS(&internalData->variable, &cs.internalData->criticalSection, INFINITE)!=0;
+	}
+
+	bool ConditionVariable::SleepWithForTime(CriticalSection& cs, vint ms)
+	{
+		return SleepConditionVariableCS(&internalData->variable, &cs.internalData->criticalSection, (DWORD)ms)!=0;
+	}
+
+	bool ConditionVariable::SleepWithReader(ReaderWriterLock& lock)
+	{
+		return SleepConditionVariableSRW(&internalData->variable, &lock.internalData->lock, INFINITE, CONDITION_VARIABLE_LOCKMODE_SHARED)!=0;
+	}
+
+	bool ConditionVariable::SleepWithReaderForTime(ReaderWriterLock& lock, vint ms)
+	{
+		return SleepConditionVariableSRW(&internalData->variable, &lock.internalData->lock, (DWORD)ms, CONDITION_VARIABLE_LOCKMODE_SHARED)!=0;
+	}
+
+	bool ConditionVariable::SleepWithWriter(ReaderWriterLock& lock)
+	{
+		return SleepConditionVariableSRW(&internalData->variable, &lock.internalData->lock, INFINITE, 0)!=0;
+	}
+
+	bool ConditionVariable::SleepWithWriterForTime(ReaderWriterLock& lock, vint ms)
+	{
+		return SleepConditionVariableSRW(&internalData->variable, &lock.internalData->lock, (DWORD)ms, 0)!=0;
+	}
+
+	void ConditionVariable::WakeOnePending()
+	{
+		WakeConditionVariable(&internalData->variable);
+	}
+
+	void ConditionVariable::WakeAllPendings()
+	{
+		WakeAllConditionVariable(&internalData->variable);
+	}
+
+/***********************************************************************
+SpinLock
+***********************************************************************/
+
+	SpinLock::Scope::Scope(SpinLock& _spinLock)
+		:spinLock(&_spinLock)
+	{
+		spinLock->Enter();
+	}
+
+	SpinLock::Scope::~Scope()
+	{
+		spinLock->Leave();
+	}
+			
+	SpinLock::SpinLock()
+		:token(0)
+	{
+	}
+
+	SpinLock::~SpinLock()
+	{
+	}
+
+	bool SpinLock::TryEnter()
+	{
+		return _InterlockedExchange(&token, 1)==0;
+	}
+
+	void SpinLock::Enter()
+	{
+		while(_InterlockedCompareExchange(&token, 1, 0)!=0)
+		{
+			while(token!=0) _mm_pause();
+		}
+	}
+
+	void SpinLock::Leave()
+	{
+		_InterlockedExchange(&token, 0);
+	}
+
+/***********************************************************************
+ThreadLocalStorage
+***********************************************************************/
+
+#define KEY ((DWORD&)key)
+
+	ThreadLocalStorage::ThreadLocalStorage(Destructor _destructor)
+		:destructor(_destructor)
+	{
+		static_assert(sizeof(key) >= sizeof(DWORD), "ThreadLocalStorage's key storage is not large enouth.");
+		PushStorage(this);
+		KEY = TlsAlloc();
+		CHECK_ERROR(KEY != TLS_OUT_OF_INDEXES, L"vl::ThreadLocalStorage::ThreadLocalStorage()#Failed to alloc new thread local storage index.");
+	}
+
+	ThreadLocalStorage::~ThreadLocalStorage()
+	{
+		TlsFree(KEY);
+	}
+
+	void* ThreadLocalStorage::Get()
+	{
+		CHECK_ERROR(!disposed, L"vl::ThreadLocalStorage::Get()#Cannot access a disposed ThreadLocalStorage.");
+		return TlsGetValue(KEY);
+	}
+
+	void ThreadLocalStorage::Set(void* data)
+	{
+		CHECK_ERROR(!disposed, L"vl::ThreadLocalStorage::Set()#Cannot access a disposed ThreadLocalStorage.");
+		TlsSetValue(KEY, data);
+	}
+
+#undef KEY
+}
+#endif
+
+/***********************************************************************
+ThreadLocalStorage Common Implementations
+***********************************************************************/
+
+namespace vl
+{
+	void ThreadLocalStorage::Clear()
+	{
+		CHECK_ERROR(!disposed, L"vl::ThreadLocalStorage::Clear()#Cannot access a disposed ThreadLocalStorage.");
+		if(destructor)
+		{
+			if (auto data = Get())
+			{
+				destructor(data);
+			}
+		}
+		Set(nullptr);
+	}
+
+	void ThreadLocalStorage::Dispose()
+	{
+		CHECK_ERROR(!disposed, L"vl::ThreadLocalStorage::Dispose()#Cannot access a disposed ThreadLocalStorage.");
+		Clear();
+		disposed = true;
+	}
+
+	struct TlsStorageLink
+	{
+		ThreadLocalStorage*		storage = nullptr;
+		TlsStorageLink*			next = nullptr;
+	};
+
+	volatile bool				tlsFixed = false;
+	TlsStorageLink*				tlsHead = nullptr;
+	TlsStorageLink**			tlsTail = &tlsHead;
+
+	void ThreadLocalStorage::PushStorage(ThreadLocalStorage* storage)
+	{
+		CHECK_ERROR(!tlsFixed, L"vl::ThreadLocalStorage::PushStorage(ThreadLocalStorage*)#Cannot create new ThreadLocalStorage instance after calling ThreadLocalStorage::FixStorages().");
+		auto link = new TlsStorageLink;
+		link->storage = storage;
+		*tlsTail = link;
+		tlsTail = &link->next;
+	}
+
+	void ThreadLocalStorage::FixStorages()
+	{
+		tlsFixed = true;
+	}
+
+	void ThreadLocalStorage::ClearStorages()
+	{
+		FixStorages();
+		auto current = tlsHead;
+		while (current)
+		{
+			current->storage->Clear();
+			current = current->next;
+		}
+	}
+
+	void ThreadLocalStorage::DisposeStorages()
+	{
+		FixStorages();
+		auto current = tlsHead;
+		tlsHead = nullptr;
+		tlsTail = nullptr;
+		while (current)
+		{
+			current->storage->Dispose();
+
+			auto temp = current;
+			current = current->next;
+			delete temp;
+		}
 	}
 }
 
 /***********************************************************************
-Parsing\Parsing.cpp
+THREADINGLINUX.CPP
+***********************************************************************/
+#ifdef VCZH_GCC
+#include <pthread.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <semaphore.h>
+#include <errno.h>
+#if defined(__APPLE__) || defined(__APPLE_CC__)
+#include <CoreFoundation/CoreFoundation.h>
+#endif
+
+
+namespace vl
+{
+	using namespace threading_internal;
+	using namespace collections;
+
+
+/***********************************************************************
+Thread
+***********************************************************************/
+
+	namespace threading_internal
+	{
+		struct ThreadData
+		{
+			pthread_t					id;
+			EventObject					ev;
+		};
+
+		class ProceduredThread : public Thread
+		{
+		private:
+			Thread::ThreadProcedure		procedure;
+			void*						argument;
+			bool						deleteAfterStopped;
+
+		protected:
+			void Run()
+			{
+				bool deleteAfterStopped = this->deleteAfterStopped;
+				ThreadLocalStorage::FixStorages();
+				try
+				{
+					procedure(this, argument);
+					threadState=Thread::Stopped;
+					internalData->ev.Signal();
+					ThreadLocalStorage::ClearStorages();
+				}
+				catch (...)
+				{
+					ThreadLocalStorage::ClearStorages();
+					throw;
+				}
+				if(deleteAfterStopped)
+				{
+					delete this;
+				}
+			}
+		public:
+			ProceduredThread(Thread::ThreadProcedure _procedure, void* _argument, bool _deleteAfterStopped)
+				:procedure(_procedure)
+				,argument(_argument)
+				,deleteAfterStopped(_deleteAfterStopped)
+			{
+			}
+		};
+
+		class LambdaThread : public Thread
+		{
+		private:
+			Func<void()>				procedure;
+			bool						deleteAfterStopped;
+
+		protected:
+			void Run()
+			{
+				bool deleteAfterStopped = this->deleteAfterStopped;
+				ThreadLocalStorage::FixStorages();
+				try
+				{
+					procedure();
+					threadState=Thread::Stopped;
+					internalData->ev.Signal();
+					ThreadLocalStorage::ClearStorages();
+				}
+				catch (...)
+				{
+					ThreadLocalStorage::ClearStorages();
+					throw;
+				}
+				if(deleteAfterStopped)
+				{
+					delete this;
+				}
+			}
+		public:
+			LambdaThread(const Func<void()>& _procedure, bool _deleteAfterStopped)
+				:procedure(_procedure)
+				,deleteAfterStopped(_deleteAfterStopped)
+			{
+			}
+		};
+	}
+
+	void InternalThreadProc(Thread* thread)
+	{
+		thread->Run();
+	}
+
+	void* InternalThreadProcWrapper(void* lpParameter)
+	{
+		InternalThreadProc((Thread*)lpParameter);
+		return 0;
+	}
+
+	Thread::Thread()
+	{
+		internalData=new ThreadData;
+		internalData->ev.CreateManualUnsignal(false);
+		threadState=Thread::NotStarted;
+	}
+
+	Thread::~Thread()
+	{
+		if (internalData)
+		{
+			Stop();
+			if (threadState!=Thread::NotStarted)
+			{
+				pthread_detach(internalData->id);
+			}
+			delete internalData;
+		}
+	}
+
+	Thread* Thread::CreateAndStart(ThreadProcedure procedure, void* argument, bool deleteAfterStopped)
+	{
+		if(procedure)
+		{
+			Thread* thread=new ProceduredThread(procedure, argument, deleteAfterStopped);
+			if(thread->Start())
+			{
+				return thread;
+			}
+			else
+			{
+				delete thread;
+			}
+		}
+		return 0;
+	}
+
+	Thread* Thread::CreateAndStart(const Func<void()>& procedure, bool deleteAfterStopped)
+	{
+		Thread* thread=new LambdaThread(procedure, deleteAfterStopped);
+		if(thread->Start())
+		{
+			return thread;
+		}
+		else
+		{
+			delete thread;
+		}
+		return 0;
+	}
+
+	void Thread::Sleep(vint ms)
+	{
+		if (ms >= 1000)
+		{
+			sleep(ms / 1000);
+		}
+		if (ms % 1000)
+		{
+			usleep((ms % 1000) * 1000);
+		}
+	}
+	
+	vint Thread::GetCPUCount()
+	{
+		return (vint)sysconf(_SC_NPROCESSORS_ONLN);
+	}
+
+	vint Thread::GetCurrentThreadId()
+	{
+		return (vint)::pthread_self();
+	}
+
+	bool Thread::Start()
+	{
+		if(threadState==Thread::NotStarted)
+		{
+			if(pthread_create(&internalData->id, nullptr, &InternalThreadProcWrapper, this)==0)
+			{
+				threadState=Thread::Running;
+				return true;
+			}
+		}
+		return false;
+	}
+
+	bool Thread::Wait()
+	{
+		return internalData->ev.Wait();
+	}
+
+	bool Thread::Stop()
+	{
+		if (threadState==Thread::Running)
+		{
+			if(pthread_cancel(internalData->id)==0)
+			{
+				threadState=Thread::Stopped;
+				internalData->ev.Signal();
+				return true;
+			}
+		}
+		return false;
+	}
+
+	Thread::ThreadState Thread::GetState()
+	{
+		return threadState;
+	}
+
+/***********************************************************************
+Mutex
+***********************************************************************/
+
+	namespace threading_internal
+	{
+		struct MutexData
+		{
+			Semaphore			sem;
+		};
+	};
+
+	Mutex::Mutex()
+	{
+		internalData = new MutexData;
+	}
+
+	Mutex::~Mutex()
+	{
+		delete internalData;
+	}
+
+	bool Mutex::Create(bool owned, const WString& name)
+	{
+		return internalData->sem.Create(owned ? 0 : 1, 1, name);
+	}
+
+	bool Mutex::Open(bool inheritable, const WString& name)
+	{
+		return internalData->sem.Open(inheritable, name);
+	}
+
+	bool Mutex::Release()
+	{
+		return internalData->sem.Release();
+	}
+
+	bool Mutex::Wait()
+	{
+		return internalData->sem.Wait();
+	}
+
+/***********************************************************************
+Semaphore
+***********************************************************************/
+
+	namespace threading_internal
+	{
+		struct SemaphoreData
+		{
+			sem_t			semUnnamed;
+			sem_t*			semNamed = nullptr;
+		};
+	}
+
+	Semaphore::Semaphore()
+		:internalData(0)
+	{
+	}
+
+	Semaphore::~Semaphore()
+	{
+		if (internalData)
+		{
+			if (internalData->semNamed)
+			{
+				sem_close(internalData->semNamed);
+			}
+			else
+			{
+				sem_destroy(&internalData->semUnnamed);
+			}
+			delete internalData;
+		}
+	}
+
+	bool Semaphore::Create(vint initialCount, vint maxCount, const WString& name)
+	{
+		if (internalData) return false;
+		if (initialCount > maxCount) return false;
+
+		internalData = new SemaphoreData;
+#if defined(__APPLE__)
+        
+		AString auuid;
+		if(name.Length() == 0)
+		{
+			CFUUIDRef cfuuid = CFUUIDCreate(kCFAllocatorDefault);
+			CFStringRef cfstr = CFUUIDCreateString(kCFAllocatorDefault, cfuuid);
+			auuid = CFStringGetCStringPtr(cfstr, kCFStringEncodingASCII);
+
+			CFRelease(cfstr);
+			CFRelease(cfuuid);
+		}
+		auuid = auuid.Insert(0, "/");
+		// OSX SEM_NAME_LENGTH = 31
+		if(auuid.Length() >= 30)
+			auuid = auuid.Sub(0, 30);
+        
+		if ((internalData->semNamed = sem_open(auuid.Buffer(), O_CREAT, O_RDWR, initialCount)) == SEM_FAILED)
+		{
+			delete internalData;
+			internalData = 0;
+			return false;
+		}
+        
+#else
+		if (name == L"")
+		{
+			if(sem_init(&internalData->semUnnamed, 0, (int)initialCount) == -1)
+			{
+				delete internalData;
+				internalData = 0;
+				return false;
+			}
+		}
+        	else
+        	{
+			AString astr = wtoa(name);
+            
+			if ((internalData->semNamed = sem_open(astr.Buffer(), O_CREAT, 0777, initialCount)) == SEM_FAILED)
+			{
+				delete internalData;
+				internalData = 0;
+				return false;
+			}
+		}
+#endif
+
+		Release(initialCount);
+		return true;
+	}
+
+	bool Semaphore::Open(bool inheritable, const WString& name)
+	{
+		if (internalData) return false;
+		if (inheritable) return false;
+
+		internalData = new SemaphoreData;
+		if (!(internalData->semNamed = sem_open(wtoa(name).Buffer(), 0)))
+		{
+            delete internalData;
+            internalData = 0;
+			return false;
+		}
+
+		return true;
+	}
+
+	bool Semaphore::Release()
+	{
+		return Release(1);
+	}
+
+	vint Semaphore::Release(vint count)
+	{
+		for (vint i = 0; i < count; i++)
+		{
+			if (internalData->semNamed)
+			{
+				sem_post(internalData->semNamed);
+			}
+			else
+			{
+				sem_post(&internalData->semUnnamed);
+			}
+		}
+		return true;
+	}
+
+	bool Semaphore::Wait()
+	{
+		if (internalData->semNamed)
+		{
+			return sem_wait(internalData->semNamed) == 0;
+		}
+		else
+		{
+			return sem_wait(&internalData->semUnnamed) == 0;
+		}
+	}
+
+/***********************************************************************
+EventObject
+***********************************************************************/
+
+	namespace threading_internal
+	{
+		struct EventData
+		{
+			bool				autoReset;
+			volatile bool		signaled;
+			CriticalSection		mutex;
+			ConditionVariable	cond;
+			volatile vint		counter = 0;
+		};
+	}
+
+	EventObject::EventObject()
+	{
+		internalData = nullptr;
+	}
+
+	EventObject::~EventObject()
+	{
+		if (internalData)
+		{
+			delete internalData;
+		}
+	}
+
+	bool EventObject::CreateAutoUnsignal(bool signaled, const WString& name)
+	{
+		if (name!=L"") return false;
+		if (internalData) return false;
+
+		internalData = new EventData;
+		internalData->autoReset = true;
+		internalData->signaled = signaled;
+		return true;
+	}
+
+	bool EventObject::CreateManualUnsignal(bool signaled, const WString& name)
+	{
+		if (name!=L"") return false;
+		if (internalData) return false;
+
+		internalData = new EventData;
+		internalData->autoReset = false;
+		internalData->signaled = signaled;
+		return true;
+	}
+
+	bool EventObject::Signal()
+	{
+		if (!internalData) return false;
+
+		internalData->mutex.Enter();
+		internalData->signaled = true;
+		if (internalData->counter)
+		{
+			if (internalData->autoReset)
+			{
+				internalData->cond.WakeOnePending();
+				internalData->signaled = false;
+			}
+			else
+			{
+				internalData->cond.WakeAllPendings();
+			}
+		}
+		internalData->mutex.Leave();
+		return true;
+	}
+
+	bool EventObject::Unsignal()
+	{
+		if (!internalData) return false;
+
+		internalData->mutex.Enter();
+		internalData->signaled = false;
+		internalData->mutex.Leave();
+		return true;
+	}
+
+	bool EventObject::Wait()
+	{
+		if (!internalData) return false;
+
+		internalData->mutex.Enter();
+		if (internalData->signaled)
+		{
+			if (internalData->autoReset)
+			{
+				internalData->signaled = false;
+			}
+		}
+		else
+		{
+			internalData->counter++;
+			internalData->cond.SleepWith(internalData->mutex);
+			internalData->counter--;
+		}
+		internalData->mutex.Leave();
+		return true;
+	}
+
+/***********************************************************************
+ThreadPoolLite
+***********************************************************************/
+
+	namespace threading_internal
+	{
+		struct ThreadPoolTask
+		{
+			Func<void()>			task;
+			Ptr<ThreadPoolTask>		next;
+		};
+
+		struct ThreadPoolData
+		{
+			Semaphore				semaphore;
+			EventObject				taskFinishEvent;
+			Ptr<ThreadPoolTask>		taskBegin;
+			Ptr<ThreadPoolTask>*	taskEnd = nullptr;
+			volatile bool			stopping = false;
+			List<Thread*>			taskThreads;
+		};
+
+		SpinLock					threadPoolLock;
+		ThreadPoolData*				threadPoolData = nullptr;
+
+		void ThreadPoolProc(Thread* thread, void* argument)
+		{
+			while (true)
+			{
+				Ptr<ThreadPoolTask> task;
+
+				threadPoolData->semaphore.Wait();
+				SPIN_LOCK(threadPoolLock)
+				{
+					if (threadPoolData->taskBegin)
+					{
+						task = threadPoolData->taskBegin;
+						threadPoolData->taskBegin = task->next;
+					}
+
+					if (!threadPoolData->taskBegin)
+					{
+						threadPoolData->taskEnd = &threadPoolData->taskBegin;
+						threadPoolData->taskFinishEvent.Signal();
+					}
+				}
+
+				if (task)
+				{
+					ThreadLocalStorage::FixStorages();
+					try
+					{
+						task->task();
+						ThreadLocalStorage::ClearStorages();
+					}
+					catch (...)
+					{
+						ThreadLocalStorage::ClearStorages();
+					}
+				}
+				else if (threadPoolData->stopping)
+				{
+					return;
+				}
+			}
+		}
+
+		bool ThreadPoolQueue(const Func<void()>& proc)
+		{
+			SPIN_LOCK(threadPoolLock)
+			{
+				if (!threadPoolData)
+				{
+					threadPoolData = new ThreadPoolData;
+					threadPoolData->semaphore.Create(0, 65536);
+					threadPoolData->taskFinishEvent.CreateManualUnsignal(false);
+					threadPoolData->taskEnd = &threadPoolData->taskBegin;
+
+					for (vint i = 0; i < Thread::GetCPUCount() * 4; i++)
+					{
+						threadPoolData->taskThreads.Add(Thread::CreateAndStart(&ThreadPoolProc, nullptr, false));
+					}
+				}
+
+				if (threadPoolData)
+				{
+					if (threadPoolData->stopping)
+					{
+						return false;
+					}
+
+					auto task = MakePtr<ThreadPoolTask>();
+					task->task = proc;
+					*threadPoolData->taskEnd = task;
+					threadPoolData->taskEnd = &task->next;
+					threadPoolData->semaphore.Release();
+					threadPoolData->taskFinishEvent.Unsignal();
+				}
+			}
+			return true;
+		}
+
+		bool ThreadPoolStop(bool discardPendingTasks)
+		{
+			SPIN_LOCK(threadPoolLock)
+			{
+				if (!threadPoolData) return false;
+				if (threadPoolData->stopping) return false;
+
+				threadPoolData->stopping = true;
+				if (discardPendingTasks)
+				{
+					threadPoolData->taskEnd = &threadPoolData->taskBegin;
+					threadPoolData->taskBegin = nullptr;
+				}
+
+				threadPoolData->semaphore.Release(threadPoolData->taskThreads.Count());
+			}
+
+			threadPoolData->taskFinishEvent.Wait();
+			for (vint i = 0; i < threadPoolData->taskThreads.Count(); i++)
+			{
+				auto thread = threadPoolData->taskThreads[i];
+				thread->Wait();
+				delete thread;
+			}
+			threadPoolData->taskThreads.Clear();
+
+			SPIN_LOCK(threadPoolLock)
+			{
+				delete threadPoolData;
+				threadPoolData = nullptr;
+			}
+			return true;
+		}
+	}
+
+	ThreadPoolLite::ThreadPoolLite()
+	{
+	}
+
+	ThreadPoolLite::~ThreadPoolLite()
+	{
+	}
+
+	bool ThreadPoolLite::Queue(void(*proc)(void*), void* argument)
+	{
+		return ThreadPoolQueue([proc, argument](){proc(argument);});
+	}
+
+	bool ThreadPoolLite::Queue(const Func<void()>& proc)
+	{
+		return ThreadPoolQueue(proc);
+	}
+
+	bool ThreadPoolLite::Stop(bool discardPendingTasks)
+	{
+		return ThreadPoolStop(discardPendingTasks);
+	}
+
+/***********************************************************************
+CriticalSection
+***********************************************************************/
+
+	namespace threading_internal
+	{
+		struct CriticalSectionData
+		{
+			pthread_mutex_t		mutex;
+		};
+	}
+
+	CriticalSection::CriticalSection()
+	{
+		internalData = new CriticalSectionData;
+		pthread_mutex_init(&internalData->mutex, nullptr);
+	}
+
+	CriticalSection::~CriticalSection()
+	{
+		pthread_mutex_destroy(&internalData->mutex);
+		delete internalData;
+	}
+
+	bool CriticalSection::TryEnter()
+	{
+		return pthread_mutex_trylock(&internalData->mutex) == 0;
+	}
+
+	void CriticalSection::Enter()
+	{
+		pthread_mutex_lock(&internalData->mutex);
+	}
+
+	void CriticalSection::Leave()
+	{
+		pthread_mutex_unlock(&internalData->mutex);
+	}
+
+	CriticalSection::Scope::Scope(CriticalSection& _criticalSection)
+		:criticalSection(&_criticalSection)
+	{
+		criticalSection->Enter();
+	}
+
+	CriticalSection::Scope::~Scope()
+	{
+		criticalSection->Leave();
+	}
+
+/***********************************************************************
+ReaderWriterLock
+***********************************************************************/
+
+	namespace threading_internal
+	{
+		struct ReaderWriterLockData
+		{
+			pthread_rwlock_t			rwlock;
+		};
+	}
+
+	ReaderWriterLock::ReaderWriterLock()
+	{
+		internalData = new ReaderWriterLockData;
+		pthread_rwlock_init(&internalData->rwlock, nullptr);
+	}
+
+	ReaderWriterLock::~ReaderWriterLock()
+	{
+		pthread_rwlock_destroy(&internalData->rwlock);
+		delete internalData;
+	}
+
+	bool ReaderWriterLock::TryEnterReader()
+	{
+		return pthread_rwlock_tryrdlock(&internalData->rwlock) == 0;
+	}
+
+	void ReaderWriterLock::EnterReader()
+	{
+		pthread_rwlock_rdlock(&internalData->rwlock);
+	}
+
+	void ReaderWriterLock::LeaveReader()
+	{
+		pthread_rwlock_unlock(&internalData->rwlock);
+	}
+
+	bool ReaderWriterLock::TryEnterWriter()
+	{
+		return pthread_rwlock_trywrlock(&internalData->rwlock) == 0;
+	}
+
+	void ReaderWriterLock::EnterWriter()
+	{
+		pthread_rwlock_wrlock(&internalData->rwlock);
+	}
+
+	void ReaderWriterLock::LeaveWriter()
+	{
+		pthread_rwlock_unlock(&internalData->rwlock);
+	}
+
+	ReaderWriterLock::ReaderScope::ReaderScope(ReaderWriterLock& _lock)
+		:lock(&_lock)
+	{
+		lock->EnterReader();
+	}
+
+	ReaderWriterLock::ReaderScope::~ReaderScope()
+	{
+		lock->LeaveReader();
+	}
+
+	ReaderWriterLock::WriterScope::WriterScope(ReaderWriterLock& _lock)
+		:lock(&_lock)
+	{
+		lock->EnterWriter();
+	}
+
+	ReaderWriterLock::WriterScope::~WriterScope()
+	{
+		lock->LeaveReader();
+	}
+
+/***********************************************************************
+ConditionVariable
+***********************************************************************/
+
+	namespace threading_internal
+	{
+		struct ConditionVariableData
+		{
+			pthread_cond_t			cond;
+		};
+	}
+
+	ConditionVariable::ConditionVariable()
+	{
+		internalData = new ConditionVariableData;
+		pthread_cond_init(&internalData->cond, nullptr);
+	}
+
+	ConditionVariable::~ConditionVariable()
+	{
+		pthread_cond_destroy(&internalData->cond);
+		delete internalData;
+	}
+
+	bool ConditionVariable::SleepWith(CriticalSection& cs)
+	{
+		return pthread_cond_wait(&internalData->cond, &cs.internalData->mutex) == 0;
+	}
+
+	void ConditionVariable::WakeOnePending()
+	{
+		pthread_cond_signal(&internalData->cond);
+	}
+
+	void ConditionVariable::WakeAllPendings()
+	{
+		pthread_cond_broadcast(&internalData->cond);
+	}
+
+/***********************************************************************
+SpinLock
+***********************************************************************/
+
+	SpinLock::Scope::Scope(SpinLock& _spinLock)
+		:spinLock(&_spinLock)
+	{
+		spinLock->Enter();
+	}
+
+	SpinLock::Scope::~Scope()
+	{
+		spinLock->Leave();
+	}
+			
+	SpinLock::SpinLock()
+		:token(0)
+	{
+	}
+
+	SpinLock::~SpinLock()
+	{
+	}
+
+	bool SpinLock::TryEnter()
+	{
+		return __sync_lock_test_and_set(&token, 1)==0;
+	}
+
+	void SpinLock::Enter()
+	{
+		while(__sync_val_compare_and_swap(&token, 0, 1)!=0)
+		{
+			while(token!=0) _mm_pause();
+		}
+	}
+
+	void SpinLock::Leave()
+	{
+		__sync_lock_test_and_set(&token, 0);
+	}
+
+/***********************************************************************
+ThreadLocalStorage
+***********************************************************************/
+
+#define KEY ((pthread_key_t&)key)
+
+	ThreadLocalStorage::ThreadLocalStorage(Destructor _destructor)
+		:destructor(_destructor)
+	{
+		static_assert(sizeof(key) >= sizeof(pthread_key_t), "ThreadLocalStorage's key storage is not large enouth.");
+		PushStorage(this);
+		auto error = pthread_key_create(&KEY, destructor);
+		CHECK_ERROR(error != EAGAIN && error != ENOMEM, L"vl::ThreadLocalStorage::ThreadLocalStorage()#Failed to create a thread local storage index.");
+	}
+
+	ThreadLocalStorage::~ThreadLocalStorage()
+	{
+		pthread_key_delete(KEY);
+	}
+
+	void* ThreadLocalStorage::Get()
+	{
+		CHECK_ERROR(!disposed, L"vl::ThreadLocalStorage::Get()#Cannot access a disposed ThreadLocalStorage.");
+		return pthread_getspecific(KEY);
+	}
+
+	void ThreadLocalStorage::Set(void* data)
+	{
+		CHECK_ERROR(!disposed, L"vl::ThreadLocalStorage::Set()#Cannot access a disposed ThreadLocalStorage.");
+		pthread_setspecific(KEY, data);
+	}
+
+#undef KEY
+}
+#endif
+
+/***********************************************************************
+PARSING\PARSING.CPP
 ***********************************************************************/
 
 namespace vl
@@ -3833,7 +5456,7 @@ Type Loader
 }
 
 /***********************************************************************
-Parsing\ParsingAnalyzer.cpp
+PARSING\PARSINGANALYZER.CPP
 ***********************************************************************/
 
 namespace vl
@@ -5200,7 +6823,7 @@ ValidateDefinition
 }
 
 /***********************************************************************
-Parsing\ParsingAutomaton.cpp
+PARSING\PARSINGAUTOMATON.CPP
 ***********************************************************************/
 
 namespace vl
@@ -5497,7 +7120,7 @@ Automaton
 }
 
 /***********************************************************************
-Parsing\ParsingAutomaton_Closure.cpp
+PARSING\PARSINGAUTOMATON_CLOSURE.CPP
 ***********************************************************************/
 
 namespace vl
@@ -5644,7 +7267,7 @@ RemoveEpsilonTransitions
 }
 
 /***********************************************************************
-Parsing\ParsingAutomaton_EPDA.cpp
+PARSING\PARSINGAUTOMATON_EPDA.CPP
 ***********************************************************************/
 
 namespace vl
@@ -5824,7 +7447,7 @@ CreateEpsilonPDA
 }
 
 /***********************************************************************
-Parsing\ParsingAutomaton_GenerateTable.cpp
+PARSING\PARSINGAUTOMATON_GENERATETABLE.CPP
 ***********************************************************************/
 
 namespace vl
@@ -6510,7 +8133,7 @@ GenerateTable
 }
 
 /***********************************************************************
-Parsing\ParsingAutomaton_JPDA.cpp
+PARSING\PARSINGAUTOMATON_JPDA.CPP
 ***********************************************************************/
 
 namespace vl
@@ -6852,7 +8475,7 @@ MarkLeftRecursiveInJointPDA
 }
 
 /***********************************************************************
-Parsing\ParsingAutomaton_MergeStates.cpp
+PARSING\PARSINGAUTOMATON_MERGESTATES.CPP
 ***********************************************************************/
 
 namespace vl
@@ -7127,7 +8750,7 @@ MergeStates
 }
 
 /***********************************************************************
-Parsing\ParsingAutomaton_NPDA.cpp
+PARSING\PARSINGAUTOMATON_NPDA.CPP
 ***********************************************************************/
 
 namespace vl
@@ -7195,7 +8818,7 @@ CreateNondeterministicPDAFromEpsilonPDA
 }
 
 /***********************************************************************
-Parsing\ParsingDefinitions.cpp
+PARSING\PARSINGDEFINITIONS.CPP
 ***********************************************************************/
 
 namespace vl
@@ -7692,7 +9315,7 @@ ParsingDefinitionWriter
 }
 
 /***********************************************************************
-Parsing\ParsingDefinitions_CreateParserDefinition.cpp
+PARSING\PARSINGDEFINITIONS_CREATEPARSERDEFINITION.CPP
 ***********************************************************************/
 
 namespace vl
@@ -8421,7 +10044,7 @@ namespace vl
 }
 
 /***********************************************************************
-Parsing\ParsingLogging.cpp
+PARSING\PARSINGLOGGING.CPP
 ***********************************************************************/
 
 namespace vl
@@ -9496,7 +11119,7 @@ Logger (ParsingTreeNode)
 }
 
 /***********************************************************************
-Parsing\ParsingState.cpp
+PARSING\PARSINGSTATE.CPP
 ***********************************************************************/
 
 namespace vl
@@ -10612,7 +12235,7 @@ ParsingTransitionCollector
 }
 
 /***********************************************************************
-Parsing\ParsingTable.cpp
+PARSING\PARSINGTABLE.CPP
 ***********************************************************************/
 
 namespace vl
@@ -11157,7 +12780,7 @@ ParsingTable
 }
 
 /***********************************************************************
-Parsing\ParsingTree.cpp
+PARSING\PARSINGTREE.CPP
 ***********************************************************************/
 
 namespace vl
@@ -11910,7 +13533,759 @@ ParsingWriter
 }
 
 /***********************************************************************
-Parsing\Xml\ParsingXml.cpp
+PARSING\JSON\PARSINGJSON.CPP
+***********************************************************************/
+
+namespace vl
+{
+	namespace parsing
+	{
+		namespace json
+		{
+			using namespace stream;
+			using namespace collections;
+
+/***********************************************************************
+Unescaping Function Foward Declarations
+***********************************************************************/
+
+			void JsonUnescapingString(vl::parsing::ParsingToken& value, const vl::collections::List<vl::regex::RegexToken>& tokens)
+			{
+				MemoryStream stream;
+				{
+					StreamWriter writer(stream);
+					JsonUnescapeString(value.value.Sub(1, value.value.Length()-2), writer);
+				}
+				stream.SeekFromBegin(0);
+				{
+					StreamReader reader(stream);
+					value.value=reader.ReadToEnd();
+				}
+			}
+
+/***********************************************************************
+JsonPrintVisitor
+***********************************************************************/
+
+			class JsonPrintVisitor : public Object, public JsonNode::IVisitor
+			{
+			public:
+				TextWriter&					writer;
+
+				JsonPrintVisitor(TextWriter& _writer)
+					:writer(_writer)
+				{
+				}
+
+				void Visit(JsonLiteral* node)
+				{
+					switch(node->value)
+					{
+					case JsonLiteral::JsonValue::True:
+						writer.WriteString(L"true");
+						break;
+					case JsonLiteral::JsonValue::False:
+						writer.WriteString(L"false");
+						break;
+					case JsonLiteral::JsonValue::Null:
+						writer.WriteString(L"null");
+						break;
+					}
+				}
+
+				void Visit(JsonString* node)
+				{
+					writer.WriteChar(L'\"');
+					JsonEscapeString(node->content.value, writer);
+					writer.WriteChar(L'\"');
+				}
+
+				void Visit(JsonNumber* node)
+				{
+					writer.WriteString(node->content.value);
+				}
+
+				void Visit(JsonArray* node)
+				{
+					writer.WriteChar(L'[');
+					FOREACH_INDEXER(Ptr<JsonNode>, item, i, node->items)
+					{
+						if(i>0) writer.WriteChar(L',');
+						item->Accept(this);
+					}
+					writer.WriteChar(L']');
+				}
+
+				void Visit(JsonObjectField* node)
+				{
+					writer.WriteChar(L'\"');
+					JsonEscapeString(node->name.value, writer);
+					writer.WriteString(L"\":");
+					node->value->Accept(this);
+				}
+
+				void Visit(JsonObject* node)
+				{
+					writer.WriteChar(L'{');
+					FOREACH_INDEXER(Ptr<JsonObjectField>, field, i, node->fields)
+					{
+						if(i>0) writer.WriteChar(L',');
+						field->Accept(this);
+					}
+					writer.WriteChar(L'}');
+				}
+			};
+
+/***********************************************************************
+API
+***********************************************************************/
+
+			void JsonEscapeString(const WString& text, stream::TextWriter& writer)
+			{
+				const wchar_t* reading=text.Buffer();
+				while(wchar_t c=*reading++)
+				{
+					switch(c)
+					{
+					case L'\"': writer.WriteString(L"\\\""); break;
+					case L'\\': writer.WriteString(L"\\\\"); break;
+					case L'/': writer.WriteString(L"\\/"); break;
+					case L'\b': writer.WriteString(L"\\b"); break;
+					case L'\f': writer.WriteString(L"\\f"); break;
+					case L'\n': writer.WriteString(L"\\n"); break;
+					case L'\r': writer.WriteString(L"\\r"); break;
+					case L'\t': writer.WriteString(L"\\t"); break;
+					default: writer.WriteChar(c);
+					}
+				}
+			}
+
+			vuint16_t GetHex(wchar_t c)
+			{
+				if(L'0'<=c && c<=L'9')
+				{
+					return c-L'0';
+				}
+				else if(L'A'<=c && c<=L'F')
+				{
+					return c-L'A';
+				}
+				else if(L'a'<=c && c<=L'f')
+				{
+					return c-L'a';
+				}
+				else
+				{
+					return 0;
+				}
+			}
+
+			void JsonUnescapeString(const WString& text, stream::TextWriter& writer)
+			{
+				const wchar_t* reading=text.Buffer();
+				while(wchar_t c=*reading++)
+				{
+					if(c==L'\\' && *reading)
+					{
+						switch(c=*reading++)
+						{
+						case L'b': writer.WriteChar(L'\b'); break;
+						case L'f': writer.WriteChar(L'\f'); break;
+						case L'n': writer.WriteChar(L'\n'); break;
+						case L'r': writer.WriteChar(L'\r'); break;
+						case L't': writer.WriteChar(L'\t'); break;
+						case L'u':
+							{
+								wchar_t h1, h2, h3, h4;
+								if((h1=reading[0]) && (h2=reading[1]) && (h3=reading[2]) && (h4=reading[3]))
+								{
+									reading+=4;
+									wchar_t h=(wchar_t)(vuint16_t)(
+										(GetHex(h1)<<12) +
+										(GetHex(h2)<<8) +
+										(GetHex(h3)<<4) +
+										(GetHex(h4)<<0)
+										);
+									writer.WriteChar(h);
+								}
+							}
+							break;
+						default: writer.WriteChar(c);
+						}
+					}
+					else
+					{
+						writer.WriteChar(c);
+					}
+				}
+			}
+
+			void JsonPrint(Ptr<JsonNode> node, stream::TextWriter& writer)
+			{
+				JsonPrintVisitor visitor(writer);
+				node->Accept(&visitor);
+			}
+
+			WString JsonToString(Ptr<JsonNode> node)
+			{
+				MemoryStream stream;
+				{
+					StreamWriter writer(stream);
+					JsonPrint(node, writer);
+				}
+				stream.SeekFromBegin(0);
+				{
+					StreamReader reader(stream);
+					return reader.ReadToEnd();
+				}
+			}
+		}
+	}
+}
+
+/***********************************************************************
+PARSING\JSON\PARSINGJSON_PARSER.CPP
+***********************************************************************/
+
+namespace vl
+{
+	namespace parsing
+	{
+		namespace json
+		{
+/***********************************************************************
+ParserText
+***********************************************************************/
+
+const wchar_t parserTextBuffer[] = 
+L"\r\n" L""
+L"\r\n" L"class Node"
+L"\r\n" L"{"
+L"\r\n" L"}"
+L"\r\n" L""
+L"\r\n" L"class Literal:Node"
+L"\r\n" L"{"
+L"\r\n" L"\tenum Value"
+L"\r\n" L"\t{"
+L"\r\n" L"\t\tTrue,"
+L"\r\n" L"\t\tFalse,"
+L"\r\n" L"\t\tNull,"
+L"\r\n" L"\t}"
+L"\r\n" L""
+L"\r\n" L"\tValue value;"
+L"\r\n" L"}"
+L"\r\n" L""
+L"\r\n" L"class String:Node"
+L"\r\n" L"{"
+L"\r\n" L"\ttoken content(JsonUnescapingString)\t\t\t\t@Color(\"String\");"
+L"\r\n" L"}"
+L"\r\n" L""
+L"\r\n" L"class Number:Node"
+L"\r\n" L"{"
+L"\r\n" L"\ttoken content;"
+L"\r\n" L"}"
+L"\r\n" L""
+L"\r\n" L"class Array:Node"
+L"\r\n" L"{"
+L"\r\n" L"\tNode[] items;"
+L"\r\n" L"}"
+L"\r\n" L""
+L"\r\n" L"class ObjectField:Node"
+L"\r\n" L"{"
+L"\r\n" L"\ttoken name(JsonUnescapingString)\t\t\t\t@Color(\"AttName\");"
+L"\r\n" L"\tNode value;"
+L"\r\n" L"}"
+L"\r\n" L""
+L"\r\n" L"class Object:Node"
+L"\r\n" L"{"
+L"\r\n" L"\tObjectField[] fields;"
+L"\r\n" L"}"
+L"\r\n" L""
+L"\r\n" L"token TRUEVALUE = \"true\"\t\t\t\t\t\t\t@Color(\"Keyword\");"
+L"\r\n" L"token FALSEVALUE = \"false\"\t\t\t\t\t\t\t@Color(\"Keyword\");"
+L"\r\n" L"token NULLVALUE = \"null\"\t\t\t\t\t\t\t@Color(\"Keyword\");"
+L"\r\n" L"token OBJOPEN = \"\\{\"\t\t\t\t\t\t\t\t@Color(\"Boundary\");"
+L"\r\n" L"token OBJCLOSE = \"\\}\"\t\t\t\t\t\t\t\t@Color(\"Boundary\");"
+L"\r\n" L"token ARROPEN = \"\\[\"\t\t\t\t\t\t\t\t@Color(\"Boundary\");"
+L"\r\n" L"token ARRCLOSE = \"\\]\"\t\t\t\t\t\t\t\t@Color(\"Boundary\");"
+L"\r\n" L"token COMMA = \",\";"
+L"\r\n" L"token COLON = \":\";"
+L"\r\n" L"token NUMBER = \"[\\-]?\\d+(.\\d+)?([eE][+\\-]?\\d+)?\"\t@Color(\"Number\");"
+L"\r\n" L"token STRING = \"\"\"([^\\\\\"\"]|\\\\[^u]|\\\\u\\d{4})*\"\"\"\t\t@ContextColor();"
+L"\r\n" L""
+L"\r\n" L"discardtoken SPACE = \"\\s+\";"
+L"\r\n" L""
+L"\r\n" L"rule Node JLiteral"
+L"\r\n" L"\t= STRING:content as String"
+L"\r\n" L"\t= NUMBER:content as Number"
+L"\r\n" L"\t= \"true\" as Literal with {value = \"True\"}"
+L"\r\n" L"\t= \"false\" as Literal with {value = \"False\"}"
+L"\r\n" L"\t= \"null\" as Literal with {value = \"Null\"}"
+L"\r\n" L"\t;"
+L"\r\n" L""
+L"\r\n" L"rule ObjectField JField"
+L"\r\n" L"\t= STRING:name \":\" JValue:value as ObjectField"
+L"\r\n" L"\t;"
+L"\r\n" L""
+L"\r\n" L"rule Object JObject"
+L"\r\n" L"\t= \"{\" [JField:fields {\",\" JField:fields} ] \"}\" as Object"
+L"\r\n" L"\t;"
+L"\r\n" L""
+L"\r\n" L"rule Array JArray"
+L"\r\n" L"\t= \"[\" [JValue:items {\",\" JValue:items} ] \"]\" as Array"
+L"\r\n" L"\t;"
+L"\r\n" L""
+L"\r\n" L"rule Node JValue"
+L"\r\n" L"\t= !JLiteral"
+L"\r\n" L"\t= !JObject"
+L"\r\n" L"\t= !JArray"
+L"\r\n" L"\t;"
+L"\r\n" L""
+L"\r\n" L"rule Node JRoot"
+L"\r\n" L"\t= !JObject"
+L"\r\n" L"\t= !JArray"
+L"\r\n" L"\t;"
+;
+
+			vl::WString JsonGetParserTextBuffer()
+			{
+				return parserTextBuffer;
+			}
+
+/***********************************************************************
+SerializedTable
+***********************************************************************/
+
+const vint parserBufferLength = 4034; // 15032 bytes before compressing
+const vint parserBufferBlock = 1024;
+const vint parserBufferRemain = 962;
+const vint parserBufferRows = 4;
+const char* parserBuffer[] = {
+"\x00\x0B\x00\x02\x9F\x71\x02\x80\x01\x7F\x05\x06\x83\x20\x0F\x30\x00\x36\x86\x00\x72\x00\x05\x82\x86\x02\x83\x29\x00\x74\x11\x80\x09\x30\x02\x36\x00\x67\x07\x94\x87\x89\x82\x83\x85\x86\x0F\x8D\x92\x83\x97\x06\x81\x21\x8C\x30\xCE\x00\x01\x30\x05\x34\x01\x32\x22\x86\x88\x8A\x80\x89\x97\x8C\x96\x06\xCB\x37\x80\x09\x38\x03\x3A\x88\x12\xE4\x39\x83\x85\x90\x03\x92\x87\x48\x93\x86\x8D\x92\x82\xA0\x9D\xA2\x47\xAA\x80\x0A\xA4\x82\x9D\xA7\xA7\x3E\xAB\x93\xA1\xA3\xA0\xAD\xA8\xAE\x23\xBB\xA6\x9D\x91\xAB\x90\x04\x83\x42\x10\xB5\x3E\x8B\xAB\x9B\x8D\xA2\x5D\xCC\xBC\x88\x9D\xB6\x83\xB6\x81\x71\x8D\xB3\xBF\x8A\xA4\x9A\x88\xBC\x69\xDF\xAC\xBA\xAE\xB0\xBA\xB8\xBA\x85\xF7\x8B\xA4\x9B\xB8\xA8\xC6\xBF\x8E\x82\xD0\xD6\xB7\xC3\xCA\xB4\xA7\x8B\xBF\x86\x96\x82\x82\x9B\xB8\x9B\x62\x43\x92\x99\xB7\x84\x05\xCB\x8F\x1A\xB8\xB8\x30\x90\xB1\xAA\x82\x00\x54\x80\x0D\xAF\x92\x8A\x88\x9A\xBC\xFF\x41\xF9\xCC\x2C\x88\x98\x9C\xDF\x50\xC1\xC1\xE4\x06\x82\x99\x86\xA5\x38\xCA\xFF\x64\xD0\x06\xD1\x9A\x00\xA9\xC7\xC7\x8A\xE4\xEF\x24\xEC\x00\x6A\x43\xA3\x30\x92\xE9\x82\x80\xEF\xA9\xE1\xF8\x83\xFA\x8E\x21\xE2\x9C\x0F\xDC\x9C\xF7\x80\x9A\x89\x8F\x8F\x21\xD2\xF9\xDB\xDB\x88\xE5\xA3\xA6\x1D\x71\x67\x77\x1C\xDB\x42\x76\x40\x71\x01\xAA\x66\x5F\x43\x4D\x76\x1B\x80\x00\x73\x51\x73\x7D\x69\x10\x97\x79\x77\x46\xB9\x63\x7D\x40\x6C\x43\x5C\x82\x75\x77\xDF\x6A\x70\x00\x7B\x00\x14\x76\x1B\x7B\x50\x4A\x54\x81\x79\x06\x68\x70\x7A\x78\x30\x6E\x7D\x44\x7C\x75\x4C\x72\x43\x47\x34\x76\x48\x4F\x48\xE6\x40\x0E\x8A\x88\x24\xB2\x83\x51\x7C\xBA\x46\x4E\x80\x4D\x0F\x51\x85\x83\x74\xF4\x5A\x46\x7C\x5D\x21\x59\x80\x44\x87\x38\x5C\x87\x6F\x03\x06\x64\x06\x40\x96\xB7\x5D\x9B\x92\x74\x5E\x83\x42\x76\x72\x61\x9F\x94\x99\x98\x63\x8A\x79\x02\x41\x54\x00\x02\x14\x00\x55\x00\x05\x10\x00\x56\x00\x0F\x48\x71\x71\xB3\x96\x8D\x7D\x15\xB8\x47\x6E\x00\x06\x4A\x06\x42\x7B\x77\x80\x08\x47\x9C\x75\x85\xA9\x9D\x91\x02\x67\x88\x90\x00\x04\xBB\x86\x43\x00\x06\x6B\x94\x85\x9C\xC4\x44\x79\xA0\x00\x78\xB2\x90\x03\x9E\x1F\x73\x5F\x43\x43\x80\x82\x4B\x9D\x6E\xDE\x71\x5A\x12\x8F\x00\x10\x1E\xA6\x4C\xA5\x80\x0C\x14\x00\x7B\x00\x04\xA6\x40\x4D\x7F\x5C\xAA\xAA\xA0\x44\x7E\x77\xA1\x00\x31\xA3\xAD\x1F\x9F\xA3\x63\x5A\x40\x2F\x6F\x9F\x9A\x77\xAE\xB3\x90\xAE\x41\xB3\x9B\x1C\xA0\x6E\x98\x48\xBE\x9B\xB5\x0B\x7E\xA6\xA2\xA7\xC2\x80\x0D\x15\x89\xD5\x93\xBB\x42\x77\x4D\x00\x05\xBB\x4B\x23\x6C\x04\xB6\x98\xC1\x4A\x6E\x76\xB6\x32\x63\x4A\x0C\x00\xBA\x9F\x8D\x70\x9C\xE6\x80\x01\x5F\x9C\x6F\x9F\x06\x42\xB4\xB3\xAD\x0E\xB4\x00\x3F\x32\xA5\x5F\x0A\x00\x28\x00\x02\x0B\x06\xCA\x58\xC1\x0A\x04\xC9\xC0\x02\xB4\x38\x73\x9F\xB6\xB4\x08\xC1\xC3\xC1\xC1\xB3\x8E\xC0\x00\xC4\x05\xD6\xA0\x02\xC8\xD4\x58\x4D\x9B\x9B\x49\x15\x70\x03\x11\x00\x1B\x06\x42\x08\x12\xD2\xBE\x16\xC1\xB3\xB0\xCF\xB4\x1F\x34\xD3\xC0\x03\xCC\x73\x77\xC9\xCF\x5C\x1D\xF4\xA0\x00\x0D\x00\x04\xB0\xC6\x0A\x00\x30\xC2\xA2\x40\x4B\xD2\x58\xAC\x7D\xAE\xAF\x4B\x43\x9C\xB7\x86\xC4\x80\xC2\x3D\x92\x7A\x96\x40\xBA\xAB\xA8\x82\x71\x1B\x4F\xA2\x06\x41\x5E\xC5\x72\x80\x72\x0F\x4C\xCF\x99\x43\x0D\x5A\x48\x46\x46\x86\x70\x4D\x02\x41\x40\x00\x00\x08\x00\x5A\xBC\x00\x01\xD9\x09\x9A\x7F\xA2\x0F\xF4\xA4\xDC\xA6\xD9\x0A\x8F\xAE\x02\xE0\x5F\xE7\xDF\x80\xC3\x6F\xDC\x60\x4E\x6B\x02\x75\xD7\xDE\xDE\x7C\xE0\xD8\xD8\x00\x80\xDD\xD3\xE1\xDF\x61\xD0\x5D\xD1\xE5\x8A\xCF\xAC\xC1\x0C\x00\x3A\x36\x40\xE5\x9B\xD6\xEF\x80\xE0\xF3\xB7\xD0\xCD\xA8\x50\x4F\x40\xCF\xDD\x34\x44\x87\xDD\xE2\x85\xD0\x52\xE6\x51\x84\xE8\x16\xDE\xD0\x77\xC7\x90\x56\x92\x77\xFD\x0F\xEC\xCC\xD6\x63\xA9\xD3\xEF\xC4\xB3\xD2\xA0\xEA\xB8\xFE\xD0\x54\xEB\xC7\xC0\x0E\xA0\x54\x91\x8B\xF4\xEC\xA4\xBF\xD1\xFD\xE7\x43\xBB\xC7\x59\x82\xEF\x77\xF5\xA1\xF3\x83\xC4\xC0\x06\xF2\xEB\x00\x2E\x7F\xA1\xF6\xB3\xC5\xD0\x02\xF3\x00\x10\xF4\xE2\xF4\x0F\x54\xF7\xDE\x4C\x71\xA5\xBB\xBF\xB5\x77\x6D\x77\x88\x53\x40\x6C\x0E\x5B\x7E\x76\x2A\x67\x37\x77\x5A\x35\x6E\xFA\x76\x7C\x73\x97\x7A\x7F\xF2\x4E\x4D\x4E\xED\x76\x28\x81\xDE\x77\x71\xF8\x3D\x7F\x76\xF3\x40\x02\x78\x49\x43\x29\xF1\x55\x7D\x4C\x89\x0A\x49\x7E\xCD\x60\x03\xF3\x7B\x69\x75\xD0\x53\x78\x00\x02\x86\x67\xB5\x29\x62\x26\x96\x41\x87\x77\x1A\x54\x2E\x80\x06\x87\x83\xDF\x4D\x77\x49\xF8\x20\x01\xDD\x1A\x79\x83",
+"\x07\x50\x00\x71\xF7\x7F\x7B\xC2\x57\x5C\x6C\x98\x33\x4C\x30\xF3\x79\x49\xFD\x2C\x85\x89\xBF\x7F\x75\x6E\xD4\x2B\x55\x9D\x0F\x5A\x48\xCD\x5B\x8B\x78\x43\x23\x76\xFA\x27\x7C\x85\x2F\xA1\x80\x27\x12\x81\x04\x15\xC9\x8A\x83\x28\xAB\x82\x8B\xE8\x63\x29\x1A\xAC\x8F\x46\x18\x5A\x25\x81\x2A\x93\x88\x1C\xDC\x82\x8E\x18\xBF\x72\x8D\xAB\x5C\x35\xE7\x45\x28\x8A\xC1\x42\x96\x3F\x81\x62\x21\x20\xFD\x36\x2F\xA2\x0C\x65\x06\x00\x0C\x10\x19\x8B\x9D\x37\x46\x98\x76\x8F\xEC\x72\x59\xFC\x52\x57\x6F\x3D\xA0\x88\x27\x37\x97\x6C\xE7\x36\x28\x81\xBA\x5E\x80\x66\xEA\x51\x7E\x27\xE7\x8F\x76\x01\xA3\x94\x7B\x77\x64\x5B\xDD\x5F\x5C\x7D\x6F\x71\x7D\x76\xBF\x67\x92\x25\x8E\x8C\x84\x5D\xBF\x37\x92\x02\x90\x66\x26\xBF\x7C\x93\x32\xB1\x88\x94\x98\x89\x88\x29\xC2\x8D\x83\xEA\x69\x97\x77\xAB\x95\x81\x28\xCA\x90\x96\xF9\x73\x95\x7A\xB6\x9F\x74\x2E\xF7\x6E\x96\xA2\x20\x5A\x91\xED\x68\x44\x91\x1A\x72\x48\x1A\x4A\x2C\x61\x33\x1E\x8E\x40\x28\x75\x9D\x14\x40\x9E\x87\x00\x07\x64\x00\x34\x8B\x65\x56\xBF\x70\x47\xD7\x28\x98\xCC\x73\x5A\x94\x3A\x47\x9E\x9E\xE7\x7C\x8C\x32\xDB\x9C\x55\xF4\x36\x89\x9C\x33\x4E\x9D\x21\xE0\x96\x8D\x0A\x87\x74\xA1\xFF\x8A\x6C\x44\x6D\x6E\x52\x28\xBD\x41\x6F\xC6\x82\xA3\x25\xF7\x6B\xA1\x5E\x8C\x97\x97\x9A\x7D\x9A\x23\x80\x02\x06\x4F\x6B\x9E\xA3\x95\x9F\x96\x04\xC2\x96\x83\x62\x91\x99\x7D\xAE\x80\x6F\x32\xE5\x7E\x98\x0B\xAF\xA2\x84\xC9\x8F\x94\x02\xB2\x93\x61\x5A\x96\x84\xA0\x22\xAC\x99\x16\xF6\x4F\xA2\x6F\xA1\xA5\xA8\x23\xA9\x9F\x9C\x27\xA4\x93\x41\xAF\x99\x93\x2D\xB0\x9A\x3F\x9A\xA3\x9A\x9D\x8D\x9C\x7D\xCF\x9B\x77\x4D\xC8\x91\xA6\x01\x73\xA6\x9A\x3D\xAB\x79\x36\x87\x89\x96\xA4\xAB\x5C\x8E\x21\x47\xA2\xC8\x2B\x55\x8F\xF5\x30\x27\x91\x00\x14\x13\x24\x85\xAF\x44\xB7\x9A\x23\xA5\x42\x7B\x92\x54\xED\x94\x49\x69\xA7\x41\xA1\x44\x45\x94\xF0\x4B\x7F\x99\x4E\x88\xA3\x48\x75\x3E\xAE\x38\xF5\x2B\xA7\xDF\x74\x93\x79\xC4\x57\x95\x35\xED\xA3\x80\x8D\x3C\x94\xAD\x69\xB6\xAF\x53\xCB\x75\x56\xBD\x86\xB4\xAF\x89\xA9\x9B\x5F\x88\xBA\x44\x66\xB4\xA0\xAB\x36\xA7\xB2\x39\x80\xA6\x7B\xC5\xA5\xB1\x96\x8E\xB5\x79\x64\xDA\x93\xB3\xCC\x95\xB7\x9B\x2C\x80\xB6\x52\x0F\xA9\xB6\xD7\x8B\x8B\x6D\x10\x3A\x23\x13\xF5\x27\xA2\x3D\xAA\xB6\x9D\x80\x7C\xA0\x6E\xCD\xA8\x90\xDE\x8C\xBE\x92\x12\xAD\x8A\x70\x9B\x35\xB8\xD4\x41\xA9\xB9\xCC\x8D\x2B\xAA\x40\xB4\xA3\xDC\x1B\xBB\xA2\x6F\xA0\x00\xE9\x25\x03\xAE\xEE\xB0\x23\x8E\xCF\xBF\x94\x1E\xEF\x8C\x89\xE0\x9B\xB0\x90\x74\xA0\x48\x4C\x75\x6E\xBB\xF8\xAA\xAA\x70\x94\xA4\x46\x18\xA9\x6C\xA8\xFB\x9A\xB0\xAF\x9D\xA6\xB6\xCE\x1F\xBE\xB6\xC5\x80\xB4\xB1\x57\xA4\xB1\x6A\xBA\xBC\xB5\xD1\xAB\xB5\xB1\xD7\x8C\x7F\x6C\xE4\xA7\x6F\xFC\xB0\x23\xA8\x41\xA7\xA9\x4A\xDE\x92\x8D\xA5\x86\xBF\xBA\xC9\x8C\xA4\xCC\x3B\x7E\xA5\xA9\x9F\x94\xB5\x56\xA7\xB6\x82\xFD\x9D\xA0\x98\xBF\x71\xC5\x60\xAF\xB2\xCD\x3F\xA5\x9B\xA0\xB5\xBE\xC2\x1A\x2B\xAE\x7F\xB7\xBC\x61\x92\xBC\xBE\xB8\x38\xDB\xB0\xCC\x01\xC7\x6F\x12\xCC\xC6\xC0\xA4\xB5\x9B\x29\x80\x05\xB1\xDE\x87\xC2\x29\x48\xCF\xC0\xF3\x31\xB2\xC2\x1A\xC8\x81\xC8\xF4\xB8\xBE\x6D\xA4\x4A\xC7\x20\xE8\x9B\x9E\x73\xA1\xC8\x80\xD1\xA4\xC1\x27\xCD\xC6\xB7\x08\x8B\xC9\x56\xFB\xA5\xC0\xD1\xA8\xCB\xCA\x11\xD0\xB2\x95\xBF\x71\xC8\xED\xAD\xBC\xA2\x73\x60\x9E\x79\x9A\x21\xBA\xF7\x83\xBA\x29\x4D\x78\xA3\x77\xD2\xBB\xA2\xA1\x82\x74\xC1\xE4\x9E\xB6\x18\xF3\x5D\xBE\x06\xD2\x82\x86\x28\x6A\x66\x0D\xC9\x98\x9E\x1D\x42\xC3\x9F\xA9\xAD\xC4\x4E\x82\x80\x84\x69\xBD\x85\xC2\x5B\xD1\x46\x6F\xB7\xC1\xD4\x8D\x1C\x48\xAD\x06\xBA\xB1\x9F\x94\xAF\xCE\x00\x10\x70\x6F\x40\xC5\xD5\xA1\x9D\xAB\x54\x44\xC7\xD2\xD1\x24\xAA\x9E\x71\x8E\xD9\x98\x48\xE0\xCD\x86\xAC\xB5\xD0\x4E\x98\xD3\xC4\xA9\x9A\xD4\xAB\xBF\x7D\xD1\xFA\x04\xA1\xC8\x06\xE4\xD1\xD5\xB7\xB1\x02\x96\xD0\xDA\xBF\x3B\xF0\x25\x71\x71\x7A\x23\xAB\xBB\x72\xD1\x1D\xE4\x40\x70\xCF\xD5\xAF\x6D\xF9\xC8\xD4\x71\xD5\xD8\xDB\x1B\x3A\x21\x8F\x3B\x78\x74\x31\xCB\xBC\xA8\x1B\xC5\x2B\x11\xE0\x91\xA9\x55\xD7\xD8\x26\xD9\xC0\x20\xDD\x3F\x7D\xDA\x10\xD8\xC6\xAC\xAF\xC9\xBC\x87\xDB\x50\x6F\x74\xF9\x89\x72\xBF\x76\xBA\x59\x80\x73\xA8\x06\xF3\xDE\xC9\x49\xD6\xDE\xDB\x78\xD6\xE1\x75\xFC\xDB\xD7\xBE\xAC\xE3\xAD\xE6\xC1\xE1\xE3\x84\x4C\x71\x14\xF2\x22\x46\x4D\x6C\xDC\x88\xEB\xB2\xE3\x10\xBA\xA3\xC3\xDB\xAF\xB6\xF0",
+"\x93\xE5\xE0\x22\xFA\xDC\xC2\xF7\x6D\xDB\x63\xD7\x93\xA8\x36\xFD\xE2\xCD\xA0\xE0\xE6\x98\x24\xE1\xE1\x19\xA7\xC4\xE0\x76\xCB\xCE\x00\x27\xD3\xD0\xEE\xB2\xE0\xC1\x8E\x73\xE5\x7D\xF4\xE6\xB8\x45\xE3\xEA\xE0\x45\xED\x46\xA4\xD4\xA4\xE7\x4C\xE3\x66\xD3\xD0\xEE\xE5\x4B\x84\x8C\x8D\x0F\x5F\x71\x0B\xB9\x79\x6D\x5C\xE6\x75\xBF\x55\x8F\x85\x30\xF4\x22\x54\xA8\x12\xB0\x83\x60\xEF\x53\xDD\x62\x70\x26\xF2\x43\xB2\xD9\x38\xAB\x7F\xF2\x49\x7E\xED\x29\xEB\xBE\xB8\x69\xF9\x7D\x88\xAD\xBF\x7D\xA1\x2F\xED\x7B\x71\xF0\x2B\xDC\x9C\x8A\xC4\xBC\xC8\x9A\xEF\x30\x6E\x7C\xF6\x06\xFE\xEE\x37\x80\xF1\xF1\x82\xE2\x80\xFF\x79\x5F\x7F\x37\x53\x99\x87\x54\x5A\x84\x6D\x88\x86\x3A\xD4\x0A\x47\xEF\x0F\x8A\x76\x15\xEB\xE4\x83\x13\xA3\xF0\xF1\x10\x8F\x43\xE2\xE3\x79\xC0\xC7\xFF\x70\xF2\xF1\x9B\x22\xEB\xB0\xB8\xF5\x35\xB1\xF3\xF5\xF0\x92\x9C\x3D\x93\xD2\x80\xD0\xC5\x80\x26\x14\xCB\xE8\x10\xA0\x2C\x99\x70\xF2\xB9\xC7\xD3\xC6\xDD\x78\xC4\x6F\xC7\x76\xF2\xD3\xCC\x9E\xA6\xE6\x3B\xD1\xCE\x9D\x34\xF5\xA5\x9F\x47\xCE\xCE\x99\x90\xC1\xAC\x98\x53\xC7\xD3\xDE\xD3\xBF\xBB\x99\xC6\x90\xB3\x8C\x64\x68\x1E\xCA\xE1\xBC\xC2\xCA\x67\xEC\xEC\xE5\xAA\x32\xAA\xCB\xF7\xC6\xDF\x9E\xFC\xDE\xAD\x9A\x3C\x52\x63\x03\x37\x78\xDC\x46\x56\xB4\x6E\x71\x75\x19\x68\x66\x6F\x7E\xBA\x6C\x4E\x19\x7D\x6B\xB9\x71\x69\xC0\x63\x4D\xC2\x6A\x4F\x7E\x4C\x62\xFD\x79\x4C\xB6\x79\x7C\xCD\x6E\x5B\x1D\x5F\x75\xBF\x70\x15\x7B\x2E\x1C\x75\x1E\x27\x68\x2A\x1C\xCE\x77\x50\x20\x24\x6D\x30\x17\x1B\x16\x0A\x13\x13\x28\x52\x4E\x5C\x1F\xF3\x77\x1B\x18\x00\x83\xC1\x1D\x70\xBE\x5D\x23\x1D\x86\x66\xB7\x1A\x01\x38\x8C\x24\x29\x77\x62\x23\x80\x11\xD0\x1D\x25\x1C\x01\x84\x44\x7D\x75\x45\x8F\x1C\x43\x17\x1B\x1E\x01\x84\x1C\x05\x2A\xAC\x1F\x0F\xB7\x13\x12\x65\x29\x85\x5A\x8A\x13\x69\x1B\x27\xB1\x25\x26\xB1\x2B\x27\xB7\x1D\x20\xFF\x4B\x27\x25\x45\x41\x20\x8A\x7A\x50\x15\x26\xC3\x18\x79\x5D\x29\x86\x2E\x4F\x10\x55\x8D\x14\x5F\x81\x26\x61\x81\x26\x64\x8A\x51\x4D\x12\x79\x0F\x19\x3D\x70\x84\x76\x59\x8D\x86\x21\x8F\x10\xB7\x1F\x87\xF8\x3E\x19\xD4\x15\x87\x5E\x27\x87\x5E\x29\x87\x44\x87\x2F\x6D\x7F\x10\x86\x8A\x44\x6C\x87\x20\x6E\x85\x88\x48\x43\x88\x68\x29\x16\xE4\x6A\x88\x5D\x21\x2B\x58\x87\x2C\x03\x4B\x21\xC7\x7A\x11\x98\x80\x4E\x81\x79\x85\xD4\x15\x7A\x0B\x4B\x11\xA7\x8E\x7B\x6A\x82\x87\x69\x1C\x5B\x9E\x8F\x27\x06\x11\x8A\x02\x12\x25\xA4\x8B\x43\x2D\x81\x2E\xA0\x30\x88\x65\x25\x32\x7C\x27\x1F\xCC\x7F\x8A\xBF\x87\x88\x9E\x13\x12\x55\x3B\x85\x9E\x1C\x88\x5D\x23\x12\x1D\x06\x10\xB1\x24\x1D\xD1\x8A\x85\x93\x87\x39\xCB\x8B\x85\x38\x7F\x4F\xCC\x8D\x8D\x5C\x8F\x8D\xB9\x8E\x8D\x07\x15\x35\xFF\x03\x8D\x61\x23\x12\x15\x02\x8D\xC6\x22\x10\xE9\x8A\x85\xDB\x8A\x51\xB8\x83\x2D\xB6\x77\x1B\x3A\x86\x66\xE5\x86\x10\x4D\x17\x85\x5B\x2A\x8E\x15\x1B\x8F\xEE\x82\x38\x36\x7E\x89\x00\x29\x7F\x04\x24\x8F\xED\x73\x7F\xF7\x8F\x34\x5E\x23\x12\x22\x36\x8E\x02\x12\x32\xC1\x80\x90\xFF\x42\x90\x06\x16\x55\x06\x94\x6F\x66\x52\x8E\x9B\x8A\x13\x4D\x3A\x2B\xCC\x85\x85\x3D\x20\x91\xE2\x85\x85\x3C\x2B\x85\xF1\x87\x1B\x3C\x82\x6B\x0C\x67\x91\xDA\x74\x24\x09\x97\x10\xB1\x2D\x34\xFA\x82\x10\xD2\x62\x10\xD9\x8E\x25\x29\x9C\x82\xED\x1E\x5B\x2C\x95\x6B\xBE\x54\x1D\x35\x9A\x8A\x1B\x79\x64\x9E\x86\x22\x6F\x67\x1B\x29\x8A\x59\x2F\x92\x93\xB7\x86\x10\xBC\x57\x93\x5D\x29\x93\xD2\x7B\x93\x3E\x8B\x8E\x2D\x95\x17\xD4\x1C\x5B\x11\x90\x4E\x0C\x65\x94\x06\x1E\x60\xDD\x7D\x25\x49\x97\x5B\x1A\x9F\x91\x69\x13\x12\xAF\x65\x26\x27\x98\x8F\x2E\x19\x91\x56\x92\x70\x78\x11\x2B\x2F\x94\x6E\x33\x90\x00\xFE\x26\x93\x5B\x84\x83\x4E\x5D\x93\xF0\x6E\x54\xD4\x17\x97\x42\x98\x91\xF3\x70\x95\x65\x2B\x84\x84\x6F\x92\x62\x8D\x94\x02\x15\x8D\xB6\x29\x97\x6D\x95\x83\x6F\x9D\x97\x88\x44\x8D\xDA\x87\x90\x4E\x54\x98\x61\x2F\x8E\x27\x6A\x91\x55\x8E\x85\x5B\x8B\x27\x4D\x12\x92\x5E\x2F\x6F\xF3\x7D\x14\x8C\x9B\x95\x41\x7C\x4A\x89\x9A\x90\x1F\x45\x86\x6C\x2A\x7B\x43\x17\x8D\x0F\x25\x89\x02\x19\x8A\xC6\x83\x76\x87\x83\x87\xFC\x89\x85\xA0\x95\x29\x95\x92\x98\x33\x86\x10\xA7\x99\x99\x12\x9A\x51\xAB\x92\x8F\xFF\x4B\x87\x0F\x2E\x87\x99\x81\x8B\x81\x86\x89\x9A\x87\x9B\xA9\x85\x85\x89\x8F\x99\x6C\x9F\x90\xBF\x92\x83\x88\x46\x9A\xD9\x9C\x72\xC7\x9E\x88\xAA\x90\x89\xB1\x39\x48\xB0\x81\x87\xCF\x95\x9B\x97\x8E\x8B",
+"\xB8\x9A\x44\x55\x89\x1B\x5A\x96\x87\xD7\x9A\x75\xFF\x80\x9C\xDB\x92\x9C\xDD\x96\x62\xAC\x4E\x19\x22\x37\x6A\x60\x81\x9F\xA2\x9D\x25\xA4\x91\x9C\x8B\x97\x9F\x36\x70\x8E\x07\x1D\x89\xD6\x9C\x9A\xFF\x9C\x97\x41\x5C\x9D\xF3\x99\x9A\x15\x41\x8F\xBA\x82\x7A\x55\x2D\x8B\x5C\x3D\x9C\xE6\x98\x9A\xAC\x87\x21\x12\x12\x9D\x6E\x85\x85\xB4\x89\xA0\xD3\x2B\xA0\x91\x9D\xA0\xF6\x9F\xA0\x2C\x72\xA1\x06\x16\x7C\xBC\x86\x8A\xEA\x96\x9B\xC4\x92\x10\x3F\x45\x1C\x41\x4E\xA1\xD1\x9B\x91\x03\x1A\x2B\x0F\x7E\x8D\x20\x96\x10\x41\x95\x96\x40\xAB\x85\x24\x96\x10\x63\x31\xA4\x9C\x99\x16\x3A\xA6\xA4\x20\xA6\x10\x13\x0B\x85\xB1\x2D\x14\xEF\x9E\x25\x63\x94\x22\xF1\x80\x2A\x76\x16\x69\x7C\x9B\x92\x06\xAF\x0F\x9E\x9A\x85\xBD\x92\x10\xFC\x91\xA3\xDA\x96\x49\x0E\xA1\x98\x10\xAA\x24\xDF\x96\x24\xAE\x92\x10\x67\x8D\x45\x18\xA0\x8C\x61\x22\x88\xCE\x96\xA3\xCE\x9A\x9B\x02\x15\x8B\x06\x1F\xA5\x46\x77\x9F\x26\xA3\xA0\x28\xA8\x9F\x15\x49\xA6\x02\x16\x7B\xCA\x95\x78\x38\x12\x9B\x8F\x24\x9B\xEB\x97\x39\x74\xA6\x9E\xD4\x9B\x9B\x65\x2A\xA7\x61\xA3\x9A\x96\x95\x9F\x7E\xA6\xA6\xDE\x98\x87\x6A\xA6\x9C\xE2\x9A\x3C\x88\xAB\x86\x71\xA0\x9D\x73\xAF\xA2\x1F\xA9\x16\xEE\x9E\xA4\xF1\x93\xA9\x00\xA5\xA9\x64\xA7\xA2\x98\xA0\xA8\x4A\x2A\x9F\xFE\x89\x85\x4F\xA3\xAB\xA8\x90\x97\xD3\x23\x9C\x94\xA3\x84\xAC\x45\x85\x1D\x95\x96\x55\x88\xA0\x5E\xA9\xAA\x7C\xA6\x56\x65\xA7\xAB\xB0\xA3\x14\x2A\xA2\x10\x2C\xAD\x21\x16\xA4\x9E\xC7\x84\x89\x62\xAB\xA1\x0A\x2D\xA8\x80\x8B\xA4\x77\xA2\xA2\x4D\x1A\xAA\x0C\xA6\xAC\xAE\xA8\xAC\x36\x7B\xAC\xA3\x84\xA1\xA2\x76\xAD\xC8\x82\xA6\x33\xA4\x8C\x21\x16\xAE\x94\x83\xA4\x02\x14\x01\x26\x99\x9D\x41\x68\x94\xD1\x7F\x7C\x30\x9A\x13\xB1\x24\x97\x8A\x96\x97\x93\x22\xAF\xB2\x64\xAF\xE0\x41\x64\x7F\x9B\x85\x53\xA0\x13\x98\x9D\x88\x53\x7D\x75\x88\x97\x8E\xAE\xA7\xB0\xB8\x53\xAF\xA2\x88\x59\x3A\x98\x5B\xBA\xA2\x96\xF5\xA7\x50\x0E\xBC\x97\x05\xA6\xA4\x5D\x28\xAD\x00\x0D\xA4\x5A\x85\xAB\x34\x94\xB0\x17\xBA\x59\x55\xA6\x10\x15\x8B\xAA\x5C\x9C\x93\x1C\xBD\xB1\x69\x1F\x6A\xED\x8D\xB2\x66\x9A\x13\x5D\xAC\x9B\xF1\x91\xB3\xC8\xAC\x60\xC7\xA2\xA6\x99\xA8\xB0\x83\xAB\xA6\xB9\x76\x42\xB1\x9F\xA6\xE7\xA2\xA5\xA2\xA9\xA1\xA4\xAA\x89\x76\xA1\x2C\xDA\xA6\x10\x38\xBC\xB3\x08\x8A\x14\x3B\xBB\xAB\x67\xA3\x14\x82\xAD\x9A\x7A\x83\x28\xCB\x93\xB4\xA8\x89\x9E\x46\xB8\x9E\x37\xA7\xA1\x5D\xBA\xB4\x69\x15\x9D\xC3\xAC\x9A\x4F\xB4\xB5\x3E\x96\x66\x53\xBA\xB2\x55\xB8\x13\x57\xB6\x7B\x45\x81\x89\xD0\xAB\xA8\xB3\x91\xAA\x60\xB3\xAA\x62\xB5\x9E\xD7\xA6\xAA\x4E\x98\xAA\x68\xB7\x9F\x3A\xBF\xAD\x50\xB5\xA0\x55\x8B\x9F\x80\xB3\x2D\x69\xBE\xB6\x6B\xB9\x64\x6D\xBA\xB1\xDC\x83\x10\x9C\x80\xA9\x61\x2A\xA7\x8B\xB9\xA5\xBE\x5F\xB8\x91\x91\xAE\x78\xB3\xAE\xA1\x76\x25\x49\xBA\xB7\x6E\xB4\xAD\xDA\x1C\xAE\x97\x3E\xB1\x78\xA6\x2A\x37\xB2\xB8\x99\xB4\xB8\x6A\xB9\xAC\x92\x2F\xB5\x9E\xB5\x8A\x6F\x84\xB4\xD2\xA4\xB5\xE9\xA0\x25\xB5\xB3\xB6\x75\xA9\x16\xB7\x17\x01\x32\xBD\x8D\xED\x9F\xB7\x1C\xB5\x85\xB7\x19\x01\xC1\xBC\xA3\x69\x18\xB8\x41\xA6\xBC\x06\x1E\x32\xC9\xB0\xAC\xB3\x8C\xA4\xF1\xA2\x10\x27\xB7\x23\x57\xAF\x84\x91\x9C\x60\xCE\xB7\xA9\xD1\xB7\x1B\x9D\x94\xB9\x5E\x25\x35\x9A\xBD\x8F\xBC\xA1\xA8\x9A\xAF\xB3\x9C\xAC\xA6\xB0\x97\xA8\xB6\xBC\xA8\x9D\xB0\xA3\x7B\xB1\xAD\xA7\xB9\x18\xE2\xBD\x25\xE4\xBE\xBA\x8C\xB0\xBB\xC5\x2E\xB3\x58\xB7\x62\x85\xA3\x79\xEE\xBC\xBB\x48\xB2\xBB\xF2\xB5\xB7\xD3\x95\xB6\xF7\xB7\x1B\xF9\xBE\xBD\x85\xB0\xB4\x63\x8B\xA9\x8F\x84\x21\x74\xBF\xA9\x84\x81\xBF\x5E\xB8\xC0\xA5\xAA\x13\xA7\xAA\x85\x23\x15\xBE\xEF\x66\xB8\xCB\xB6\xAB\x0C\xBC\x9A\x15\xB0\xB9\x1A\x5B\xA5\xC2\xA9\x85\x0D\xC0\x00\x27\xCB\xB9\xFF\x42\xAE\xCD\xA5\xA1\x2E\xA3\xBF\x76\xB9\xA8\xD3\xA5\x21\xA6\x75\xBA\xA1\xBE\xA8\xD3\xB9\xAD\x5A\x8D\xC2\x2F\xC6\xBE\x6F\xBE\x34\x16\xBC\xAC\x04\x4D\xA2\xBB\xBC\xB7\x45\xBE\xB6\xB9\xB5\xA3\x3D\xCD\xB7\x3A\x17\x1B\x80\x9F\xBD\x5E\x23\xBC\x02\x11\xA5\xCF\x81\x9F\x55\xC9\xBE\x2C\x45\x74\xB2\xA0\xA6\xD5\xB3\x2D\x5D\xCE\xBF\x56\x7F\xAC\x56\xC9\xC6\xB7\x10",
+};
+
+			void JsonGetParserBuffer(vl::stream::MemoryStream& stream)
+			{
+				vl::stream::MemoryStream compressedStream;
+				for (vint i = 0; i < parserBufferRows; i++)
+				{
+					vint size = i == parserBufferRows - 1 ? parserBufferRemain : parserBufferBlock;
+					compressedStream.Write((void*)parserBuffer[i], size);
+				}
+				compressedStream.SeekFromBegin(0);
+				vl::stream::LzwDecoder decoder;
+				vl::stream::DecoderStream decoderStream(compressedStream, decoder);
+				vl::collections::Array<vl::vuint8_t> buffer(65536);
+				while (true)
+				{
+					vl::vint size = decoderStream.Read(&buffer[0], 65536);
+					if (size == 0) break;
+					stream.Write(&buffer[0], size);
+				}
+				stream.SeekFromBegin(0);
+			}
+/***********************************************************************
+Unescaping Function Foward Declarations
+***********************************************************************/
+
+			extern void JsonUnescapingString(vl::parsing::ParsingToken& value, const vl::collections::List<vl::regex::RegexToken>& tokens);
+
+/***********************************************************************
+Parsing Tree Conversion Driver Implementation
+***********************************************************************/
+
+			class JsonTreeConverter : public vl::parsing::ParsingTreeConverter
+			{
+			public:
+				using vl::parsing::ParsingTreeConverter::SetMember;
+
+				bool SetMember(JsonLiteral::JsonValue& member, vl::Ptr<vl::parsing::ParsingTreeNode> node, const TokenList& tokens)
+				{
+					vl::Ptr<vl::parsing::ParsingTreeToken> token=node.Cast<vl::parsing::ParsingTreeToken>();
+					if(token)
+					{
+						if(token->GetValue()==L"True") { member=JsonLiteral::JsonValue::True; return true; }
+						else if(token->GetValue()==L"False") { member=JsonLiteral::JsonValue::False; return true; }
+						else if(token->GetValue()==L"Null") { member=JsonLiteral::JsonValue::Null; return true; }
+						else { member=JsonLiteral::JsonValue::True; return false; }
+					}
+					member=JsonLiteral::JsonValue::True;
+					return false;
+				}
+
+				void Fill(vl::Ptr<JsonNode> tree, vl::Ptr<vl::parsing::ParsingTreeObject> obj, const TokenList& tokens)
+				{
+				}
+
+				void Fill(vl::Ptr<JsonLiteral> tree, vl::Ptr<vl::parsing::ParsingTreeObject> obj, const TokenList& tokens)
+				{
+					SetMember(tree->value, obj->GetMember(L"value"), tokens);
+				}
+
+				void Fill(vl::Ptr<JsonString> tree, vl::Ptr<vl::parsing::ParsingTreeObject> obj, const TokenList& tokens)
+				{
+					if(SetMember(tree->content, obj->GetMember(L"content"), tokens))
+					{
+						JsonUnescapingString(tree->content, tokens);
+					}
+				}
+
+				void Fill(vl::Ptr<JsonNumber> tree, vl::Ptr<vl::parsing::ParsingTreeObject> obj, const TokenList& tokens)
+				{
+					SetMember(tree->content, obj->GetMember(L"content"), tokens);
+				}
+
+				void Fill(vl::Ptr<JsonArray> tree, vl::Ptr<vl::parsing::ParsingTreeObject> obj, const TokenList& tokens)
+				{
+					SetMember(tree->items, obj->GetMember(L"items"), tokens);
+				}
+
+				void Fill(vl::Ptr<JsonObjectField> tree, vl::Ptr<vl::parsing::ParsingTreeObject> obj, const TokenList& tokens)
+				{
+					if(SetMember(tree->name, obj->GetMember(L"name"), tokens))
+					{
+						JsonUnescapingString(tree->name, tokens);
+					}
+					SetMember(tree->value, obj->GetMember(L"value"), tokens);
+				}
+
+				void Fill(vl::Ptr<JsonObject> tree, vl::Ptr<vl::parsing::ParsingTreeObject> obj, const TokenList& tokens)
+				{
+					SetMember(tree->fields, obj->GetMember(L"fields"), tokens);
+				}
+
+				vl::Ptr<vl::parsing::ParsingTreeCustomBase> ConvertClass(vl::Ptr<vl::parsing::ParsingTreeObject> obj, const TokenList& tokens)override
+				{
+					if(obj->GetType()==L"Literal")
+					{
+						vl::Ptr<JsonLiteral> tree = new JsonLiteral;
+						vl::collections::CopyFrom(tree->creatorRules, obj->GetCreatorRules());
+						Fill(tree, obj, tokens);
+						Fill(tree.Cast<JsonNode>(), obj, tokens);
+						return tree;
+					}
+					else if(obj->GetType()==L"String")
+					{
+						vl::Ptr<JsonString> tree = new JsonString;
+						vl::collections::CopyFrom(tree->creatorRules, obj->GetCreatorRules());
+						Fill(tree, obj, tokens);
+						Fill(tree.Cast<JsonNode>(), obj, tokens);
+						return tree;
+					}
+					else if(obj->GetType()==L"Number")
+					{
+						vl::Ptr<JsonNumber> tree = new JsonNumber;
+						vl::collections::CopyFrom(tree->creatorRules, obj->GetCreatorRules());
+						Fill(tree, obj, tokens);
+						Fill(tree.Cast<JsonNode>(), obj, tokens);
+						return tree;
+					}
+					else if(obj->GetType()==L"Array")
+					{
+						vl::Ptr<JsonArray> tree = new JsonArray;
+						vl::collections::CopyFrom(tree->creatorRules, obj->GetCreatorRules());
+						Fill(tree, obj, tokens);
+						Fill(tree.Cast<JsonNode>(), obj, tokens);
+						return tree;
+					}
+					else if(obj->GetType()==L"ObjectField")
+					{
+						vl::Ptr<JsonObjectField> tree = new JsonObjectField;
+						vl::collections::CopyFrom(tree->creatorRules, obj->GetCreatorRules());
+						Fill(tree, obj, tokens);
+						Fill(tree.Cast<JsonNode>(), obj, tokens);
+						return tree;
+					}
+					else if(obj->GetType()==L"Object")
+					{
+						vl::Ptr<JsonObject> tree = new JsonObject;
+						vl::collections::CopyFrom(tree->creatorRules, obj->GetCreatorRules());
+						Fill(tree, obj, tokens);
+						Fill(tree.Cast<JsonNode>(), obj, tokens);
+						return tree;
+					}
+					else 
+						return 0;
+				}
+			};
+
+			vl::Ptr<vl::parsing::ParsingTreeCustomBase> JsonConvertParsingTreeNode(vl::Ptr<vl::parsing::ParsingTreeNode> node, const vl::collections::List<vl::regex::RegexToken>& tokens)
+			{
+				JsonTreeConverter converter;
+				vl::Ptr<vl::parsing::ParsingTreeCustomBase> tree;
+				converter.SetMember(tree, node, tokens);
+				return tree;
+			}
+
+/***********************************************************************
+Parsing Tree Conversion Implementation
+***********************************************************************/
+
+			vl::Ptr<JsonLiteral> JsonLiteral::Convert(vl::Ptr<vl::parsing::ParsingTreeNode> node, const vl::collections::List<vl::regex::RegexToken>& tokens)
+			{
+				return JsonConvertParsingTreeNode(node, tokens).Cast<JsonLiteral>();
+			}
+
+			vl::Ptr<JsonString> JsonString::Convert(vl::Ptr<vl::parsing::ParsingTreeNode> node, const vl::collections::List<vl::regex::RegexToken>& tokens)
+			{
+				return JsonConvertParsingTreeNode(node, tokens).Cast<JsonString>();
+			}
+
+			vl::Ptr<JsonNumber> JsonNumber::Convert(vl::Ptr<vl::parsing::ParsingTreeNode> node, const vl::collections::List<vl::regex::RegexToken>& tokens)
+			{
+				return JsonConvertParsingTreeNode(node, tokens).Cast<JsonNumber>();
+			}
+
+			vl::Ptr<JsonArray> JsonArray::Convert(vl::Ptr<vl::parsing::ParsingTreeNode> node, const vl::collections::List<vl::regex::RegexToken>& tokens)
+			{
+				return JsonConvertParsingTreeNode(node, tokens).Cast<JsonArray>();
+			}
+
+			vl::Ptr<JsonObjectField> JsonObjectField::Convert(vl::Ptr<vl::parsing::ParsingTreeNode> node, const vl::collections::List<vl::regex::RegexToken>& tokens)
+			{
+				return JsonConvertParsingTreeNode(node, tokens).Cast<JsonObjectField>();
+			}
+
+			vl::Ptr<JsonObject> JsonObject::Convert(vl::Ptr<vl::parsing::ParsingTreeNode> node, const vl::collections::List<vl::regex::RegexToken>& tokens)
+			{
+				return JsonConvertParsingTreeNode(node, tokens).Cast<JsonObject>();
+			}
+
+/***********************************************************************
+Visitor Pattern Implementation
+***********************************************************************/
+
+			void JsonLiteral::Accept(JsonNode::IVisitor* visitor)
+			{
+				visitor->Visit(this);
+			}
+
+			void JsonString::Accept(JsonNode::IVisitor* visitor)
+			{
+				visitor->Visit(this);
+			}
+
+			void JsonNumber::Accept(JsonNode::IVisitor* visitor)
+			{
+				visitor->Visit(this);
+			}
+
+			void JsonArray::Accept(JsonNode::IVisitor* visitor)
+			{
+				visitor->Visit(this);
+			}
+
+			void JsonObjectField::Accept(JsonNode::IVisitor* visitor)
+			{
+				visitor->Visit(this);
+			}
+
+			void JsonObject::Accept(JsonNode::IVisitor* visitor)
+			{
+				visitor->Visit(this);
+			}
+
+/***********************************************************************
+Parser Function
+***********************************************************************/
+
+			vl::Ptr<vl::parsing::ParsingTreeNode> JsonParseAsParsingTreeNode(const vl::WString& input, vl::Ptr<vl::parsing::tabling::ParsingTable> table, vl::collections::List<vl::Ptr<vl::parsing::ParsingError>>& errors, vl::vint codeIndex)
+			{
+				vl::parsing::tabling::ParsingState state(input, table, codeIndex);
+				state.Reset(L"JRoot");
+				vl::Ptr<vl::parsing::tabling::ParsingGeneralParser> parser=vl::parsing::tabling::CreateStrictParser(table);
+				vl::Ptr<vl::parsing::ParsingTreeNode> node=parser->Parse(state, errors);
+				return node;
+			}
+
+			vl::Ptr<vl::parsing::ParsingTreeNode> JsonParseAsParsingTreeNode(const vl::WString& input, vl::Ptr<vl::parsing::tabling::ParsingTable> table, vl::vint codeIndex)
+			{
+				vl::collections::List<vl::Ptr<vl::parsing::ParsingError>> errors;
+				return JsonParseAsParsingTreeNode(input, table, errors, codeIndex);
+			}
+
+			vl::Ptr<JsonNode> JsonParse(const vl::WString& input, vl::Ptr<vl::parsing::tabling::ParsingTable> table, vl::collections::List<vl::Ptr<vl::parsing::ParsingError>>& errors, vl::vint codeIndex)
+			{
+				vl::parsing::tabling::ParsingState state(input, table, codeIndex);
+				state.Reset(L"JRoot");
+				vl::Ptr<vl::parsing::tabling::ParsingGeneralParser> parser=vl::parsing::tabling::CreateStrictParser(table);
+				vl::Ptr<vl::parsing::ParsingTreeNode> node=parser->Parse(state, errors);
+				if(node && errors.Count()==0)
+				{
+					return JsonConvertParsingTreeNode(node, state.GetTokens()).Cast<JsonNode>();
+				}
+				return 0;
+			}
+
+			vl::Ptr<JsonNode> JsonParse(const vl::WString& input, vl::Ptr<vl::parsing::tabling::ParsingTable> table, vl::vint codeIndex)
+			{
+				vl::collections::List<vl::Ptr<vl::parsing::ParsingError>> errors;
+				return JsonParse(input, table, errors, codeIndex);
+			}
+
+/***********************************************************************
+Table Generation
+***********************************************************************/
+
+			vl::Ptr<vl::parsing::tabling::ParsingTable> JsonLoadTable()
+			{
+				vl::stream::MemoryStream stream;
+				JsonGetParserBuffer(stream);
+				vl::Ptr<vl::parsing::tabling::ParsingTable> table=new vl::parsing::tabling::ParsingTable(stream);
+				table->Initialize();
+				return table;
+			}
+
+		}
+	}
+}
+namespace vl
+{
+	namespace reflection
+	{
+		namespace description
+		{
+#ifndef VCZH_DEBUG_NO_REFLECTION
+			using namespace vl::parsing::json;
+
+			IMPL_TYPE_INFO_RENAME(vl::parsing::json::JsonNode, system::JsonNode)
+			IMPL_TYPE_INFO_RENAME(vl::parsing::json::JsonLiteral, system::JsonLiteral)
+			IMPL_TYPE_INFO_RENAME(vl::parsing::json::JsonLiteral::JsonValue, system::JsonLiteral::JsonValue)
+			IMPL_TYPE_INFO_RENAME(vl::parsing::json::JsonString, system::JsonString)
+			IMPL_TYPE_INFO_RENAME(vl::parsing::json::JsonNumber, system::JsonNumber)
+			IMPL_TYPE_INFO_RENAME(vl::parsing::json::JsonArray, system::JsonArray)
+			IMPL_TYPE_INFO_RENAME(vl::parsing::json::JsonObjectField, system::JsonObjectField)
+			IMPL_TYPE_INFO_RENAME(vl::parsing::json::JsonObject, system::JsonObject)
+			IMPL_TYPE_INFO_RENAME(vl::parsing::json::JsonNode::IVisitor, system::JsonNode::IVisitor)
+
+			BEGIN_CLASS_MEMBER(JsonNode)
+				CLASS_MEMBER_METHOD(Accept, {L"visitor"})
+
+			END_CLASS_MEMBER(JsonNode)
+
+			BEGIN_CLASS_MEMBER(JsonLiteral)
+				CLASS_MEMBER_BASE(JsonNode)
+
+				CLASS_MEMBER_CONSTRUCTOR(vl::Ptr<JsonLiteral>(), NO_PARAMETER)
+
+
+				CLASS_MEMBER_FIELD(value)
+			END_CLASS_MEMBER(JsonLiteral)
+
+			BEGIN_ENUM_ITEM(JsonLiteral::JsonValue)
+				ENUM_ITEM_NAMESPACE(JsonLiteral::JsonValue)
+				ENUM_NAMESPACE_ITEM(True)
+				ENUM_NAMESPACE_ITEM(False)
+				ENUM_NAMESPACE_ITEM(Null)
+			END_ENUM_ITEM(JsonLiteral::JsonValue)
+
+			BEGIN_CLASS_MEMBER(JsonString)
+				CLASS_MEMBER_BASE(JsonNode)
+
+				CLASS_MEMBER_CONSTRUCTOR(vl::Ptr<JsonString>(), NO_PARAMETER)
+
+				CLASS_MEMBER_EXTERNALMETHOD(get_content, NO_PARAMETER, vl::WString(JsonString::*)(), [](JsonString* node){ return node->content.value; })
+				CLASS_MEMBER_EXTERNALMETHOD(set_content, {L"value"}, void(JsonString::*)(const vl::WString&), [](JsonString* node, const vl::WString& value){ node->content.value = value; })
+
+				CLASS_MEMBER_PROPERTY(content, get_content, set_content)
+			END_CLASS_MEMBER(JsonString)
+
+			BEGIN_CLASS_MEMBER(JsonNumber)
+				CLASS_MEMBER_BASE(JsonNode)
+
+				CLASS_MEMBER_CONSTRUCTOR(vl::Ptr<JsonNumber>(), NO_PARAMETER)
+
+				CLASS_MEMBER_EXTERNALMETHOD(get_content, NO_PARAMETER, vl::WString(JsonNumber::*)(), [](JsonNumber* node){ return node->content.value; })
+				CLASS_MEMBER_EXTERNALMETHOD(set_content, {L"value"}, void(JsonNumber::*)(const vl::WString&), [](JsonNumber* node, const vl::WString& value){ node->content.value = value; })
+
+				CLASS_MEMBER_PROPERTY(content, get_content, set_content)
+			END_CLASS_MEMBER(JsonNumber)
+
+			BEGIN_CLASS_MEMBER(JsonArray)
+				CLASS_MEMBER_BASE(JsonNode)
+
+				CLASS_MEMBER_CONSTRUCTOR(vl::Ptr<JsonArray>(), NO_PARAMETER)
+
+
+				CLASS_MEMBER_FIELD(items)
+			END_CLASS_MEMBER(JsonArray)
+
+			BEGIN_CLASS_MEMBER(JsonObjectField)
+				CLASS_MEMBER_BASE(JsonNode)
+
+				CLASS_MEMBER_CONSTRUCTOR(vl::Ptr<JsonObjectField>(), NO_PARAMETER)
+
+				CLASS_MEMBER_EXTERNALMETHOD(get_name, NO_PARAMETER, vl::WString(JsonObjectField::*)(), [](JsonObjectField* node){ return node->name.value; })
+				CLASS_MEMBER_EXTERNALMETHOD(set_name, {L"value"}, void(JsonObjectField::*)(const vl::WString&), [](JsonObjectField* node, const vl::WString& value){ node->name.value = value; })
+
+				CLASS_MEMBER_PROPERTY(name, get_name, set_name)
+				CLASS_MEMBER_FIELD(value)
+			END_CLASS_MEMBER(JsonObjectField)
+
+			BEGIN_CLASS_MEMBER(JsonObject)
+				CLASS_MEMBER_BASE(JsonNode)
+
+				CLASS_MEMBER_CONSTRUCTOR(vl::Ptr<JsonObject>(), NO_PARAMETER)
+
+
+				CLASS_MEMBER_FIELD(fields)
+			END_CLASS_MEMBER(JsonObject)
+
+			BEGIN_CLASS_MEMBER(JsonNode::IVisitor)
+				CLASS_MEMBER_BASE(vl::reflection::IDescriptable)
+				CLASS_MEMBER_EXTERNALCTOR(Ptr<JsonNode::IVisitor>(Ptr<IValueInterfaceProxy>), {L"proxy"}, &interface_proxy::JsonNode_IVisitor::Create)
+
+				CLASS_MEMBER_METHOD_OVERLOAD(Visit, {L"node"}, void(JsonNode::IVisitor::*)(JsonLiteral* node))
+				CLASS_MEMBER_METHOD_OVERLOAD(Visit, {L"node"}, void(JsonNode::IVisitor::*)(JsonString* node))
+				CLASS_MEMBER_METHOD_OVERLOAD(Visit, {L"node"}, void(JsonNode::IVisitor::*)(JsonNumber* node))
+				CLASS_MEMBER_METHOD_OVERLOAD(Visit, {L"node"}, void(JsonNode::IVisitor::*)(JsonArray* node))
+				CLASS_MEMBER_METHOD_OVERLOAD(Visit, {L"node"}, void(JsonNode::IVisitor::*)(JsonObjectField* node))
+				CLASS_MEMBER_METHOD_OVERLOAD(Visit, {L"node"}, void(JsonNode::IVisitor::*)(JsonObject* node))
+			END_CLASS_MEMBER(JsonNode)
+
+			class JsonTypeLoader : public vl::Object, public ITypeLoader
+			{
+			public:
+				void Load(ITypeManager* manager)
+				{
+					ADD_TYPE_INFO(vl::parsing::json::JsonNode)
+					ADD_TYPE_INFO(vl::parsing::json::JsonLiteral)
+					ADD_TYPE_INFO(vl::parsing::json::JsonLiteral::JsonValue)
+					ADD_TYPE_INFO(vl::parsing::json::JsonString)
+					ADD_TYPE_INFO(vl::parsing::json::JsonNumber)
+					ADD_TYPE_INFO(vl::parsing::json::JsonArray)
+					ADD_TYPE_INFO(vl::parsing::json::JsonObjectField)
+					ADD_TYPE_INFO(vl::parsing::json::JsonObject)
+					ADD_TYPE_INFO(vl::parsing::json::JsonNode::IVisitor)
+				}
+
+				void Unload(ITypeManager* manager)
+				{
+				}
+			};
+#endif
+
+			bool JsonLoadTypes()
+			{
+#ifndef VCZH_DEBUG_NO_REFLECTION
+				ITypeManager* manager=GetGlobalTypeManager();
+				if(manager)
+				{
+					Ptr<ITypeLoader> loader=new JsonTypeLoader;
+					return manager->AddTypeLoader(loader);
+				}
+#endif
+				return false;
+			}
+		}
+	}
+}
+
+/***********************************************************************
+PARSING\XML\PARSINGXML.CPP
 ***********************************************************************/
 
 namespace vl
@@ -12363,7 +14738,7 @@ XmlElementWriter
 }
 
 /***********************************************************************
-Parsing\Xml\ParsingXml_Parser.cpp
+PARSING\XML\PARSINGXML_PARSER.CPP
 ***********************************************************************/
 
 namespace vl
@@ -12963,7 +15338,7 @@ namespace vl
 }
 
 /***********************************************************************
-Reflection\GuiTypeDescriptor.cpp
+REFLECTION\GUITYPEDESCRIPTOR.CPP
 ***********************************************************************/
 
 namespace vl
@@ -13937,7 +16312,7 @@ IValueDictionary
 }
 
 /***********************************************************************
-Reflection\GuiTypeDescriptorBuilder.cpp
+REFLECTION\GUITYPEDESCRIPTORBUILDER.CPP
 ***********************************************************************/
 
 namespace vl
@@ -14980,7 +17355,7 @@ Function Related
 }
 
 /***********************************************************************
-Reflection\GuiTypeDescriptorPredefined.cpp
+REFLECTION\GUITYPEDESCRIPTORPREDEFINED.CPP
 ***********************************************************************/
 #include <limits.h>
 #include <float.h>
@@ -16252,7 +18627,7 @@ LoadPredefinedTypes
 }
 
 /***********************************************************************
-Regex\Regex.cpp
+REGEX\REGEX.CPP
 ***********************************************************************/
 
 namespace vl
@@ -17152,7 +19527,7 @@ RegexLexer
 }
 
 /***********************************************************************
-Regex\RegexAutomaton.cpp
+REGEX\REGEXAUTOMATON.CPP
 ***********************************************************************/
 
 namespace vl
@@ -17513,7 +19888,7 @@ Automaton
 }
 
 /***********************************************************************
-Regex\RegexData.cpp
+REGEX\REGEXDATA.CPP
 ***********************************************************************/
 
 namespace vl
@@ -17601,7 +19976,7 @@ CharRange
 }
 
 /***********************************************************************
-Regex\RegexExpression.cpp
+REGEX\REGEXEXPRESSION.CPP
 ***********************************************************************/
 
 namespace vl
@@ -18535,7 +20910,7 @@ Expression::Apply
 }
 
 /***********************************************************************
-Regex\RegexParser.cpp
+REGEX\REGEXPARSER.CPP
 ***********************************************************************/
 
 namespace vl
@@ -19233,7 +21608,7 @@ namespace vl
 }
 
 /***********************************************************************
-Regex\RegexPure.cpp
+REGEX\REGEXPURE.CPP
 ***********************************************************************/
 
 namespace vl
@@ -19465,7 +21840,7 @@ PureInterpretor
 }
 
 /***********************************************************************
-Regex\RegexRich.cpp
+REGEX\REGEXRICH.CPP
 ***********************************************************************/
 
 namespace vl
@@ -19900,7 +22275,7 @@ RichInterpretor
 }
 
 /***********************************************************************
-Regex\RegexWriter.cpp
+REGEX\REGEXWRITER.CPP
 ***********************************************************************/
 
 namespace vl
@@ -20082,7 +22457,7 @@ RegexNode
 }
 
 /***********************************************************************
-Stream\Accessor.cpp
+STREAM\ACCESSOR.CPP
 ***********************************************************************/
 
 namespace vl
@@ -20665,7 +23040,7 @@ DecoderStream
 }
 
 /***********************************************************************
-Stream\BroadcastStream.cpp
+STREAM\BROADCASTSTREAM.CPP
 ***********************************************************************/
 
 namespace vl
@@ -20775,7 +23150,7 @@ BroadcastStream
 }
 
 /***********************************************************************
-Stream\CacheStream.cpp
+STREAM\CACHESTREAM.CPP
 ***********************************************************************/
 
 namespace vl
@@ -21079,7 +23454,7 @@ CacheStream
 }
 
 /***********************************************************************
-Stream\CharFormat.cpp
+STREAM\CHARFORMAT.CPP
 ***********************************************************************/
 #if defined VCZH_MSVC
 #elif defined VCZH_GCC
@@ -22169,7 +24544,7 @@ CharEncoder
 }
 
 /***********************************************************************
-Stream\CompressionStream.cpp
+STREAM\COMPRESSIONSTREAM.CPP
 ***********************************************************************/
 
 namespace vl
@@ -22529,7 +24904,7 @@ LzwDecoder
 }
 
 /***********************************************************************
-Stream\FileStream.cpp
+STREAM\FILESTREAM.CPP
 ***********************************************************************/
 #if defined VCZH_GCC
 #endif
@@ -22756,7 +25131,7 @@ FileStream
 }
 
 /***********************************************************************
-Stream\MemoryStream.cpp
+STREAM\MEMORYSTREAM.CPP
 ***********************************************************************/
 
 namespace vl
@@ -22931,7 +25306,7 @@ MemoryStream
 }
 
 /***********************************************************************
-Stream\MemoryWrapperStream.cpp
+STREAM\MEMORYWRAPPERSTREAM.CPP
 ***********************************************************************/
 
 namespace vl
@@ -23077,7 +25452,7 @@ MemoryWrapperStream
 }
 
 /***********************************************************************
-Stream\RecorderStream.cpp
+STREAM\RECORDERSTREAM.CPP
 ***********************************************************************/
 
 namespace vl
@@ -23179,2301 +25554,7 @@ RecorderStream
 }
 
 /***********************************************************************
-String.cpp
-***********************************************************************/
-#include <stdlib.h>
-#if defined VCZH_MSVC
-#elif defined VCZH_GCC
-#define _strtoi64 strtoll
-#define _strtoui64 strtoull
-#define _wcstoi64 wcstoll
-#define _wcstoui64 wcstoull
-#endif
-
-namespace vl
-{
-#if defined VCZH_GCC
-	void _itoa_s(vint32_t value, char* buffer, size_t size, vint radix)
-	{
-		sprintf(buffer, "%d", value);
-	}
-
-	void _itow_s(vint32_t value, wchar_t* buffer, size_t size, vint radix)
-	{
-		swprintf(buffer, size - 1, L"%d", value);
-	}
-
-	void _i64toa_s(vint64_t value, char* buffer, size_t size, vint radix)
-	{
-		sprintf(buffer, "%ld", value);
-	}
-
-	void _i64tow_s(vint64_t value, wchar_t* buffer, size_t size, vint radix)
-	{
-		swprintf(buffer, size - 1, L"%ld", value);
-	}
-
-	void _uitoa_s(vuint32_t value, char* buffer, size_t size, vint radix)
-	{
-		sprintf(buffer, "%u", value);
-	}
-
-	void _uitow_s(vuint32_t value, wchar_t* buffer, size_t size, vint radix)
-	{
-		swprintf(buffer, size - 1, L"%u", value);
-	}
-
-	void _ui64toa_s(vuint64_t value, char* buffer, size_t size, vint radix)
-	{
-		sprintf(buffer, "%lu", value);
-	}
-
-	void _ui64tow_s(vuint64_t value, wchar_t* buffer, size_t size, vint radix)
-	{
-		swprintf(buffer, size - 1, L"%lu", value);
-	}
-
-	void _gcvt_s(char* buffer, size_t size, double value, vint numberOfDigits)
-	{
-		sprintf(buffer, "%f", value);
-		char* point = strchr(buffer, '.');
-		if(!point) return;
-		char* zero = buffer + strlen(buffer);
-		while(zero[-1] == '0')
-		{
-			*--zero = '\0';
-		}
-		if(zero[-1] == '.') *--zero = '\0';
-	}
-
-	void _strlwr_s(char* buffer, size_t size)
-	{
-		while(*buffer)
-		{
-			*buffer=(char)tolower(*buffer);
-			buffer++;
-		}
-	}
-
-	void _strupr_s(char* buffer, size_t size)
-	{
-		while(*buffer)
-		{
-			*buffer=(char)toupper(*buffer);
-			buffer++;
-		}
-	}
-
-	void _wcslwr_s(wchar_t* buffer, size_t size)
-	{
-		while(*buffer)
-		{
-			*buffer=(char)towlower(*buffer);
-			buffer++;
-		}
-	}
-
-	void _wcsupr_s(wchar_t* buffer, size_t size)
-	{
-		while(*buffer)
-		{
-			*buffer=(char)towupper(*buffer);
-			buffer++;
-		}
-	}
-#endif
-
-	vint atoi_test(const AString& string, bool& success)
-	{
-		char* endptr = 0;
-		vint result = strtol(string.Buffer(), &endptr, 10);
-		success = endptr == string.Buffer() + string.Length() && itoa(result) == string;
-		return result;
-	}
-
-	vint wtoi_test(const WString& string, bool& success)
-	{
-		wchar_t* endptr = 0;
-		vint result = wcstol(string.Buffer(), &endptr, 10);
-		success = endptr == string.Buffer() + string.Length() && itow(result) == string;
-		return result;
-	}
-
-	vint64_t atoi64_test(const AString& string, bool& success)
-	{
-		char* endptr = 0;
-		vint64_t result = _strtoi64(string.Buffer(), &endptr, 10);
-		success = endptr == string.Buffer() + string.Length() && i64toa(result) == string;
-		return result;
-	}
-
-	vint64_t wtoi64_test(const WString& string, bool& success)
-	{
-		wchar_t* endptr = 0;
-		vint64_t result = _wcstoi64(string.Buffer(), &endptr, 10);
-		success = endptr == string.Buffer() + string.Length() && i64tow(result) == string;
-		return result;
-	}
-
-	vuint atou_test(const AString& string, bool& success)
-	{
-		char* endptr = 0;
-		vuint result = strtoul(string.Buffer(), &endptr, 10);
-		success = endptr == string.Buffer() + string.Length() && utoa(result) == string;
-		return result;
-	}
-
-	vuint wtou_test(const WString& string, bool& success)
-	{
-		wchar_t* endptr = 0;
-		vuint result = wcstoul(string.Buffer(), &endptr, 10);
-		success = endptr == string.Buffer() + string.Length() && utow(result) == string;
-		return result;
-	}
-
-	vuint64_t atou64_test(const AString& string, bool& success)
-	{
-		char* endptr = 0;
-		vuint64_t result = _strtoui64(string.Buffer(), &endptr, 10);
-		success = endptr == string.Buffer() + string.Length() && u64toa(result) == string;
-		return result;
-	}
-
-	vuint64_t wtou64_test(const WString& string, bool& success)
-	{
-		wchar_t* endptr = 0;
-		vuint64_t result = _wcstoui64(string.Buffer(), &endptr, 10);
-		success = endptr == string.Buffer() + string.Length() && u64tow(result) == string;
-		return result;
-	}
-
-	double atof_test(const AString& string, bool& success)
-	{
-		char* endptr = 0;
-		double result = strtod(string.Buffer(), &endptr);
-		success = endptr == string.Buffer() + string.Length();
-		return result;
-	}
-
-	double wtof_test(const WString& string, bool& success)
-	{
-		wchar_t* endptr = 0;
-		double result = wcstod(string.Buffer(), &endptr);
-		success = endptr == string.Buffer() + string.Length();
-		return result;
-	}
-
-	vint atoi(const AString& string)
-	{
-		bool success = false;
-		return atoi_test(string, success);
-	}
-
-	vint wtoi(const WString& string)
-	{
-		bool success = false;
-		return wtoi_test(string, success);
-	}
-
-	vint64_t atoi64(const AString& string)
-	{
-		bool success = false;
-		return atoi64_test(string, success);
-	}
-
-	vint64_t wtoi64(const WString& string)
-	{
-		bool success = false;
-		return wtoi64_test(string, success);
-	}
-
-	vuint atou(const AString& string)
-	{
-		bool success = false;
-		return atou_test(string, success);
-	}
-
-	vuint wtou(const WString& string)
-	{
-		bool success = false;
-		return wtou_test(string, success);
-	}
-
-	vuint64_t atou64(const AString& string)
-	{
-		bool success = false;
-		return atou64_test(string, success);
-	}
-
-	vuint64_t wtou64(const WString& string)
-	{
-		bool success = false;
-		return wtou64_test(string, success);
-	}
-
-	double atof(const AString& string)
-	{
-		bool success = false;
-		return atof_test(string, success);
-	}
-
-	double wtof(const WString& string)
-	{
-		bool success = false;
-		return wtof_test(string, success);
-	}
-
-	AString itoa(vint number)
-	{
-		char buffer[100];
-		ITOA_S(number, buffer, sizeof(buffer) / sizeof(*buffer), 10);
-		return buffer;
-	}
-
-	WString itow(vint number)
-	{
-		wchar_t buffer[100];
-		ITOW_S(number, buffer, sizeof(buffer) / sizeof(*buffer), 10);
-		return buffer;
-	}
-
-	AString i64toa(vint64_t number)
-	{
-		char buffer[100];
-		I64TOA_S(number, buffer, sizeof(buffer) / sizeof(*buffer), 10);
-		return buffer;
-	}
-
-	WString i64tow(vint64_t number)
-	{
-		wchar_t buffer[100];
-		I64TOW_S(number, buffer, sizeof(buffer) / sizeof(*buffer), 10);
-		return buffer;
-	}
-
-	AString utoa(vuint number)
-	{
-		char buffer[100];
-		UITOA_S(number, buffer, sizeof(buffer) / sizeof(*buffer), 10);
-		return buffer;
-	}
-
-	WString utow(vuint number)
-	{
-		wchar_t buffer[100];
-		UITOW_S(number, buffer, sizeof(buffer) / sizeof(*buffer), 10);
-		return buffer;
-	}
-
-	AString u64toa(vuint64_t number)
-	{
-		char buffer[100];
-		UI64TOA_S(number, buffer, sizeof(buffer) / sizeof(*buffer), 10);
-		return buffer;
-	}
-
-	WString u64tow(vuint64_t number)
-	{
-		wchar_t buffer[100];
-		UI64TOW_S(number, buffer, sizeof(buffer) / sizeof(*buffer), 10);
-		return buffer;
-	}
-
-	AString ftoa(double number)
-	{
-		char buffer[320];
-		_gcvt_s(buffer, 320, number, 30);
-		vint len = (vint)strlen(buffer);
-		if (buffer[len - 1] == '.')
-		{
-			buffer[len - 1] = '\0';
-		}
-		return buffer;
-	}
-
-	WString ftow(double number)
-	{
-		return atow(ftoa(number));
-	}
-
-	vint _wtoa(const wchar_t* w, char* a, vint chars)
-	{
-#if defined VCZH_MSVC
-		return WideCharToMultiByte(CP_THREAD_ACP, 0, w, -1, a, (int)(a ? chars : 0), 0, 0);
-#elif defined VCZH_GCC
-		return wcstombs(a, w, chars-1)+1;
-#endif
-	}
-
-	AString wtoa(const WString& string)
-	{
-		vint len = _wtoa(string.Buffer(), 0, 0);
-		char* buffer = new char[len];
-		memset(buffer, 0, len*sizeof(*buffer));
-		_wtoa(string.Buffer(), buffer, (int)len);
-		AString s = buffer;
-		delete[] buffer;
-		return s;
-	}
-
-	vint _atow(const char* a, wchar_t* w, vint chars)
-	{
-#if defined VCZH_MSVC
-		return MultiByteToWideChar(CP_THREAD_ACP, 0, a, -1, w, (int)(w ? chars : 0));
-#elif defined VCZH_GCC
-		return mbstowcs(w, a, chars-1)+1;
-#endif
-	}
-
-	WString atow(const AString& string)
-	{
-		vint len = _atow(string.Buffer(), 0, 0);
-		wchar_t* buffer = new wchar_t[len];
-		memset(buffer, 0, len*sizeof(*buffer));
-		_atow(string.Buffer(), buffer, (int)len);
-		WString s = buffer;
-		delete[] buffer;
-		return s;
-	}
-
-	AString alower(const AString& string)
-	{
-		AString result = string.Buffer();
-		_strlwr_s((char*)result.Buffer(), result.Length() + 1);
-		return result;
-	}
-
-	WString wlower(const WString& string)
-	{
-		WString result = string.Buffer();
-		_wcslwr_s((wchar_t*)result.Buffer(), result.Length() + 1);
-		return result;
-	}
-
-	AString aupper(const AString& string)
-	{
-		AString result = string.Buffer();
-		_strupr_s((char*)result.Buffer(), result.Length() + 1);
-		return result;
-	}
-
-	WString wupper(const WString& string)
-	{
-		WString result = string.Buffer();
-		_wcsupr_s((wchar_t*)result.Buffer(), result.Length() + 1);
-		return result;
-	}
-}
-
-/***********************************************************************
-Threading.cpp
-***********************************************************************/
-#ifdef VCZH_MSVC
-
-namespace vl
-{
-	using namespace threading_internal;
-	using namespace collections;
-
-/***********************************************************************
-WaitableObject
-***********************************************************************/
-
-	namespace threading_internal
-	{
-		struct WaitableData
-		{
-			HANDLE			handle;
-
-			WaitableData(HANDLE _handle)
-				:handle(_handle)
-			{
-			}
-		};
-	}
-
-	WaitableObject::WaitableObject()
-		:waitableData(0)
-	{
-	}
-
-	void WaitableObject::SetData(threading_internal::WaitableData* data)
-	{
-		waitableData=data;
-	}
-
-	bool WaitableObject::IsCreated()
-	{
-		return waitableData!=0;
-	}
-
-	bool WaitableObject::Wait()
-	{
-		return WaitForTime(INFINITE);
-	}
-
-	bool WaitableObject::WaitForTime(vint ms)
-	{
-		if(IsCreated())
-		{
-			if(WaitForSingleObject(waitableData->handle, (DWORD)ms)==WAIT_OBJECT_0)
-			{
-				return true;
-			}
-		}
-		return false;
-	}
-
-	bool WaitableObject::WaitAll(WaitableObject** objects, vint count)
-	{
-		Array<HANDLE> handles(count);
-		for(vint i=0;i<count;i++)
-		{
-			handles[i]=objects[i]->waitableData->handle;
-		}
-		DWORD result=WaitForMultipleObjects((DWORD)count, &handles[0], TRUE, INFINITE);
-		return result==WAIT_OBJECT_0 || result==WAIT_ABANDONED_0;
-
-	}
-
-	bool WaitableObject::WaitAllForTime(WaitableObject** objects, vint count, vint ms)
-	{
-		Array<HANDLE> handles(count);
-		for(vint i=0;i<count;i++)
-		{
-			handles[i]=objects[i]->waitableData->handle;
-		}
-		DWORD result=WaitForMultipleObjects((DWORD)count, &handles[0], TRUE, (DWORD)ms);
-		return result==WAIT_OBJECT_0 || result==WAIT_ABANDONED_0;
-	}
-
-	vint WaitableObject::WaitAny(WaitableObject** objects, vint count, bool* abandoned)
-	{
-		Array<HANDLE> handles(count);
-		for(vint i=0;i<count;i++)
-		{
-			handles[i]=objects[i]->waitableData->handle;
-		}
-		DWORD result=WaitForMultipleObjects((DWORD)count, &handles[0], FALSE, INFINITE);
-		if(WAIT_OBJECT_0 <= result && result<WAIT_OBJECT_0+count)
-		{
-			*abandoned=false;
-			return result-WAIT_OBJECT_0;
-		}
-		else if(WAIT_ABANDONED_0 <= result && result<WAIT_ABANDONED_0+count)
-		{
-			*abandoned=true;
-			return result-WAIT_ABANDONED_0;
-		}
-		else
-		{
-			return -1;
-		}
-	}
-
-	vint WaitableObject::WaitAnyForTime(WaitableObject** objects, vint count, vint ms, bool* abandoned)
-	{
-		Array<HANDLE> handles(count);
-		for(vint i=0;i<count;i++)
-		{
-			handles[i]=objects[i]->waitableData->handle;
-		}
-		DWORD result=WaitForMultipleObjects((DWORD)count, &handles[0], FALSE, (DWORD)ms);
-		if(WAIT_OBJECT_0 <= result && result<WAIT_OBJECT_0+count)
-		{
-			*abandoned=false;
-			return result-WAIT_OBJECT_0;
-		}
-		else if(WAIT_ABANDONED_0 <= result && result<WAIT_ABANDONED_0+count)
-		{
-			*abandoned=true;
-			return result-WAIT_ABANDONED_0;
-		}
-		else
-		{
-			return -1;
-		}
-	}
-
-/***********************************************************************
-Thread
-***********************************************************************/
-
-	namespace threading_internal
-	{
-		struct ThreadData : public WaitableData
-		{
-			DWORD						id;
-
-			ThreadData()
-				:WaitableData(NULL)
-			{
-				id=-1;
-			}
-		};
-
-		class ProceduredThread : public Thread
-		{
-		private:
-			Thread::ThreadProcedure		procedure;
-			void*						argument;
-			bool						deleteAfterStopped;
-
-		protected:
-			void Run()
-			{
-				ThreadLocalStorage::FixStorages();
-				try
-				{
-					procedure(this, argument);
-					threadState=Thread::Stopped;
-					ThreadLocalStorage::ClearStorages();
-				}
-				catch (...)
-				{
-					ThreadLocalStorage::ClearStorages();
-					throw;
-				}
-				if(deleteAfterStopped)
-				{
-					delete this;
-				}
-			}
-		public:
-			ProceduredThread(Thread::ThreadProcedure _procedure, void* _argument, bool _deleteAfterStopped)
-				:procedure(_procedure)
-				,argument(_argument)
-				,deleteAfterStopped(_deleteAfterStopped)
-			{
-			}
-		};
-
-		class LambdaThread : public Thread
-		{
-		private:
-			Func<void()>				procedure;
-			bool						deleteAfterStopped;
-
-		protected:
-			void Run()
-			{
-				ThreadLocalStorage::FixStorages();
-				try
-				{
-					procedure();
-					threadState=Thread::Stopped;
-					ThreadLocalStorage::ClearStorages();
-				}
-				catch (...)
-				{
-					ThreadLocalStorage::ClearStorages();
-					throw;
-				}
-				if(deleteAfterStopped)
-				{
-					delete this;
-				}
-			}
-		public:
-			LambdaThread(const Func<void()>& _procedure, bool _deleteAfterStopped)
-				:procedure(_procedure)
-				,deleteAfterStopped(_deleteAfterStopped)
-			{
-			}
-		};
-	}
-
-	void InternalThreadProc(Thread* thread)
-	{
-		thread->Run();
-	}
-
-	DWORD WINAPI InternalThreadProcWrapper(LPVOID lpParameter)
-	{
-		InternalThreadProc((Thread*)lpParameter);
-		return 0;
-	}
-
-	Thread::Thread()
-	{
-		internalData=new ThreadData;
-		internalData->handle=CreateThread(NULL, 0, InternalThreadProcWrapper, this, CREATE_SUSPENDED, &internalData->id);
-		threadState=Thread::NotStarted;
-		SetData(internalData);
-	}
-
-	Thread::~Thread()
-	{
-		if (internalData)
-		{
-			Stop();
-			CloseHandle(internalData->handle);
-			delete internalData;
-		}
-	}
-
-	Thread* Thread::CreateAndStart(ThreadProcedure procedure, void* argument, bool deleteAfterStopped)
-	{
-		if(procedure)
-		{
-			Thread* thread=new ProceduredThread(procedure, argument, deleteAfterStopped);
-			if(thread->Start())
-			{
-				return thread;
-			}
-			else
-			{
-				delete thread;
-			}
-		}
-		return 0;
-	}
-
-	Thread* Thread::CreateAndStart(const Func<void()>& procedure, bool deleteAfterStopped)
-	{
-		Thread* thread=new LambdaThread(procedure, deleteAfterStopped);
-		if(thread->Start())
-		{
-			return thread;
-		}
-		else
-		{
-			delete thread;
-		}
-		return 0;
-	}
-
-	void Thread::Sleep(vint ms)
-	{
-		::Sleep((DWORD)ms);
-	}
-
-	
-	vint Thread::GetCPUCount()
-	{
-		SYSTEM_INFO info;
-		GetSystemInfo(&info);
-		return info.dwNumberOfProcessors;
-	}
-
-	vint Thread::GetCurrentThreadId()
-	{
-		return (vint)::GetCurrentThreadId();
-	}
-
-	bool Thread::Start()
-	{
-		if(threadState==Thread::NotStarted && internalData->handle!=NULL)
-		{
-			if(ResumeThread(internalData->handle)!=-1)
-			{
-				threadState=Thread::Running;
-				return true;
-			}
-		}
-		return false;
-	}
-
-	bool Thread::Stop()
-	{
-		if(internalData->handle!=NULL)
-		{
-			if (SuspendThread(internalData->handle) != -1)
-			{
-				threadState=Thread::Stopped;
-				return true;
-			}
-		}
-		return false;
-	}
-
-	Thread::ThreadState Thread::GetState()
-	{
-		return threadState;
-	}
-
-	void Thread::SetCPU(vint index)
-	{
-		SetThreadAffinityMask(internalData->handle, (1<<index));
-	}
-
-/***********************************************************************
-Mutex
-***********************************************************************/
-
-	namespace threading_internal
-	{
-		struct MutexData : public WaitableData
-		{
-			MutexData(HANDLE _handle)
-				:WaitableData(_handle)
-			{
-			}
-		};
-	}
-
-	Mutex::Mutex()
-		:internalData(0)
-	{
-	}
-
-	Mutex::~Mutex()
-	{
-		if(internalData)
-		{
-			CloseHandle(internalData->handle);
-			delete internalData;
-		}
-	}
-
-	bool Mutex::Create(bool owned, const WString& name)
-	{
-		if(IsCreated())return false;
-		BOOL aOwned=owned?TRUE:FALSE;
-		LPCTSTR aName=name==L""?NULL:name.Buffer();
-		HANDLE handle=CreateMutex(NULL, aOwned, aName);
-		if(handle)
-		{
-			internalData=new MutexData(handle);
-			SetData(internalData);
-		}
-		return IsCreated();
-	}
-
-	bool Mutex::Open(bool inheritable, const WString& name)
-	{
-		if(IsCreated())return false;
-		BOOL aInteritable=inheritable?TRUE:FALSE;
-		HANDLE handle=OpenMutex(SYNCHRONIZE, aInteritable, name.Buffer());
-		if(handle)
-		{
-			internalData=new MutexData(handle);
-			SetData(internalData);
-		}
-		return IsCreated();
-	}
-
-	bool Mutex::Release()
-	{
-		if(IsCreated())
-		{
-			return ReleaseMutex(internalData->handle)!=0;
-		}
-		return false;
-	}
-
-/***********************************************************************
-Semaphore
-***********************************************************************/
-
-	namespace threading_internal
-	{
-		struct SemaphoreData : public WaitableData
-		{
-			SemaphoreData(HANDLE _handle)
-				:WaitableData(_handle)
-			{
-			}
-		};
-	}
-
-	Semaphore::Semaphore()
-		:internalData(0)
-	{
-	}
-
-	Semaphore::~Semaphore()
-	{
-		if(internalData)
-		{
-			CloseHandle(internalData->handle);
-			delete internalData;
-		}
-	}
-
-	bool Semaphore::Create(vint initialCount, vint maxCount, const WString& name)
-	{
-		if(IsCreated())return false;
-		LONG aInitial=(LONG)initialCount;
-		LONG aMax=(LONG)maxCount;
-		LPCTSTR aName=name==L""?NULL:name.Buffer();
-		HANDLE handle=CreateSemaphore(NULL, aInitial, aMax, aName);
-		if(handle)
-		{
-			internalData=new SemaphoreData(handle);
-			SetData(internalData);
-		}
-		return IsCreated();
-	}
-
-	bool Semaphore::Open(bool inheritable, const WString& name)
-	{
-		if(IsCreated())return false;
-		BOOL aInteritable=inheritable?TRUE:FALSE;
-		HANDLE handle=OpenSemaphore(SYNCHRONIZE, aInteritable, name.Buffer());
-		if(handle)
-		{
-			internalData=new SemaphoreData(handle);
-			SetData(internalData);
-		}
-		return IsCreated();
-	}
-
-	bool Semaphore::Release()
-	{
-		if(IsCreated())
-		{
-			return Release(1)!=-1;
-		}
-		return false;
-	}
-
-	vint Semaphore::Release(vint count)
-	{
-		if(IsCreated())
-		{
-			LONG previous=-1;
-			if(ReleaseSemaphore(internalData->handle, (LONG)count, &previous)!=0)
-			{
-				return (vint)previous;
-			}
-		}
-		return -1;
-	}
-
-/***********************************************************************
-EventObject
-***********************************************************************/
-
-	namespace threading_internal
-	{
-		struct EventData : public WaitableData
-		{
-			EventData(HANDLE _handle)
-				:WaitableData(_handle)
-			{
-			}
-		};
-	}
-
-	EventObject::EventObject()
-		:internalData(0)
-	{
-	}
-
-	EventObject::~EventObject()
-	{
-		if(internalData)
-		{
-			CloseHandle(internalData->handle);
-			delete internalData;
-		}
-	}
-
-	bool EventObject::CreateAutoUnsignal(bool signaled, const WString& name)
-	{
-		if(IsCreated())return false;
-		BOOL aSignaled=signaled?TRUE:FALSE;
-		LPCTSTR aName=name==L""?NULL:name.Buffer();
-		HANDLE handle=CreateEvent(NULL, FALSE, aSignaled, aName);
-		if(handle)
-		{
-			internalData=new EventData(handle);
-			SetData(internalData);
-		}
-		return IsCreated();
-	}
-
-	bool EventObject::CreateManualUnsignal(bool signaled, const WString& name)
-	{
-		if(IsCreated())return false;
-		BOOL aSignaled=signaled?TRUE:FALSE;
-		LPCTSTR aName=name==L""?NULL:name.Buffer();
-		HANDLE handle=CreateEvent(NULL, TRUE, aSignaled, aName);
-		if(handle)
-		{
-			internalData=new EventData(handle);
-			SetData(internalData);
-		}
-		return IsCreated();
-	}
-
-	bool EventObject::Open(bool inheritable, const WString& name)
-	{
-		if(IsCreated())return false;
-		BOOL aInteritable=inheritable?TRUE:FALSE;
-		HANDLE handle=OpenEvent(SYNCHRONIZE, aInteritable, name.Buffer());
-		if(handle)
-		{
-			internalData=new EventData(handle);
-			SetData(internalData);
-		}
-		return IsCreated();
-	}
-
-	bool EventObject::Signal()
-	{
-		if(IsCreated())
-		{
-			return SetEvent(internalData->handle)!=0;
-		}
-		return false;
-	}
-
-	bool EventObject::Unsignal()
-	{
-		if(IsCreated())
-		{
-			return ResetEvent(internalData->handle)!=0;
-		}
-		return false;
-	}
-
-/***********************************************************************
-ThreadPoolLite
-***********************************************************************/
-
-		struct ThreadPoolQueueProcArgument
-		{
-			void(*proc)(void*);
-			void* argument;
-		};
-
-		DWORD WINAPI ThreadPoolQueueProc(void* argument)
-		{
-			Ptr<ThreadPoolQueueProcArgument> proc=(ThreadPoolQueueProcArgument*)argument;
-			ThreadLocalStorage::FixStorages();
-			try
-			{
-				proc->proc(proc->argument);
-				ThreadLocalStorage::ClearStorages();
-			}
-			catch (...)
-			{
-				ThreadLocalStorage::ClearStorages();
-			}
-			return 0;
-		}
-
-		DWORD WINAPI ThreadPoolQueueFunc(void* argument)
-		{
-			Ptr<Func<void()>> proc=(Func<void()>*)argument;
-			ThreadLocalStorage::FixStorages();
-			try
-			{
-				(*proc.Obj())();
-				ThreadLocalStorage::ClearStorages();
-			}
-			catch (...)
-			{
-				ThreadLocalStorage::ClearStorages();
-			}
-			return 0;
-		}
-
-		ThreadPoolLite::ThreadPoolLite()
-		{
-		}
-
-		ThreadPoolLite::~ThreadPoolLite()
-		{
-		}
-
-		bool ThreadPoolLite::Queue(void(*proc)(void*), void* argument)
-		{
-			ThreadPoolQueueProcArgument* p=new ThreadPoolQueueProcArgument;
-			p->proc=proc;
-			p->argument=argument;
-			if(QueueUserWorkItem(&ThreadPoolQueueProc, p, WT_EXECUTEDEFAULT))
-			{
-				return true;
-			}
-			else
-			{
-				delete p;
-				return false;
-			}
-		}
-
-		bool ThreadPoolLite::Queue(const Func<void()>& proc)
-		{
-			Func<void()>* p=new Func<void()>(proc);
-			if(QueueUserWorkItem(&ThreadPoolQueueFunc, p, WT_EXECUTEDEFAULT))
-			{
-				return true;
-			}
-			else
-			{
-				delete p;
-				return false;
-			}
-		}
-
-/***********************************************************************
-CriticalSection
-***********************************************************************/
-
-	namespace threading_internal
-	{
-		struct CriticalSectionData
-		{
-			CRITICAL_SECTION		criticalSection;
-		};
-	}
-
-	CriticalSection::Scope::Scope(CriticalSection& _criticalSection)
-		:criticalSection(&_criticalSection)
-	{
-		criticalSection->Enter();
-	}
-
-	CriticalSection::Scope::~Scope()
-	{
-		criticalSection->Leave();
-	}
-			
-	CriticalSection::CriticalSection()
-	{
-		internalData=new CriticalSectionData;
-		InitializeCriticalSection(&internalData->criticalSection);
-	}
-
-	CriticalSection::~CriticalSection()
-	{
-		DeleteCriticalSection(&internalData->criticalSection);
-		delete internalData;
-	}
-
-	bool CriticalSection::TryEnter()
-	{
-		return TryEnterCriticalSection(&internalData->criticalSection)!=0;
-	}
-
-	void CriticalSection::Enter()
-	{
-		EnterCriticalSection(&internalData->criticalSection);
-	}
-
-	void CriticalSection::Leave()
-	{
-		LeaveCriticalSection(&internalData->criticalSection);
-	}
-
-/***********************************************************************
-ReaderWriterLock
-***********************************************************************/
-
-	namespace threading_internal
-	{
-		struct ReaderWriterLockData
-		{
-			SRWLOCK			lock;
-		};
-	}
-
-	ReaderWriterLock::ReaderScope::ReaderScope(ReaderWriterLock& _lock)
-		:lock(&_lock)
-	{
-		lock->EnterReader();
-	}
-
-	ReaderWriterLock::ReaderScope::~ReaderScope()
-	{
-		lock->LeaveReader();
-	}
-
-	ReaderWriterLock::WriterScope::WriterScope(ReaderWriterLock& _lock)
-		:lock(&_lock)
-	{
-		lock->EnterWriter();
-	}
-
-	ReaderWriterLock::WriterScope::~WriterScope()
-	{
-		lock->LeaveWriter();
-	}
-
-	ReaderWriterLock::ReaderWriterLock()
-		:internalData(new threading_internal::ReaderWriterLockData)
-	{
-		InitializeSRWLock(&internalData->lock);
-	}
-
-	ReaderWriterLock::~ReaderWriterLock()
-	{
-		delete internalData;
-	}
-
-	bool ReaderWriterLock::TryEnterReader()
-	{
-		return TryAcquireSRWLockShared(&internalData->lock)!=0;
-	}
-
-	void ReaderWriterLock::EnterReader()
-	{
-		AcquireSRWLockShared(&internalData->lock);
-	}
-
-	void ReaderWriterLock::LeaveReader()
-	{
-		ReleaseSRWLockShared(&internalData->lock);
-	}
-
-	bool ReaderWriterLock::TryEnterWriter()
-	{
-		return TryAcquireSRWLockExclusive(&internalData->lock)!=0;
-	}
-
-	void ReaderWriterLock::EnterWriter()
-	{
-		AcquireSRWLockExclusive(&internalData->lock);
-	}
-
-	void ReaderWriterLock::LeaveWriter()
-	{
-		ReleaseSRWLockExclusive(&internalData->lock);
-	}
-
-/***********************************************************************
-ConditionVariable
-***********************************************************************/
-
-	namespace threading_internal
-	{
-		struct ConditionVariableData
-		{
-			CONDITION_VARIABLE			variable;
-		};
-	}
-
-	ConditionVariable::ConditionVariable()
-		:internalData(new threading_internal::ConditionVariableData)
-	{
-		InitializeConditionVariable(&internalData->variable);
-	}
-
-	ConditionVariable::~ConditionVariable()
-	{
-		delete internalData;
-	}
-
-	bool ConditionVariable::SleepWith(CriticalSection& cs)
-	{
-		return SleepConditionVariableCS(&internalData->variable, &cs.internalData->criticalSection, INFINITE)!=0;
-	}
-
-	bool ConditionVariable::SleepWithForTime(CriticalSection& cs, vint ms)
-	{
-		return SleepConditionVariableCS(&internalData->variable, &cs.internalData->criticalSection, (DWORD)ms)!=0;
-	}
-
-	bool ConditionVariable::SleepWithReader(ReaderWriterLock& lock)
-	{
-		return SleepConditionVariableSRW(&internalData->variable, &lock.internalData->lock, INFINITE, CONDITION_VARIABLE_LOCKMODE_SHARED)!=0;
-	}
-
-	bool ConditionVariable::SleepWithReaderForTime(ReaderWriterLock& lock, vint ms)
-	{
-		return SleepConditionVariableSRW(&internalData->variable, &lock.internalData->lock, (DWORD)ms, CONDITION_VARIABLE_LOCKMODE_SHARED)!=0;
-	}
-
-	bool ConditionVariable::SleepWithWriter(ReaderWriterLock& lock)
-	{
-		return SleepConditionVariableSRW(&internalData->variable, &lock.internalData->lock, INFINITE, 0)!=0;
-	}
-
-	bool ConditionVariable::SleepWithWriterForTime(ReaderWriterLock& lock, vint ms)
-	{
-		return SleepConditionVariableSRW(&internalData->variable, &lock.internalData->lock, (DWORD)ms, 0)!=0;
-	}
-
-	void ConditionVariable::WakeOnePending()
-	{
-		WakeConditionVariable(&internalData->variable);
-	}
-
-	void ConditionVariable::WakeAllPendings()
-	{
-		WakeAllConditionVariable(&internalData->variable);
-	}
-
-/***********************************************************************
-SpinLock
-***********************************************************************/
-
-	SpinLock::Scope::Scope(SpinLock& _spinLock)
-		:spinLock(&_spinLock)
-	{
-		spinLock->Enter();
-	}
-
-	SpinLock::Scope::~Scope()
-	{
-		spinLock->Leave();
-	}
-			
-	SpinLock::SpinLock()
-		:token(0)
-	{
-	}
-
-	SpinLock::~SpinLock()
-	{
-	}
-
-	bool SpinLock::TryEnter()
-	{
-		return _InterlockedExchange(&token, 1)==0;
-	}
-
-	void SpinLock::Enter()
-	{
-		while(_InterlockedCompareExchange(&token, 1, 0)!=0)
-		{
-			while(token!=0) _mm_pause();
-		}
-	}
-
-	void SpinLock::Leave()
-	{
-		_InterlockedExchange(&token, 0);
-	}
-
-/***********************************************************************
-ThreadLocalStorage
-***********************************************************************/
-
-#define KEY ((DWORD&)key)
-
-	ThreadLocalStorage::ThreadLocalStorage(Destructor _destructor)
-		:destructor(_destructor)
-	{
-		static_assert(sizeof(key) >= sizeof(DWORD), "ThreadLocalStorage's key storage is not large enouth.");
-		PushStorage(this);
-		KEY = TlsAlloc();
-		CHECK_ERROR(KEY != TLS_OUT_OF_INDEXES, L"vl::ThreadLocalStorage::ThreadLocalStorage()#Failed to alloc new thread local storage index.");
-	}
-
-	ThreadLocalStorage::~ThreadLocalStorage()
-	{
-		TlsFree(KEY);
-	}
-
-	void* ThreadLocalStorage::Get()
-	{
-		CHECK_ERROR(!disposed, L"vl::ThreadLocalStorage::Get()#Cannot access a disposed ThreadLocalStorage.");
-		return TlsGetValue(KEY);
-	}
-
-	void ThreadLocalStorage::Set(void* data)
-	{
-		CHECK_ERROR(!disposed, L"vl::ThreadLocalStorage::Set()#Cannot access a disposed ThreadLocalStorage.");
-		TlsSetValue(KEY, data);
-	}
-
-#undef KEY
-}
-#endif
-
-/***********************************************************************
-ThreadLocalStorage Common Implementations
-***********************************************************************/
-
-namespace vl
-{
-	void ThreadLocalStorage::Clear()
-	{
-		CHECK_ERROR(!disposed, L"vl::ThreadLocalStorage::Clear()#Cannot access a disposed ThreadLocalStorage.");
-		if(destructor)
-		{
-			if (auto data = Get())
-			{
-				destructor(data);
-			}
-		}
-		Set(nullptr);
-	}
-
-	void ThreadLocalStorage::Dispose()
-	{
-		CHECK_ERROR(!disposed, L"vl::ThreadLocalStorage::Dispose()#Cannot access a disposed ThreadLocalStorage.");
-		Clear();
-		disposed = true;
-	}
-
-	struct TlsStorageLink
-	{
-		ThreadLocalStorage*		storage = nullptr;
-		TlsStorageLink*			next = nullptr;
-	};
-
-	volatile bool				tlsFixed = false;
-	TlsStorageLink*				tlsHead = nullptr;
-	TlsStorageLink**			tlsTail = &tlsHead;
-
-	void ThreadLocalStorage::PushStorage(ThreadLocalStorage* storage)
-	{
-		CHECK_ERROR(!tlsFixed, L"vl::ThreadLocalStorage::PushStorage(ThreadLocalStorage*)#Cannot create new ThreadLocalStorage instance after calling ThreadLocalStorage::FixStorages().");
-		auto link = new TlsStorageLink;
-		link->storage = storage;
-		*tlsTail = link;
-		tlsTail = &link->next;
-	}
-
-	void ThreadLocalStorage::FixStorages()
-	{
-		tlsFixed = true;
-	}
-
-	void ThreadLocalStorage::ClearStorages()
-	{
-		FixStorages();
-		auto current = tlsHead;
-		while (current)
-		{
-			current->storage->Clear();
-			current = current->next;
-		}
-	}
-
-	void ThreadLocalStorage::DisposeStorages()
-	{
-		FixStorages();
-		auto current = tlsHead;
-		tlsHead = nullptr;
-		tlsTail = nullptr;
-		while (current)
-		{
-			current->storage->Dispose();
-
-			auto temp = current;
-			current = current->next;
-			delete temp;
-		}
-	}
-}
-
-/***********************************************************************
-ThreadingLinux.cpp
-***********************************************************************/
-#ifdef VCZH_GCC
-#include <pthread.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <sys/stat.h>
-#include <semaphore.h>
-#include <errno.h>
-#if defined(__APPLE__) || defined(__APPLE_CC__)
-#include <CoreFoundation/CoreFoundation.h>
-#endif
-
-namespace vl
-{
-	using namespace threading_internal;
-	using namespace collections;
-
-
-/***********************************************************************
-Thread
-***********************************************************************/
-
-	namespace threading_internal
-	{
-		struct ThreadData
-		{
-			pthread_t					id;
-			EventObject					ev;
-		};
-
-		class ProceduredThread : public Thread
-		{
-		private:
-			Thread::ThreadProcedure		procedure;
-			void*						argument;
-			bool						deleteAfterStopped;
-
-		protected:
-			void Run()
-			{
-				bool deleteAfterStopped = this->deleteAfterStopped;
-				ThreadLocalStorage::FixStorages();
-				try
-				{
-					procedure(this, argument);
-					threadState=Thread::Stopped;
-					internalData->ev.Signal();
-					ThreadLocalStorage::ClearStorages();
-				}
-				catch (...)
-				{
-					ThreadLocalStorage::ClearStorages();
-					throw;
-				}
-				if(deleteAfterStopped)
-				{
-					delete this;
-				}
-			}
-		public:
-			ProceduredThread(Thread::ThreadProcedure _procedure, void* _argument, bool _deleteAfterStopped)
-				:procedure(_procedure)
-				,argument(_argument)
-				,deleteAfterStopped(_deleteAfterStopped)
-			{
-			}
-		};
-
-		class LambdaThread : public Thread
-		{
-		private:
-			Func<void()>				procedure;
-			bool						deleteAfterStopped;
-
-		protected:
-			void Run()
-			{
-				bool deleteAfterStopped = this->deleteAfterStopped;
-				ThreadLocalStorage::FixStorages();
-				try
-				{
-					procedure();
-					threadState=Thread::Stopped;
-					internalData->ev.Signal();
-					ThreadLocalStorage::ClearStorages();
-				}
-				catch (...)
-				{
-					ThreadLocalStorage::ClearStorages();
-					throw;
-				}
-				if(deleteAfterStopped)
-				{
-					delete this;
-				}
-			}
-		public:
-			LambdaThread(const Func<void()>& _procedure, bool _deleteAfterStopped)
-				:procedure(_procedure)
-				,deleteAfterStopped(_deleteAfterStopped)
-			{
-			}
-		};
-	}
-
-	void InternalThreadProc(Thread* thread)
-	{
-		thread->Run();
-	}
-
-	void* InternalThreadProcWrapper(void* lpParameter)
-	{
-		InternalThreadProc((Thread*)lpParameter);
-		return 0;
-	}
-
-	Thread::Thread()
-	{
-		internalData=new ThreadData;
-		internalData->ev.CreateManualUnsignal(false);
-		threadState=Thread::NotStarted;
-	}
-
-	Thread::~Thread()
-	{
-		if (internalData)
-		{
-			Stop();
-			if (threadState!=Thread::NotStarted)
-			{
-				pthread_detach(internalData->id);
-			}
-			delete internalData;
-		}
-	}
-
-	Thread* Thread::CreateAndStart(ThreadProcedure procedure, void* argument, bool deleteAfterStopped)
-	{
-		if(procedure)
-		{
-			Thread* thread=new ProceduredThread(procedure, argument, deleteAfterStopped);
-			if(thread->Start())
-			{
-				return thread;
-			}
-			else
-			{
-				delete thread;
-			}
-		}
-		return 0;
-	}
-
-	Thread* Thread::CreateAndStart(const Func<void()>& procedure, bool deleteAfterStopped)
-	{
-		Thread* thread=new LambdaThread(procedure, deleteAfterStopped);
-		if(thread->Start())
-		{
-			return thread;
-		}
-		else
-		{
-			delete thread;
-		}
-		return 0;
-	}
-
-	void Thread::Sleep(vint ms)
-	{
-		if (ms >= 1000)
-		{
-			sleep(ms / 1000);
-		}
-		if (ms % 1000)
-		{
-			usleep((ms % 1000) * 1000);
-		}
-	}
-	
-	vint Thread::GetCPUCount()
-	{
-		return (vint)sysconf(_SC_NPROCESSORS_ONLN);
-	}
-
-	vint Thread::GetCurrentThreadId()
-	{
-		return (vint)::pthread_self();
-	}
-
-	bool Thread::Start()
-	{
-		if(threadState==Thread::NotStarted)
-		{
-			if(pthread_create(&internalData->id, nullptr, &InternalThreadProcWrapper, this)==0)
-			{
-				threadState=Thread::Running;
-				return true;
-			}
-		}
-		return false;
-	}
-
-	bool Thread::Wait()
-	{
-		return internalData->ev.Wait();
-	}
-
-	bool Thread::Stop()
-	{
-		if (threadState==Thread::Running)
-		{
-			if(pthread_cancel(internalData->id)==0)
-			{
-				threadState=Thread::Stopped;
-				internalData->ev.Signal();
-				return true;
-			}
-		}
-		return false;
-	}
-
-	Thread::ThreadState Thread::GetState()
-	{
-		return threadState;
-	}
-
-/***********************************************************************
-Mutex
-***********************************************************************/
-
-	namespace threading_internal
-	{
-		struct MutexData
-		{
-			Semaphore			sem;
-		};
-	};
-
-	Mutex::Mutex()
-	{
-		internalData = new MutexData;
-	}
-
-	Mutex::~Mutex()
-	{
-		delete internalData;
-	}
-
-	bool Mutex::Create(bool owned, const WString& name)
-	{
-		return internalData->sem.Create(owned ? 0 : 1, 1, name);
-	}
-
-	bool Mutex::Open(bool inheritable, const WString& name)
-	{
-		return internalData->sem.Open(inheritable, name);
-	}
-
-	bool Mutex::Release()
-	{
-		return internalData->sem.Release();
-	}
-
-	bool Mutex::Wait()
-	{
-		return internalData->sem.Wait();
-	}
-
-/***********************************************************************
-Semaphore
-***********************************************************************/
-
-	namespace threading_internal
-	{
-		struct SemaphoreData
-		{
-			sem_t			semUnnamed;
-			sem_t*			semNamed = nullptr;
-		};
-	}
-
-	Semaphore::Semaphore()
-		:internalData(0)
-	{
-	}
-
-	Semaphore::~Semaphore()
-	{
-		if (internalData)
-		{
-			if (internalData->semNamed)
-			{
-				sem_close(internalData->semNamed);
-			}
-			else
-			{
-				sem_destroy(&internalData->semUnnamed);
-			}
-			delete internalData;
-		}
-	}
-
-	bool Semaphore::Create(vint initialCount, vint maxCount, const WString& name)
-	{
-		if (internalData) return false;
-		if (initialCount > maxCount) return false;
-
-		internalData = new SemaphoreData;
-#if defined(__APPLE__)
-        
-        AString auuid;
-        if(name.Length() == 0)
-        {
-            CFUUIDRef cfuuid = CFUUIDCreate(kCFAllocatorDefault);
-            CFStringRef cfstr = CFUUIDCreateString(kCFAllocatorDefault, cfuuid);
-            auuid = CFStringGetCStringPtr(cfstr, kCFStringEncodingASCII);
-
-			CFRelease(cfstr);
-			CFRelease(cfuuid);
-        }
-        auuid = auuid.Insert(0, "/");
-        // OSX SEM_NAME_LENGTH = 31
-        if(auuid.Length() >= 30)
-            auuid = auuid.Sub(0, 30);
-        
-        if ((internalData->semNamed = sem_open(auuid.Buffer(), O_CREAT, O_RDWR, initialCount)) == SEM_FAILED)
-        {
-            delete internalData;
-            internalData = 0;
-            return false;
-        }
-        
-#else
-        if (name == L"")
-        {
-            if(sem_init(&internalData->semUnnamed, 0, (int)initialCount) == -1)
-            {
-                delete internalData;
-                internalData = 0;
-                return false;
-            }
-        }
-        else
-        {
-            AString astr = wtoa(name);
-            
-            if ((internalData->semNamed = sem_open(astr.Buffer(), O_CREAT, 0777, initialCount)) == SEM_FAILED)
-            {
-                delete internalData;
-                internalData = 0;
-                return false;
-            }
-        }
-#endif
-        
-
-		Release(initialCount);
-		return true;
-	}
-
-	bool Semaphore::Open(bool inheritable, const WString& name)
-	{
-		if (internalData) return false;
-		if (inheritable) return false;
-
-		internalData = new SemaphoreData;
-		if (!(internalData->semNamed = sem_open(wtoa(name).Buffer(), 0)))
-		{
-            delete internalData;
-            internalData = 0;
-			return false;
-		}
-
-		return true;
-	}
-
-	bool Semaphore::Release()
-	{
-		return Release(1);
-	}
-
-	vint Semaphore::Release(vint count)
-	{
-		for (vint i = 0; i < count; i++)
-		{
-			if (internalData->semNamed)
-			{
-				sem_post(internalData->semNamed);
-			}
-			else
-			{
-				sem_post(&internalData->semUnnamed);
-			}
-		}
-		return true;
-	}
-
-	bool Semaphore::Wait()
-	{
-		if (internalData->semNamed)
-		{
-			return sem_wait(internalData->semNamed) == 0;
-		}
-		else
-		{
-			return sem_wait(&internalData->semUnnamed) == 0;
-		}
-	}
-
-/***********************************************************************
-EventObject
-***********************************************************************/
-
-	namespace threading_internal
-	{
-		struct EventData
-		{
-			bool				autoReset;
-			volatile bool		signaled;
-			CriticalSection		mutex;
-			ConditionVariable	cond;
-			volatile vint		counter = 0;
-		};
-	}
-
-	EventObject::EventObject()
-	{
-		internalData = nullptr;
-	}
-
-	EventObject::~EventObject()
-	{
-		if (internalData)
-		{
-			delete internalData;
-		}
-	}
-
-	bool EventObject::CreateAutoUnsignal(bool signaled, const WString& name)
-	{
-		if (name!=L"") return false;
-		if (internalData) return false;
-
-		internalData = new EventData;
-		internalData->autoReset = true;
-		internalData->signaled = signaled;
-		return true;
-	}
-
-	bool EventObject::CreateManualUnsignal(bool signaled, const WString& name)
-	{
-		if (name!=L"") return false;
-		if (internalData) return false;
-
-		internalData = new EventData;
-		internalData->autoReset = false;
-		internalData->signaled = signaled;
-		return true;
-	}
-
-	bool EventObject::Signal()
-	{
-		if (!internalData) return false;
-
-		internalData->mutex.Enter();
-		internalData->signaled = true;
-		if (internalData->counter)
-		{
-			if (internalData->autoReset)
-			{
-				internalData->cond.WakeOnePending();
-				internalData->signaled = false;
-			}
-			else
-			{
-				internalData->cond.WakeAllPendings();
-			}
-		}
-		internalData->mutex.Leave();
-		return true;
-	}
-
-	bool EventObject::Unsignal()
-	{
-		if (!internalData) return false;
-
-		internalData->mutex.Enter();
-		internalData->signaled = false;
-		internalData->mutex.Leave();
-		return true;
-	}
-
-	bool EventObject::Wait()
-	{
-		if (!internalData) return false;
-
-		internalData->mutex.Enter();
-		if (internalData->signaled)
-		{
-			if (internalData->autoReset)
-			{
-				internalData->signaled = false;
-			}
-		}
-		else
-		{
-			internalData->counter++;
-			internalData->cond.SleepWith(internalData->mutex);
-			internalData->counter--;
-		}
-		internalData->mutex.Leave();
-		return true;
-	}
-
-/***********************************************************************
-ThreadPoolLite
-***********************************************************************/
-
-	namespace threading_internal
-	{
-		struct ThreadPoolTask
-		{
-			Func<void()>			task;
-			Ptr<ThreadPoolTask>		next;
-		};
-
-		struct ThreadPoolData
-		{
-			Semaphore				semaphore;
-			EventObject				taskFinishEvent;
-			Ptr<ThreadPoolTask>		taskBegin;
-			Ptr<ThreadPoolTask>*	taskEnd = nullptr;
-			volatile bool			stopping = false;
-			List<Thread*>			taskThreads;
-		};
-
-		SpinLock					threadPoolLock;
-		ThreadPoolData*				threadPoolData = nullptr;
-
-		void ThreadPoolProc(Thread* thread, void* argument)
-		{
-			while (true)
-			{
-				Ptr<ThreadPoolTask> task;
-
-				threadPoolData->semaphore.Wait();
-				SPIN_LOCK(threadPoolLock)
-				{
-					if (threadPoolData->taskBegin)
-					{
-						task = threadPoolData->taskBegin;
-						threadPoolData->taskBegin = task->next;
-					}
-
-					if (!threadPoolData->taskBegin)
-					{
-						threadPoolData->taskEnd = &threadPoolData->taskBegin;
-						threadPoolData->taskFinishEvent.Signal();
-					}
-				}
-
-				if (task)
-				{
-					ThreadLocalStorage::FixStorages();
-					try
-					{
-						task->task();
-						ThreadLocalStorage::ClearStorages();
-					}
-					catch (...)
-					{
-						ThreadLocalStorage::ClearStorages();
-					}
-				}
-				else if (threadPoolData->stopping)
-				{
-					return;
-				}
-			}
-		}
-
-		bool ThreadPoolQueue(const Func<void()>& proc)
-		{
-			SPIN_LOCK(threadPoolLock)
-			{
-				if (!threadPoolData)
-				{
-					threadPoolData = new ThreadPoolData;
-					threadPoolData->semaphore.Create(0, 65536);
-					threadPoolData->taskFinishEvent.CreateManualUnsignal(false);
-					threadPoolData->taskEnd = &threadPoolData->taskBegin;
-
-					for (vint i = 0; i < Thread::GetCPUCount() * 4; i++)
-					{
-						threadPoolData->taskThreads.Add(Thread::CreateAndStart(&ThreadPoolProc, nullptr, false));
-					}
-				}
-
-				if (threadPoolData)
-				{
-					if (threadPoolData->stopping)
-					{
-						return false;
-					}
-
-					auto task = MakePtr<ThreadPoolTask>();
-					task->task = proc;
-					*threadPoolData->taskEnd = task;
-					threadPoolData->taskEnd = &task->next;
-					threadPoolData->semaphore.Release();
-					threadPoolData->taskFinishEvent.Unsignal();
-				}
-			}
-			return true;
-		}
-
-		bool ThreadPoolStop(bool discardPendingTasks)
-		{
-			SPIN_LOCK(threadPoolLock)
-			{
-				if (!threadPoolData) return false;
-				if (threadPoolData->stopping) return false;
-
-				threadPoolData->stopping = true;
-				if (discardPendingTasks)
-				{
-					threadPoolData->taskEnd = &threadPoolData->taskBegin;
-					threadPoolData->taskBegin = nullptr;
-				}
-
-				threadPoolData->semaphore.Release(threadPoolData->taskThreads.Count());
-			}
-
-			threadPoolData->taskFinishEvent.Wait();
-			for (vint i = 0; i < threadPoolData->taskThreads.Count(); i++)
-			{
-				auto thread = threadPoolData->taskThreads[i];
-				thread->Wait();
-				delete thread;
-			}
-			threadPoolData->taskThreads.Clear();
-
-			SPIN_LOCK(threadPoolLock)
-			{
-				delete threadPoolData;
-				threadPoolData = nullptr;
-			}
-			return true;
-		}
-	}
-
-	ThreadPoolLite::ThreadPoolLite()
-	{
-	}
-
-	ThreadPoolLite::~ThreadPoolLite()
-	{
-	}
-
-	bool ThreadPoolLite::Queue(void(*proc)(void*), void* argument)
-	{
-		return ThreadPoolQueue([proc, argument](){proc(argument);});
-	}
-
-	bool ThreadPoolLite::Queue(const Func<void()>& proc)
-	{
-		return ThreadPoolQueue(proc);
-	}
-
-	bool ThreadPoolLite::Stop(bool discardPendingTasks)
-	{
-		return ThreadPoolStop(discardPendingTasks);
-	}
-
-/***********************************************************************
-CriticalSection
-***********************************************************************/
-
-	namespace threading_internal
-	{
-		struct CriticalSectionData
-		{
-			pthread_mutex_t		mutex;
-		};
-	}
-
-	CriticalSection::CriticalSection()
-	{
-		internalData = new CriticalSectionData;
-		pthread_mutex_init(&internalData->mutex, nullptr);
-	}
-
-	CriticalSection::~CriticalSection()
-	{
-		pthread_mutex_destroy(&internalData->mutex);
-		delete internalData;
-	}
-
-	bool CriticalSection::TryEnter()
-	{
-		return pthread_mutex_trylock(&internalData->mutex) == 0;
-	}
-
-	void CriticalSection::Enter()
-	{
-		pthread_mutex_lock(&internalData->mutex);
-	}
-
-	void CriticalSection::Leave()
-	{
-		pthread_mutex_unlock(&internalData->mutex);
-	}
-
-	CriticalSection::Scope::Scope(CriticalSection& _criticalSection)
-		:criticalSection(&_criticalSection)
-	{
-		criticalSection->Enter();
-	}
-
-	CriticalSection::Scope::~Scope()
-	{
-		criticalSection->Leave();
-	}
-
-/***********************************************************************
-ReaderWriterLock
-***********************************************************************/
-
-	namespace threading_internal
-	{
-		struct ReaderWriterLockData
-		{
-			pthread_rwlock_t			rwlock;
-		};
-	}
-
-	ReaderWriterLock::ReaderWriterLock()
-	{
-		internalData = new ReaderWriterLockData;
-		pthread_rwlock_init(&internalData->rwlock, nullptr);
-	}
-
-	ReaderWriterLock::~ReaderWriterLock()
-	{
-		pthread_rwlock_destroy(&internalData->rwlock);
-		delete internalData;
-	}
-
-	bool ReaderWriterLock::TryEnterReader()
-	{
-		return pthread_rwlock_tryrdlock(&internalData->rwlock) == 0;
-	}
-
-	void ReaderWriterLock::EnterReader()
-	{
-		pthread_rwlock_rdlock(&internalData->rwlock);
-	}
-
-	void ReaderWriterLock::LeaveReader()
-	{
-		pthread_rwlock_unlock(&internalData->rwlock);
-	}
-
-	bool ReaderWriterLock::TryEnterWriter()
-	{
-		return pthread_rwlock_trywrlock(&internalData->rwlock) == 0;
-	}
-
-	void ReaderWriterLock::EnterWriter()
-	{
-		pthread_rwlock_wrlock(&internalData->rwlock);
-	}
-
-	void ReaderWriterLock::LeaveWriter()
-	{
-		pthread_rwlock_unlock(&internalData->rwlock);
-	}
-
-	ReaderWriterLock::ReaderScope::ReaderScope(ReaderWriterLock& _lock)
-		:lock(&_lock)
-	{
-		lock->EnterReader();
-	}
-
-	ReaderWriterLock::ReaderScope::~ReaderScope()
-	{
-		lock->LeaveReader();
-	}
-
-	ReaderWriterLock::WriterScope::WriterScope(ReaderWriterLock& _lock)
-		:lock(&_lock)
-	{
-		lock->EnterWriter();
-	}
-
-	ReaderWriterLock::WriterScope::~WriterScope()
-	{
-		lock->LeaveReader();
-	}
-
-/***********************************************************************
-ConditionVariable
-***********************************************************************/
-
-	namespace threading_internal
-	{
-		struct ConditionVariableData
-		{
-			pthread_cond_t			cond;
-		};
-	}
-
-	ConditionVariable::ConditionVariable()
-	{
-		internalData = new ConditionVariableData;
-		pthread_cond_init(&internalData->cond, nullptr);
-	}
-
-	ConditionVariable::~ConditionVariable()
-	{
-		pthread_cond_destroy(&internalData->cond);
-		delete internalData;
-	}
-
-	bool ConditionVariable::SleepWith(CriticalSection& cs)
-	{
-		return pthread_cond_wait(&internalData->cond, &cs.internalData->mutex) == 0;
-	}
-
-	void ConditionVariable::WakeOnePending()
-	{
-		pthread_cond_signal(&internalData->cond);
-	}
-
-	void ConditionVariable::WakeAllPendings()
-	{
-		pthread_cond_broadcast(&internalData->cond);
-	}
-
-/***********************************************************************
-SpinLock
-***********************************************************************/
-
-	SpinLock::Scope::Scope(SpinLock& _spinLock)
-		:spinLock(&_spinLock)
-	{
-		spinLock->Enter();
-	}
-
-	SpinLock::Scope::~Scope()
-	{
-		spinLock->Leave();
-	}
-			
-	SpinLock::SpinLock()
-		:token(0)
-	{
-	}
-
-	SpinLock::~SpinLock()
-	{
-	}
-
-	bool SpinLock::TryEnter()
-	{
-		return __sync_lock_test_and_set(&token, 1)==0;
-	}
-
-	void SpinLock::Enter()
-	{
-		while(__sync_val_compare_and_swap(&token, 0, 1)!=0)
-		{
-			while(token!=0) _mm_pause();
-		}
-	}
-
-	void SpinLock::Leave()
-	{
-		__sync_lock_test_and_set(&token, 0);
-	}
-
-/***********************************************************************
-ThreadLocalStorage
-***********************************************************************/
-
-#define KEY ((pthread_key_t&)key)
-
-	ThreadLocalStorage::ThreadLocalStorage(Destructor _destructor)
-		:destructor(_destructor)
-	{
-		static_assert(sizeof(key) >= sizeof(pthread_key_t), "ThreadLocalStorage's key storage is not large enouth.");
-		PushStorage(this);
-		auto error = pthread_key_create(&KEY, destructor);
-		CHECK_ERROR(error != EAGAIN && error != ENOMEM, L"vl::ThreadLocalStorage::ThreadLocalStorage()#Failed to create a thread local storage index.");
-	}
-
-	ThreadLocalStorage::~ThreadLocalStorage()
-	{
-		pthread_key_delete(KEY);
-	}
-
-	void* ThreadLocalStorage::Get()
-	{
-		CHECK_ERROR(!disposed, L"vl::ThreadLocalStorage::Get()#Cannot access a disposed ThreadLocalStorage.");
-		return pthread_getspecific(KEY);
-	}
-
-	void ThreadLocalStorage::Set(void* data)
-	{
-		CHECK_ERROR(!disposed, L"vl::ThreadLocalStorage::Set()#Cannot access a disposed ThreadLocalStorage.");
-		pthread_setspecific(KEY, data);
-	}
-
-#undef KEY
-}
-#endif
-
-/***********************************************************************
-UnitTest\UnitTest.cpp
+UNITTEST\UNITTEST.CPP
 ***********************************************************************/
 #if defined VCZH_MSVC
 #endif
