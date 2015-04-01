@@ -41,6 +41,7 @@ Thread
 		protected:
 			void Run()
 			{
+				bool deleteAfterStopped = this->deleteAfterStopped;
 				ThreadLocalStorage::FixStorages();
 				try
 				{
@@ -77,6 +78,7 @@ Thread
 		protected:
 			void Run()
 			{
+				bool deleteAfterStopped = this->deleteAfterStopped;
 				ThreadLocalStorage::FixStorages();
 				try
 				{
