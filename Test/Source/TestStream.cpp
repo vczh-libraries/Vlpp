@@ -17,7 +17,8 @@ using namespace vl;
 using namespace vl::stream;
 using namespace vl::collections;
 
-extern WString GetPath();
+extern WString GetTestResourcePath();
+extern WString GetTestOutputPath();
 const vint BUFFER_SIZE = 1024;
 
 /***********************************************************************
@@ -280,27 +281,27 @@ TEST_CASE(TestMemoryStream)
 
 TEST_CASE(TestFileStream)
 {
-	FileStream destroyer(GetPath()+L"TestFile.ReadWrite.txt", FileStream::WriteOnly);
+	FileStream destroyer(GetTestOutputPath() + L"TestFile.ReadWrite.txt", FileStream::WriteOnly);
 	TestWriteonlySeekableProperty(destroyer, 0, 0);
 	destroyer.Close();
 	TestClosedProperty(destroyer);
 
-	FileStream tryRead(GetPath()+L"TestFile.ReadWrite.txt", FileStream::ReadOnly);
+	FileStream tryRead(GetTestOutputPath() + L"TestFile.ReadWrite.txt", FileStream::ReadOnly);
 	TestReadonlySeekableProperty(tryRead, 0, 0);
 	tryRead.Close();
 	TestClosedProperty(tryRead);
 
-	FileStream w(GetPath()+L"TestFile.ReadWrite.txt", FileStream::WriteOnly);
+	FileStream w(GetTestOutputPath() + L"TestFile.ReadWrite.txt", FileStream::WriteOnly);
 	TestWriteonlySeekableStream(w);
 	w.Close();
 	TestClosedProperty(w);
 
-	FileStream r(GetPath()+L"TestFile.ReadWrite.txt", FileStream::ReadOnly);
+	FileStream r(GetTestOutputPath() + L"TestFile.ReadWrite.txt", FileStream::ReadOnly);
 	TestReadonlylSeekableStreamWithSize15(r);
 	r.Close();
 	TestClosedProperty(r);
 
-	FileStream rw(GetPath()+L"TestFile.ReadWrite.txt", FileStream::ReadWrite);
+	FileStream rw(GetTestOutputPath() + L"TestFile.ReadWrite.txt", FileStream::ReadWrite);
 	TestBidirectionalUnlimitedStream(rw);
 	rw.Close();
 	TestClosedProperty(rw);
@@ -368,7 +369,7 @@ TEST_CASE(TestCacheStreamWithWriteOnlyUnseekableStream)
 
 TEST_CASE(TestCacheStreamWithSeekableStream)
 {
-	FileStream w(GetPath()+L"TestFile.ReadWrite.txt", FileStream::WriteOnly);
+	FileStream w(GetTestOutputPath() + L"TestFile.ReadWrite.txt", FileStream::WriteOnly);
 	CacheStream cw(w, 4);
 	TestWriteonlySeekableStream(cw);
 	cw.Close();
@@ -376,7 +377,7 @@ TEST_CASE(TestCacheStreamWithSeekableStream)
 	w.Close();
 	TestClosedProperty(w);
 
-	FileStream r(GetPath()+L"TestFile.ReadWrite.txt", FileStream::ReadOnly);
+	FileStream r(GetTestOutputPath() + L"TestFile.ReadWrite.txt", FileStream::ReadOnly);
 	CacheStream cr(r, 4);
 	TestReadonlylSeekableStreamWithSize15(cr);
 	cr.Close();

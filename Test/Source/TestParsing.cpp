@@ -24,14 +24,15 @@ using namespace vl::parsing::xml;
 using namespace vl::parsing::json;
 using namespace test::parser;
 
-extern WString GetPath();
+extern WString GetTestResourcePath();
+extern WString GetTestOutputPath();
 
 namespace test
 {
 	template<typename TLoggable>
 	void LogParsingData(TLoggable loggable, const WString& fileName, const WString& name, List<Ptr<ParsingError>>& errors=*(List<Ptr<ParsingError>>*)0)
 	{
-		FileStream fileStream(GetPath()+fileName, FileStream::WriteOnly);
+		FileStream fileStream(GetTestOutputPath() + fileName, FileStream::WriteOnly);
 		BomEncoder encoder(BomEncoder::Utf16);
 		EncoderStream encoderStream(fileStream, encoder);
 		StreamWriter writer(encoderStream);
@@ -117,7 +118,7 @@ namespace test
 		TokenStreamStatus status=Normal;
 		Ptr<ParsingTreeNode> node;
 		{
-			FileStream fileStream(GetPath()+L"Parsing."+name+L".["+itow(index)+L"].txt", FileStream::WriteOnly);
+			FileStream fileStream(GetTestOutputPath() + L"Parsing." + name + L".[" + itow(index) + L"].txt", FileStream::WriteOnly);
 			BomEncoder encoder(BomEncoder::Utf16);
 			EncoderStream encoderStream(fileStream, encoder);
 			StreamWriter writer(encoderStream);
@@ -356,7 +357,7 @@ namespace test
 		}
 		else
 		{
-			WString fileName=GetPath()+L"/Parsers/Parsing."+parserName+L".Definition.txt";
+			WString fileName = GetTestResourcePath() + L"/Parsers/Parsing." + parserName + L".Definition.txt";
 			FileStream fileStream(fileName, FileStream::ReadOnly);
 			BomDecoder decoder;
 			DecoderStream decoderStream(fileStream, decoder);

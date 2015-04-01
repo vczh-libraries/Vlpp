@@ -16,7 +16,8 @@ using namespace vl::regex;
 using namespace vl::regex_internal;
 using namespace vl::stream;
 
-extern WString GetPath();
+extern WString GetTestResourcePath();
+extern WString GetTestOutputPath();
 
 /***********************************************************************
 ”Ô∑®∑÷Œˆ
@@ -190,7 +191,7 @@ epsilon-NFA-DFA
 
 void PrintAutomaton(WString fileName, Automaton::Ref automaton)
 {
-	FileStream file(GetPath()+fileName, FileStream::WriteOnly);
+	FileStream file(GetTestOutputPath() + fileName, FileStream::WriteOnly);
 	BomEncoder encoder(BomEncoder::Utf16);
 	EncoderStream output(file, encoder);
 	StreamWriter writer(output);
@@ -277,8 +278,8 @@ void PrintAutomaton(WString fileName, Automaton::Ref automaton)
 
 void CompareToBaseline(WString fileName)
 {
-	WString generatedPath=GetPath()+fileName;
-	WString baselinePath=GetPath()+L"Baseline/"+fileName;
+	WString generatedPath = GetTestOutputPath() + fileName;
+	WString baselinePath = GetTestResourcePath() + L"Baseline/" + fileName;
 
 	FileStream generatedFile(generatedPath, FileStream::ReadOnly);
 	FileStream baselineFile(baselinePath, FileStream::ReadOnly);

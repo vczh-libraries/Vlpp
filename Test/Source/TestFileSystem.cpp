@@ -7,14 +7,22 @@ using namespace vl::filesystem;
 using namespace vl::collections;
 using namespace vl::stream;
 
-extern WString GetPath();
+extern WString GetTestResourcePath();
+extern WString GetTestOutputPath();
 
 void ClearTestFolders()
 {
-	FilePath path = GetPath();
+	FilePath path = GetTestOutputPath();
+	{
+		Folder folder(path);
+		if (!folder.Exists())
+		{
+			TEST_ASSERT(folder.Create(false) == true);
+		}
+	}
 	TEST_ASSERT(path.IsFolder());
 
-	Folder folder(GetPath() + L"FileSystem");
+	Folder folder(GetTestOutputPath() + L"FileSystem");
 	auto folderPath = folder.GetFilePath().GetFullPath();
 #if defined VCZH_MSVC
 	TEST_ASSERT(folderPath[1] == L':');
@@ -112,7 +120,7 @@ TEST_CASE(TestFilePath)
 TEST_CASE(CreateDeleteFolders)
 {
 	ClearTestFolders();
-	FilePath folder = GetPath() + L"FileSystem";
+	FilePath folder = GetTestOutputPath() + L"FileSystem";
 
 	File a = folder / L"A/vczh.txt";
 	File b = folder / L"A/B/C/vczh.txt";
@@ -163,7 +171,7 @@ TEST_CASE(CreateDeleteFolders)
 TEST_CASE(EnumerateFoldersAndFiles)
 {
 	ClearTestFolders();
-	FilePath folder = GetPath() + L"FileSystem";
+	FilePath folder = GetTestOutputPath() + L"FileSystem";
 
 	File a = folder / L"a.txt";
 	File b = folder / L"b.txt";
@@ -213,7 +221,7 @@ TEST_CASE(EnumerateFoldersAndFiles)
 TEST_CASE(RenameFoldersAndFiles)
 {
 	ClearTestFolders();
-	FilePath folder = GetPath() + L"FileSystem";
+	FilePath folder = GetTestOutputPath() + L"FileSystem";
 
 	File a = folder / L"a.txt";
 	File b = folder / L"d/b.txt";
@@ -263,7 +271,7 @@ TEST_CASE(RenameFoldersAndFiles)
 TEST_CASE(FastAccessFiles)
 {
 	ClearTestFolders();
-	FilePath folder = GetPath() + L"FileSystem";
+	FilePath folder = GetTestOutputPath() + L"FileSystem";
 	File file = folder / L"vczh.txt";
 
 	WString text;

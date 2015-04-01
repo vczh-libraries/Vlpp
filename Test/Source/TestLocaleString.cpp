@@ -9,7 +9,8 @@ using namespace vl;
 using namespace vl::collections;
 using namespace vl::stream;
 
-extern WString GetPath();
+extern WString GetTestResourcePath();
+extern WString GetTestOutputPath();
 
 TEST_CASE(TestLocaleFormat)
 {

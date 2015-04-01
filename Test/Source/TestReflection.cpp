@@ -13,7 +13,8 @@ using namespace vl::reflection;
 using namespace vl::reflection::description;
 using namespace vl::stream;
 
-extern WString GetPath();
+extern WString GetTestResourcePath();
+extern WString GetTestOutputPath();
 
 namespace test
 {
@@ -604,7 +605,7 @@ namespace reflection_test
 {
 	void TestReflectionBuilder()
 	{
-		FileStream fileStream(GetPath()+L"Reflection.txt", FileStream::WriteOnly);
+		FileStream fileStream(GetTestOutputPath() + L"Reflection.txt", FileStream::WriteOnly);
 		BomEncoder encoder(BomEncoder::Utf16);
 		EncoderStream encoderStream(fileStream, encoder);
 		StreamWriter writer(encoderStream);

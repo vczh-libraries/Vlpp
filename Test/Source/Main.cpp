@@ -9,7 +9,7 @@
 
 using namespace vl;
 
-WString GetPath()
+WString GetExePath()
 {
 	wchar_t buffer[65536];
 	GetModuleFileName(NULL, buffer, sizeof(buffer)/sizeof(*buffer));
@@ -23,10 +23,24 @@ WString GetPath()
 		}
 		index++;
 	}
+	return WString(buffer, pos + 1);
+}
+
+WString GetTestResourcePath()
+{
 #ifdef _WIN64
-	return WString(buffer, pos+1)+L"../../TestFiles/";
+	return GetExePath() + L"../../../Resources/";
 #else
-	return WString(buffer, pos+1)+L"../TestFiles/";
+	return GetExePath() + L"../../Resources/";
+#endif
+}
+
+WString GetTestOutputPath()
+{
+#ifdef _WIN64
+	return GetExePath() + L"../../../Output/";
+#else
+	return GetExePath() + L"../../Output/";
 #endif
 }
 
