@@ -462,7 +462,7 @@ namespace mynamespace
 	ThreadVariable<const wchar_t*> tls2;
 	ThreadVariable<WString> tls3;
 
-	void TlsProc(int i, volatile int& counter)
+	void TlsProc(int i, volatile vint& counter)
 	{
 		TEST_ASSERT(tls1.HasData() == false);
 		tls1.Set(i);
@@ -498,7 +498,7 @@ using namespace mynamespace;
 TEST_CASE(ThreadLocalStorage)
 {
 	ThreadLocalStorage::FixStorages();
-	volatile int counter = 0;
+	volatile vint counter = 0;
 	List<Thread*> threads;
 	{
 		for (int i = 0; i < 10; i++)
