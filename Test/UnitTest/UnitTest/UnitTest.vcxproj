@@ -1,0 +1,230 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{F17D112F-3D02-4A6B-BB8D-14E7D409774E}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>UnitTest</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\Source\Basic.cpp" />
+    <ClCompile Include="..\..\..\Source\Console.cpp" />
+    <ClCompile Include="..\..\..\Source\Exception.cpp" />
+    <ClCompile Include="..\..\..\Source\FileSystem.cpp" />
+    <ClCompile Include="..\..\..\Source\GlobalStorage.cpp" />
+    <ClCompile Include="..\..\..\Source\HttpUtility.cpp" />
+    <ClCompile Include="..\..\..\Source\Locale.cpp" />
+    <ClCompile Include="..\..\..\Source\Parsing\Json\ParsingJson.cpp" />
+    <ClCompile Include="..\..\..\Source\Parsing\Json\ParsingJson_Parser.cpp" />
+    <ClCompile Include="..\..\..\Source\Parsing\Parsing.cpp" />
+    <ClCompile Include="..\..\..\Source\Parsing\ParsingAnalyzer.cpp" />
+    <ClCompile Include="..\..\..\Source\Parsing\ParsingAutomaton.cpp" />
+    <ClCompile Include="..\..\..\Source\Parsing\ParsingAutomaton_Closure.cpp" />
+    <ClCompile Include="..\..\..\Source\Parsing\ParsingAutomaton_EPDA.cpp" />
+    <ClCompile Include="..\..\..\Source\Parsing\ParsingAutomaton_GenerateTable.cpp" />
+    <ClCompile Include="..\..\..\Source\Parsing\ParsingAutomaton_JPDA.cpp" />
+    <ClCompile Include="..\..\..\Source\Parsing\ParsingAutomaton_MergeStates.cpp" />
+    <ClCompile Include="..\..\..\Source\Parsing\ParsingAutomaton_NPDA.cpp" />
+    <ClCompile Include="..\..\..\Source\Parsing\ParsingDefinitions.cpp" />
+    <ClCompile Include="..\..\..\Source\Parsing\ParsingDefinitions_CreateParserDefinition.cpp" />
+    <ClCompile Include="..\..\..\Source\Parsing\ParsingLogging.cpp" />
+    <ClCompile Include="..\..\..\Source\Parsing\ParsingState.cpp" />
+    <ClCompile Include="..\..\..\Source\Parsing\ParsingTable.cpp" />
+    <ClCompile Include="..\..\..\Source\Parsing\ParsingTree.cpp" />
+    <ClCompile Include="..\..\..\Source\Parsing\Xml\ParsingXml.cpp" />
+    <ClCompile Include="..\..\..\Source\Parsing\Xml\ParsingXml_Parser.cpp" />
+    <ClCompile Include="..\..\..\Source\Reflection\GuiTypeDescriptor.cpp" />
+    <ClCompile Include="..\..\..\Source\Reflection\GuiTypeDescriptorBuilder.cpp" />
+    <ClCompile Include="..\..\..\Source\Reflection\GuiTypeDescriptorPredefined.cpp" />
+    <ClCompile Include="..\..\..\Source\Regex\Regex.cpp" />
+    <ClCompile Include="..\..\..\Source\Regex\RegexAutomaton.cpp" />
+    <ClCompile Include="..\..\..\Source\Regex\RegexData.cpp" />
+    <ClCompile Include="..\..\..\Source\Regex\RegexExpression.cpp" />
+    <ClCompile Include="..\..\..\Source\Regex\RegexParser.cpp" />
+    <ClCompile Include="..\..\..\Source\Regex\RegexPure.cpp" />
+    <ClCompile Include="..\..\..\Source\Regex\RegexRich.cpp" />
+    <ClCompile Include="..\..\..\Source\Regex\RegexWriter.cpp" />
+    <ClCompile Include="..\..\..\Source\Stream\Accessor.cpp" />
+    <ClCompile Include="..\..\..\Source\Stream\BroadcastStream.cpp" />
+    <ClCompile Include="..\..\..\Source\Stream\CacheStream.cpp" />
+    <ClCompile Include="..\..\..\Source\Stream\CharFormat.cpp" />
+    <ClCompile Include="..\..\..\Source\Stream\CompressionStream.cpp" />
+    <ClCompile Include="..\..\..\Source\Stream\FileStream.cpp" />
+    <ClCompile Include="..\..\..\Source\Stream\MemoryStream.cpp" />
+    <ClCompile Include="..\..\..\Source\Stream\MemoryWrapperStream.cpp" />
+    <ClCompile Include="..\..\..\Source\Stream\RecorderStream.cpp" />
+    <ClCompile Include="..\..\..\Source\String.cpp" />
+    <ClCompile Include="..\..\..\Source\Threading.cpp" />
+    <ClCompile Include="..\..\..\Source\ThreadingLinux.cpp" />
+    <ClCompile Include="..\..\..\Source\UnitTest\UnitTest.cpp" />
+    <ClCompile Include="..\..\Source\Main.cpp" />
+    <ClCompile Include="..\..\Source\Parser.Calculator\Parser.Calculator.cpp" />
+    <ClCompile Include="..\..\Source\TestBasic.cpp" />
+    <ClCompile Include="..\..\Source\TestFileSystem.cpp" />
+    <ClCompile Include="..\..\Source\TestFunction.cpp" />
+    <ClCompile Include="..\..\Source\TestGlobalStorage.cpp" />
+    <ClCompile Include="..\..\Source\TestList.cpp" />
+    <ClCompile Include="..\..\Source\TestLocale.cpp" />
+    <ClCompile Include="..\..\Source\TestLocaleString.cpp" />
+    <ClCompile Include="..\..\Source\TestParsing.cpp" />
+    <ClCompile Include="..\..\Source\TestReflection.cpp" />
+    <ClCompile Include="..\..\Source\TestRegex.cpp" />
+    <ClCompile Include="..\..\Source\TestStream.cpp" />
+    <ClCompile Include="..\..\Source\TestString.cpp" />
+    <ClCompile Include="..\..\Source\TestThread.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\Source\Common.fpm" />
+    <None Include="..\..\..\Source\GenerateCode.bat" />
+    <None Include="..\..\..\Source\Tuple.h.fpm" />
+    <None Include="..\..\Source\Parser.Calculator\Codegen.bat" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\Source\Basic.h" />
+    <ClInclude Include="..\..\..\Source\Collections\Dictionary.h" />
+    <ClInclude Include="..\..\..\Source\Collections\Interfaces.h" />
+    <ClInclude Include="..\..\..\Source\Collections\List.h" />
+    <ClInclude Include="..\..\..\Source\Collections\Operation.h" />
+    <ClInclude Include="..\..\..\Source\Collections\OperationConcat.h" />
+    <ClInclude Include="..\..\..\Source\Collections\OperationCopyFrom.h" />
+    <ClInclude Include="..\..\..\Source\Collections\OperationEnumerable.h" />
+    <ClInclude Include="..\..\..\Source\Collections\OperationForEach.h" />
+    <ClInclude Include="..\..\..\Source\Collections\OperationPair.h" />
+    <ClInclude Include="..\..\..\Source\Collections\OperationSelect.h" />
+    <ClInclude Include="..\..\..\Source\Collections\OperationSequence.h" />
+    <ClInclude Include="..\..\..\Source\Collections\OperationSet.h" />
+    <ClInclude Include="..\..\..\Source\Collections\OperationString.h" />
+    <ClInclude Include="..\..\..\Source\Collections\OperationWhere.h" />
+    <ClInclude Include="..\..\..\Source\Collections\Pair.h" />
+    <ClInclude Include="..\..\..\Source\Console.h" />
+    <ClInclude Include="..\..\..\Source\Event.h" />
+    <ClInclude Include="..\..\..\Source\Exception.h" />
+    <ClInclude Include="..\..\..\Source\FileSystem.h" />
+    <ClInclude Include="..\..\..\Source\Function.h" />
+    <ClInclude Include="..\..\..\Source\GlobalStorage.h" />
+    <ClInclude Include="..\..\..\Source\HttpUtility.h" />
+    <ClInclude Include="..\..\..\Source\Lazy.h" />
+    <ClInclude Include="..\..\..\Source\Locale.h" />
+    <ClInclude Include="..\..\..\Source\Parsing\Json\ParsingJson.h" />
+    <ClInclude Include="..\..\..\Source\Parsing\Json\ParsingJson_Parser.h" />
+    <ClInclude Include="..\..\..\Source\Parsing\Parsing.h" />
+    <ClInclude Include="..\..\..\Source\Parsing\ParsingAnalyzer.h" />
+    <ClInclude Include="..\..\..\Source\Parsing\ParsingAutomaton.h" />
+    <ClInclude Include="..\..\..\Source\Parsing\ParsingDefinitions.h" />
+    <ClInclude Include="..\..\..\Source\Parsing\ParsingState.h" />
+    <ClInclude Include="..\..\..\Source\Parsing\ParsingTable.h" />
+    <ClInclude Include="..\..\..\Source\Parsing\ParsingTree.h" />
+    <ClInclude Include="..\..\..\Source\Parsing\Xml\ParsingXml.h" />
+    <ClInclude Include="..\..\..\Source\Parsing\Xml\ParsingXml_Parser.h" />
+    <ClInclude Include="..\..\..\Source\Pointer.h" />
+    <ClInclude Include="..\..\..\Source\Reflection\GuiTypeDescriptor.h" />
+    <ClInclude Include="..\..\..\Source\Reflection\GuiTypeDescriptorBuilder.h" />
+    <ClInclude Include="..\..\..\Source\Reflection\GuiTypeDescriptorBuilder_Container.h" />
+    <ClInclude Include="..\..\..\Source\Reflection\GuiTypeDescriptorBuilder_Function.h" />
+    <ClInclude Include="..\..\..\Source\Reflection\GuiTypeDescriptorBuilder_Struct.h" />
+    <ClInclude Include="..\..\..\Source\Reflection\GuiTypeDescriptorMacros.h" />
+    <ClInclude Include="..\..\..\Source\Reflection\GuiTypeDescriptorPredefined.h" />
+    <ClInclude Include="..\..\..\Source\Regex\Regex.h" />
+    <ClInclude Include="..\..\..\Source\Regex\RegexAutomaton.h" />
+    <ClInclude Include="..\..\..\Source\Regex\RegexData.h" />
+    <ClInclude Include="..\..\..\Source\Regex\RegexExpression.h" />
+    <ClInclude Include="..\..\..\Source\Regex\RegexPure.h" />
+    <ClInclude Include="..\..\..\Source\Regex\RegexRich.h" />
+    <ClInclude Include="..\..\..\Source\Regex\RegexWriter.h" />
+    <ClInclude Include="..\..\..\Source\Stream\Accessor.h" />
+    <ClInclude Include="..\..\..\Source\Stream\BroadcastStream.h" />
+    <ClInclude Include="..\..\..\Source\Stream\CacheStream.h" />
+    <ClInclude Include="..\..\..\Source\Stream\CharFormat.h" />
+    <ClInclude Include="..\..\..\Source\Stream\CompressionStream.h" />
+    <ClInclude Include="..\..\..\Source\Stream\FileStream.h" />
+    <ClInclude Include="..\..\..\Source\Stream\Interfaces.h" />
+    <ClInclude Include="..\..\..\Source\Stream\MemoryStream.h" />
+    <ClInclude Include="..\..\..\Source\Stream\MemoryWrapperStream.h" />
+    <ClInclude Include="..\..\..\Source\Stream\RecorderStream.h" />
+    <ClInclude Include="..\..\..\Source\String.h" />
+    <ClInclude Include="..\..\..\Source\Threading.h" />
+    <ClInclude Include="..\..\..\Source\Tuple.h" />
+    <ClInclude Include="..\..\..\Source\UnitTest\UnitTest.h" />
+    <ClInclude Include="..\..\Source\Parser.Calculator\Parser.Calculator.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\..\..\Source\Parsing\Json\ParsingJson_Parser.parser.txt" />
+    <Text Include="..\..\..\Source\Parsing\Xml\ParsingXml_Parser.parser.txt" />
+    <Text Include="..\..\Source\Parser.Calculator\Parser.Calculator.log" />
+    <Text Include="..\..\Source\Parser.Calculator\Parser.Calculator.parser.txt" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
