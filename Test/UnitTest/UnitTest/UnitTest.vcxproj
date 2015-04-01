@@ -128,7 +128,6 @@
     <ClCompile Include="..\..\..\Source\Threading.cpp" />
     <ClCompile Include="..\..\..\Source\ThreadingLinux.cpp" />
     <ClCompile Include="..\..\..\Source\UnitTest\UnitTest.cpp" />
-    <ClCompile Include="..\..\Source\Main.cpp" />
     <ClCompile Include="..\..\Source\Parser.Calculator\Parser.Calculator.cpp" />
     <ClCompile Include="..\..\Source\TestBasic.cpp" />
     <ClCompile Include="..\..\Source\TestFileSystem.cpp" />
@@ -143,6 +142,7 @@
     <ClCompile Include="..\..\Source\TestStream.cpp" />
     <ClCompile Include="..\..\Source\TestString.cpp" />
     <ClCompile Include="..\..\Source\TestThread.cpp" />
+    <ClCompile Include="Main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\Source\Common.fpm" />
