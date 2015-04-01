@@ -1,0 +1,18 @@
+include
+	../../Source/makefile.vlpp.makegen
+
+folder UNITTEST_CALCULATOR = ../Source/Parser.Calculator
+	h = *.h
+	cpp = *.cpp
+
+folder UNITTEST = ../Source
+	cpp = TestBasic.cpp TestString.cpp TestList.cpp TestFunction.cpp TestGlobalStorage.cpp TestRegex.cpp TestReflection.cpp TestParsing.cpp TestThread.cpp TestStream.cpp TestLocaleString.cpp
+
+folder HOST = .
+	cpp = Main.cpp
+
+dependency
+	UNITTEST_CALCULATOR:h < VLPP:h VLPP_UNITTEST:h
+	UNITTEST_CALCULATOR:cpp < UNITTEST_CALCULATOR:h
+	UNITTEST:cpp < UNITTEST_CALCULATOR:h
+	MAIN:cpp < VLPP:h

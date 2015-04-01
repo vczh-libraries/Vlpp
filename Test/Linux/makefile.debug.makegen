@@ -1,0 +1,14 @@
+include
+	makefile.unittest.makegen
+
+targets
+	obj = ./Obj/
+	bin = ./Bin/
+
+map cpp : %.cpp
+	> o : obj %.o
+	g++ -std=c++11 -g -fprofile-arcs -ftest-coverage -o $(OUT) -c $(IN)
+
+link o :
+	> exe : bin UnitTest 
+	g++ -std=c++11 -g -fprofile-arcs -pthread -o $(OUT) $(IN)
