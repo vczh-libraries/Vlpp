@@ -7715,7 +7715,7 @@ namespace vl
 					.Type(
 						Class(L"AttributeDef")
 							.Member(L"name", TokenType())
-								.Attribute(Attribute(L"Color").Argument(L"Attribute"))
+								.Attribute(Attribute(L"Semantic").Argument(L"Attribute"))
 							.Member(L"arguments", TokenType().Array())
 						)
 					.Type(
@@ -11168,7 +11168,7 @@ namespace vl
 	{
 		vint CompareTextRange(Ptr<ParsingTreeNode> r1, Ptr<ParsingTreeNode> r2)
 		{
-			return r1->GetCodeRange().start.index-r2->GetCodeRange().start.index;
+			return ParsingTextPos::Compare(r1->GetCodeRange().start, r2->GetCodeRange().start);
 		}
 
 /***********************************************************************
@@ -11313,20 +11313,40 @@ ParsingTreeNode
 			auto subNodesExists = &subNodes;
 			if(subNodesExists)
 			{
-				ParsingTextRange emptyRange;
+				FOREACH(Ptr<ParsingTreeNode>, node, subNodes)
+				{
+					node->InitializeQueryCache();
+				}
+
+				//if (codeRange.start.IsInvalid() || codeRange.start.IsInvalid())
+				{
+					FOREACH(Ptr<ParsingTreeNode>, subNode, subNodes)
+					{
+						const auto& subRange = subNode->codeRange;
+						const auto& min = !subRange.start.IsInvalid() ? subRange.start : subRange.end;
+						const auto& max = !subRange.end.IsInvalid() ? subRange.end : subRange.start;
+
+						if (codeRange.start.IsInvalid() || (!min.IsInvalid() && codeRange.start > min))
+						{
+							codeRange.start = min;
+						}
+						if (codeRange.end.IsInvalid() || (!max.IsInvalid() && codeRange.end < max))
+						{
+							codeRange.end = max;
+						}
+					}
+				}
+
 				CopyFrom(
 					cachedOrderedSubNodes,
 					From(subNodes)
 						.Where([=](Ptr<ParsingTreeNode> node)
 						{
-							return node->GetCodeRange()!=emptyRange;
+							const auto& range = node->GetCodeRange();
+							return !range.start.IsInvalid() && !range.end.IsInvalid();
 						})
 						.OrderBy(&CompareTextRange)
 					);
-				FOREACH(Ptr<ParsingTreeNode>, node, cachedOrderedSubNodes)
-				{
-					node->InitializeQueryCache();
-				}
 			}
 		}
 
@@ -11352,24 +11372,24 @@ ParsingTreeNode
 
 		ParsingTreeNode* ParsingTreeNode::FindSubNode(const ParsingTextRange& range)
 		{
-			if(codeRange.start<=range.start && range.end<=codeRange.end)
+			if (codeRange.start <= range.start && range.end <= codeRange.end)
 			{
-				vint start=0;
-				vint end=cachedOrderedSubNodes.Count()-1;
-				while(start<=end)
+				vint start = 0;
+				vint end = cachedOrderedSubNodes.Count() - 1;
+				while (start <= end)
 				{
-					vint selected=(start+end)/2;
-					ParsingTreeNode* selectedNode=cachedOrderedSubNodes[selected].Obj();
-					const ParsingTextRange& selectedRange=selectedNode->codeRange;
-					if(range.end<selectedRange.start)
+					vint selected = (start + end) / 2;
+					ParsingTreeNode* selectedNode = cachedOrderedSubNodes[selected].Obj();
+					const ParsingTextRange& selectedRange = selectedNode->codeRange;
+					if (range.end<selectedRange.start)
 					{
-						end=selected-1;
+						end = selected - 1;
 					}
-					else if(range.start>selectedRange.end)
+					else if (range.start>selectedRange.end)
 					{
-						start=selected+1;
+						start = selected + 1;
 					}
-					else if(selectedRange.start<=range.start && range.end<=selectedRange.end)
+					else if (selectedRange.start <= range.start && range.end <= selectedRange.end)
 					{
 						return selectedNode;
 					}
@@ -17139,6 +17159,7 @@ namespace vl
 {
 	namespace regex_internal
 	{
+		using namespace collections;
 
 /***********************************************************************
 Automaton
@@ -19451,6 +19472,7 @@ namespace vl
 {
 	namespace regex_internal
 	{
+		using namespace collections;
 
 /***********************************************************************
 回溯辅助数据结构
@@ -19459,7 +19481,7 @@ namespace vl
 		class SaverBase
 		{
 		public:
-			bool				available;
+			bool					available;
 			vint					previous;
 		};
 
@@ -19473,14 +19495,14 @@ namespace vl
 				Other
 			};
 
-			const wchar_t*		reading;					//当前字符串位置
-			State*				currentState;				//当前状态
+			const wchar_t*			reading;					//当前字符串位置
+			State*					currentState;				//当前状态
 			vint					minTransition;				//最小可用转换
 			vint					captureCount;				//有效capture数量
 			vint					stateSaverCount;			//有效回溯状态数量
 			vint					extensionSaverAvailable;	//有效未封闭扩展功能数量
 			vint					extensionSaverCount;		//所有未封闭扩展功能数量
-			StateStoreType		storeType;					//保存状态的原因
+			StateStoreType			storeType;					//保存状态的原因
 
 			bool operator==(const StateSaver& saver)const
 			{
@@ -19496,8 +19518,8 @@ namespace vl
 		{
 		public:
 			vint					captureListIndex;
-			Transition*			transition;
-			const wchar_t*		reading;
+			Transition*				transition;
+			const wchar_t*			reading;
 
 			bool operator==(const ExtensionSaver& saver)const
 			{
@@ -25447,3 +25469,86 @@ ThreadLocalStorage
 #undef KEY
 }
 #endif
+
+/***********************************************************************
+UnitTest\UnitTest.cpp
+***********************************************************************/
+#if defined VCZH_MSVC
+#endif
+
+namespace vl
+{
+	namespace unittest
+	{
+		using namespace vl::console;
+
+/***********************************************************************
+UnitTest
+***********************************************************************/
+
+#if defined VCZH_MSVC
+		SpinLock spinLockUnitTest;
+#endif
+
+		void UnitTest::PrintMessage(const WString& string)
+		{
+#if defined VCZH_MSVC
+			SpinLock::Scope scope(spinLockUnitTest);
+#endif
+			Console::SetColor(false, true, false, true);
+			Console::WriteLine(string);
+			Console::SetColor(true, true, true, false);
+		}
+
+		void UnitTest::PrintInfo(const WString& string)
+		{
+#if defined VCZH_MSVC
+			SpinLock::Scope scope(spinLockUnitTest);
+#endif
+			Console::SetColor(true, true, true, true);
+			Console::WriteLine(string);
+			Console::SetColor(true, true, true, false);
+		}
+
+		void UnitTest::PrintError(const WString& string)
+		{
+#if defined VCZH_MSVC
+			SpinLock::Scope scope(spinLockUnitTest);
+#endif
+			Console::SetColor(true, false, false, true);
+			Console::WriteLine(string);
+			Console::SetColor(true, true, true, false);
+		}
+
+		struct UnitTestLink
+		{
+			UnitTest::TestProc			testProc = nullptr;
+			UnitTestLink*				next = nullptr;
+		};
+		UnitTestLink*					testHead = nullptr;
+		UnitTestLink**					testTail = &testHead;
+
+		void UnitTest::PushTest(TestProc testProc)
+		{
+			auto link = new UnitTestLink;
+			link->testProc = testProc;
+			*testTail = link;
+			testTail = &link->next;
+		}
+
+		void UnitTest::RunAndDisposeTests()
+		{
+			auto current = testHead;
+			testHead = nullptr;
+			testTail = nullptr;
+
+			while (current)
+			{
+				current->testProc();
+				auto temp = current;
+				current = current->next;
+				delete temp;
+			}
+		}
+	}
+}

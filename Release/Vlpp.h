@@ -7764,7 +7764,12 @@ Runtime Exception
 			class IValueException : public virtual IDescriptable, public Description<IValueException>
 			{
 			public:
+#pragma push_macro("GetMessage")
+#if defined GetMessage
+#undef GetMessage
+#endif
 				virtual WString							GetMessage() = 0;
+#pragma pop_macro("GetMessage")
 				virtual bool							GetFatal() = 0;
 				virtual Ptr<IValueReadonlyList>			GetCallStack() = 0;
 			};
@@ -7959,21 +7964,38 @@ Location
 			{
 			}
 
+			bool IsInvalid()const
+			{
+				return index < 0 && row < 0 && column < 0;
+			}
+
 			static vint Compare(const ParsingTextPos& a, const ParsingTextPos& b)
 			{
-				if(a.index!=UnknownValue && b.index!=UnknownValue)
+				if (a.IsInvalid() && b.IsInvalid())
 				{
-					return a.index-b.index;
+					return 0;
 				}
-				else if(a.row!=UnknownValue && a.column!=UnknownValue && b.row!=UnknownValue && b.column!=UnknownValue)
+				else if (a.IsInvalid())
 				{
-					if(a.row==b.row)
+					return -1;
+				}
+				else if (b.IsInvalid())
+				{
+					return 1;
+				}
+				else if (a.index >= 0 && b.index >= 0)
+				{
+					return a.index - b.index;
+				}
+				else if (a.row >= 0 && a.column >= 0 && b.row >= 0 && b.column >= 0)
+				{
+					if (a.row == b.row)
 					{
-						return a.column-b.column;
+						return a.column - b.column;
 					}
 					else
 					{
-						return a.row-b.row;
+						return a.row - b.row;
 					}
 				}
 				else
@@ -13746,7 +13768,6 @@ namespace vl
 {
 	namespace regex_internal
 	{
-		using namespace vl::collections;
 
 /***********************************************************************
 基础数据结构
@@ -13755,7 +13776,7 @@ namespace vl
 		class CharRange
 		{
 		public:
-			typedef SortedList<CharRange>			List;
+			typedef collections::SortedList<CharRange>		List;
 
 			wchar_t					begin;
 			wchar_t					end;
@@ -13835,21 +13856,21 @@ namespace vl
 				End					//Capture, Position, Negative
 			};
 
-			State*					source;
-			State*					target;
-			CharRange				range;
-			Type					type;
-			vint						capture;
-			vint						index;
+			State*								source;
+			State*								target;
+			CharRange							range;
+			Type								type;
+			vint								capture;
+			vint								index;
 		};
 
 		class State
 		{
 		public:
-			List<Transition*>		transitions;
-			List<Transition*>		inputs;
-			bool					finalState;
-			void*					userData;
+			collections::List<Transition*>		transitions;
+			collections::List<Transition*>		inputs;
+			bool								finalState;
+			void*								userData;
 		};
 
 		class Automaton
@@ -13857,33 +13878,33 @@ namespace vl
 		public:
 			typedef Ptr<Automaton>		Ref;
 
-			List<Ptr<State>>		states;
-			List<Ptr<Transition>>	transitions;
-			List<WString>			captureNames;
-			State*					startState;
+			collections::List<Ptr<State>>		states;
+			collections::List<Ptr<Transition>>	transitions;
+			collections::List<WString>			captureNames;
+			State*								startState;
 
 			Automaton();
 
-			State*					NewState();
-			Transition*				NewTransition(State* start, State* end);
-			Transition*				NewChars(State* start, State* end, CharRange range);
-			Transition*				NewEpsilon(State* start, State* end);
-			Transition*				NewBeginString(State* start, State* end);
-			Transition*				NewEndString(State* start, State* end);
-			Transition*				NewNop(State* start, State* end);
-			Transition*				NewCapture(State* start, State* end, vint capture);
-			Transition*				NewMatch(State* start, State* end, vint capture, vint index=-1);
-			Transition*				NewPositive(State* start, State* end);
-			Transition*				NewNegative(State* start, State* end);
-			Transition*				NewNegativeFail(State* start, State* end);
-			Transition*				NewEnd(State* start, State* end);
+			State*								NewState();
+			Transition*							NewTransition(State* start, State* end);
+			Transition*							NewChars(State* start, State* end, CharRange range);
+			Transition*							NewEpsilon(State* start, State* end);
+			Transition*							NewBeginString(State* start, State* end);
+			Transition*							NewEndString(State* start, State* end);
+			Transition*							NewNop(State* start, State* end);
+			Transition*							NewCapture(State* start, State* end, vint capture);
+			Transition*							NewMatch(State* start, State* end, vint capture, vint index=-1);
+			Transition*							NewPositive(State* start, State* end);
+			Transition*							NewNegative(State* start, State* end);
+			Transition*							NewNegativeFail(State* start, State* end);
+			Transition*							NewEnd(State* start, State* end);
 		};
 
-		extern bool					PureEpsilonChecker(Transition* transition);
-		extern bool					RichEpsilonChecker(Transition* transition);
-		extern bool					AreEqual(Transition* transA, Transition* transB);
-		extern Automaton::Ref		EpsilonNfaToNfa(Automaton::Ref source, bool(*epsilonChecker)(Transition*), Dictionary<State*, State*>& nfaStateMap);
-		extern Automaton::Ref		NfaToDfa(Automaton::Ref source, Group<State*, State*>& dfaStateMap);
+		extern bool								PureEpsilonChecker(Transition* transition);
+		extern bool								RichEpsilonChecker(Transition* transition);
+		extern bool								AreEqual(Transition* transA, Transition* transB);
+		extern Automaton::Ref					EpsilonNfaToNfa(Automaton::Ref source, bool(*epsilonChecker)(Transition*), collections::Dictionary<State*, State*>& nfaStateMap);
+		extern Automaton::Ref					NfaToDfa(Automaton::Ref source, collections::Group<State*, State*>& dfaStateMap);
 	}
 }
 
@@ -13934,8 +13955,8 @@ namespace vl
 		class Expression : public Object, private NotCopyable
 		{
 		public:
-			typedef Ptr<Expression>								Ref;
-			typedef Dictionary<WString, Expression::Ref>		Map;
+			typedef Ptr<Expression>											Ref;
+			typedef collections::Dictionary<WString, Expression::Ref>		Map;
 
 			virtual void				Apply(IRegexExpressionAlgorithm& algorithm)=0;
 			bool						IsEqual(Expression* expression);
@@ -14664,7 +14685,7 @@ namespace vl
 			vint								start;
 			vint								length;
 
-			bool							operator==(const CaptureRecord& record)const;
+			bool								operator==(const CaptureRecord& record)const;
 		};
 	}
 
@@ -14679,9 +14700,9 @@ namespace vl
 		class RichResult
 		{
 		public:
-			vint							start;
-			vint							length;
-			List<CaptureRecord>			captures;
+			vint								start;
+			vint								length;
+			collections::List<CaptureRecord>	captures;
 		};
 
 		class RichInterpretor : public Object
@@ -14691,18 +14712,18 @@ namespace vl
 			class UserData
 			{
 			public:
-				bool						NeedKeepState;
+				bool							NeedKeepState;
 			};
 
-			Automaton::Ref					dfa;
-			UserData*						datas;
+			Automaton::Ref						dfa;
+			UserData*							datas;
 		public:
 			RichInterpretor(Automaton::Ref _dfa);
 			~RichInterpretor();
 
-			bool							MatchHead(const wchar_t* input, const wchar_t* start, RichResult& result);
-			bool							Match(const wchar_t* input, const wchar_t* start, RichResult& result);
-			const List<WString>&			CaptureNames();
+			bool								MatchHead(const wchar_t* input, const wchar_t* start, RichResult& result);
+			bool								Match(const wchar_t* input, const wchar_t* start, RichResult& result);
+			const collections::List<WString>&	CaptureNames();
 		};
 	};
 }
@@ -15429,6 +15450,80 @@ RepeatingTaskExecutor
 		}
 	};
 }
+#endif
+
+/***********************************************************************
+UNITTEST\UNITTEST.H
+***********************************************************************/
+/***********************************************************************
+Vczh Library++ 3.0
+Developer: Zihan Chen(vczh)
+UI::Console
+
+***********************************************************************/
+
+#ifndef VCZH_UNITTEST
+#define VCZH_UNITTEST
+
+
+class UnitTestError
+{
+};
+
+namespace vl
+{
+	namespace unittest
+	{
+		class UnitTest abstract
+		{
+		public:
+			typedef void(*TestProc)();
+
+			static void PrintMessage(const WString& string);
+			static void PrintInfo(const WString& string);
+			static void PrintError(const WString& string);
+			static void PushTest(TestProc testProc);
+			static void RunAndDisposeTests();
+		};
+#if defined VCZH_MSVC	
+#define TEST_CHECK_ERROR(CONDITION,DESCRIPTION) do{if(!(CONDITION))throw Error(DESCRIPTION);}while(0)
+#elif defined VCZH_GCC
+#define TEST_CHECK_ERROR(CONDITION,DESCRIPTION)\
+	do\
+	{\
+		vl::unittest::UnitTest::PrintInfo(L"\t" L_(#CONDITION));\
+		if(!(CONDITION))\
+		{\
+			throw Error(DESCRIPTION);\
+		}\
+	}while(0)
+#endif
+#define TEST_ASSERT(CONDITION) do{TEST_CHECK_ERROR(CONDITION,L"");}while(0)
+#define TEST_ERROR(CONDITION) do{try{CONDITION;throw UnitTestError();}catch(const Error&){}catch(const UnitTestError&){TEST_CHECK_ERROR(false,L"");}}while(0)
+#define TEST_CASE(NAME)\
+		extern void TESTCASE_##NAME();														\
+		namespace vl_unittest_executors														\
+		{																					\
+			class TESTCASE_RUNNER_##NAME													\
+			{																				\
+			public:																			\
+				static void RunUnitTest()													\
+				{																			\
+					vl::unittest::UnitTest::PrintMessage(L_(#NAME));						\
+					TESTCASE_##NAME();														\
+				}																			\
+				TESTCASE_RUNNER_##NAME()													\
+				{																			\
+					vl::unittest::UnitTest::PushTest(&TESTCASE_RUNNER_##NAME::RunUnitTest);	\
+				}																			\
+			} TESTCASE_RUNNER_##NAME##_INSTANCE;											\
+		}																					\
+		void TESTCASE_##NAME()
+#define TEST_PRINT(x) vl::unittest::UnitTest::PrintInfo(x)
+#define TEST_EXCEPTION(STATEMENT,EXCEPTION,ASSERT_FUNCTION) try{STATEMENT; TEST_ASSERT(false);}catch(const EXCEPTION& e){ASSERT_FUNCTION(e);}
+	}
+}
+
 #endif
 
 /***********************************************************************
