@@ -1,12 +1,9 @@
-#define _CRTDBG_MAP_ALLOC
-#include <stdlib.h>
-#include <crtdbg.h>
-#include <windows.h>
 #include "../../../Source/String.h"
 #include "../../../Source/Threading.h"
 #include "../../../Source/GlobalStorage.h"
 #include "../../../Source/FileSystem.h"
 #include "../../../Source/UnitTest/UnitTest.h"
+#include <windows.h>
 
 using namespace vl;
 using namespace vl::filesystem;
@@ -57,6 +54,8 @@ int wmain(vint argc , wchar_t* args[])
 	}
 	unittest::UnitTest::RunAndDisposeTests();
 	FinalizeGlobalStorage();
+#ifdef VCZH_CHECK_MEMORY_LEAKS
 	_CrtDumpMemoryLeaks();
+#endif
 	return 0;
 }
