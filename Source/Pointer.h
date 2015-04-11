@@ -19,14 +19,23 @@ namespace vl
 ReferenceCounterOperator
 ***********************************************************************/
 
+	/// <summary>The strategy to get the pointer to the reference counter from an object. If you get the same pointer multiple times from the same object by calling [M:vl.ReferenceCounterOperator`2.CreateCounter], than it is safe to convert a object pointer to a [T:vl.Ptr`1]. Currently for reflectable C++ types which inherit from [T:vl.reflection.DescriptableObject] it is yet. For others it is no.</summary>
+	/// <typeparam name="T">The type of the object.</typeparam>
+	/// <typeparam name="Enabled">[T:vl.Ptr`1] will always use [T:vl.YesType] as the second type parameter. This parameter is useful when you want to do partial specialization in the SFINAE way.</typeparam>
 	template<typename T, typename Enabled=YesType>
 	struct ReferenceCounterOperator
 	{
+		/// <summary>Create a pointer to the reference counter from an object.</summary>
+		/// <returns>The pointer to the reference counter.</returns>
+		/// <param name="reference">The object.</param>
 		static __forceinline volatile vint* CreateCounter(T* reference)
 		{
 			return new vint(0);
 		}
 
+		/// <summary>Destroy a pointer to the reference counter from an object.</summary>
+		/// <param name="counter">The pointer to the reference counter.</param>
+		/// <param name="reference">The object.</param>
 		static __forceinline void DeleteReference(volatile vint* counter, void* reference)
 		{
 			delete counter;
@@ -38,6 +47,8 @@ ReferenceCounterOperator
 Ptr
 ***********************************************************************/
 
+	/// <summary>A smart pointer. It is always safe to convert a pointer to an object to a smart pointer once. If you do it multiple times, it may be wrong due to different implementation of [T:vl.ReferenceCounterOperator`2]. In case of wrong, disposing the smart pointer will cause an access violation.</summary>
+	/// <typeparam name="T">The type of the object.</typeparam>
 	template<typename T>
 	class Ptr
 	{
@@ -89,6 +100,7 @@ Ptr
 		}
 	public:
 
+		/// <summary>Create a null pointer.</summary>
 		Ptr()
 			:counter(0)
 			,reference(0)
@@ -96,7 +108,9 @@ Ptr
 			,originalDestructor(0)
 		{
 		}
-
+		
+		/// <summary>Convert a pointer to an object to a smart pointer.</summary>
+		/// <param name="pointer">The pointer to the object.</param>
 		Ptr(T* pointer)
 			:counter(0)
 			,reference(0)
@@ -112,7 +126,9 @@ Ptr
 				Inc();
 			}
 		}
-
+		
+		/// <summary>Copy a smart pointer.</summary>
+		/// <param name="pointer">The smart pointer to copy.</param>
 		Ptr(const Ptr<T>& pointer)
 			:counter(pointer.counter)
 			,reference(pointer.reference)
@@ -121,7 +137,9 @@ Ptr
 		{
 			Inc();
 		}
-
+		
+		/// <summary>Move a smart pointer.</summary>
+		/// <param name="pointer">The smart pointer to Move.</param>
 		Ptr(Ptr<T>&& pointer)
 			:counter(pointer.counter)
 			,reference(pointer.reference)
@@ -133,7 +151,10 @@ Ptr
 			pointer.originalReference=0;
 			pointer.originalDestructor=0;
 		}
-
+		
+		/// <summary>Cast a smart pointer.</summary>
+		/// <typeparam name="C">The type of the object before casting.</typeparam>
+		/// <param name="pointer">The smart pointer to cast.</param>
 		template<typename C>
 		Ptr(const Ptr<C>& pointer)
 			:counter(0)
@@ -156,14 +177,20 @@ Ptr
 		{
 			Dec();
 		}
-
+		
+		/// <summary>Cast a smart pointer.</summary>
+		/// <typeparam name="C">The type of the object after casting.</typeparam>
+		/// <returns>The casted smart pointer. Returns null if failed.</returns>
 		template<typename C>
 		Ptr<C> Cast()const
 		{
 			C* converted=dynamic_cast<C*>(reference);
 			return Ptr<C>((converted?counter:0), converted, originalReference, originalDestructor);
 		}
-
+		
+		/// <summary>Convert a pointer to an object to a smart pointer.</summary>
+		/// <returns>The converted smart pointer.</returns>
+		/// <param name="pointer">The pointer to the object.</param>
 		Ptr<T>& operator=(T* pointer)
 		{
 			Dec();
@@ -184,7 +211,10 @@ Ptr
 			}
 			return *this;
 		}
-
+		
+		/// <summary>Copy a smart pointer.</summary>
+		/// <returns>The copied smart pointer.</returns>
+		/// <param name="pointer">The smart pointer to copy.</param>
 		Ptr<T>& operator=(const Ptr<T>& pointer)
 		{
 			if(this!=&pointer)
@@ -198,7 +228,10 @@ Ptr
 			}
 			return *this;
 		}
-
+		
+		/// <summary>Move a smart pointer.</summary>
+		/// <returns>The moved smart pointer.</returns>
+		/// <param name="pointer">The smart pointer to Move.</param>
 		Ptr<T>& operator=(Ptr<T>&& pointer)
 		{
 			if(this!=&pointer)
@@ -216,7 +249,11 @@ Ptr
 			}
 			return *this;
 		}
-
+		
+		/// <summary>Cast a smart pointer.</summary>
+		/// <typeparam name="C">The type of the object before casting.</typeparam>
+		/// <returns>The smart pointer after casting.</returns>
+		/// <param name="pointer">The smart pointer to cast.</param>
 		template<typename C>
 		Ptr<T>& operator=(const Ptr<C>& pointer)
 		{
@@ -300,16 +337,22 @@ Ptr
 			return reference<=pointer.reference;
 		}
 
+		/// <summary>Test if it is a null pointer.</summary>
+		/// <returns>Returns true if it is not null.</returns>
 		operator bool()const
 		{
 			return reference!=0;
 		}
 
+		/// <summary>Get the pointer to the object.</summary>
+		/// <returns>The pointer to the object.</returns>
 		T* Obj()const
 		{
 			return reference;
 		}
-
+		
+		/// <summary>Get the pointer to the object.</summary>
+		/// <returns>The pointer to the object.</returns>
 		T* operator->()const
 		{
 			return reference;
