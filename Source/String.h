@@ -16,6 +16,8 @@ Classes:
 
 namespace vl
 {
+	/// <summary>A type representing a string.</summary>
+	/// <typeparam name="T>Type of a character.</typeparam>
 	template<typename T>
 	class ObjectString : public Object
 	{
@@ -138,6 +140,7 @@ namespace vl
 	public:
 		static ObjectString<T>	Empty;
 
+		/// <summary>Create an empty string.</summary>
 		ObjectString()
 		{
 			buffer=(T*)&zero;
@@ -147,6 +150,8 @@ namespace vl
 			realLength=0;
 		}
 
+		/// <summary>Create a string continaing one character.</summary>
+		/// <param name="_char">The character.</param>
 		ObjectString(const T& _char)
 		{
 			counter=new vint(1);
@@ -158,6 +163,9 @@ namespace vl
 			realLength=length;
 		}
 
+		/// <summary>Copy a string.</summary>
+		/// <param name="_buffer">Memory to copy. It does not have to contain the zero terminator.</param>
+		/// <param name="length">Size of the content in characters.</param>
 		ObjectString(const T* _buffer, vint _length)
 		{
 			if(_length<=0)
@@ -179,7 +187,10 @@ namespace vl
 				realLength=_length;
 			}
 		}
-
+		
+		/// <summary>Copy a string.</summary>
+		/// <param name="_buffer">Memory to copy. It should have to contain the zero terminator.</param>
+		/// <param name="copy">Set to true to copy the memory. Set to false to use the memory directly.</param>
 		ObjectString(const T* _buffer, bool copy = true)
 		{
 			CHECK_ERROR(_buffer!=0, L"ObjectString<T>::ObjectString(const T*, bool)#Cannot construct a string from nullptr.");
@@ -201,7 +212,9 @@ namespace vl
 				realLength=length;
 			}
 		}
-
+		
+		/// <summary>Copy a string.</summary>
+		/// <param name="string">The string to copy.</param>
 		ObjectString(const ObjectString<T>& string)
 		{
 			buffer=string.buffer;
@@ -211,7 +224,9 @@ namespace vl
 			realLength=string.realLength;
 			Inc();
 		}
-
+		
+		/// <summary>Move a string.</summary>
+		/// <param name="string">The string to move.</param>
 		ObjectString(ObjectString<T>&& string)
 		{
 			buffer=string.buffer;
@@ -232,6 +247,8 @@ namespace vl
 			Dec();
 		}
 
+		/// <summary>Get the zero-terminated buffer in the string. Copying parts of a string does not necessarily create a new buffer, so in some situation the string will not actually points to a zero-terminated buffer. In this case, this function will copy the content to a new buffer with a zero terminator and return.</summary>
+		/// <returns>Returns the buffer.</returns>
 		const T* Buffer()const
 		{
 			if(start+length!=realLength)
@@ -359,11 +376,16 @@ namespace vl
 			return buffer[start+index];
 		}
 
+		/// <summary>Get the size of the string in characters.</summary>
+		/// <returns>The size.</returns>
 		vint Length()const
 		{
 			return length;
 		}
 
+		/// <summary>Find a character.</summary>
+		/// <returns>The position of the character. Returns -1 if it doesn not exist.</returns>
+		/// <param name="c">The character to find.</param>
 		vint IndexOf(T c)const
 		{
 			const T* reading=buffer+start;
@@ -375,18 +397,28 @@ namespace vl
 			return -1;
 		}
 
+		/// <summary>Copy the beginning of the string.</summary>
+		/// <returns>The copied string.</returns>
+		/// <param name="count">Size of characters to copy.</param>
 		ObjectString<T> Left(vint count)const
 		{
 			CHECK_ERROR(count>=0 && count<=length, L"ObjectString<T>::Left(vint)#Argument count not in range.");
 			return ObjectString<T>(*this, 0, count);
 		}
-
+		
+		/// <summary>Copy the ending of the string.</summary>
+		/// <returns>The copied string.</returns>
+		/// <param name="count">Size of characters to copy.</param>
 		ObjectString<T> Right(vint count)const
 		{
 			CHECK_ERROR(count>=0 && count<=length, L"ObjectString<T>::Right(vint)#Argument count not in range.");
 			return ObjectString<T>(*this, length-count, count);
 		}
-
+		
+		/// <summary>Copy the middle of the string.</summary>
+		/// <returns>The copied string.</returns>
+		/// <param name="index">Position of characters to copy.</param>
+		/// <param name="count">Size of characters to copy.</param>
 		ObjectString<T> Sub(vint index, vint count)const
 		{
 			CHECK_ERROR(index>=0 && index<=length, L"ObjectString<T>::Sub(vint, vint)#Argument index not in range.");
@@ -394,6 +426,10 @@ namespace vl
 			return ObjectString<T>(*this, index, count);
 		}
 
+		/// <summary>Copy the beginning and the end of the string.</summary>
+		/// <returns>The copied string.</returns>
+		/// <param name="index">Position of characters NOT to copy.</param>
+		/// <param name="count">Size of characters NOT to copy.</param>
 		ObjectString<T> Remove(vint index, vint count)const
 		{
 			CHECK_ERROR(index>=0 && index<length, L"ObjectString<T>::Remove(vint, vint)#Argument index not in range.");
@@ -401,6 +437,10 @@ namespace vl
 			return ObjectString<T>(*this, ObjectString<T>(), index, count);
 		}
 
+		/// <summary>Make a new string by inserting a string in this string.</summary>
+		/// <returns>The copied string.</returns>
+		/// <param name="index">Position of characters to insert.</param>
+		/// <param name="string">The string to be inserted in this string.</param>
 		ObjectString<T> Insert(vint index, const ObjectString<T>& string)const
 		{
 			CHECK_ERROR(index>=0 && index<=length, L"ObjectString<T>::Insert(vint)#Argument count not in range.");
@@ -448,49 +488,169 @@ namespace vl
 	template<typename T>
 	const T ObjectString<T>::zero=0;
 
+	/// <summary>Ansi string.</summary>
 	typedef ObjectString<char>		AString;
+	/// <summary>Unicode string.</summary>
 	typedef ObjectString<wchar_t>	WString;
 
+	/// <summary>Convert a string to an signed integer.</summary>
+	/// <returns>The converted number. If the convert failed, the result is undefined.</returns>
+	/// <param name="string">The string to convert.</param>
+	/// <param name="success">Returns true if this operation succeeded.</param>
 	extern vint					atoi_test(const AString& string, bool& success);
+	/// <summary>Convert a string to an signed integer.</summary>
+	/// <returns>The converted number. If the convert failed, the result is undefined.</returns>
+	/// <param name="string">The string to convert.</param>
+	/// <param name="success">Returns true if this operation succeeded.</param>
 	extern vint					wtoi_test(const WString& string, bool& success);
+	/// <summary>Convert a string to an signed 64-bits integer.</summary>
+	/// <returns>The converted number. If the convert failed, the result is undefined.</returns>
+	/// <param name="string">The string to convert.</param>
+	/// <param name="success">Returns true if this operation succeeded.</param>
 	extern vint64_t				atoi64_test(const AString& string, bool& success);
+	/// <summary>Convert a string to an signed 64-bits integer.</summary>
+	/// <returns>The converted number. If the convert failed, the result is undefined.</returns>
+	/// <param name="string">The string to convert.</param>
+	/// <param name="success">Returns true if this operation succeeded.</param>
 	extern vint64_t				wtoi64_test(const WString& string, bool& success);
+	/// <summary>Convert a string to an unsigned integer.</summary>
+	/// <returns>The converted number. If the convert failed, the result is undefined.</returns>
+	/// <param name="string">The string to convert.</param>
+	/// <param name="success">Returns true if this operation succeeded.</param>
 	extern vuint				atou_test(const AString& string, bool& success);
+	/// <summary>Convert a string to an unsigned integer.</summary>
+	/// <returns>The converted number. If the convert failed, the result is undefined.</returns>
+	/// <param name="string">The string to convert.</param>
+	/// <param name="success">Returns true if this operation succeeded.</param>
 	extern vuint				wtou_test(const WString& string, bool& success);
+	/// <summary>Convert a string to a 64-bits unsigned integer.</summary>
+	/// <returns>The converted number. If the convert failed, the result is undefined.</returns>
+	/// <param name="string">The string to convert.</param>
+	/// <param name="success">Returns true if this operation succeeded.</param>
 	extern vuint64_t			atou64_test(const AString& string, bool& success);
+	/// <summary>Convert a string to a 64-bits unsigned integer.</summary>
+	/// <returns>The converted number. If the convert failed, the result is undefined.</returns>
+	/// <param name="string">The string to convert.</param>
+	/// <param name="success">Returns true if this operation succeeded.</param>
 	extern vuint64_t			wtou64_test(const WString& string, bool& success);
+	/// <summary>Convert a string to 64-bits floating point number.</summary>
+	/// <returns>The converted number. If the convert failed, the result is undefined.</returns>
+	/// <param name="string">The string to convert.</param>
+	/// <param name="success">Returns true if this operation succeeded.</param>
 	extern double				atof_test(const AString& string, bool& success);
+	/// <summary>Convert a string to 64-bits floating point number.</summary>
+	/// <returns>The converted number. If the convert failed, the result is undefined.</returns>
+	/// <param name="string">The string to convert.</param>
+	/// <param name="success">Returns true if this operation succeeded.</param>
 	extern double				wtof_test(const WString& string, bool& success);
 
+	/// <summary>Convert a string to an signed integer.</summary>
+	/// <returns>The converted number. If the convert failed, the result is undefined.</returns>
+	/// <param name="string">The string to convert.</param>
 	extern vint					atoi(const AString& string);
+	/// <summary>Convert a string to an signed integer.</summary>
+	/// <returns>The converted number. If the convert failed, the result is undefined.</returns>
+	/// <param name="string">The string to convert.</param>
 	extern vint					wtoi(const WString& string);
+	/// <summary>Convert a string to an signed 64-bits integer.</summary>
+	/// <returns>The converted number. If the convert failed, the result is undefined.</returns>
+	/// <param name="string">The string to convert.</param>
 	extern vint64_t				atoi64(const AString& string);
+	/// <summary>Convert a string to an signed 64-bits integer.</summary>
+	/// <returns>The converted number. If the convert failed, the result is undefined.</returns>
+	/// <param name="string">The string to convert.</param>
 	extern vint64_t				wtoi64(const WString& string);
+	/// <summary>Convert a string to an unsigned integer.</summary>
+	/// <returns>The converted number. If the convert failed, the result is undefined.</returns>
+	/// <param name="string">The string to convert.</param>
 	extern vuint				atou(const AString& string);
+	/// <summary>Convert a string to an unsigned integer.</summary>
+	/// <returns>The converted number. If the convert failed, the result is undefined.</returns>
+	/// <param name="string">The string to convert.</param>
 	extern vuint				wtou(const WString& string);
+	/// <summary>Convert a string to a 64-bits unsigned integer.</summary>
+	/// <returns>The converted number. If the convert failed, the result is undefined.</returns>
+	/// <param name="string">The string to convert.</param>
 	extern vuint64_t			atou64(const AString& string);
+	/// <summary>Convert a string to a 64-bits unsigned integer.</summary>
+	/// <returns>The converted number. If the convert failed, the result is undefined.</returns>
+	/// <param name="string">The string to convert.</param>
 	extern vuint64_t			wtou64(const WString& string);
+	/// <summary>Convert a string to a 64-bits floating point number.</summary>
+	/// <returns>The converted number. If the convert failed, the result is undefined.</returns>
+	/// <param name="string">The string to convert.</param>
 	extern double				atof(const AString& string);
+	/// <summary>Convert a string to a 64-bits floating point number.</summary>
+	/// <returns>The converted number. If the convert failed, the result is undefined.</returns>
+	/// <param name="string">The string to convert.</param>
 	extern double				wtof(const WString& string);
 
+	/// <summary>Convert a signed interger to a string.</summary>
+	/// <returns>The converted string.</returns>
+	/// <param name="number">The number to convert.</param>
 	extern AString				itoa(vint number);
+	/// <summary>Convert a signed interger to a string.</summary>
+	/// <returns>The converted string.</returns>
+	/// <param name="number">The number to convert.</param>
 	extern WString				itow(vint number);
+	/// <summary>Convert a 64-bits signed interger to a string.</summary>
+	/// <returns>The converted string.</returns>
+	/// <param name="number">The number to convert.</param>
 	extern AString				i64toa(vint64_t number);
+	/// <summary>Convert a 64-bits signed interger to a string.</summary>
+	/// <returns>The converted string.</returns>
+	/// <param name="number">The number to convert.</param>
 	extern WString				i64tow(vint64_t number);
+	/// <summary>Convert an unsigned interger to a string.</summary>
+	/// <returns>The converted string.</returns>
+	/// <param name="number">The number to convert.</param>
 	extern AString				utoa(vuint number);
+	/// <summary>Convert an unsigned interger to a string.</summary>
+	/// <returns>The converted string.</returns>
+	/// <param name="number">The number to convert.</param>
 	extern WString				utow(vuint number);
+	/// <summary>Convert a 64-bits unsigned interger to a string.</summary>
+	/// <returns>The converted string.</returns>
+	/// <param name="number">The number to convert.</param>
 	extern AString				u64toa(vuint64_t number);
+	/// <summary>Convert a 64-bits unsigned interger to a string.</summary>
+	/// <returns>The converted string.</returns>
+	/// <param name="number">The number to convert.</param>
 	extern WString				u64tow(vuint64_t number);
+	/// <summary>Convert a 64-bits floating pointer number to a string.</summary>
+	/// <returns>The converted string.</returns>
+	/// <param name="number">The number to convert.</param>
 	extern AString				ftoa(double number);
+	/// <summary>Convert a 64-bits floating pointer number to a string.</summary>
+	/// <returns>The converted string.</returns>
+	/// <param name="number">The number to convert.</param>
 	extern WString				ftow(double number);
 
 	extern vint					_wtoa(const wchar_t* w, char* a, vint chars);
+	/// <summary>Convert an Unicode string to an Ansi string.</summary>
+	/// <returns>The converted string.</returns>
+	/// <param name="string">The string to convert.</param>
 	extern AString				wtoa(const WString& string);
 	extern vint					_atow(const char* a, wchar_t* w, vint chars);
+	/// <summary>Convert an Ansi string to an Unicode string.</summary>
+	/// <returns>The converted string.</returns>
+	/// <param name="string">The string to convert.</param>
 	extern WString				atow(const AString& string);
+	/// <summary>Convert all letters to lower case letters.</summary>
+	/// <returns>The converted string.</returns>
+	/// <param name="string">The string to convert.</param>
 	extern AString				alower(const AString& string);
+	/// <summary>Convert all letters to lower case letters.</summary>
+	/// <returns>The converted string.</returns>
+	/// <param name="string">The string to convert.</param>
 	extern WString				wlower(const WString& string);
+	/// <summary>Convert all letters to upper case letters.</summary>
+	/// <returns>The converted string.</returns>
+	/// <param name="string">The string to convert.</param>
 	extern AString				aupper(const AString& string);
+	/// <summary>Convert all letters to upper case letters.</summary>
+	/// <returns>The converted string.</returns>
+	/// <param name="string">The string to convert.</param>
 	extern WString				wupper(const WString& string);
 
 #if defined VCZH_GCC
