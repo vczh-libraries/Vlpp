@@ -166,7 +166,8 @@ namespace vl
 	public:
 		NotCopyable();
 	};
-
+	
+	/// <summary>Base type of all errors. An error is an exception that you are not allowed to catch. Raising it means there is a fatal error in the code.</summary>
 	class Error
 	{
 	private:

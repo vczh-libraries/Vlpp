@@ -81,7 +81,7 @@ namespace vl
 		}
  
 		/// <summary>Remove a callback.</summary>
-		/// <returns>Returns true if this operation is succeeded.</returns>
+		/// <returns>Returns true if this operation succeeded.</returns>
 		/// <param name="handler">The event handler representing the callback.</param>
 		bool Remove(Ptr<EventHandler> handler)
 		{

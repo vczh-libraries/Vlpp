@@ -15,6 +15,7 @@ Classes:
 
 namespace vl
 {
+	/// <summary>Base type of all exceptions.</summary>
 	class Exception : public Object
 	{
 	protected:
