@@ -18,15 +18,38 @@ namespace vl
 {
 	namespace unittest
 	{
+		/// <summary>
+		/// A static class containing all unit test operations. In order to run test cases, you should do the following:
+		/// 1) Write test cases in cpp files like this
+		/// TEST_CASE(<Name of the test case, which should be a legal C++ identifier>)
+		/// {
+		///		<Use TEST_ASSERT(condition) to test>
+		///		<Use TEST_ERROR(expression) if you know "expression" will cause a fatal error by using the CHECK_ERROR macro.>
+		///		<Use TEST_EXCEPTION(expression, exceptionType, assertFunction) if you know "expression" will throw an expression of "exceptionType", and then you can provide "assertFunction" to check the information provided in the exception.>
+		///		<Use TEST_PRINT(message) to print whatever to the command line window.>
+		/// }
+		/// You should call [M:vl.unittest.UnitTest.RunAndDisposeTests] in your main function to run all test cases.
+		/// </summary>
 		class UnitTest abstract
 		{
 		public:
 			typedef void(*TestProc)();
 
+			/// <summary>Print a green message.</summary>
+			/// <param name="string">The content.</param>
 			static void PrintMessage(const WString& string);
+
+			/// <summary>Print a white information.</summary>
+			/// <param name="string">The content.</param>
 			static void PrintInfo(const WString& string);
+
+			/// <summary>Print a red error.</summary>
+			/// <param name="string">The content.</param>
 			static void PrintError(const WString& string);
+
 			static void PushTest(TestProc testProc);
+
+			/// <summary>Run all test cases.</summary>
 			static void RunAndDisposeTests();
 		};
 #if defined VCZH_MSVC	
