@@ -75,13 +75,21 @@ namespace vl
 ***********************************************************************/
 
 #if defined VCZH_MSVC
+	/// <summary>1-byte signed integer.</summary>
 	typedef signed __int8			vint8_t;
+	/// <summary>1-byte unsigned integer.</summary>
 	typedef unsigned __int8			vuint8_t;
+	/// <summary>2-bytes signed integer.</summary>
 	typedef signed __int16			vint16_t;
+	/// <summary>2-bytes unsigned integer.</summary>
 	typedef unsigned __int16		vuint16_t;
+	/// <summary>4-bytes signed integer.</summary>
 	typedef signed __int32			vint32_t;
+	/// <summary>4-bytes unsigned integer.</summary>
 	typedef unsigned __int32		vuint32_t;
+	/// <summary>8-bytes signed integer.</summary>
 	typedef signed __int64			vint64_t;
+	/// <summary>8-bytes unsigned integer.</summary>
 	typedef unsigned __int64		vuint64_t;
 #elif defined VCZH_GCC
 	typedef int8_t					vint8_t;
@@ -95,14 +103,21 @@ namespace vl
 #endif
 
 #ifdef VCZH_64
+	/// <summary>Signed interface whose size is equal to sizeof(void*).</summary>
 	typedef vint64_t				vint;
+	/// <summary>Signed interface whose size is equal to sizeof(void*).</summary>
 	typedef vint64_t				vsint;
+	/// <summary>Unsigned interface whose size is equal to sizeof(void*).</summary>
 	typedef vuint64_t				vuint;
 #else
+	/// <summary>Signed interface whose size is equal to sizeof(void*).</summary>
 	typedef vint32_t				vint;
+	/// <summary>Signed interface whose size is equal to sizeof(void*).</summary>
 	typedef vint32_t				vsint;
+	/// <summary>Unsigned interface whose size is equal to sizeof(void*).</summary>
 	typedef vuint32_t				vuint;
 #endif
+	/// <summary>Signed interger representing position.</summary>
 	typedef vint64_t				pos_t;
 
 #ifdef VCZH_64
@@ -177,7 +192,7 @@ namespace vl
 /***********************************************************************
 类型计算
 ***********************************************************************/
-
+	
 	template<typename T>
 	struct RemoveReference
 	{
@@ -277,88 +292,121 @@ namespace vl
 基础
 ***********************************************************************/
 
+	/// <summary>Base type of all classes.</summary>
 	class Object
 	{
 	public:
 		virtual ~Object();
 	};
-
+	
+	/// <summary>Type for storing a value to wherever requiring a [T:vl.Ptr`1] to [T:vl.Object].</summary>
+	/// <typeparam name="T">Type of the value.</typeparam>
 	template<typename T>
 	class ObjectBox : public Object
 	{
 	private:
 		T					object;
 	public:
+		/// <summary>Box a value.</summary>
+		/// <param name="_object">The value to box.</param>
 		ObjectBox(const T& _object)
 			:object(_object)
 		{
 		}
-
+		
+		/// <summary>Box a movable value.</summary>
+		/// <param name="_object">The value to box.</param>
 		ObjectBox(T&& _object)
 			:object(MoveValue(_object))
 		{
 		}
-
+		
+		/// <summary>Copy a box.</summary>
+		/// <param name="value">The box.</param>
 		ObjectBox(const ObjectBox<T>& value)
 			:object(value.object)
 		{
 		}
-
+		
+		/// <summary>Move a box.</summary>
+		/// <param name="value">The box.</param>
 		ObjectBox(ObjectBox<T>&& value)
 			:object(MoveValue(value.object))
 		{
 		}
-
+		
+		/// <summary>Box a value.</summary>
+		/// <returns>The boxed value.</returns>
+		/// <param name="_object">The value to box.</param>
 		ObjectBox<T>& operator=(const T& _object)
 		{
 			object=_object;
 			return *this;
 		}
-
+		
+		/// <summary>Copy a box.</summary>
+		/// <returns>The boxed value.</returns>
+		/// <param name="value">The box.</param>
 		ObjectBox<T>& operator=(const ObjectBox<T>& value)
 		{
 			object=value.object;
 			return *this;
 		}
-
+		
+		/// <summary>Move a box.</summary>
+		/// <returns>The boxed value.</returns>
+		/// <param name="value">The box.</param>
 		ObjectBox<T>& operator=(ObjectBox<T>&& value)
 		{
 			object=MoveValue(value.object);
 			return *this;
 		}
 
+		/// <summary>Unbox the value.</summary>
+		/// <returns>The original value.</summary>
 		const T& Unbox()
 		{
 			return object;
 		}
 	};
 
+	/// <summary>Type for optionally storing a value.</summary>
+	/// <typeparam name="T">Type of the value.</typeparam>
 	template<typename T>
 	class Nullable
 	{
 	private:
 		T*					object;
 	public:
+		/// <summary>Create a null value.</summary>
 		Nullable()
 			:object(0)
 		{
 		}
 
+		/// <summary>Create a non-null value.</summary>
+		/// <param name="value">The value to copy.</param>
 		Nullable(const T& value)
 			:object(new T(value))
 		{
 		}
-
+		
+		/// <summary>Create a non-null value.</summary>
+		/// <param name="value">The value to move.</param>
 		Nullable(T&& value)
 			:object(new T(MoveValue(value)))
 		{
 		}
 
+		/// <summary>Copy a nullable value.</summary>
+		/// <param name="nullable">The nullable value to copy.</param>
 		Nullable(const Nullable<T>& nullable)
 			:object(nullable.object?new T(*nullable.object):0)
 		{
 		}
-
+		
+		/// <summary>Move a nullable value.</summary>
+		/// <param name="nullable">The nullable value to move.</param>
 		Nullable(Nullable<T>&& nullable)
 			:object(nullable.object)
 		{
@@ -373,7 +421,10 @@ namespace vl
 				object=0;
 			}
 		}
-
+		
+		/// <summary>Create a non-null value.</summary>
+		/// <returns>The created nullable value.</summary>
+		/// <param name="value">The value to copy.</param>
 		Nullable<T>& operator=(const T& value)
 		{
 			if(object)
@@ -384,7 +435,10 @@ namespace vl
 			object=new T(value);
 			return *this;
 		}
-
+		
+		/// <summary>Copy a nullable value.</summary>
+		/// <returns>The created nullable value.</summary>
+		/// <param name="nullable">The nullable value to copy.</param>
 		Nullable<T>& operator=(const Nullable<T>& nullable)
 		{
 			if(this!=&nullable)
@@ -401,7 +455,10 @@ namespace vl
 			}
 			return *this;
 		}
-
+		
+		/// <summary>Move a nullable value.</summary>
+		/// <returns>The created nullable value.</summary>
+		/// <param name="nullable">The nullable value to move.</param>
 		Nullable<T>& operator=(Nullable<T>&& nullable)
 		{
 			if(this!=&nullable)
@@ -471,11 +528,15 @@ namespace vl
 			return Compare(*this, nullable)>=0;
 		}
 
+		/// <summary>Convert the nullable value to a bool value.</summary>
+		/// <returns>Returns true if it is not null.</returns>
 		operator bool()const
 		{
 			return object!=0;
 		}
-
+		
+		/// <summary>Unbox the value. This operation will cause an access violation of it is null.</summary>
+		/// <returns>The original value.</returns>
 		const T& Value()const
 		{
 			return *object;
@@ -493,21 +554,30 @@ namespace vl
 配置
 ***********************************************************************/
 
+	/// <summary>Get the index type of a value for containers.</summary>
+	/// <typeparam name="T">Type of the value.</typeparam>
 	template<typename T>
 	struct KeyType
 	{
 	public:
+		/// <summary>The index type of a value for containers.</summary>
 		typedef T Type;
 
+		/// <summary>Convert a value to its index type.</summary>
+		/// <returns>The corresponding index value.</returns>
+		/// <param name="value">The value.</param>
 		static T GetKeyValue(const T& value)
 		{
 			return value;
 		}
 	};
 
+	/// <summary>Test is a type a Plain-Old-Data type for containers.</summary>
+	/// <typeparam name="T">The type to test.</typeparam>
 	template<typename T>
 	struct POD
 	{
+		/// <summary>Returns true if the type is a Plain-Old-Data type.</summary>
 		static const bool Result=false;
 	};
 
@@ -534,6 +604,7 @@ namespace vl
 时间
 ***********************************************************************/
 
+	/// <summary>A type representing the combination of date and time.</summary>
 	struct DateTime
 	{
 		vint				year;
@@ -550,19 +621,43 @@ namespace vl
 		// in gcc, this will be mktime(t) * 1000 + gettimeofday().tv_usec / 1000
 		vuint64_t			filetime;
 
-
+		/// <summary>Get the current local time.</summary>
+		/// <returns>The current local time.</returns>
 		static DateTime		LocalTime();
+
+		/// <summary>Get the current UTC time.</summary>
+		/// <returns>The current UTC time.</returns>
 		static DateTime		UtcTime();
+
+		/// <summary>Create a date time value.</summary>
+		/// <returns>The created date time value.</returns>
+		/// <param name="_year">The year.</param>
+		/// <param name="_month">The month.</param>
+		/// <param name="_day">The day.</param>
+		/// <param name="_hour">The hour.</param>
+		/// <param name="_minute">The minute.</param>
+		/// <param name="_second">The second.</param>
+		/// <param name="_milliseconds">The millisecond.</param>
 		static DateTime		FromDateTime(vint _year, vint _month, vint _day, vint _hour=0, vint _minute=0, vint _second=0, vint _milliseconds=0);
 	
 		static DateTime		FromFileTime(vuint64_t filetime);
 
-
+		/// <summary>Create an empty date time value.</summary>
 		DateTime();
 
+		/// <summary>Convert the UTC time to the local time.</summary>
+		/// <returns>The UTC time.</returns>
 		DateTime			ToLocalTime();
+		/// <summary>Convert the local time to the UTC time.</summary>
+		/// <returns>The local time.</returns>
 		DateTime			ToUtcTime();
+		/// <summary>Move forward.</summary>
+		/// <returns>The moved time.</returns>
+		/// <param name="milliseconds">The delta in milliseconds.</param>
 		DateTime			Forward(vuint64_t milliseconds);
+		/// <summary>Move Backward.</summary>
+		/// <returns>The moved time.</returns>
+		/// <param name="milliseconds">The delta in milliseconds.</param>
 		DateTime			Backward(vuint64_t milliseconds);
 
 		bool operator==(const DateTime& value)const { return filetime==value.filetime; }
@@ -576,7 +671,8 @@ namespace vl
 /***********************************************************************
 接口
 ***********************************************************************/
-
+	
+	/// <summary>Base type of all interfaces. All interface types are encouraged to be virtual inherited.</summary>
 	class Interface : private NotCopyable
 	{
 	public:
