@@ -48,35 +48,35 @@ namespace vl
 		WaitableObject();
 		void										SetData(threading_internal::WaitableData* data);
 	public:
-		/// <summary>Test if the object has already been created. Some of the synchronization objects should initialize itself after the constructor.</summary>
+		/// <summary>Test if the object has already been created. Some of the synchronization objects should initialize itself after the constructor. This function is only available in Windows.</summary>
 		/// <returns>Returns true if the object has already been created.</returns>
 		bool										IsCreated();
 		/// <summary>Wait for this object to signal.</summary>
 		/// <returns>Returns true if the object is signaled. Returns false if this operation failed.</returns>
 		bool										Wait();
-		/// <summary>Wait for this object to signal for a period of time.</summary>
+		/// <summary>Wait for this object to signal for a period of time. This function is only available in Windows.</summary>
 		/// <returns>Returns true if the object is signaled. Returns false if this operation failed, including time out.</returns>
 		/// <param name="ms">Time in milliseconds.</param>
 		bool										WaitForTime(vint ms);
 		
-		/// <summary>Wait for multiple objects.</summary>
+		/// <summary>Wait for multiple objects. This function is only available in Windows.</summary>
 		/// <returns>Returns true if all objects are signaled. Returns false if this operation failed.</returns>
 		/// <param name="object">A pointer to an array to <see cref="WaitableObject"/> pointers.</param>
 		/// <param name="count">The number of <see cref="WaitableObject"/> objects in the array.</param>
 		static bool									WaitAll(WaitableObject** objects, vint count);
-		/// <summary>Wait for multiple objects for a period of time.</summary>
+		/// <summary>Wait for multiple objects for a period of time. This function is only available in Windows.</summary>
 		/// <returns>Returns true if all objects are signaled. Returns false if this operation failed, including time out.</returns>
 		/// <param name="object">A pointer to an array to <see cref="WaitableObject"/> pointers.</param>
 		/// <param name="count">The number of <see cref="WaitableObject"/> objects in the array.</param>
 		/// <param name="ms">Time in milliseconds.</param>
 		static bool									WaitAllForTime(WaitableObject** objects, vint count, vint ms);
-		/// <summary>Wait for one of the objects.</summary>
+		/// <summary>Wait for one of the objects. This function is only available in Windows.</summary>
 		/// <returns>Returns the index of the first signaled or abandoned object, according to the "abandoned" parameter. Returns -1 if this operation failed.</returns>
 		/// <param name="object">A pointer to an array to <see cref="WaitableObject"/> pointers.</param>
 		/// <param name="count">The number of <see cref="WaitableObject"/> objects in the array.</param>
 		/// <param name="abondoned">Returns true if the waiting is canceled by an abandoned object. An abandoned object is caused by it's owner thread existing without releasing it.</param>
 		static vint									WaitAny(WaitableObject** objects, vint count, bool* abandoned);
-		/// <summary>Wait for one of the objects for a period of time.</summary>
+		/// <summary>Wait for one of the objects for a period of time. This function is only available in Windows.</summary>
 		/// <returns>Returns the index of the first signaled or abandoned object, according to the "abandoned" parameter. Returns -1 if this operation failed, including time out.</returns>
 		/// <param name="object">A pointer to an array to <see cref="WaitableObject"/> pointers.</param>
 		/// <param name="count">The number of <see cref="WaitableObject"/> objects in the array.</param>
@@ -225,13 +225,28 @@ namespace vl
 	public:
 		EventObject();
 		~EventObject();
-
-		// Named event is not supported in the implementation for Linux
+		
+		/// <summary>Create an auto unsignal event. Auto unsignal means, when one thread waits for the event and succeeded, the event will become unsignaled immediately.</summary>
+		/// <returns>Returns true if this operation succeeded.</summary>
+		/// <param name="signaled">Set to true make the event signaled at the beginning.</param>
+		/// <param name="name">Name of the event. If it is not empty, than it is a global named mutex. This argument is only used in Windows.</param>
 		bool										CreateAutoUnsignal(bool signaled, const WString& name=L"");
+		/// <summary>Create a manual unsignal event.</summary>
+		/// <returns>Returns true if this operation succeeded.</summary>
+		/// <param name="signaled">Set to true make the event signaled at the beginning.</param>
+		/// <param name="name">Name of the event. If it is not empty, than it is a global named mutex. This argument is only used in Windows.</param>
 		bool										CreateManualUnsignal(bool signaled, const WString& name=L"");
+		/// <summary>Open an existing global named event.</summary>
+		/// <returns>Returns true if this operation succeeded.</summary>
+		/// <param name="inheritable">Set to true make the event visible to all all child processes. This argument is only used in Windows.</param>
+		/// <param name="name">Name of the event. This argument is only used in Windows.</param>
 		bool										Open(bool inheritable, const WString& name);
 
+		/// <summary>Signal the event.</summary>
+		/// <returns>Returns true if this operation succeeded.</summary>
 		bool										Signal();
+		/// <summary>Unsignal the event.</summary>
+		/// <returns>Returns true if this operation succeeded.</summary>
 		bool										Unsignal();
 #ifdef VCZH_GCC
 		bool										Wait();
@@ -242,17 +257,27 @@ namespace vl
 线程池
 ***********************************************************************/
 
-	// <NOT_IMPLEMENTED_USING GCC> -- BEGIN
-
+	/// <summary>A light-weight thread pool.</summary>
 	class ThreadPoolLite : public Object
 	{
 	private:
 		ThreadPoolLite();
 		~ThreadPoolLite();
 	public:
+		/// <summary>Queue a function pointer.</summary>
+		/// <returns>Returns true if this operation succeeded.</returns>
+		/// <param name="proc">The function pointer.</param>
+		/// <param name="argument">The argument to call the function pointer.</param>
 		static bool									Queue(void(*proc)(void*), void* argument);
+		/// <summary>Queue a function object.</summary>
+		/// <returns>Returns true if this operation succeeded.</returns>
+		/// <param name="proc">The function object.</param>
 		static bool									Queue(const Func<void()>& proc);
-
+		
+		/// <summary>Queue a lambda expression.</summary>
+		/// <typeparam name="T">The type of the lambda expression.</param>
+		/// <returns>Returns true if this operation succeeded.</returns>
+		/// <param name="proc">The lambda expression.</param>
 		template<typename T>
 		static void QueueLambda(const T& proc)
 		{
@@ -264,23 +289,34 @@ namespace vl
 #endif
 	};
 
-	// <NOT_IMPLEMENTED_USING GCC> -- END
-
 /***********************************************************************
 进程内对象
 ***********************************************************************/
 
+	/// <summary>
+	/// Critical section. It is similar to mutex, but in Windows, enter a owned critical section will not cause dead lock.
+	/// The macro "CS_LOCK" is encouraged to use instead of calling [M:vl.CriticalSection.Enter] and [M:vl.CriticalSection.Leave] like this:
+	/// CS_LOCK(yourCriticalSection)
+	/// {
+	///		<code>
+	/// }
+	/// </summary>
 	class CriticalSection : public Object, public NotCopyable
 	{
 	private:
 		friend class ConditionVariable;
 		threading_internal::CriticalSectionData*	internalData;
 	public:
+		/// <summary>Create a critical section.</summary>
 		CriticalSection();
 		~CriticalSection();
 
+		/// <summary>Try enter a critical section. This function will return immediately.</summary>
+		/// <returns>Returns true if the current thread owned the critical section.</returns>
 		bool										TryEnter();
+		/// <summary>Enter a critical section.</summary>
 		void										Enter();
+		/// <summary>Leave a critical section.</summary>
 		void										Leave();
 
 	public:
@@ -293,21 +329,43 @@ namespace vl
 			~Scope();
 		};
 	};
-
+	
+	/// <summary>
+	/// Reader writer lock.
+	/// The macro "READER_LOCK" and "WRITER_LOCK" are encouraged to use instead of calling [M:vl.ReaderWriterLock.EnterReader], [M:vl.ReaderWriterLock.LeaveReader], [M:vl.ReaderWriterLock.EnterWriter] and [M:vl.CriticalSection.LeaveWriter] like this:
+	/// READER_LOCK(yourLock)
+	/// {
+	///		<code>
+	/// }
+	/// or
+	/// WRITER_LOCK(yourLock)
+	/// {
+	///		<code>
+	/// }
+	/// </summary>
 	class ReaderWriterLock : public Object, public NotCopyable
 	{
 	private:
 		friend class ConditionVariable;
 		threading_internal::ReaderWriterLockData*	internalData;
 	public:
+		/// <summary>Create a reader writer lock.</summary>
 		ReaderWriterLock();
 		~ReaderWriterLock();
-
+		
+		/// <summary>Try acquire a reader lock. This function will return immediately.</summary>
+		/// <returns>Returns true if the current thread acquired the reader lock.</returns>
 		bool										TryEnterReader();
+		/// <summary>Acquire a reader lock.</summary>
 		void										EnterReader();
+		/// <summary>Release a reader lock.</summary>
 		void										LeaveReader();
+		/// <summary>Try acquire a writer lock. This function will return immediately.</summary>
+		/// <returns>Returns true if the current thread acquired the writer lock.</returns>
 		bool										TryEnterWriter();
+		/// <summary>Acquire a writer lock.</summary>
 		void										EnterWriter();
+		/// <summary>Release a writer lock.</summary>
 		void										LeaveWriter();
 	public:
 		class ReaderScope : public Object, public NotCopyable
@@ -329,23 +387,48 @@ namespace vl
 		};
 	};
 
+	/// <summary>Conditional variable.</summary>
 	class ConditionVariable : public Object, public NotCopyable
 	{
 	private:
 		threading_internal::ConditionVariableData*	internalData;
 	public:
+		/// <summary>Create a conditional variable.</summary>
 		ConditionVariable();
 		~ConditionVariable();
 
+		/// <summary>Bind a conditional variable with a owned critical section and release it. When the function returns, the condition variable is activated, and the current thread owned the critical section again.</summary>
+		/// <returns>Returns true if this operation succeeded.</summary>
+		/// <param name="cs">The critical section.</param>
 		bool										SleepWith(CriticalSection& cs);
 #ifdef VCZH_MSVC
+		/// <summary>Bind a conditional variable with a owned critical section and release it for a period of time. When the function returns, the condition variable is activated or it is time out, and the current thread owned the critical section again. This function is only available in Windows.</summary>
+		/// <returns>Returns true if this operation succeeded.</summary>
+		/// <param name="cs">The critical section.</param>
+		/// <param name="ms">Time in milliseconds.</param>
 		bool										SleepWithForTime(CriticalSection& cs, vint ms);
+		/// <summary>Bind a conditional variable with a owned reader lock and release it. When the function returns, the condition variable is activated, and the current thread owned the reader lock again. This function is only available in Windows.</summary>
+		/// <returns>Returns true if this operation succeeded.</summary>
+		/// <param name="lock">The reader lock.</param>
 		bool										SleepWithReader(ReaderWriterLock& lock);
+		/// <summary>Bind a conditional variable with a owned reader lock and release it for a period of time. When the function returns, the condition variable is activated or it is time out, and the current thread owned the reader lock again. This function is only available in Windows.</summary>
+		/// <returns>Returns true if this operation succeeded.</summary>
+		/// <param name="lock">The reader lock.</param>
+		/// <param name="ms">Time in milliseconds.</param>
 		bool										SleepWithReaderForTime(ReaderWriterLock& lock, vint ms);
+		/// <summary>Bind a conditional variable with a owned writer lock and release it. When the function returns, the condition variable is activated, and the current thread owned the writer lock again. This function is only available in Windows.</summary>
+		/// <returns>Returns true if this operation succeeded.</summary>
+		/// <param name="lock">The writer lock.</param>
 		bool										SleepWithWriter(ReaderWriterLock& lock);
+		/// <summary>Bind a conditional variable with a owned writer lock and release it for a period of time. When the function returns, the condition variable is activated or it is time out, and the current thread owned the writer lock again. This function is only available in Windows.</summary>
+		/// <returns>Returns true if this operation succeeded.</summary>
+		/// <param name="lock">The writer lock.</param>
+		/// <param name="ms">Time in milliseconds.</param>
 		bool										SleepWithWriterForTime(ReaderWriterLock& lock, vint ms);
 #endif
+		/// <summary>Wake one thread that pending on this condition variable.</summary>
 		void										WakeOnePending();
+		/// <summary>Wake all thread that pending on this condition variable.</summary>
 		void										WakeAllPendings();
 	};
 
@@ -354,17 +437,30 @@ namespace vl
 ***********************************************************************/
 
 	typedef long LockedInt;
-
+	
+	/// <summary>
+	/// Spin lock. It is similar to mutex.
+	/// The macro "SPIN_LOCK" is encouraged to use instead of calling [M:vl.SpinLock.Enter] and [M:vl.SpinLock.Leave] like this:
+	/// SPIN_LOCK(yourLock)
+	/// {
+	///		<code>
+	/// }
+	/// </summary>
 	class SpinLock : public Object, public NotCopyable
 	{
 	protected:
 		volatile LockedInt							token;
 	public:
+		/// <summary>Create a spin lock.</summary>
 		SpinLock();
 		~SpinLock();
-
+		
+		/// <summary>Try enter a spin lock. This function will return immediately.</summary>
+		/// <returns>Returns true if the current thread owned the spin lock.</returns>
 		bool										TryEnter();
+		/// <summary>Enter a spin lock.</summary>
 		void										Enter();
+		/// <summary>Leave a spin lock.</summary>
 		void										Leave();
 
 	public:
