@@ -37,6 +37,7 @@ namespace vl
 		struct ConditionVariableData;
 	}
 	
+	/// <summary>Base type of all synchronization objects.</summary>
 	class WaitableObject : public Object, public NotCopyable
 	{
 #if defined VCZH_MSVC
@@ -47,28 +48,59 @@ namespace vl
 		WaitableObject();
 		void										SetData(threading_internal::WaitableData* data);
 	public:
-
+		/// <summary>Test if the object has already been created. Some of the synchronization objects should initialize itself after the constructor.</summary>
+		/// <returns>Returns true if the object has already been created.</returns>
 		bool										IsCreated();
+		/// <summary>Wait for this object to signal.</summary>
+		/// <returns>Returns true if the object is signaled. Returns false if this operation failed.</returns>
 		bool										Wait();
+		/// <summary>Wait for this object to signal for a period of time.</summary>
+		/// <returns>Returns true if the object is signaled. Returns false if this operation failed, including time out.</returns>
+		/// <param name="ms">Time in milliseconds.</param>
 		bool										WaitForTime(vint ms);
 		
+		/// <summary>Wait for multiple objects.</summary>
+		/// <returns>Returns true if all objects are signaled. Returns false if this operation failed.</returns>
+		/// <param name="object">A pointer to an array to <see cref="WaitableObject"/> pointers.</param>
+		/// <param name="count">The number of <see cref="WaitableObject"/> objects in the array.</param>
 		static bool									WaitAll(WaitableObject** objects, vint count);
+		/// <summary>Wait for multiple objects for a period of time.</summary>
+		/// <returns>Returns true if all objects are signaled. Returns false if this operation failed, including time out.</returns>
+		/// <param name="object">A pointer to an array to <see cref="WaitableObject"/> pointers.</param>
+		/// <param name="count">The number of <see cref="WaitableObject"/> objects in the array.</param>
+		/// <param name="ms">Time in milliseconds.</param>
 		static bool									WaitAllForTime(WaitableObject** objects, vint count, vint ms);
+		/// <summary>Wait for one of the objects.</summary>
+		/// <returns>Returns the index of the first signaled or abandoned object, according to the "abandoned" parameter. Returns -1 if this operation failed.</returns>
+		/// <param name="object">A pointer to an array to <see cref="WaitableObject"/> pointers.</param>
+		/// <param name="count">The number of <see cref="WaitableObject"/> objects in the array.</param>
+		/// <param name="abondoned">Returns true if the waiting is canceled by an abandoned object. An abandoned object is caused by it's owner thread existing without releasing it.</param>
 		static vint									WaitAny(WaitableObject** objects, vint count, bool* abandoned);
+		/// <summary>Wait for one of the objects for a period of time.</summary>
+		/// <returns>Returns the index of the first signaled or abandoned object, according to the "abandoned" parameter. Returns -1 if this operation failed, including time out.</returns>
+		/// <param name="object">A pointer to an array to <see cref="WaitableObject"/> pointers.</param>
+		/// <param name="count">The number of <see cref="WaitableObject"/> objects in the array.</param>
+		/// <param name="ms">Time in milliseconds.</param>
+		/// <param name="abondoned">Returns true if the waiting is canceled by an abandoned object. An abandoned object is caused by it's owner thread existing without releasing it.</param>
 		static vint									WaitAnyForTime(WaitableObject** objects, vint count, vint ms, bool* abandoned);
 #elif defined VCZH_GCC
 		virtual bool								Wait() = 0;
 #endif
 	};
 
+	/// <summary>Representing a thread. [M:vl.Thread.CreateAndStart] is the suggested way to create threads.</summary>
 	class Thread : public WaitableObject
 	{
 		friend void InternalThreadProc(Thread* thread);
 	public:
+		/// <summary>Thread state.</summary>
 		enum ThreadState
 		{
+			/// <summary>The thread has not started.</summary>
 			NotStarted,
+			/// <summary>The thread is running.</summary>
 			Running,
+			/// <summary>The thread has been stopped.</summary>
 			Stopped
 		};
 
@@ -83,23 +115,45 @@ namespace vl
 	public:
 		~Thread();
 
+		/// <summary>Create a thread using a function pointer.</summary>
+		/// <returns>Returns the created thread.</returns>
+		/// <param name="procedure">The function pointer.</param>
+		/// <param name="argument">The argument to call the function pointer.</param>
+		/// <param name="deleteAfterStopped">Set to true (by default) to make the thread delete itself after the job is done. If you set this argument to true, you are not suggested to touch the returned thread pointer in any way.</param>
 		static Thread*								CreateAndStart(ThreadProcedure procedure, void* argument=0, bool deleteAfterStopped=true);
+		/// <summary>Create a thread using a function object or a lambda expression.</summary>
+		/// <returns>Returns the created thread.</returns>
+		/// <param name="procedure">The function object or the lambda expression.</param>
+		/// <param name="deleteAfterStopped">Set to true (by default) to make the thread delete itself after the job is done. If you set this argument to true, you are not suggested to touch the returned thread pointer in any way.</param>
 		static Thread*								CreateAndStart(const Func<void()>& procedure, bool deleteAfterStopped=true);
+		/// <summary>Pause the caller thread for a period of time.</summary>
+		/// <param name="ms">Time in milliseconds.</param>
 		static void									Sleep(vint ms);
+		/// <summary>Get the number of logical processors.</summary>
+		/// <returns>The number of logical processor.</returns>
 		static vint									GetCPUCount();
+		/// <summary>Get the current thread id.</summary>
+		/// <returns>The current thread id.</returns>
 		static vint									GetCurrentThreadId();
 
+		/// <summary>Start the thread.</summary>
+		/// <returns>Returns true if this operation succeeded.</returns>
 		bool										Start();
 #if defined VCZH_GCC
 		bool										Wait();
 #endif
+		/// <summary>Stop the thread.</summary>
+		/// <returns>Returns true if this operation succeeded.</returns>
 		bool										Stop();
+		/// <summary>Get the state of the thread.</summary>
+		/// <returns>The state of the thread.</returns>
 		ThreadState									GetState();
 #ifdef VCZH_MSVC
 		void										SetCPU(vint index);
 #endif
 	};
 
+	/// <summary>Mutex.</summary>
 	class Mutex : public WaitableObject
 	{
 	private:
@@ -108,19 +162,29 @@ namespace vl
 		Mutex();
 		~Mutex();
 
+		/// <summary>Create a mutex.</summary>
+		/// <returns>Returns true if this operation succeeded.</summary>
+		/// <param name="owner">Set to true to own the created mutex.</param>
+		/// <param name="name">Name of the mutex. If it is not empty, than it is a global named mutex. This argument is ignored in Linux.</param>
 		bool										Create(bool owned=false, const WString& name=L"");
+		/// <summary>Open an existing global named mutex.</summary>
+		/// <returns>Returns true if this operation succeeded.</summary>
+		/// <param name="inheritable">Set to true make the mutex visible to all all child processes. This argument is only used in Windows.</param>
+		/// <param name="name">Name of the mutex. This argument is ignored in Linux.</param>
 		bool										Open(bool inheritable, const WString& name);
 
-		// In the implementation for Linux,
-		// calling Release() more than once between two Wait(),
-		// or calling Wait() more than once between two Release(),
-		// will results in an undefined behavior
+		/// <summary>
+		/// Release the mutex.
+		/// In the implementation for Linux, calling Release() more than once between two Wait(), or calling Wait() more than once between two Release(), will results in an undefined behavior.
+		/// </summary>
+		/// <returns>Returns true if this operation succeeded.</returns>
 		bool										Release();
 #ifdef VCZH_GCC
 		bool										Wait();
 #endif
 	};
-
+	
+	/// <summary>Semaphore.</summary>
 	class Semaphore : public WaitableObject
 	{
 	private:
@@ -128,18 +192,32 @@ namespace vl
 	public:
 		Semaphore();
 		~Semaphore();
-
-		// the maxCount is ignored in the implementation for Linux
+		
+		/// <summary>Create a semaphore.</summary>
+		/// <returns>Returns true if this operation succeeded.</summary>
+		/// <param name="initialCount">Define the counter of the semaphore.</param>
+		/// <param name="maxCount">Define the maximum value of the counter of the semaphore. This argument is only used in Windows.</param>
+		/// <param name="name">Name of the semaphore. If it is not empty, than it is a global named semaphore. This argument is ignored in Linux.</param>
 		bool										Create(vint initialCount, vint maxCount, const WString& name=L"");
+		/// <summary>Open an existing global named semaphore.</summary>
+		/// <returns>Returns true if this operation succeeded.</summary>
+		/// <param name="inheritable">Set to true make the semaphore visible to all all child processes. This argument is only used in Windows.</param>
+		/// <param name="name">Name of the semaphore. This argument is ignored in Linux.</param>
 		bool										Open(bool inheritable, const WString& name);
-
+		
+		/// <summary> Release the semaphore once. </summary>
+		/// <returns>Returns true if this operation succeeded.</returns>
 		bool										Release();
+		/// <summary> Release the semaphore multiple times. </summary>
+		/// <returns>Returns true if this operation succeeded.</returns>
+		/// <param name="count">The amout to release.</param>
 		vint										Release(vint count);
 #ifdef VCZH_GCC
 		bool										Wait();
 #endif
 	};
 
+	/// <summary>Event.</summary>
 	class EventObject : public WaitableObject
 	{
 	private:
