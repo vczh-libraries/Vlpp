@@ -486,6 +486,7 @@ ThreadLocalStorage and ThreadVariable<T> are designed to be used as global value
 Dynamically create instances of them are undefined behavior.
 ***********************************************************************/
 
+	/// <summary>Thread local storage operations.</summary>
 	class ThreadLocalStorage : public Object, private NotCopyable
 	{
 		typedef void(*Destructor)(void*);
@@ -504,11 +505,16 @@ Dynamically create instances of them are undefined behavior.
 		void									Clear();
 		void									Dispose();
 
+		/// <summary>Fix all storage creation.</summary>
 		static void								FixStorages();
+		/// <summary>Clear all storages for the current thread. For threads that are created using [T:vl.Thread], this function will be automatically called when before the thread exit.</summary>
 		static void								ClearStorages();
+		/// <summary>Clear all storages for the current thread (should be the main thread) and clear all records. This function can only be called by the main thread when all other threads are exited. It will reduce noices when you want to detect memory leaks.</summary>
 		static void								DisposeStorages();
 	};
 
+	/// <summary>Thread local variable. This type can only be used to define global variables. Different threads can store different values to and obtain differnt values from a thread local variable.</summary>
+	/// <typeparam name="T">Type of the storage.</typeparam>
 	template<typename T>
 	class ThreadVariable : public Object, private NotCopyable
 	{
@@ -523,6 +529,7 @@ Dynamically create instances of them are undefined behavior.
 			}
 		}
 	public:
+		/// <summary>Create a thread local variable.</summary>
 		ThreadVariable()
 			:storage(&Destructor)
 		{
@@ -532,21 +539,28 @@ Dynamically create instances of them are undefined behavior.
 		{
 		}
 
+		/// <summary>Test if the storage has data.</summary>
+		/// <returns>Returns true if the storage has data.</summary>
 		bool HasData()
 		{
 			return storage.Get() != nullptr;
 		}
 
+		/// <summary>Remove the data from this storage.</summary>
 		void Clear()
 		{
 			storage.Clear();
 		}
 
+		/// <summary>Get the stored data.</summary>
+		/// <returns>The stored ata.</returns>
 		T& Get()
 		{
 			return *(T*)storage.Get();
 		}
 
+		/// <summary>Set data to this storage.</summary>
+		/// <param name="T">The data to set.</param>
 		void Set(const T& value)
 		{
 			storage.Clear();
@@ -595,6 +609,8 @@ Dynamically create instances of them are undefined behavior.
 RepeatingTaskExecutor
 ***********************************************************************/
 
+	/// <summary>Queued task executor. It is different from a thread pool by: 1) Task execution is single threaded, 2) If you queue a task, it will override the the unexecuted queued task.</summary>
+	/// <typeparam name="T">The type of the argument to run a task.</param>
 	template<typename T>
 	class RepeatingTaskExecutor : public Object
 	{
@@ -635,9 +651,12 @@ RepeatingTaskExecutor
 		}
 	
 	protected:
+		/// <summary>This function is called when it is ready to execute a task. Task execution is single threaded. All task code should be put inside the function.</summary>
+		/// <param name="input">The argument to run a task.</param>
 		virtual void							Execute(const T& input)=0;
 
 	public:
+		/// <summary>Create a task executor.</summary>
 		RepeatingTaskExecutor()
 			:inputDataAvailable(false)
 			,executing(false)
@@ -649,12 +668,15 @@ RepeatingTaskExecutor
 			EnsureTaskFinished();
 		}
 
+		/// <summary>Wait for all tasks to finish.</summary>
 		void EnsureTaskFinished()
 		{
 			executingEvent.Enter();
 			executingEvent.Leave();
 		}
 
+		/// <summary>Queue a task. If there is a queued task that has not been executied yet, those tasks will be canceled. Only one task can be queued at the same moment.</summary>
+		/// <param name="input">The argument to run a task.</param>
 		void SubmitTask(const T& input)
 		{
 			SPIN_LOCK(inputLock)
