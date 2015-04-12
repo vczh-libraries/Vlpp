@@ -205,25 +205,37 @@ namespace vl
 正则表达式词法分析器
 ***********************************************************************/
 
+		/// <summary>A token.</summary>
 		class RegexToken
 		{
 		public:
+			/// <summary>Position in the input string.</summary>
 			vint										start;
+			/// <summary>Size of this token in characters.</summary>
 			vint										length;
+			/// <summary>The token id, begins at 0, represents the regular expression in the list that matches this token. -1 means this token is produced by an error.</summary>
 			vint										token;
+			/// <summary>The pointer to where this token starts in the input string .</summary>
 			const wchar_t*								reading;
+			/// <summary>The argument value from [M:vl.regex.RegexLexer.Parse].</summary>
 			vint										codeIndex;
+			/// <summary>True if this token is complete. False if this token does not end here.</summary>
 			bool										completeToken;
 
+			/// <summary>Row number of the first character, begins at 0.</summary>
 			vint										rowStart;
+			/// <summary>Column number of the first character, begins at 0.</summary>
 			vint										columnStart;
+			/// <summary>Row number of the last character, begins at 0.</summary>
 			vint										rowEnd;
+			/// <summary>Column number of the last character, begins at 0.</summary>
 			vint										columnEnd;
 
 			bool										operator==(const RegexToken& _token)const;
 			bool										operator==(const wchar_t* _token)const;
 		};
 
+		/// <summary>Token collection representing the result from the lexical analyzer.</summary>
 		class RegexTokens : public Object, public collections::IEnumerable<RegexToken>
 		{
 			friend class RegexLexer;
@@ -238,9 +250,14 @@ namespace vl
 			RegexTokens(const RegexTokens& tokens);
 
 			collections::IEnumerator<RegexToken>*		CreateEnumerator()const;
+
+			/// <summary>Copy all tokens.</summary>
+			/// <param name="tokens">Returns all tokens.</param>
+			/// <param name="discard">A callback to decide which kind of tokens to discard. The input is [F:vl.regex.RegexToken.token]. Returns true to discard this kind of tokens.</param>
 			void										ReadToEnd(collections::List<RegexToken>& tokens, bool(*discard)(vint)=0)const;
 		};
-
+		
+		/// <summary>Lexical walker.</summary>
 		class RegexLexerWalker : public Object
 		{
 			friend class RegexLexer;
@@ -252,15 +269,35 @@ namespace vl
 		public:
 			RegexLexerWalker(const RegexLexerWalker& walker);
 			~RegexLexerWalker();
-
+			
+			/// <summary>Get the start DFA state number, which represents the correct state before parsing any input.</summary>
+			/// <param name="state">The DFA state number.</param>
 			vint										GetStartState()const;
+			/// <summary>Test if this state can only lead to the end of one kind of token.</summary>
+			/// <summary>Returns the token index if this state can only lead to the end of one kind of token. Returns -1 if not.</summary>
 			vint										GetRelatedToken(vint state)const;
+			/// <summary>Step forward by one character.</summary>
+			/// <param name="input">The input character.</param>
+			/// <param name="state">The current state. Returns the new current state when this function returns.</param>
+			/// <param name="token">Returns the token index at the end of the token.</param>
+			/// <param name="finalState">Returns true if it reach the end of the token.</param>
+			/// <param name="previousTokenStop">Returns true if the last character is the end of the token.</param>
 			void										Walk(wchar_t input, vint& state, vint& token, bool& finalState, bool& previousTokenStop)const;
+			/// <summary>Step forward by one character.</summary>
+			/// <returns>Returns the new current state.</returns>
+			/// <param name="input">The input character.</param>
+			/// <param name="state">The current state.</param>
 			vint										Walk(wchar_t input, vint state)const;
+			/// <summary>Test if the input text is a complete token.</summary>
+			/// <param name="input">The input text.</param>
+			/// <param name="length">Size of the input text in characters.</param>
 			bool										IsClosedToken(const wchar_t* input, vint length)const;
+			/// <summary>Test if the input is a complete token.</summary>
+			/// <param name="input">The input text.</param>
 			bool										IsClosedToken(const WString& input)const;
 		};
 
+		/// <summary>Lexical colorizer.</summary>
 		class RegexLexerColorizer : public Object
 		{
 			friend class RegexLexer;
@@ -276,13 +313,27 @@ namespace vl
 			RegexLexerColorizer(const RegexLexerColorizer& colorizer);
 			~RegexLexerColorizer();
 
+			/// <summary>Reset the colorizer using the DFA state number.</summary>
+			/// <param name="state">The DFA state number.</param>
 			void										Reset(vint state);
+			/// <summary>Step forward by one character.</summary>
+			/// <param name="input">The input character.</param>
 			void										Pass(wchar_t input);
+			/// <summary>Get the start DFA state number, which represents the correct state before colorizing any characters.</summary>
+			/// <param name="state">The DFA state number.</param>
 			vint										GetStartState()const;
+			/// <summary>Get the current DFA state number.</summary>
+			/// <param name="state">The DFA state number.</param>
 			vint										GetCurrentState()const;
+			/// <summary>Colorize a text.</summary>
+			/// <param name="input">The text to colorize.</param>
+			/// <param name="length">Size of the text in characters.</param>
+			/// <param name="tokenProc">Colorizer callback. This callback will be called if any token is found..</param>
+			/// <param name="tokenProcArgument">The argument to call the callback.</param>
 			void										Colorize(const wchar_t* input, vint length, TokenProc tokenProc, void* tokenProcArgument);
 		};
 
+		/// <summary>Lexical analyzer.</summary>
 		class RegexLexer : public Object, private NotCopyable
 		{
 		protected:
@@ -290,11 +341,20 @@ namespace vl
 			collections::Array<vint>					ids;
 			collections::Array<vint>					stateTokens;
 		public:
+			/// <summary>Create a lexical analyzer by a set of regular expression. [F:vl.regex.RegexToken.token] will be the index of the matched regular expression.</summary>
 			RegexLexer(const collections::IEnumerable<WString>& tokens);
 			~RegexLexer();
 
+			/// <summary>Tokenize a input text.</summary>
+			/// <returns>The result.</returns>
+			/// <param name="code">The text to tokenize.</param>
+			/// <param name="codeIndex">Extra information that will store in [F:vl.regex.RegexToken.codeIndex].</param>
 			RegexTokens									Parse(const WString& code, vint codeIndex=-1)const;
+			/// <summary>Create a equivalence walker from this lexical analyzer.</summary>
+			/// <returns>The walker.</returns>
 			RegexLexerWalker							Walk()const;
+			/// <summary>Create a equivalence colorizer from this lexical analyzer.</summary>
+			/// <returns>The colorizer.</returns>
 			RegexLexerColorizer							Colorize()const;
 		};
 	}
