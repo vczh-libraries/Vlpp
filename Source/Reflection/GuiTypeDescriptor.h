@@ -50,6 +50,7 @@ Attribute
 			class IValueException;
 		}
 
+		/// <summary>Base class of all reflectable object. You can use pointer or smart pointer to DescriptableObject to define variables, but if you want to create a reflectable class, you should inherit from [T:vl.reflection.Description`1].</summary>
 		class DescriptableObject
 		{
 			template<typename T, typename Enabled>
@@ -71,12 +72,258 @@ Attribute
 			DescriptableObject();
 			virtual ~DescriptableObject();
 
+			/// <summary>Get the type descriptor that describe the real type of this object.</summary>
+			/// <returns>The real type.</returns>
 			description::ITypeDescriptor*			GetTypeDescriptor();
+			/// <summary>Get an internal property of this object. This map is totally for customization.</summary>
+			/// <returns>Value of the internal property of this object.</returns>
+			/// <param name="name">Name of the property.</param>
 			Ptr<Object>								GetInternalProperty(const WString& name);
+			/// <summary>Set an internal property of this object. This map is totally for customization.</summary>
+			/// <param name="name">Name of the property.</param>
+			/// <param name="value">Value of the internal property of this object.</param>
 			void									SetInternalProperty(const WString& name, Ptr<Object> value);
+			/// <summary>Try to delete this object.</summary>
+			/// <returns>Returns true if this operation succeeded. Returns false if the object refuces to be dispose.</returns>
+			/// <param name="forceDisposing">Set to true to force disposing this object. If the reference counter is not 0 if you force disposing it, it will raise a [T:vl.reflection.description.ValueNotDisposableException].</param>
 			bool									Dispose(bool forceDisposing);
 		};
 		
+		/// <summary><![CDATA[
+		/// Inherit from this class when you want to create a reflectable class. It should be used like this:
+		/// class YourClass : public Description<YourClass>
+		/// {
+		///		...
+		/// };
+		///
+		/// After you have complete your type, use the following macros and functions to register your class into the global type table. Everything should be defined in vl::reflection::description namespaces.
+		///	Some of the predefined type has already been registered, if your types depend on these types, you should load those types by calling some or all of them:
+		///	[F:vl.reflection.description.LoadPredefinedTypes]
+		///	[F:vl.reflection.description.LoadParsingTypes]
+		///	[F:vl.reflection.description.JsonLoadTypes]
+		///	[F:vl.reflection.description.XmlLoadTypes]
+		///
+		/// 1) (in header files) Create a macro that contains all types that you want to register. Content in the list will become the registered type names, so it is strongly recommended to use the full name.
+		///		#define MY_TYPELIST(F)\
+		///			F(mynamespaces::MyClass1)\
+		///			F(mynamespaces::MyClass2)\
+		///
+		/// 2) (in header files) Connect type names and types:
+		///		MY_TYPELIST(DECL_TYPE_INFO)
+		///
+		/// 3) (in cpp files) Connect type names and types:
+		///		MY_TYPELIST(IMPL_VL_TYPE_INFO)
+		///
+		/// 4) (in cpp files) Register all members:
+		///		
+		///		#define _ ,
+		///
+		///		a) enum:
+		///			use BEGIN_ENUM_ITEM_MERGABLE instead of BEGIN_ENUM_ITEM if enum items are consider mergable using "|".
+		///			if you want to provide a default value, use BEGIN_ENUM_ITEM_DEFAULT_VALUE(<your type>, <default value>)
+		///
+		///			BEGIN_ENUM_ITEM(Season)
+		///				ENUM_ITEM(Spring)
+		///				ENUM_ITEM(Summer)
+		///				ENUM_ITEM(Autumn)
+		///				ENUM_ITEM(Winter)
+		///			END_ENUM_ITEM(Season)
+		///
+		///		b) enum class:
+		///			use BEGIN_ENUM_ITEM_MERGABLE instead of BEGIN_ENUM_ITEM if enum items are consider mergable using "|".
+		///
+		///			BEGIN_ENUM_ITEM(Season)
+		///				ENUM_CLASS_ITEM(Spring)
+		///				ENUM_CLASS_ITEM(Summer)
+		///				ENUM_CLASS_ITEM(Autumn)
+		///				ENUM_CLASS_ITEM(Winter)
+		///			END_ENUM_ITEM(Season)
+		///
+		///		c) struct (pure data structure):
+		///			BEGIN_STRUCT_MEMBER(Point)
+		///				STRUCT_MEMBER(x)
+		///				STRUCT_MEMBER(y)
+		///			END_STRUCT_MEMBER(Point)
+		///
+		///		d) class:
+		///			BEGIN_CLASS_MEMBER(MyClass)
+		///
+		///				I) declare a base class (can have multiple base classes):
+		///				CLASS_MEMBER_BASE(MyBaseClass)
+		///
+		///				II) declare a field:
+		///				CLASS_MEMBER_FIELD(myField)
+		///
+		///				III) Empty constructor that results in a raw pointer:
+		///				CLASS_MEMBER_CONSTRUCTIOR(MyClass*(), NO_PARAMETER)
+		///
+		///				IV) Empty constructor that results in a smart pointer:
+		///				CLASS_MEMBER_CONSTRUCTIOR(Ptr<MyClass>(), NO_PARAMETER)
+		///
+		///				V) Constructor with arguments:
+		///				CLASS_MEMBER_CONSTRUCTOR(Ptr<MyClass>(int, const WString&), {L"numberParameter" _ L"stringParameter"})
+		///
+		///				VI) Inject a global function as a constructor
+		///				CLASS_MEMBER_EXTERNALCTOR(Ptr<MyClass>(int, const WString&), {L"numberParameter" _ L"stringParameter"}, CreateMyClass)
+		///
+		///				VII) Add unoverloaded functions
+		///				CLASS_MEMBER_METHOD(MyFunction1, NO_PARAMETER)
+		///				CLASS_MEMBER_METHOD(MyFunction2, {L"parameter1" _ L"parameter2"})
+		///
+		///				VIII) Add unoverloaded function but give a different names
+		///				CLASS_MEMBER_METHOD_RENAME(MyNewName1, MyFunction1, NO_PARAMETER)
+		///				CLASS_MEMBER_METHOD_RENAME(MyNewName2, MyFunction2, {L"parameter1" _ L"parameter2"})
+		///
+		///				IX) Add overloaded functions
+		///				CLASS_MEMBER_METHOD_OVERLOAD(MyFunction3, NO_PARAMETER, int(MyClass::*)())
+		///				CLASS_MEMBER_METHOD_OVERLOAD(MyFunction3, {L"parameter"}, int(MyClass::*)(int))
+		///				CLASS_MEMBER_METHOD_OVERLOAD(MyFunction3, {L"parameter1" _ L"parameter2"}, int(MyClass::*)(int, const WString&))
+		///
+		///				IX) Add overloaded functions but give different names
+		///				CLASS_MEMBER_METHOD_OVERLOAD_RENAME(MyNewName3, MyFunction3, NO_PARAMETER, int(MyClass::*)())
+		///				CLASS_MEMBER_METHOD_OVERLOAD_RENAME(MyNewName4, MyFunction3, {L"parameter"}, int(MyClass::*)(int))
+		///				CLASS_MEMBER_METHOD_OVERLOAD_RENAME(MyNewName4, MyFunction3, {L"parameter1" _ L"parameter2"}, int(MyClass::*)(int, const WString&))
+		///
+		///				X) Inject global functions as methods:
+		///				CLASS_MEMBER_EXTERNALMETHOD(MyNewName5, {L"parameter"}, int(MyClass::*)(int), &AGlobalFunction)
+		///				CLASS_MEMBER_EXTERNALMETHOD(MyNewName5, {L"parameter1" _ L"parameter2"}, int(MyClass::*)(int, const WString&), [](MyClass* a, int b, const WString& c){return 0;})
+		///
+		///				XI) Add unoverloaded static functions
+		///				CLASS_MEMBER_STATIC_METHOD(MyFunction4, NO_PARAMETER)
+		///				CLASS_MEMBER_STATIC_METHOD(MyFunction5, {L"parameter1" _ L"parameter2"})
+		///
+		///				XII) Add overloaded static functions
+		///				CLASS_MEMBER_METHOD_OVERLOAD(MyFunction6, NO_PARAMETER, int(*)())
+		///				CLASS_MEMBER_METHOD_OVERLOAD(MyFunction6, {L"parameter"}, int(*)(int))
+		///				CLASS_MEMBER_METHOD_OVERLOAD(MyFunction6, {L"parameter1" _ L"parameter2"}, int(*)(int, const WString&))
+		///
+		///				XIII) Inject global functions as static methods:
+		///				CLASS_MEMBER_STATIC_EXTERNALMETHOD(MyNewName6, {L"parameter"}, int(*)(int), &AGlobalFunction2)
+		///				CLASS_MEMBER_STATIC_EXTERNALMETHOD(MyNewName6, {L"parameter1" _ L"parameter2"}, int(*)(int, const WString&), [](int b, const WString& c){return 0;})
+		///
+		///				XIV) Add a getter function as a property
+		///				CLASS_MEMBER_PROPERTY_READONLY_FAST(X)
+		///				which is short for
+		///				CLASS_MEMBER_METHOD(GetX, NO_PARAMETER)
+		///				CLASS_MEMBER_PROPERTY_READONLY(X, GetX)
+		///
+		///				XV) Add a pair of getter and setter functions as a property
+		///				CLASS_MEMBER_PROPERTY_FAST(X)
+		///				which is short for
+		///				CLASS_MEMBER_METHOD(GetX, NO_PARAMETER)
+		///				CLASS_MEMBER_METHOD(SetX, {L"value"})
+		///				CLASS_MEMBER_PROPERTY(X, GetX, SetX)
+		///
+		///				XVI) Add a getter function as a property with a property changed event
+		///				CLASS_MEMBER_EVENT(XChanged)
+		///				CLASS_MEMBER_PROPERTY_EVENT_READONLY_FAST(X)
+		///				which is short for
+		///				CLASS_MEMBER_EVENT(XChanged)
+		///				CLASS_MEMBER_METHOD(GetX, NO_PARAMETER)
+		///				CLASS_MEMBER_PROPERTY_EVENT_READONLY(X, GetX, XChanged)
+		///
+		///				XVII) Add a pair of getter and setter functions as a property with a property changed event
+		///				CLASS_MEMBER_EVENT(XChanged)
+		///				CLASS_MEMBER_PROPERTY_EVENT_FAST(X)
+		///				which is short for
+		///				CLASS_MEMBER_EVENT(XChanged)
+		///				CLASS_MEMBER_METHOD(GetX, NO_PARAMETER)
+		///				CLASS_MEMBER_METHOD(SetX, {L"value"})
+		///				CLASS_MEMBER_PROPERTY_EVENT(X, GetX, SetX, XChanged)
+		///
+		///			END_CLASS_MEMBER(MyClass)
+		///
+		///			If the code compiles, the class should look like this:
+		///			class MyClass : public Description<MyClass>
+		///			{
+		///			public:
+		///				MyClass();
+		///				MyClass(int numberParameter, const WString& stringParameter);
+		///
+		///				int MyFunction1();
+		///				int MyFunction2(int parameter1, const WString& parameter2);
+		///				int MyFunction3();
+		///				int MyFunction3(int parameter);
+		///				int MyFunction3(int parameter1, const WString& parameter2);
+		///
+		///				static int MyFunction4();
+		///				static int MyFunction5(int parameter1, const WString& parameter2);
+		///				static int MyFunction6();
+		///				static int MyFunction6(int parameter);
+		///				static int MyFunction6(int parameter1, const WString& parameter2);
+		///
+		///				Event<void()> XChanged;
+		///				int GetX();
+		///				void SetX(int value);
+		///			};
+		///
+		///			Ptr<MyClass> CreateMyClass(int numberParameter, const WString7 stringParameter);
+		///			int GlobalFunction(MyClass* self, int parameter);
+		///
+		///		e) interface:
+		///			An interface is defined by
+		///			I) Directly or indirectly inherits [T:vl.reflection.IDescriptable]
+		///			II) The only registered constructor (if exists) should use Ptr<[T:vl.reflection.description.IValueInterfaceProxy]> as a parameter
+		///
+		///			Suppose you have an interface like this:
+		///			class IMyInterface : public virtual IDescriptable, public Description<IMyInterface>
+		///			{
+		///			public:
+		///				int GetX();
+		///				void SetX(int value);
+		///			};
+		///
+		///			If you want this interface implementable by Workflow script, you should first add a proxy like this:
+		///			class IMyInterfaceProxy : public [T:vl.reflection.description.ValueInterfaceRoot], public virtual IMyInterface
+		///			{
+		///			public:
+		///				IMyInterfaceProxy(Ptr<IValueInterfaceProxy> proxy)
+		///					:ValueInterfaceRoot(proxy)
+		///				{
+		///				}
+		///
+		///				static Ptr<IMyInterface> Create(Ptr<IValueInterfaceProxy> proxy)
+		///				{
+		///					return new IMyInterfaceProxy(proxy);
+		///				}
+		///
+		///				int GetX()override
+		///				{
+		///					return INVOKEGET_INTERFACE_PROXY_NOPARAMS(GetX)
+		///				}
+		///
+		///				void SetX(int value)override
+		///				{
+		///					INVOKE_INTERFACE_PROXY(SetX, value)
+		///				}
+		///			};
+		///
+		///			And then use this code to register the constructor:
+		///			CLASS_MEMBER_EXTERNALCTOR(Ptr<IMyInterface>(Ptr<IValueInterfaceProxy>), {L"proxy"}, &IMyInterfaceProxy::Create)
+		///
+		///			Everything else is the same as registering classes
+		///
+		///		#undef _
+		///
+		/// 5) (in cpp files) Create a type loader:
+		///		class MyTypeLoader : public Object, public ITypeLoader
+		///		{
+		///		public:
+		///			void Load(ITypeManager* manager)
+		///			{
+		///				MY_TYPELIST(ADD_TYPE_INFO)
+		///			}
+		///
+		///			void Unload(ITypeManager* manager)
+		///			{
+		///			}
+		///		};
+		///
+		///	6) Load types when you think is a good timing using this code:
+		///		vl::reflection::description::GetGlobalTypeManager()->AddTypeLoader(new MyTypeLoader);
+		///
+		/// ]]></summary>
+		/// <typeparam name="T">Type of your created reflection class.</param>
 		template<typename T>
 		class Description : public virtual DescriptableObject
 		{
