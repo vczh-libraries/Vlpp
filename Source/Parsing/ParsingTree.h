@@ -25,11 +25,15 @@ namespace vl
 Location
 ***********************************************************************/
 
+		/// <summary>A type representing text position.</summary>
 		struct ParsingTextPos
 		{
 			static const int	UnknownValue=-2;
+			/// <summary>Character index, begins at 0.</summary>
 			vint				index;
+			/// <summary>Row number, begins at 0.</summary>
 			vint				row;
+			/// <summary>Column number, begins at 0.</summary>
 			vint				column;
 
 			ParsingTextPos()
@@ -60,6 +64,8 @@ Location
 			{
 			}
 
+			/// <summary>Test if this position a valid position.</summary>
+			/// <returns>Returns true if this position is a valid position.</returns>
 			bool IsInvalid()const
 			{
 				return index < 0 && row < 0 && column < 0;
@@ -108,10 +114,14 @@ Location
 			bool operator>=(const ParsingTextPos& pos)const{return Compare(*this, pos)>=0;}
 		};
 
+		/// <summary>A type representing text range.</summary>
 		struct ParsingTextRange
 		{
+			/// <summary>Text position for the first character.</summary>
 			ParsingTextPos	start;
+			/// <summary>Text position for the last character.</summary>
 			ParsingTextPos	end;
+			/// <summary>Code index, refer to [F:vl.regex.RegexToken.codeIndex]</summary>
 			vint			codeIndex;
 
 			ParsingTextRange()
@@ -175,6 +185,7 @@ General Syntax Tree
 		class ParsingTreeObject;
 		class ParsingTreeArray;
 
+		/// <summary>Abstract syntax tree.</summary>
 		class ParsingTreeNode : public Object, public reflection::Description<ParsingTreeNode>
 		{
 		public:
@@ -231,17 +242,36 @@ General Syntax Tree
 			ParsingTextRange					GetCodeRange();
 			void								SetCodeRange(const ParsingTextRange& range);
 
+			/// <summary>Precalculate for enhance searching performance for this node and all child nodes.</summary>
 			void								InitializeQueryCache();
+			/// <summary>Clear all cache made by <see cref="InitializeQueryCache"/>.</summary>
 			void								ClearQueryCache();
+			/// <summary>Get the parent node. Using this function requires running <see cref="InitializeQueryCache"/> before.</summary>
+			/// <returns>The parent node.</summary>
 			ParsingTreeNode*					GetParent();
+			/// <summary>Get the child nodes. Using this function requires running <see cref="InitializeQueryCache"/> before.</summary>
+			/// <returns>The child nodes.</summary>
 			const NodeList&						GetSubNodes();
-
+			
+			/// <summary>Find a direct child node at the position. Using this function requires running <see cref="InitializeQueryCache"/> before.</summary>
+			/// <returns>The found node.</summary>
+			/// <param name="position">The position.</param>
 			ParsingTreeNode*					FindSubNode(const ParsingTextPos& position);
+			/// <summary>Find a direct child node at the range. Using this function requires running <see cref="InitializeQueryCache"/> before.</summary>
+			/// <returns>The found node.</summary>
+			/// <param name="range">The range.</param>
 			ParsingTreeNode*					FindSubNode(const ParsingTextRange& range);
+			/// <summary>Find a most deepest indirect child node at the position. Using this function requires running <see cref="InitializeQueryCache"/> before.</summary>
+			/// <returns>The found node.</summary>
+			/// <param name="position">The position.</param>
 			ParsingTreeNode*					FindDeepestNode(const ParsingTextPos& position);
+			/// <summary>Find a most deepest indirect child node at the range. Using this function requires running <see cref="InitializeQueryCache"/> before.</summary>
+			/// <returns>The found node.</summary>
+			/// <param name="position">The range.</param>
 			ParsingTreeNode*					FindDeepestNode(const ParsingTextRange& range);
 		};
 
+		/// <summary>Representing a token node in a abstract syntax tree.</summary>
 		class ParsingTreeToken : public ParsingTreeNode, public reflection::Description<ParsingTreeToken>
 		{
 		protected:
@@ -257,10 +287,13 @@ General Syntax Tree
 			Ptr<ParsingTreeNode>				Clone()override;
 			vint								GetTokenIndex();
 			void								SetTokenIndex(vint _tokenIndex);
+			/// <summary>Get the content of the token.</summary>
+			/// <returns>The content of the token.</returns>
 			const WString&						GetValue();
 			void								SetValue(const WString& _value);
 		};
-
+		
+		/// <summary>Representing an object node in a abstract syntax tree.</summary>
 		class ParsingTreeObject : public ParsingTreeNode, public reflection::Description<ParsingTreeObject>
 		{
 		protected:
@@ -279,16 +312,28 @@ General Syntax Tree
 
 			void								Accept(IVisitor* visitor)override;
 			Ptr<ParsingTreeNode>				Clone()override;
+			/// <summary>Get the type name of the object.</summary>
+			/// <returns>The type name of the object.</summary>
 			const WString&						GetType();
 			void								SetType(const WString& _type);
+			/// <summary>Get all fields of the object.</summary>
+			/// <returns>All fields of the object.</summary>
 			NodeMap&							GetMembers();
+			/// <summary>Get a field of the object by the field name.</summary>
+			/// <returns>The field of the object.</returns>
+			/// <param name="name">The field name.</param>
 			Ptr<ParsingTreeNode>				GetMember(const WString& name);
 			bool								SetMember(const WString& name, Ptr<ParsingTreeNode> node);
 			bool								RemoveMember(const WString& name);
+			/// <summary>Get all field names.</summary>
+			/// <returns>All field names of the object.</summary>
 			const NameList&						GetMemberNames();
+			/// <summary>Get names of all rules that return this object.</summary>
+			/// <returns>Names of all rules.</returns>
 			RuleList&							GetCreatorRules();
 		};
-
+		
+		/// <summary>Representing an array node in a abstract syntax tree.</summary>
 		class ParsingTreeArray : public ParsingTreeNode, public reflection::Description<ParsingTreeArray>
 		{
 		protected:
@@ -304,9 +349,16 @@ General Syntax Tree
 
 			void								Accept(IVisitor* visitor)override;
 			Ptr<ParsingTreeNode>				Clone()override;
+			/// <summary>Get the type of all elements. It could be different from any actual element's type, but it should at least be the base types of them.</summary>
+			/// <returns>The type of all elements.</returns>
 			const WString&						GetElementType();
 			void								SetElementType(const WString& _elementType);
+			/// <summary>Get all elements in this array.</summary>
+			/// <returns>All elements in this array.</returns>
 			NodeArray&							GetItems();
+			/// <summary>Get a specified element in this array by the index.</summary>
+			/// <returns>The element.</returns>
+			/// <param name="index">The index of the element.</param>
 			Ptr<ParsingTreeNode>				GetItem(vint index);
 			bool								SetItem(vint index, Ptr<ParsingTreeNode> node);
 			bool								AddItem(Ptr<ParsingTreeNode> node);
@@ -323,28 +375,39 @@ General Syntax Tree
 语法树基础设施
 ***********************************************************************/
 
+		/// <summary>Base type of all strong typed syntax tree. Normally all strong typed syntax tree are generated from a grammar file using ParserGen.exe in Tools project. See [T:vl.parsing.tabling.ParsingTable] for details.</summary>
 		class ParsingTreeCustomBase : public Object, public reflection::Description<ParsingTreeCustomBase>
 		{
 		public:
+			/// <summary>Range of all tokens that form this object.</summary>
 			ParsingTextRange					codeRange;
+			/// <summary>Names of all rules that return this object.</summary>
 			collections::List<WString>			creatorRules;
 		};
 
+		/// <summary>Strong typed token syntax node, for all class fields of type "token" in the grammar file. See [T:vl.parsing.tabling.ParsingTable] for details.</summary>
 		class ParsingToken : public ParsingTreeCustomBase, public reflection::Description<ParsingToken>
 		{
 		public:
+			/// <summary>Type of the token, representing the index of a regular expression that creates this token in the regular expression list in the grammar file.</summary>
 			vint								tokenIndex;
+			/// <summary>Content of the token.</summary>
 			WString								value;
 
 			ParsingToken():tokenIndex(-1){}
 		};
 
+		/// <summary>Error.</summary>
 		class ParsingError : public Object, public reflection::Description<ParsingError>
 		{
 		public:
+			/// <summary>Range where the error happens.</summary>
 			ParsingTextRange					codeRange;
+			/// <summary>Token at which the error happens.</summary>
 			const regex::RegexToken*			token;
+			/// <summary>A syntax tree that contains this error.</summary>
 			ParsingTreeCustomBase*				parsingTree;
+			/// <summary>The error message.</summary>
 			WString								errorMessage;
 
 			ParsingError();
