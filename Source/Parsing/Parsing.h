@@ -22,6 +22,7 @@ namespace vl
 语法分析器通用策略
 ***********************************************************************/
 
+			/// <summary>Base type of all parser strategy.</summary>
 			class ParsingGeneralParser : public Object
 			{
 			protected:
@@ -31,11 +32,19 @@ namespace vl
 				ParsingGeneralParser(Ptr<ParsingTable> _table);
 				~ParsingGeneralParser();
 				
+				/// <summary>The parser table that used to do the parsing.</summary>
 				Ptr<ParsingTable>							GetTable();
+				/// <summary>Initialization. It should be called before each time of parsing.</summary>
 				virtual void								BeginParse();
 				virtual ParsingState::TransitionResult		ParseStep(ParsingState& state, collections::List<Ptr<ParsingError>>& errors)=0;
 				bool										Parse(ParsingState& state, ParsingTransitionProcessor& processor, collections::List<Ptr<ParsingError>>& errors);
 				Ptr<ParsingTreeNode>						Parse(ParsingState& state, collections::List<Ptr<ParsingError>>& errors);
+				/// <summary>Parse an input and get an abstract syntax tree if no error happens or all errors are recovered.</summary>
+				/// <returns>The abstract syntax tree.</returns>
+				/// <param name="input">The input to parse.</param>
+				/// <param name="rule">The name of the rule that used to parse the input.</param>
+				/// <param name="errors">Returns all errors.</param>
+				/// <param name="codeIndex">The code index to differentiate each input. This value will be stored in every tokens and abstract syntax nodes.</param>
 				Ptr<ParsingTreeNode>						Parse(const WString& input, const WString& rule, collections::List<Ptr<ParsingError>>& errors, vint codeIndex = -1);
 			};
 
@@ -43,6 +52,7 @@ namespace vl
 语法分析器策略
 ***********************************************************************/
 
+			/// <summary>A strict parse. It doesn't allow ambiguity and error recovery.</summary>
 			class ParsingStrictParser : public ParsingGeneralParser
 			{
 			protected:
@@ -51,12 +61,15 @@ namespace vl
 				virtual void								OnClearErrorRecover();
 				virtual ParsingState::TransitionResult		OnErrorRecover(ParsingState& state, vint currentTokenIndex, collections::List<Ptr<ParsingError>>& errors);
 			public:
+				/// <summary>Create the parse using a parsing table.</summary>
+				/// <param name="_table">The parsing table.</param>
 				ParsingStrictParser(Ptr<ParsingTable> _table=0);
 				~ParsingStrictParser();
 				
 				ParsingState::TransitionResult				ParseStep(ParsingState& state, collections::List<Ptr<ParsingError>>& errors)override;
 			};
-
+			
+			/// <summary>A strict parse. It doesn't allow ambiguity but allows error recovery.</summary>
 			class ParsingAutoRecoverParser : public ParsingStrictParser
 			{
 			public:
@@ -88,12 +101,16 @@ namespace vl
 				void										OnClearErrorRecover()override;
 				ParsingState::TransitionResult				OnErrorRecover(ParsingState& state, vint currentTokenIndex, collections::List<Ptr<ParsingError>>& errors)override;
 			public:
+				/// <summary>Create the parse using a parsing table.</summary>
+				/// <param name="_table">The parsing table.</param>
+				/// <param name="_maxInsertedTokenCount">The maximum number of tokens that allow to insert to recover an error.</param>
 				ParsingAutoRecoverParser(Ptr<ParsingTable> _table = 0, vint _maxInsertedTokenCount = -1);
 				~ParsingAutoRecoverParser();
 
 				void										BeginParse()override;
 			};
-
+			
+			/// <summary>A strict parse. It allows ambiguity but doesn't allow error recovery.</summary>
 			class ParsingAmbiguousParser : public ParsingGeneralParser
 			{
 				typedef collections::List<ParsingState::TransitionResult>		DecisionList;
@@ -112,13 +129,16 @@ namespace vl
 				void										BuildAmbiguousDecisions(ParsingState& state, collections::List<ParsingState::Future*>& futures, vint begin, vint end, vint resolvableFutureLevels, collections::List<Ptr<ParsingError>>& errors);
 				void										BuildDecisions(ParsingState& state, collections::List<ParsingState::Future*>& futures, vint begin, vint end, vint resolvableFutureLevels, collections::List<Ptr<ParsingError>>& errors);
 			public:
+				/// <summary>Create the parse using a parsing table.</summary>
+				/// <param name="_table">The parsing table.</param>
 				ParsingAmbiguousParser(Ptr<ParsingTable> _table=0);
 				~ParsingAmbiguousParser();
 				
 				ParsingState::TransitionResult				ParseStep(ParsingState& state, collections::List<Ptr<ParsingError>>& errors)override;
 				void										BeginParse()override;
 			};
-
+			
+			/// <summary>A strict parse. It allow both ambiguity and error recovery.</summary>
 			class ParsingAutoRecoverAmbiguousParser : public ParsingAmbiguousParser
 			{
 			protected:
@@ -126,6 +146,9 @@ namespace vl
 
 				void										OnErrorRecover(ParsingState& state, vint currentTokenIndex, collections::List<ParsingState::Future*>& futures, vint& begin, vint& end, collections::List<Ptr<ParsingError>>& errors)override;
 			public:
+				/// <summary>Create the parse using a parsing table.</summary>
+				/// <param name="_table">The parsing table.</param>
+				/// <param name="_maxInsertedTokenCount">The maximum number of tokens that allow to insert to recover an error.</param>
 				ParsingAutoRecoverAmbiguousParser(Ptr<ParsingTable> _table = 0, vint _maxInsertedTokenCount = -1);
 				~ParsingAutoRecoverAmbiguousParser();
 			};
@@ -134,9 +157,19 @@ namespace vl
 辅助函数
 ***********************************************************************/
 			
+			/// <summary>Create the correct strict parser from a parsing table.</summary>
+			/// <returns>The created parse.</returns>
+			/// <param name="table">The table to create a parser.</param>
 			extern Ptr<ParsingGeneralParser>				CreateStrictParser(Ptr<ParsingTable> table);
+			/// <summary>Create the correct error recoverable parser from a parsing table.</summary>
+			/// <returns>The created parse.</returns>
+			/// <param name="table">The table to create a parser.</param>
 			extern Ptr<ParsingGeneralParser>				CreateAutoRecoverParser(Ptr<ParsingTable> table);
+			/// <summary>Create the correct strict parser to parse the grammar itself.</summary>
+			/// <returns>The created parse.</returns>
 			extern Ptr<ParsingGeneralParser>				CreateBootstrapStrictParser();
+			/// <summary>Create the correct error recoverable to parse the grammar itself.</summary>
+			/// <returns>The created parse.</returns>
 			extern Ptr<ParsingGeneralParser>				CreateBootstrapAutoRecoverParser();
 		}
 	}

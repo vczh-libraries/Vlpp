@@ -22,6 +22,10 @@ namespace vl
 Ìø×ª±í
 ***********************************************************************/
 
+			/// <summary><![CDATA[
+			/// The parsing table. When you complete a grammar file, ParserGen.exe which is in the Tools project will generate the C++ code for you to create a parsing table. Here is a brief description of the grammar file and its format:
+			///
+			/// ]]></summary>
 			class ParsingTable : public Object
 			{
 			public:
@@ -286,9 +290,13 @@ namespace vl
 
 			public:
 				ParsingTable(vint _attributeInfoCount, vint _treeTypeInfoCount, vint _treeFieldInfoCount, vint _tokenCount, vint _discardTokenCount, vint _stateCount, vint _ruleCount);
+				/// <summary>Deserialize the parsing table from a stream. <see cref="Initialize"/> should be before using this table.</summary>
+				/// <param name="input">The stream.</param>
 				ParsingTable(stream::IStream& input);
 				~ParsingTable();
 
+				/// <summary>Serialize the parsing table to a stream.</summary>
+				/// <param name="output">The stream.</param>
 				void										Serialize(stream::IStream& output);
 
 				bool										GetAmbiguity();
@@ -328,6 +336,7 @@ namespace vl
 				const regex::RegexLexer&					GetLexer();
 				Ptr<TransitionBag>							GetTransitionBag(vint state, vint token);
 				void										SetTransitionBag(vint state, vint token, Ptr<TransitionBag> bag);
+				/// <summary>Initialize the parsing table. This function should be called after deserializing the table from a string.</summary>
 				void										Initialize();
 				bool										IsInputToken(vint regexTokenIndex);
 				vint										GetTableTokenIndex(vint regexTokenIndex);
