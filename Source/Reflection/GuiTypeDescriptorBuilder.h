@@ -504,12 +504,23 @@ TypeInfoRetriver Helper Functions (BoxValue, UnboxValue)
 			{
 			};
 
+			/// <summary>Box an reflectable object. Its type cannot be generic.</summary>
+			/// <returns>The boxed value.</returns>
+			/// <typeparam name="T">Type of the object.</typeparam>
+			/// <param name="object">The object to box.</param>
+			/// <param name="typeDescriptor">The type descriptor of the object (optional).</param>
 			template<typename T>
 			Value BoxValue(const T& object, ITypeDescriptor* typeDescriptor=0)
 			{
 				return ValueAccessor<T, TypeInfoRetriver<T>::Decorator>::BoxValue(object, typeDescriptor);
 			}
-
+			
+			/// <summary>Unbox an reflectable object. Its type cannot be generic.</summary>
+			/// <returns>The unboxed object.</returns>
+			/// <typeparam name="T">Type of the object.</typeparam>
+			/// <param name="object">The value to unbox.</param>
+			/// <param name="typeDescriptor">The type descriptor of the object (optional).</param>
+			/// <param name="valueName">The name of the object to provide a friendly exception message if the conversion is failed (optional).</param>
 			template<typename T>
 			T UnboxValue(const Value& value, ITypeDescriptor* typeDescriptor=0, const WString& valueName=L"value")
 			{
@@ -524,13 +535,24 @@ TypeInfoRetriver Helper Functions (UnboxParameter)
 			struct ParameterAccessor
 			{
 			};
-
+			
+			/// <summary>Box an reflectable object. It supports generic types such as containers, functions, etc.</summary>
+			/// <returns>The boxed value.</returns>
+			/// <typeparam name="T">Type of the object.</typeparam>
+			/// <param name="object">The object to box.</param>
+			/// <param name="typeDescriptor">The type descriptor of the object (optional).</param>
 			template<typename T>
 			Value BoxParameter(typename TypeInfoRetriver<T>::ResultReferenceType object, ITypeDescriptor* typeDescriptor=0)
 			{
 				return ParameterAccessor<typename TypeInfoRetriver<T>::ResultNonReferenceType, TypeInfoRetriver<T>::TypeFlag>::BoxParameter(object, typeDescriptor);
 			}
-
+			
+			/// <summary>Box an reflectable object. It supports generic types such as containers, functions, etc.</summary>
+			/// <typeparam name="T">Type of the object.</typeparam>
+			/// <param name="object">The value to unbox.</param>
+			/// <param name="result">The unboxed object.</param>
+			/// <param name="typeDescriptor">The type descriptor of the object (optional).</param>
+			/// <param name="valueName">The name of the object to provide a friendly exception message if the conversion is failed (optional).</param>
 			template<typename T>
 			void UnboxParameter(const Value& value, T& result, ITypeDescriptor* typeDescriptor=0, const WString& valueName=L"value")
 			{

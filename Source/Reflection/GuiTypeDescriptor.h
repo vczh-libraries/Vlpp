@@ -356,6 +356,7 @@ Attribute
 		template<typename T>
 		description::ITypeDescriptor* Description<T>::associatedTypeDescriptor=0;
 
+		/// <summary>Base types of all reflectable interfaces. All reflectable interface types should be virtual inherited.</summary>
 		class IDescriptable : public virtual Interface, public Description<IDescriptable>
 		{
 		public:
@@ -393,14 +394,20 @@ ReferenceCounterOperator
 Value
 ***********************************************************************/
 
+			/// <summary>A type to store all values of reflectable types.</summary>
 			class Value : public Object
 			{
 			public:
+				/// <summary>Representing how the value is stored.</summary>
 				enum ValueType
 				{
+					/// <summary>The value is null.</summary>
 					Null,
+					/// <summary>The value stored using a raw pointer.</summary>
 					RawPtr,
+					/// <summary>The value stored using a smart pointer.</summary>
 					SharedPtr,
+					/// <summary>The value stored using a string.</summary>
 					Text,
 				};
 			protected:
@@ -426,18 +433,38 @@ Value
 				bool							operator>(const Value& value)const { return Compare(*this, value)>0; }
 				bool							operator>=(const Value& value)const { return Compare(*this, value)>=0; }
 
+				/// <summary>Get how the value is stored.</summary>
+				/// <returns>How the value is stored.</returns>
 				ValueType						GetValueType()const;
+				/// <summary>Get the stored raw pointer if possible.</summary>
+				/// <summary>The stored raw pointer. Returns null if failed.</summary>
 				DescriptableObject*				GetRawPtr()const;
+				/// <summary>Get the stored shared pointer if possible.</summary>
+				/// <summary>The stored shared pointer. Returns null if failed.</summary>
 				Ptr<DescriptableObject>			GetSharedPtr()const;
+				/// <summary>Get the stored text if possible.</summary>
+				/// <summary>The stored text. Returns empty if failed.</summary>
 				const WString&					GetText()const;
+				/// <summary>Get the real type of the stored object.</summary>
+				/// <returns>The real type. Returns null if the value is null.</returns>
 				ITypeDescriptor*				GetTypeDescriptor()const;
 				WString							GetTypeFriendlyName()const;
 				bool							IsNull()const;
 				bool							CanConvertTo(ITypeDescriptor* targetType, ValueType targetValueType)const;
 				bool							CanConvertTo(ITypeInfo* targetType)const;
 
+				/// <summary>Store a raw pointer.</summary>
+				/// <returns>The boxed value.</returns>
+				/// <param name="value">The raw pointer to store.</param>
 				static Value					From(DescriptableObject* value);
+				/// <summary>Store a shared pointer.</summary>
+				/// <returns>The boxed value.</returns>
+				/// <param name="value">The shared pointer to store.</param>
 				static Value					From(Ptr<DescriptableObject> value);
+				/// <summary>Store a text.</summary>
+				/// <returns>The boxed value.</returns>
+				/// <param name="value">The text to store.</param>
+				/// <param name="type">The type that you expect to interpret the text.</param>
 				static Value					From(const WString& value, ITypeDescriptor* type);
 
 				static IMethodInfo*				SelectMethod(IMethodGroupInfo* methodGroup, collections::Array<Value>& arguments);
@@ -452,6 +479,8 @@ Value
 				Value							Invoke(const WString& name)const;
 				Value							Invoke(const WString& name, collections::Array<Value>& arguments)const;
 				Ptr<IEventHandler>				AttachEvent(const WString& name, const Value& function)const;
+				/// <summary>Dispose the object is it is stored as a raw pointer.</summary>
+				/// <returns>Returns true if the object is disposed. Returns false if the object cannot be disposed. An exception will be thrown if the reference counter is not 0.</returns>
 				bool							DeleteRawPtr();
 			};
 
