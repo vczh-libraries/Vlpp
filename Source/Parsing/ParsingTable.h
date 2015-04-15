@@ -96,33 +96,33 @@ namespace vl
 			///				OuterClass.InnerClass: Refer to the "InnerClass" defined inside the "OuterClass".
 			///
 			/// 2) Token definitions:
-			///			token TokenName = "regular expression" <attributes>;
-			///			discardtoken TokenName = "regular expression";
+			///		token TokenName = "regular expression" <attributes>;
+			///		discardtoken TokenName = "regular expression";
 			///
-			///			"discardtoken" means if such a token is identified, it will not appear in the lexical analyzing result. And you cannot refer to names of "discardtoken" in the grammar.
+			///		"discardtoken" means if such a token is identified, it will not appear in the lexical analyzing result. And you cannot refer to names of "discardtoken" in the grammar.
 			///
 			/// 3) Rule definitions:
-			///			rule RuleType RuleName <attributes>
-			///				= Grammar1
-			///				= Grammar2
-			///				...
-			///				;
+			///		rule RuleType RuleName <attributes>
+			///			= Grammar1
+			///			= Grammar2
+			///			...
+			///			;
 			///
-			///			It means rule "RuleName" is defined by those grammars, and matching this rule will create an instance of "RuleType" or its whatever types that inheriting "RuleType".
+			///		It means rule "RuleName" is defined by those grammars, and matching this rule will create an instance of "RuleType" or its whatever types that inheriting "RuleType".
 			///
 			/// 4) Grammars:
-			///			RuleName: Defines an input that matches a rule.
-			///			TokenName: Defines an input that formed by the specified token.
-			///			"StringConstant": Defins an input that formed by exactly the string constant. This constant should define a token in the token list.
-			///			Grammar : FieldName: Defines an input that matches Grammar (should be either a rule name or a token name), and the result will be stored in field "FieldName" of a class, whose type will appear later.
-			///			!Grammar: Defines an input that matches Grammar, and the rule will return the result from this grammar. The input should still match other part of the rule, but result of other parts are ignored.
-			///			[Grammar]: Defines an input that, if match Grammar, will returns the result from that grammar; if not, the result is null.
-			///			{Grammar}: Defines an input that matches 0, 1 or more Grammar.
-			///			(Grammar): Defins an input that matches the the grammar. Brackets is only for changing operator associations.
-			///			Grammar1 Grammar2: Defines an input that should match Grammar1 right before Grammar2.
-			///			Grammar1 | Grammar2: Defines an input that match either Grammar1 or Grammar2.
-			///			Grammar as Type: Defines an input that matches the Grammar, and the whole branch of the rule creates an instance of type "Type"
-			///			Grammar with { FieldName = Value }: Defins an input that matches the Grammar, and will assign "Value", which should be an enum item, to the field "FieldName" of the created instance.
+			///		RuleName: Defines an input that matches a rule.
+			///		TokenName: Defines an input that formed by the specified token.
+			///		"StringConstant": Defins an input that formed by exactly the string constant. This constant should define a token in the token list.
+			///		Grammar : FieldName: Defines an input that matches Grammar (should be either a rule name or a token name), and the result will be stored in field "FieldName" of a class, whose type will appear later.
+			///		!Grammar: Defines an input that matches Grammar, and the rule will return the result from this grammar. The input should still match other part of the rule, but result of other parts are ignored.
+			///		[Grammar]: Defines an input that, if match Grammar, will returns the result from that grammar; if not, the result is null.
+			///		{Grammar}: Defines an input that matches 0, 1 or more Grammar.
+			///		(Grammar): Defins an input that matches the the grammar. Brackets is only for changing operator associations.
+			///		Grammar1 Grammar2: Defines an input that should match Grammar1 right before Grammar2.
+			///		Grammar1 | Grammar2: Defines an input that match either Grammar1 or Grammar2.
+			///		Grammar as Type: Defines an input that matches the Grammar, and the whole branch of the rule creates an instance of type "Type"
+			///		Grammar with { FieldName = Value }: Defins an input that matches the Grammar, and will assign "Value", which should be an enum item, to the field "FieldName" of the created instance.
 			///
 			/// 5) Example
 			///		Here is an example to parse expression containing +, -, *, /, () and numbers:\
