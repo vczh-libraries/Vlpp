@@ -223,7 +223,7 @@ namespace vl
 			///					return wtof(node->number.value);
 			///				}
 			///
-			///				void Visit(CalcNumberExpression* node)override
+			///				void Visit(CalcBinaryExpression* node)override
 			///				{
 			///					auto left = Calc(node->left.Obj());
 			///					auto right = Calc(node->right.Obj());
