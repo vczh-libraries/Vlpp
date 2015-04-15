@@ -56,6 +56,7 @@ Compression
 			~LzwBase();
 		};
 
+		/// <summary>An encoder to compress using Lzw algorithm.</summary>
 		class LzwEncoder : public LzwBase, public IEncoder
 		{
 		protected:
@@ -68,7 +69,10 @@ Compression
 			void									Flush();
 			void									WriteNumber(vint number, vint bitSize);
 		public:
+			/// <summary>Create an encoder.</summary>
 			LzwEncoder();
+			/// <summary>Create an encoder and tell it which byte will never appear in the data before compression.</summary>
+			/// <param name="existingBytes">An array to tell the encoder which byte will never appear in the data before compression.</param>
 			LzwEncoder(bool (&existingBytes)[256]);
 			~LzwEncoder();
 
@@ -76,7 +80,8 @@ Compression
 			void									Close()override;
 			vint									Write(void* _buffer, vint _size)override;
 		};
-
+		
+		/// <summary>An decoder to decompress using Lzw algorithm.</summary>
 		class LzwDecoder :public LzwBase, public IDecoder
 		{
 		protected:
@@ -96,7 +101,10 @@ Compression
 			void									PrepareOutputBuffer(vint size);
 			void									ExpandCodeToOutputBuffer(lzw::Code* code);
 		public:
+			/// <summary>Create an decoder.</summary>
 			LzwDecoder();
+			/// <summary>Create an decoder and tell it which byte will never appear in the data before compression.</summary>
+			/// <param name="existingBytes">An array to tell the encoder which byte will never appear in the data before compression.</param>
 			LzwDecoder(bool (&existingBytes)[256]);
 			~LzwDecoder();
 

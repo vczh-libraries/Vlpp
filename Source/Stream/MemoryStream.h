@@ -16,6 +16,7 @@ namespace vl
 {
 	namespace stream
 	{
+		/// <summary>A readable, writable, seekable and peekable stream that stores everything in memory.</summary>
 		class MemoryStream : public Object, public virtual IStream
 		{
 		protected:
@@ -27,6 +28,8 @@ namespace vl
 
 			void					PrepareSpace(vint totalSpace);
 		public:
+			/// <summary>Create a stream.</summary>
+			/// <param name="_block">Size for each allocation. The stream will only allocate new memory of size "_block" when it reaches the end and has to extend.</param>
 			MemoryStream(vint _block=65536);
 			~MemoryStream();
 

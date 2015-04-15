@@ -49,6 +49,7 @@ namespace vl
 ×Ö·û´®±àÂë½âÂë»ùÀà
 ***********************************************************************/
 
+		/// <summary>Base type of all character encoder.</summary>
 		class CharEncoder : public Object, public IEncoder
 		{
 		protected:
@@ -64,7 +65,8 @@ namespace vl
 			void							Close();
 			vint							Write(void* _buffer, vint _size);
 		};
-
+		
+		/// <summary>Base type of all character decoder.</summary>
 		class CharDecoder : public Object, public IDecoder
 		{
 		protected:
@@ -84,13 +86,15 @@ namespace vl
 /***********************************************************************
 Mbcs
 ***********************************************************************/
-
+		
+		/// <summary>Encoder to transform text in a local code page from wchar_t.</summary>
 		class MbcsEncoder : public CharEncoder
 		{
 		protected:
 			vint							WriteString(wchar_t* _buffer, vint chars);
 		};
-
+		
+		/// <summary>Encoder to transform text in a local code page to wchar_t.</summary>
 		class MbcsDecoder : public CharDecoder
 		{
 		protected:
@@ -100,13 +104,15 @@ Mbcs
 /***********************************************************************
 Utf-16
 ***********************************************************************/
-
+		
+		/// <summary>Encoder to transform UTF-16 text from wchar_t.</summary>
 		class Utf16Encoder : public CharEncoder
 		{
 		protected:
 			vint							WriteString(wchar_t* _buffer, vint chars);
 		};
-
+		
+		/// <summary>Decoder to transform UTF-16 text to wchar_t.</summary>
 		class Utf16Decoder : public CharDecoder
 		{
 		protected:
@@ -116,13 +122,15 @@ Utf-16
 /***********************************************************************
 Utf-16-be
 ***********************************************************************/
-
+		
+		/// <summary>Encoder to transform big endian UTF-16 text from wchar_t.</summary>
 		class Utf16BEEncoder : public CharEncoder
 		{
 		protected:
 			vint							WriteString(wchar_t* _buffer, vint chars);
 		};
-
+		
+		/// <summary>Decoder to transform big endian UTF-16 text to wchar_t.</summary>
 		class Utf16BEDecoder : public CharDecoder
 		{
 		protected:
@@ -132,13 +140,15 @@ Utf-16-be
 /***********************************************************************
 Utf-8
 ***********************************************************************/
-
+		
+		/// <summary>Encoder to transform UTF-8 text from wchar_t.</summary>
 		class Utf8Encoder : public CharEncoder
 		{
 		protected:
 			vint							WriteString(wchar_t* _buffer, vint chars);
 		};
-
+		
+		/// <summary>Decoder to transform UTF-8 text to wchar_t.</summary>
 		class Utf8Decoder : public CharDecoder
 		{
 		protected:
@@ -154,29 +164,38 @@ Utf-8
 /***********************************************************************
 Bom
 ***********************************************************************/
-
+		
+		/// <summary>Encoder to transform text from wchar_t. A BOM will be added at the beginning.</summary>
 		class BomEncoder : public Object, public IEncoder
 		{
 		public:
+			/// <summary>Text encoding.</summary>
 			enum Encoding
 			{
+				/// <summary>Multi-bytes character string.</summary>
 				Mbcs,
+				/// <summary>UTF-8.</summary>
 				Utf8,
+				/// <summary>UTF-16.</summary>
 				Utf16,
+				/// <summary>Big endian UTF-16.</summary>
 				Utf16BE
 			};
 		protected:
 			Encoding						encoding;
 			IEncoder*						encoder;
 		public:
+			/// <summary>Create an encoder.</summary>
+			/// <param name="_encoding">Specified encoding.</param>
 			BomEncoder(Encoding _encoding);
 			~BomEncoder();
 
 			void							Setup(IStream* _stream);
 			void							Close();
-			vint								Write(void* _buffer, vint _size);
+			vint							Write(void* _buffer, vint _size);
 		};
-
+		
+		/// <summary>Decoder to transform text to wchar_t. This decoder depends on the BOM information at the beginning to decide the format of the input.</summary>
 		class BomDecoder : public Object, public IDecoder
 		{
 		private:
@@ -211,6 +230,7 @@ Bom
 			IStream*						stream;
 
 		public:
+			/// <summary>Create an decoder.</summary>
 			BomDecoder();
 			~BomDecoder();
 
@@ -223,6 +243,10 @@ Bom
 Encoding Test
 ***********************************************************************/
 
+		/// <summary>Guess the text encoding in a buffer.</summary>
+		/// <param name="buffer">The buffer to guess.</param>
+		/// <param name="encoding">Returns the most possible encoding.</param>
+		/// <param name="containsBom">Returns true if the BOM information is at the beginning of the buffer.</param>
 		extern void							TestEncoding(unsigned char* buffer, vint size, BomEncoder::Encoding& encoding, bool& containsBom);
 
 /***********************************************************************

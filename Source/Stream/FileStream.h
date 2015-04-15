@@ -18,19 +18,27 @@ namespace vl
 {
 	namespace stream
 	{
+		/// <summary>A file stream. It is readable when you use [F:vl.stream.FileStream.AccessRight.ReadOnly] or [F:vl.stream.FileStream.AccessRight.ReadWrite] to create the stream. It is writable when you use [F:vl.stream.FileStream.AccessRight.WriteOnly] or [F:vl.stream.FileStream.AccessRight.ReadWrite] to create the stream.</summary>
 		class FileStream : public Object, public virtual IStream
 		{
 		public:
+			/// <summary>Access to the file.</summary>
 			enum AccessRight
 			{
+				/// <summary>The file is opened to read.</summary>
 				ReadOnly,
+				/// <summary>The file is opened to write.</summary>
 				WriteOnly,
+				/// <summary>The file is opened to both read and write.</summary>
 				ReadWrite
 			};
 		protected:
 			AccessRight				accessRight;
 			FILE*					file;
 		public:
+			/// <summary>Create a stream.</summary>
+			/// <param name="fileName">File to operate.</param>
+			/// <param name="_accessRight">Operations want to perform on the file.</param>
 			FileStream(const WString& fileName, AccessRight _accessRight);
 			~FileStream();
 
