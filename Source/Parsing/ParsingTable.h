@@ -23,8 +23,19 @@ namespace vl
 ***********************************************************************/
 
 			/// <summary><![CDATA[
-			/// The parsing table. When you complete a grammar file, ParserGen.exe which is in the Tools project will generate the C++ code for you to create a parsing table. Here is a brief description of the grammar file and its format:
+			/// The parsing table. When you complete a grammar file, ParserGen.exe which is in the Tools project will generate the C++ code for you to create a parsing table. Here is a brief description of the grammar file format:
 			///
+			/// include:"<releative path to the Vlpp.h>"	// (multiple)	e.g. "../Import/Vlpp.h"
+			/// classPrefix:<class prefix>					// (single)		A prefix that will be add before all generated types and function. e.g. Xml
+			/// guard:<C++ header guard>					// (single)		The C++ header guard pattern macro name. e.g. VCZH_PARSING_XML_PARSINGXML_PARSER
+			/// namespace:<C++ namespaces>					// (single)		Namespaces separated by "." to contain the generated code. e.g. vl.parsing.xml
+			/// reflection:<namespace>						// (single)		Namespaces separated by "." to contain the name of reflectable types. In most of the cases this should be the same as namespace. e.g. vl.parsing.xml
+			/// parser:<name>(<rule>)						// (multiple)	Pair a function name to a rule name. ParserGen.exe will generate a function called "<prefix><name>" to parse the input using rule named "<rule>". e.g. ParseDocument(XDocument)
+			/// ambiguity:(enabled|disabled)				// (single)		Set to "enabled" indicating that the grammar is by design to have ambiguity.
+			/// serialization:(enabled|disabled)			// (single)		Set to "enabled" to serialize the parsing table as binary in the generated C++ code, so that when the "<prefix>LoadTable" function is called to load the table, it can deserialize from the binary data directly, instead of parsing the grammar again. But the grammar text will always be contained in the generated C++ code regardless of the value of "serialization", it can always be retrived using the "<prefix>GetParserTextBuffer" function.
+			/// grammar:									// (single)		Configuration ends here. All content after "grammar:" will be treated as the grammar to define the input.
+			///
+			/// Here is the brief description of the grammar
 			/// ]]></summary>
 			class ParsingTable : public Object
 			{
