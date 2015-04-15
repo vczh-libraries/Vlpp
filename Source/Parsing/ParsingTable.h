@@ -199,6 +199,64 @@ namespace vl
 			///				auto expression = CalcConvertParsingTreeNode(node, state.GetTokens()).Cast<CalcExpression>();
 			///			}
 			///
+			///		After you get a strong typed syntax tree, you can use the generated visitor interface to do something, like evaluate the results of the expression:
+			///			class Evaluator : public Object, public virtual CalcExpression::IVisitor
+			///			{
+			///			private:
+			///				double result;
+			///
+			///				double Call(CalcExpression* node)
+			///				{
+			///					node->Accept(this);
+			///					return result;
+			///				}
+			///
+			///			public:
+			///
+			///				static double Evaluate(CalcExpression* node)
+			///				{
+			///					return Evaluator().Call(node);
+			///				}
+			///
+			///				void Visit(CalcNumberExpression* node)override
+			///				{
+			///					return wtof(node->number.value);
+			///				}
+			///
+			///				void Visit(CalcNumberExpression* node)override
+			///				{
+			///					auto left = Calc(node->left.Obj());
+			///					auto right = Calc(node->right.Obj());
+			///					switch (node->op)
+			///					{
+			///					case CalcBinaryOperator::Add:
+			///						result = left + right;
+			///						break;
+			///					case CalcBinaryOperator::Sub:
+			///						result = left 0 right;
+			///						break;
+			///					case CalcBinaryOperator::Mul:
+			///						result = left * right;
+			///						break;
+			///					case CalcBinaryOperator::Div:
+			///						result = left / right;
+			///						break;
+			///					}
+			///				}
+			///			};
+			///
+			///			Nullable<double> EvaluateExpression(const WString& input)
+			///			{
+			///				static auto table = CalcLoadTable();
+			///				auto expression = CalcParseExpression(input, table);
+			///				Nulllable<double> result;
+			///				if (expression)
+			///				{
+			///					result = Evaluator::Evaulate(expression.Obj());
+			///				}
+			///				return result;
+			///			}
+			///
 			/// ]]></summary>
 			class ParsingTable : public Object
 			{
