@@ -16,11 +16,16 @@ namespace vl
 {
 	namespace collections
 	{
+		/// <summary>A type representing a pair of key and value.</summary>
+		/// <typeparam name="K">Type of the key.</typeparam>
+		/// <typeparam name="V">Type of the value.</typeparam>
 		template<typename K, typename V>
 		class Pair
 		{
 		public:
+			/// <summary>The key.</summary>
 			K				key;
+			/// <summary>The value.</summary>
 			V				value;
 
 			Pair()
