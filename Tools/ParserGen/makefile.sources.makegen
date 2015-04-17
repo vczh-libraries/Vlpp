@@ -1,4 +1,4 @@
-folder VLPP = ../../Import
+folder VLPP = ../../Release
 	h = Vlpp.h
 	cpp = Vlpp.cpp
 

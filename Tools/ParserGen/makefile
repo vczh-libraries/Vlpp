@@ -1,4 +1,4 @@
-# This file is generated from "./makefile.release.makegen" by Vczh Makefile Generator
+# This file is generated from "./makefile.debug.makegen" by Vczh Makefile Generator
 
 # Config
 .PHONY : all clean
@@ -11,7 +11,7 @@ obj_TARGET = ././Obj/
 PARSERGEN_DIR = ././ParserGen/
 PARSERGEN_cpp = $(wildcard $(PARSERGEN_DIR)ParserGen*.cpp) $(PARSERGEN_DIR)Main.cpp
 PARSERGEN_h = $(PARSERGEN_DIR)ParserGen.h
-VLPP_DIR = ./../../Import/
+VLPP_DIR = ./../../Release/
 VLPP_cpp = $(VLPP_DIR)Vlpp.cpp
 VLPP_h = $(VLPP_DIR)Vlpp.h
 
@@ -22,7 +22,7 @@ VLPP_o = $(patsubst $(VLPP_DIR)%.cpp, $(obj_TARGET)%.o, $(VLPP_cpp))
 # All
 ALL_o = $(PARSERGEN_o) $(VLPP_o)
 all : $(ALL_o)
-	g++ -std=c++11 -o2 -pthread -o $(bin_TARGET)ParserGen $(ALL_o)
+	g++ -std=c++11 -g -pthread -o $(bin_TARGET)ParserGen $(ALL_o)
 
 # Dependencies
 # $(PARSERGEN_h) : $(VLPP_h)
@@ -31,9 +31,9 @@ all : $(ALL_o)
 
 # Rules
 $(PARSERGEN_o) : $(obj_TARGET)%.o : $(PARSERGEN_DIR)%.cpp $(PARSERGEN_h) $(VLPP_h)
-	g++ -std=c++11 -o2 -o $@ -c $<
+	g++ -std=c++11 -g -o $@ -c $<
 $(VLPP_o) : $(obj_TARGET)%.o : $(VLPP_DIR)%.cpp $(VLPP_h)
-	g++ -std=c++11 -o2 -o $@ -c $<
+	g++ -std=c++11 -g -o $@ -c $<
 
 # Clean
 clean:
