@@ -1,0 +1,10 @@
+include
+	makefile.sources.makegen
+
+map cpp : %.cpp
+	> o : obj %.o
+	g++ -std=c++11 -o2 -o $(OUT) -c $(IN)
+
+link o :
+	> exe : bin ParserGen
+	g++ -std=c++11 -o2 -pthread -o $(OUT) $(IN)

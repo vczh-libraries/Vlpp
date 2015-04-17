@@ -1,0 +1,24 @@
+folder VLPP = ../../Release
+	h = Vlpp.h
+	cpp = Vlpp.cpp
+
+folder MAKEGEN = .
+	h = *.h
+	cpp = *.cpp
+
+dependency
+	VLPP:cpp < VLPP:h
+	MAKEGEN:h < VLPP:h
+	MAKEGEN:cpp < MAKEGEN:h
+
+targets
+	obj = ./Obj/
+	bin = ./Bin/
+
+map cpp : %.cpp
+	> o : obj %.o
+	g++ -std=c++11 -g -o $(OUT) -c $(IN)
+
+link o :
+	> exe : bin MakeGen
+	g++ -std=c++11 -g -pthread -o $(OUT) $(IN)
