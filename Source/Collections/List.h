@@ -81,6 +81,7 @@ namespace vl
 		public:
 		};
 		
+		/// <summary>Base type of all linear container.</summary>
 		template<typename T>
 		class ArrayBase abstract : public ListStore<T,POD<T>::Result>, public virtual IEnumerable<T>
 		{
@@ -139,17 +140,25 @@ namespace vl
 				return new Enumerator(this);
 			}
 
+			/// <summary>Get the number of elements in the container.</summary>
+			/// <returns>The number of elements.</returns>
 			vint Count()const
 			{
 				return count;
 			}
 
+			/// <summary>Get the reference to the specified element.</summary>
+			/// <returns>The reference to the specified element.</returns>
+			/// <param name="index">The index of the element.</param>
 			const T& Get(vint index)const
 			{
 				CHECK_ERROR(index>=0 && index<count, L"ArrayBase<T, K>::Get(vint)#Argument index not in range.");
 				return buffer[index];
 			}
-
+			
+			/// <summary>Get the reference to the specified element.</summary>
+			/// <returns>The reference to the specified element.</returns>
+			/// <param name="index">The index of the element.</param>
 			const T& operator[](vint index)const
 			{
 				CHECK_ERROR(index>=0 && index<count, L"ArrayBase<T, K>::operator[](vint)#Argument index not in range.");
@@ -157,6 +166,7 @@ namespace vl
 			}
 		};
 
+		/// <summary>Base type for a list container.</summary>
 		template<typename T, typename K=typename KeyType<T>::Type>
 		class ListBase abstract : public ArrayBase<T>
 		{
@@ -227,11 +237,16 @@ namespace vl
 				delete[] ArrayBase<T>::buffer;
 			}
 
+			/// <summary>Set a preference of using memory.</summary>
+			/// <returns>Set to true (by default) to let the container efficiently reduce memory usage when necessary.</returns>
 			void SetLessMemoryMode(bool mode)
 			{
 				lessMemoryMode=mode;
 			}
 
+			/// <summary>Remove an element.</summary>
+			/// <returns>Returns true if the element is removed.</returns>
+			/// <param name="index">The index of the element to remove.</param>
 			bool RemoveAt(vint index)
 			{
 				vint previousCount=ArrayBase<T>::count;
@@ -241,7 +256,11 @@ namespace vl
 				ReleaseUnnecessaryBuffer(previousCount);
 				return true;
 			}
-
+			
+			/// <summary>Remove elements.</summary>
+			/// <returns>Returns true if the element is removed.</returns>
+			/// <param name="index">The index of the first element to remove.</param>
+			/// <param name="count">The number of elements to remove.</param>
 			bool RemoveRange(vint index, vint _count)
 			{
 				vint previousCount=ArrayBase<T>::count;
@@ -253,6 +272,8 @@ namespace vl
 				return true;
 			}
 
+			/// <summary>Remove all elements.</summary>
+			/// <returns>Returns true if all elements are removed.</returns>
 			bool Clear()
 			{
 				vint previousCount=ArrayBase<T>::count;
@@ -275,6 +296,7 @@ namespace vl
 列表对象
 ***********************************************************************/
 
+		/// <summary>Array.</summary>
 		template<typename T, typename K=typename KeyType<T>::Type>
 		class Array : public ArrayBase<T>
 		{
@@ -300,11 +322,16 @@ namespace vl
 				ArrayBase<T>::buffer=0;
 			}
 		public:
+			/// <summary>Create an array.</summary>
+			/// <param name="size">The size of the array.</param>
 			Array(vint size=0)
 			{
 				Create(size);
 			}
-
+			
+			/// <summary>Create an array.</summary>
+			/// <param name="_buffer">Pointer to an array to copy.</param>
+			/// <param name="size">The size of the array.</param>
 			Array(const T* _buffer, vint size)
 			{
 				Create(size);
@@ -316,11 +343,17 @@ namespace vl
 				Destroy();
 			}
 
+			/// <summary>Test does the array contain an item or not.</summary>
+			/// <returns>Returns true if the array contains the specified item.</returns>
+			/// <param name="item">The item to test.</param>
 			bool Contains(const K& item)const
 			{
 				return IndexOf(item)!=-1;
 			}
-
+			
+			/// <summary>Get the position of an item in this array.</summary>
+			/// <returns>Returns the position. Returns -1 if not exists</returns>
+			/// <param name="item">The item to find.</param>
 			vint IndexOf(const K& item)const
 			{
 				for(vint i=0;i<ArrayBase<T>::count;i++)
@@ -333,12 +366,18 @@ namespace vl
 				return -1;
 			}
 
+			/// <summary>Replace an item.</summary>
+			/// <param name="index">The position of the item.</param>
+			/// <param name="item">The new item to put into the array.</param>
 			void Set(vint index, const T& item)
 			{
 				CHECK_ERROR(index>=0 && index<ArrayBase<T>::count, L"Array<T, K>::Set(vint)#Argument index not in range.");
 				ArrayBase<T>::buffer[index]=item;
 			}
-
+			
+			/// <summary>Get the reference to the specified element.</summary>
+			/// <returns>The reference to the specified element.</returns>
+			/// <param name="index">The index of the element.</param>
 			using ArrayBase<T>::operator[];
 			T& operator[](vint index)
 			{
@@ -346,6 +385,8 @@ namespace vl
 				return ArrayBase<T>::buffer[index];
 			}
 
+			/// <summary>Change the size of the array.</summary>
+			/// <param name="size">The new size of the array.</param>
 			void Resize(vint size)
 			{
 				vint oldCount=ArrayBase<T>::count;
@@ -356,19 +397,27 @@ namespace vl
 			}
 		};
 
+		/// <summary>List.</summary>
 		template<typename T, typename K=typename KeyType<T>::Type>
 		class List : public ListBase<T, K>
 		{
 		public:
+			/// <summary>Create a list.</summary>
 			List()
 			{
 			}
-
+			
+			/// <summary>Test does the list contain an item or not.</summary>
+			/// <returns>Returns true if the list contains the specified item.</returns>
+			/// <param name="item">The item to test.</param>
 			bool Contains(const K& item)const
 			{
 				return IndexOf(item)!=-1;
 			}
-
+			
+			/// <summary>Get the position of an item in this list.</summary>
+			/// <returns>Returns the position. Returns -1 if not exists</returns>
+			/// <param name="item">The item to find.</param>
 			vint IndexOf(const K& item)const
 			{
 				for(vint i=0;i<ArrayBase<T>::count;i++)
@@ -381,13 +430,20 @@ namespace vl
 				return -1;
 			}
 
+			/// <summary>Add an item at the end of the list.</summary>
+			/// <returns>The index of the added item.</returns>
+			/// <param name="item">The item to add.</param>
 			vint Add(const T& item)
 			{
 				ListBase<T, K>::MakeRoom(ArrayBase<T>::count, 1);
 				ArrayBase<T>::buffer[ArrayBase<T>::count-1]=item;
 				return ArrayBase<T>::count-1;
 			}
-
+			
+			/// <summary>Add an item at the specified position.</summary>
+			/// <returns>The index of the added item.</returns>
+			/// <param name="index">The position of the item to add.</param>
+			/// <param name="item">The item to add.</param>
 			vint Insert(vint index, const T& item)
 			{
 				CHECK_ERROR(index>=0 && index<=ArrayBase<T>::count, L"List<T, K>::Insert(vint, const T&)#Argument index not in range.");
@@ -396,6 +452,9 @@ namespace vl
 				return index;
 			}
 
+			/// <summary>Remove an item.</summary>
+			/// <returns>Returns true if the item is removed.</returns>
+			/// <param name="item">The item to remove.</param>
 			bool Remove(const K& item)
 			{
 				vint index=IndexOf(item);
@@ -409,7 +468,10 @@ namespace vl
 					return false;
 				}
 			}
-
+			
+			/// <summary>Replace an item.</summary>
+			/// <param name="index">The position of the item.</param>
+			/// <param name="item">The new item to put into the array.</param>
 			bool Set(vint index, const T& item)
 			{
 				CHECK_ERROR(index>=0 && index<ArrayBase<T>::count, L"List<T, K>::Set(vint)#Argument index not in range.");
@@ -417,6 +479,9 @@ namespace vl
 				return true;
 			}
 			
+			/// <summary>Get the reference to the specified element.</summary>
+			/// <returns>The reference to the specified element.</returns>
+			/// <param name="index">The index of the element.</param>
 			using ListBase<T, K>::operator[];
 			T& operator[](vint index)
 			{
@@ -425,19 +490,28 @@ namespace vl
 			}
 		};
 
+		/// <summary>List that keeps everything in order.</summary>
 		template<typename T, typename K=typename KeyType<T>::Type>
 		class SortedList : public ListBase<T, K>
 		{
 		public:
+			/// <summary>Create a list.</summary>
 			SortedList()
 			{
 			}
-
+			
+			/// <summary>Test does the list contain an item or not.</summary>
+			/// <returns>Returns true if the list contains the specified item.</returns>
+			/// <param name="item">The item to test.</param>
 			bool Contains(const K& item)const
 			{
 				return IndexOf(item)!=-1;
 			}
-
+			
+			/// <summary>Get the position of an item in this list.</summary>
+			/// <typeparam name="key">Type of the item to find.</typeparam>
+			/// <returns>Returns the position. Returns -1 if not exists</returns>
+			/// <param name="item">The item to find.</param>
 			template<typename Key>
 			vint IndexOf(const Key& item)const
 			{
@@ -461,12 +535,18 @@ namespace vl
 				}
 				return -1;
 			}
-
+			
+			/// <summary>Get the position of an item in this list.</summary>
+			/// <returns>Returns the position. Returns -1 if not exists</returns>
+			/// <param name="item">The item to find.</param>
 			vint IndexOf(const K& item)const
 			{
 				return IndexOf<K>(item);
 			}
-
+			
+			/// <summary>Add an item at a correct position to keep everying in order.</summary>
+			/// <returns>The index of the added item.</returns>
+			/// <param name="item">The item to add.</param>
 			vint Add(const T& item)
 			{
 				if(ArrayBase<T>::count==0)
@@ -507,7 +587,10 @@ SORTED_LIST_INSERT:
 					return index;
 				}
 			}
-
+			
+			/// <summary>Remove an item.</summary>
+			/// <returns>Returns true if the item is removed.</returns>
+			/// <param name="item">The item to remove.</param>
 			bool Remove(const K& item)
 			{
 				vint index=IndexOf(item);
