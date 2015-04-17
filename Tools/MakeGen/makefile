@@ -11,7 +11,7 @@ obj_TARGET = ././Obj/
 MAKEGEN_DIR = ././
 MAKEGEN_cpp = $(wildcard $(MAKEGEN_DIR)*.cpp)
 MAKEGEN_h = $(wildcard $(MAKEGEN_DIR)*.h)
-VLPP_DIR = ./../../Import/
+VLPP_DIR = ./../../Release/
 VLPP_cpp = $(VLPP_DIR)Vlpp.cpp
 VLPP_h = $(VLPP_DIR)Vlpp.h
 
