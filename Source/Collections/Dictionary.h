@@ -17,6 +17,11 @@ namespace vl
 {
 	namespace collections
 	{
+		/// <summary>Dictionary.</summary>
+		/// <typeparam name="KT">Type of keys.</typeparam>
+		/// <typeparam name="VT">Type of values.</typeparam>
+		/// <typeparam name="KK">Type of the key type of keys.</typeparam>
+		/// <typeparam name="VK">Type of the key type of values.</typeparam>
 		template<
 			typename KT,
 			typename VT,
@@ -83,6 +88,7 @@ namespace vl
 			KeyContainer						keys;
 			ValueContainer						values;
 		public:
+			/// <summary>Create a dictionary.</summary>
 			Dictionary()
 			{
 			}
@@ -91,38 +97,56 @@ namespace vl
 			{
 				return new Enumerator(this);
 			}
-
+			
+			/// <summary>Set a preference of using memory.</summary>
+			/// <returns>Set to true (by default) to let the container efficiently reduce memory usage when necessary.</returns>
 			void SetLessMemoryMode(bool mode)
 			{
 				keys.SetLessMemoryMode(mode);
 				values.SetLessMemoryMode(mode);
 			}
 
+			/// <summary>Get all keys.</summary>
+			/// <returns>All keys.</returns>
 			const KeyContainer& Keys()const
 			{
 				return keys;
 			}
-
+			
+			/// <summary>Get all values.</summary>
+			/// <returns>All values.</returns>
 			const ValueContainer& Values()const
 			{
 				return values;
 			}
 
+			/// <summary>Get the number of keys.</summary>
+			/// <returns>The number of keys.</summary>
 			vint Count()const
 			{
 				return keys.Count();
 			}
 
+			/// <summary>Get the reference to the value associated with a key.</summary>
+			/// <returns>The reference to the value.</returns>
+			/// <param name="key">The key to find.</param>
 			const VT& Get(const KK& key)const
 			{
 				return values.Get(keys.IndexOf(key));
 			}
-
+			
+			/// <summary>Get the reference to the value associated with a key.</summary>
+			/// <returns>The reference to the value.</returns>
+			/// <param name="key">The key to find.</param>
 			const VT& operator[](const KK& key)const
 			{
 				return values.Get(keys.IndexOf(key));
 			}
-
+			
+			/// <summary>Replace the value associated with a key.</summary>
+			/// <returns>Returns true if the value is replaced.</returns>
+			/// <param name="key">The key to find.</param>
+			/// <param name="value">The key to replace.</param>
 			bool Set(const KT& key, const VT& value)
 			{
 				vint index=keys.IndexOf(KeyType<KT>::GetKeyValue(key));
@@ -138,11 +162,18 @@ namespace vl
 				return true;
 			}
 
+			/// <summary>Add a key with an associated value. Exception will raise if the key already exists.</summary>
+			/// <returns>Returns true if the pair is added.</returns>
+			/// <param name="value">The pair of key and value.</param>
 			bool Add(const Pair<KT, VT>& value)
 			{
 				return Add(value.key, value.value);
 			}
-
+			
+			/// <summary>Add a key with an associated value. Exception will raise if the key already exists.</summary>
+			/// <returns>Returns true if the pair is added.</returns>
+			/// <param name="key">The key.</param>
+			/// <param name="value">The value.</param>
 			bool Add(const KT& key, const VT& value)
 			{
 				CHECK_ERROR(!keys.Contains(KeyType<KT>::GetKeyValue(key)), L"Dictionary<KT, KK, ValueContainer, VT, VK>::Add(const KT&, const VT&)#Key already exists.");
@@ -151,6 +182,9 @@ namespace vl
 				return true;
 			}
 
+			/// <summary>Remove a key with the associated value.</summary>
+			/// <returns>Returns true if the key and the value is removed.</returns>
+			/// <param name="key">The key.</param>
 			bool Remove(const KK& key)
 			{
 				vint index=keys.IndexOf(key);
@@ -166,6 +200,8 @@ namespace vl
 				}
 			}
 
+			/// <summary>Remove everything.</summary>
+			/// <returns>Returns true if all keys and values are removed.</returns>
 			bool Clear()
 			{
 				keys.Clear();
@@ -173,7 +209,12 @@ namespace vl
 				return true;
 			}
 		};
-
+		
+		/// <summary>Group, which is similar to an dictionary, but a group can associate multiple values with a key.</summary>
+		/// <typeparam name="KT">Type of keys.</typeparam>
+		/// <typeparam name="VT">Type of values.</typeparam>
+		/// <typeparam name="KK">Type of the key type of keys.</typeparam>
+		/// <typeparam name="VK">Type of the key type of values.</typeparam>
 		template<
 			typename KT,
 			typename VT,
@@ -288,37 +329,57 @@ namespace vl
 			{
 				return new Enumerator(this);
 			}
-
+			
+			/// <summary>Get all keys.</summary>
+			/// <returns>All keys.</returns>
 			const KeyContainer& Keys()const
 			{
 				return keys;
 			}
-
+			
+			/// <summary>Get the number of keys.</summary>
+			/// <returns>The number of keys.</summary>
 			vint Count()const
 			{
 				return keys.Count();
 			}
-
+			
+			/// <summary>Get all values associated with a key.</summary>
+			/// <returns>All values.</returns>
+			/// <param name="key">The key to find.</param>
 			const ValueContainer& Get(const KK& key)const
 			{
 				return *values.Get(keys.IndexOf(key));
 			}
-
+			
+			/// <summary>Get all values associated with a key.</summary>
+			/// <returns>All values.</returns>
+			/// <param name="index">The position of a the key.</param>
 			const ValueContainer& GetByIndex(vint index)const
 			{
 				return *values.Get(index);
 			}
-
+			
+			/// <summary>Get all values associated with a key.</summary>
+			/// <returns>All values.</returns>
+			/// <param name="key">The key to find.</param>
 			const ValueContainer& operator[](const KK& key)const
 			{
 				return *values.Get(keys.IndexOf(key));
 			}
 
+			/// <summary>Test if a key exists in the group or not.</summary>
+			/// <returns>Returns true if the key exists.</returns>
+			/// <param name="key">The key to find.</param>
 			bool Contains(const KK& key)const
 			{
 				return keys.Contains(key);
 			}
-
+			
+			/// <summary>Test if a key exists with an associated value in the group or not.</summary>
+			/// <returns>Returns true if the key exists with an associated value.</returns>
+			/// <param name="key">The key to find.</param>
+			/// <param name="value">The value to find.</param>
 			bool Contains(const KK& key, const VK& value)const
 			{
 				vint index=keys.IndexOf(key);
@@ -331,12 +392,19 @@ namespace vl
 					return false;
 				}
 			}
-
+			
+			/// <summary>Add a key with an associated value. If the key already exists, the value will be associated with the key with other values.</summary>
+			/// <returns>Returns true if the pair is added.</returns>
+			/// <param name="value">The pair of key and value.</param>
 			bool Add(const Pair<KT, VT>& value)
 			{
 				return Add(value.key, value.value);
 			}
-
+			
+			/// <summary>Add a key with an associated value. If the key already exists, the value will be associated with the key with other values.</summary>
+			/// <returns>Returns true if the pair is added.</returns>
+			/// <param name="key">The key.</param>
+			/// <param name="value">The value.</param>
 			bool Add(const KT& key, const VT& value)
 			{
 				ValueContainer* target=0;
@@ -353,7 +421,10 @@ namespace vl
 				target->Add(value);
 				return true;
 			}
-
+			
+			/// <summary>Remove a key with all associated values.</summary>
+			/// <returns>Returns true if the key and all associated values are removed.</returns>
+			/// <param name="key">The key.</param>
 			bool Remove(const KK& key)
 			{
 				vint index=keys.IndexOf(key);
@@ -370,7 +441,11 @@ namespace vl
 					return false;
 				}
 			}
-
+			
+			/// <summary>Remove a key with the associated values.</summary>
+			/// <returns>Returns true if the key and the associated values are removed. If there are multiple values associated with the key, only the value will be removed.</returns>
+			/// <param name="key">The key.</param>
+			/// <param name="value">The value.</param>
 			bool Remove(const KK& key, const VK& value)
 			{
 				vint index=keys.IndexOf(key);
@@ -391,7 +466,9 @@ namespace vl
 					return false;
 				}
 			}
-
+			
+			/// <summary>Remove everything.</summary>
+			/// <returns>Returns true if all keys and values are removed.</returns>
 			bool Clear()
 			{
 				for(vint i=0;i<values.Count();i++)

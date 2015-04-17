@@ -82,6 +82,7 @@ namespace vl
 		};
 		
 		/// <summary>Base type of all linear container.</summary>
+		/// <typeparam name="T">Type of elements.</typeparam>
 		template<typename T>
 		class ArrayBase abstract : public ListStore<T,POD<T>::Result>, public virtual IEnumerable<T>
 		{
@@ -167,6 +168,8 @@ namespace vl
 		};
 
 		/// <summary>Base type for a list container.</summary>
+		/// <typeparam name="T">Type of elements.</typeparam>
+		/// <typeparam name="K">Type of the key type of elements.</typeparam>
 		template<typename T, typename K=typename KeyType<T>::Type>
 		class ListBase abstract : public ArrayBase<T>
 		{
@@ -297,6 +300,8 @@ namespace vl
 ***********************************************************************/
 
 		/// <summary>Array.</summary>
+		/// <typeparam name="T">Type of elements.</typeparam>
+		/// <typeparam name="K">Type of the key type of elements.</typeparam>
 		template<typename T, typename K=typename KeyType<T>::Type>
 		class Array : public ArrayBase<T>
 		{
@@ -398,6 +403,8 @@ namespace vl
 		};
 
 		/// <summary>List.</summary>
+		/// <typeparam name="T">Type of elements.</typeparam>
+		/// <typeparam name="K">Type of the key type of elements.</typeparam>
 		template<typename T, typename K=typename KeyType<T>::Type>
 		class List : public ListBase<T, K>
 		{
@@ -491,6 +498,8 @@ namespace vl
 		};
 
 		/// <summary>List that keeps everything in order.</summary>
+		/// <typeparam name="T">Type of elements.</typeparam>
+		/// <typeparam name="K">Type of the key type of elements.</typeparam>
 		template<typename T, typename K=typename KeyType<T>::Type>
 		class SortedList : public ListBase<T, K>
 		{
