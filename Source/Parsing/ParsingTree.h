@@ -247,26 +247,26 @@ General Syntax Tree
 			/// <summary>Clear all cache made by <see cref="InitializeQueryCache"/>.</summary>
 			void								ClearQueryCache();
 			/// <summary>Get the parent node. Using this function requires running <see cref="InitializeQueryCache"/> before.</summary>
-			/// <returns>The parent node.</summary>
+			/// <returns>The parent node.</returns>
 			ParsingTreeNode*					GetParent();
 			/// <summary>Get the child nodes. Using this function requires running <see cref="InitializeQueryCache"/> before.</summary>
-			/// <returns>The child nodes.</summary>
+			/// <returns>The child nodes.</returns>
 			const NodeList&						GetSubNodes();
 			
 			/// <summary>Find a direct child node at the position. Using this function requires running <see cref="InitializeQueryCache"/> before.</summary>
-			/// <returns>The found node.</summary>
+			/// <returns>The found node.</returns>
 			/// <param name="position">The position.</param>
 			ParsingTreeNode*					FindSubNode(const ParsingTextPos& position);
 			/// <summary>Find a direct child node at the range. Using this function requires running <see cref="InitializeQueryCache"/> before.</summary>
-			/// <returns>The found node.</summary>
+			/// <returns>The found node.</returns>
 			/// <param name="range">The range.</param>
 			ParsingTreeNode*					FindSubNode(const ParsingTextRange& range);
 			/// <summary>Find a most deepest indirect child node at the position. Using this function requires running <see cref="InitializeQueryCache"/> before.</summary>
-			/// <returns>The found node.</summary>
+			/// <returns>The found node.</returns>
 			/// <param name="position">The position.</param>
 			ParsingTreeNode*					FindDeepestNode(const ParsingTextPos& position);
 			/// <summary>Find a most deepest indirect child node at the range. Using this function requires running <see cref="InitializeQueryCache"/> before.</summary>
-			/// <returns>The found node.</summary>
+			/// <returns>The found node.</returns>
 			/// <param name="position">The range.</param>
 			ParsingTreeNode*					FindDeepestNode(const ParsingTextRange& range);
 		};
@@ -313,11 +313,11 @@ General Syntax Tree
 			void								Accept(IVisitor* visitor)override;
 			Ptr<ParsingTreeNode>				Clone()override;
 			/// <summary>Get the type name of the object.</summary>
-			/// <returns>The type name of the object.</summary>
+			/// <returns>The type name of the object.</returns>
 			const WString&						GetType();
 			void								SetType(const WString& _type);
 			/// <summary>Get all fields of the object.</summary>
-			/// <returns>All fields of the object.</summary>
+			/// <returns>All fields of the object.</returns>
 			NodeMap&							GetMembers();
 			/// <summary>Get a field of the object by the field name.</summary>
 			/// <returns>The field of the object.</returns>
@@ -326,7 +326,7 @@ General Syntax Tree
 			bool								SetMember(const WString& name, Ptr<ParsingTreeNode> node);
 			bool								RemoveMember(const WString& name);
 			/// <summary>Get all field names.</summary>
-			/// <returns>All field names of the object.</summary>
+			/// <returns>All field names of the object.</returns>
 			const NameList&						GetMemberNames();
 			/// <summary>Get names of all rules that return this object.</summary>
 			/// <returns>Names of all rules.</returns>

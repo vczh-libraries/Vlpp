@@ -18,7 +18,7 @@ namespace vl
 {
 	namespace unittest
 	{
-		/// <summary>
+		/// <summary><![CDATA[
 		/// A static class containing all unit test operations. In order to run test cases, you should do the following:
 		/// 1) Write test cases in cpp files like this
 		/// TEST_CASE(<Name of the test case, which should be a legal C++ identifier>)
@@ -29,7 +29,7 @@ namespace vl
 		///		<Use TEST_PRINT(message) to print whatever to the command line window.>
 		/// }
 		/// You should call [M:vl.unittest.UnitTest.RunAndDisposeTests] in your main function to run all test cases.
-		/// </summary>
+		/// ]]></summary>
 		class UnitTest abstract
 		{
 		public:

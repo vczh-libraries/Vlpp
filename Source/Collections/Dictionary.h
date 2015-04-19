@@ -121,7 +121,7 @@ namespace vl
 			}
 
 			/// <summary>Get the number of keys.</summary>
-			/// <returns>The number of keys.</summary>
+			/// <returns>The number of keys.</returns>
 			vint Count()const
 			{
 				return keys.Count();
@@ -338,7 +338,7 @@ namespace vl
 			}
 			
 			/// <summary>Get the number of keys.</summary>
-			/// <returns>The number of keys.</summary>
+			/// <returns>The number of keys.</returns>
 			vint Count()const
 			{
 				return keys.Count();

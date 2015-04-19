@@ -323,7 +323,7 @@ Attribute
 		///		vl::reflection::description::GetGlobalTypeManager()->AddTypeLoader(new MyTypeLoader);
 		///
 		/// ]]></summary>
-		/// <typeparam name="T">Type of your created reflection class.</param>
+		/// <typeparam name="T">Type of your created reflection class.</typeparam>
 		template<typename T>
 		class Description : public virtual DescriptableObject
 		{

@@ -17,7 +17,7 @@ Classes:
 namespace vl
 {
 	/// <summary>A type representing a string.</summary>
-	/// <typeparam name="T>Type of a character.</typeparam>
+	/// <typeparam name="T">Type of a character.</typeparam>
 	template<typename T>
 	class ObjectString : public Object
 	{

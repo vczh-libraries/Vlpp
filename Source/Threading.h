@@ -163,12 +163,12 @@ namespace vl
 		~Mutex();
 
 		/// <summary>Create a mutex.</summary>
-		/// <returns>Returns true if this operation succeeded.</summary>
+		/// <returns>Returns true if this operation succeeded.</returns>
 		/// <param name="owner">Set to true to own the created mutex.</param>
 		/// <param name="name">Name of the mutex. If it is not empty, than it is a global named mutex. This argument is ignored in Linux.</param>
 		bool										Create(bool owned=false, const WString& name=L"");
 		/// <summary>Open an existing global named mutex.</summary>
-		/// <returns>Returns true if this operation succeeded.</summary>
+		/// <returns>Returns true if this operation succeeded.</returns>
 		/// <param name="inheritable">Set to true make the mutex visible to all all child processes. This argument is only used in Windows.</param>
 		/// <param name="name">Name of the mutex. This argument is ignored in Linux.</param>
 		bool										Open(bool inheritable, const WString& name);
@@ -194,13 +194,13 @@ namespace vl
 		~Semaphore();
 		
 		/// <summary>Create a semaphore.</summary>
-		/// <returns>Returns true if this operation succeeded.</summary>
+		/// <returns>Returns true if this operation succeeded.</returns>
 		/// <param name="initialCount">Define the counter of the semaphore.</param>
 		/// <param name="maxCount">Define the maximum value of the counter of the semaphore. This argument is only used in Windows.</param>
 		/// <param name="name">Name of the semaphore. If it is not empty, than it is a global named semaphore. This argument is ignored in Linux.</param>
 		bool										Create(vint initialCount, vint maxCount, const WString& name=L"");
 		/// <summary>Open an existing global named semaphore.</summary>
-		/// <returns>Returns true if this operation succeeded.</summary>
+		/// <returns>Returns true if this operation succeeded.</returns>
 		/// <param name="inheritable">Set to true make the semaphore visible to all all child processes. This argument is only used in Windows.</param>
 		/// <param name="name">Name of the semaphore. This argument is ignored in Linux.</param>
 		bool										Open(bool inheritable, const WString& name);
@@ -227,26 +227,26 @@ namespace vl
 		~EventObject();
 		
 		/// <summary>Create an auto unsignal event. Auto unsignal means, when one thread waits for the event and succeeded, the event will become unsignaled immediately.</summary>
-		/// <returns>Returns true if this operation succeeded.</summary>
+		/// <returns>Returns true if this operation succeeded.</returns>
 		/// <param name="signaled">Set to true make the event signaled at the beginning.</param>
 		/// <param name="name">Name of the event. If it is not empty, than it is a global named mutex. This argument is only used in Windows.</param>
 		bool										CreateAutoUnsignal(bool signaled, const WString& name=L"");
 		/// <summary>Create a manual unsignal event.</summary>
-		/// <returns>Returns true if this operation succeeded.</summary>
+		/// <returns>Returns true if this operation succeeded.</returns>
 		/// <param name="signaled">Set to true make the event signaled at the beginning.</param>
 		/// <param name="name">Name of the event. If it is not empty, than it is a global named mutex. This argument is only used in Windows.</param>
 		bool										CreateManualUnsignal(bool signaled, const WString& name=L"");
 		/// <summary>Open an existing global named event.</summary>
-		/// <returns>Returns true if this operation succeeded.</summary>
+		/// <returns>Returns true if this operation succeeded.</returns>
 		/// <param name="inheritable">Set to true make the event visible to all all child processes. This argument is only used in Windows.</param>
 		/// <param name="name">Name of the event. This argument is only used in Windows.</param>
 		bool										Open(bool inheritable, const WString& name);
 
 		/// <summary>Signal the event.</summary>
-		/// <returns>Returns true if this operation succeeded.</summary>
+		/// <returns>Returns true if this operation succeeded.</returns>
 		bool										Signal();
 		/// <summary>Unsignal the event.</summary>
-		/// <returns>Returns true if this operation succeeded.</summary>
+		/// <returns>Returns true if this operation succeeded.</returns>
 		bool										Unsignal();
 #ifdef VCZH_GCC
 		bool										Wait();
@@ -275,7 +275,7 @@ namespace vl
 		static bool									Queue(const Func<void()>& proc);
 		
 		/// <summary>Queue a lambda expression.</summary>
-		/// <typeparam name="T">The type of the lambda expression.</param>
+		/// <typeparam name="T">The type of the lambda expression.</typeparam>
 		/// <returns>Returns true if this operation succeeded.</returns>
 		/// <param name="proc">The lambda expression.</param>
 		template<typename T>
@@ -293,14 +293,14 @@ namespace vl
 进程内对象
 ***********************************************************************/
 
-	/// <summary>
+	/// <summary><![CDATA[
 	/// Critical section. It is similar to mutex, but in Windows, enter a owned critical section will not cause dead lock.
 	/// The macro "CS_LOCK" is encouraged to use instead of calling [M:vl.CriticalSection.Enter] and [M:vl.CriticalSection.Leave] like this:
 	/// CS_LOCK(yourCriticalSection)
 	/// {
 	///		<code>
 	/// }
-	/// </summary>
+	/// ]]></summary>
 	class CriticalSection : public Object, public NotCopyable
 	{
 	private:
@@ -330,7 +330,7 @@ namespace vl
 		};
 	};
 	
-	/// <summary>
+	/// <summary><![CDATA[
 	/// Reader writer lock.
 	/// The macro "READER_LOCK" and "WRITER_LOCK" are encouraged to use instead of calling [M:vl.ReaderWriterLock.EnterReader], [M:vl.ReaderWriterLock.LeaveReader], [M:vl.ReaderWriterLock.EnterWriter] and [M:vl.CriticalSection.LeaveWriter] like this:
 	/// READER_LOCK(yourLock)
@@ -342,7 +342,7 @@ namespace vl
 	/// {
 	///		<code>
 	/// }
-	/// </summary>
+	/// ]]></summary>
 	class ReaderWriterLock : public Object, public NotCopyable
 	{
 	private:
@@ -398,30 +398,30 @@ namespace vl
 		~ConditionVariable();
 
 		/// <summary>Bind a conditional variable with a owned critical section and release it. When the function returns, the condition variable is activated, and the current thread owned the critical section again.</summary>
-		/// <returns>Returns true if this operation succeeded.</summary>
+		/// <returns>Returns true if this operation succeeded.</returns>
 		/// <param name="cs">The critical section.</param>
 		bool										SleepWith(CriticalSection& cs);
 #ifdef VCZH_MSVC
 		/// <summary>Bind a conditional variable with a owned critical section and release it for a period of time. When the function returns, the condition variable is activated or it is time out, and the current thread owned the critical section again. This function is only available in Windows.</summary>
-		/// <returns>Returns true if this operation succeeded.</summary>
+		/// <returns>Returns true if this operation succeeded.</returns>
 		/// <param name="cs">The critical section.</param>
 		/// <param name="ms">Time in milliseconds.</param>
 		bool										SleepWithForTime(CriticalSection& cs, vint ms);
 		/// <summary>Bind a conditional variable with a owned reader lock and release it. When the function returns, the condition variable is activated, and the current thread owned the reader lock again. This function is only available in Windows.</summary>
-		/// <returns>Returns true if this operation succeeded.</summary>
+		/// <returns>Returns true if this operation succeeded.</returns>
 		/// <param name="lock">The reader lock.</param>
 		bool										SleepWithReader(ReaderWriterLock& lock);
 		/// <summary>Bind a conditional variable with a owned reader lock and release it for a period of time. When the function returns, the condition variable is activated or it is time out, and the current thread owned the reader lock again. This function is only available in Windows.</summary>
-		/// <returns>Returns true if this operation succeeded.</summary>
+		/// <returns>Returns true if this operation succeeded.</returns>
 		/// <param name="lock">The reader lock.</param>
 		/// <param name="ms">Time in milliseconds.</param>
 		bool										SleepWithReaderForTime(ReaderWriterLock& lock, vint ms);
 		/// <summary>Bind a conditional variable with a owned writer lock and release it. When the function returns, the condition variable is activated, and the current thread owned the writer lock again. This function is only available in Windows.</summary>
-		/// <returns>Returns true if this operation succeeded.</summary>
+		/// <returns>Returns true if this operation succeeded.</returns>
 		/// <param name="lock">The writer lock.</param>
 		bool										SleepWithWriter(ReaderWriterLock& lock);
 		/// <summary>Bind a conditional variable with a owned writer lock and release it for a period of time. When the function returns, the condition variable is activated or it is time out, and the current thread owned the writer lock again. This function is only available in Windows.</summary>
-		/// <returns>Returns true if this operation succeeded.</summary>
+		/// <returns>Returns true if this operation succeeded.</returns>
 		/// <param name="lock">The writer lock.</param>
 		/// <param name="ms">Time in milliseconds.</param>
 		bool										SleepWithWriterForTime(ReaderWriterLock& lock, vint ms);
@@ -438,14 +438,14 @@ namespace vl
 
 	typedef long LockedInt;
 	
-	/// <summary>
+	/// <summary><![CDATA[
 	/// Spin lock. It is similar to mutex.
 	/// The macro "SPIN_LOCK" is encouraged to use instead of calling [M:vl.SpinLock.Enter] and [M:vl.SpinLock.Leave] like this:
 	/// SPIN_LOCK(yourLock)
 	/// {
 	///		<code>
 	/// }
-	/// </summary>
+	/// ]]></summary>
 	class SpinLock : public Object, public NotCopyable
 	{
 	protected:
@@ -540,7 +540,7 @@ Dynamically create instances of them are undefined behavior.
 		}
 
 		/// <summary>Test if the storage has data.</summary>
-		/// <returns>Returns true if the storage has data.</summary>
+		/// <returns>Returns true if the storage has data.</returns>
 		bool HasData()
 		{
 			return storage.Get() != nullptr;
@@ -610,7 +610,7 @@ RepeatingTaskExecutor
 ***********************************************************************/
 
 	/// <summary>Queued task executor. It is different from a thread pool by: 1) Task execution is single threaded, 2) If you queue a task, it will override the the unexecuted queued task.</summary>
-	/// <typeparam name="T">The type of the argument to run a task.</param>
+	/// <typeparam name="T">The type of the argument to run a task.</typeparam>
 	template<typename T>
 	class RepeatingTaskExecutor : public Object
 	{

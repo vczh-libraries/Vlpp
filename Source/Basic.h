@@ -364,7 +364,7 @@ namespace vl
 		}
 
 		/// <summary>Unbox the value.</summary>
-		/// <returns>The original value.</summary>
+		/// <returns>The original value.</returns>
 		const T& Unbox()
 		{
 			return object;
@@ -424,7 +424,7 @@ namespace vl
 		}
 		
 		/// <summary>Create a non-null value.</summary>
-		/// <returns>The created nullable value.</summary>
+		/// <returns>The created nullable value.</returns>
 		/// <param name="value">The value to copy.</param>
 		Nullable<T>& operator=(const T& value)
 		{
@@ -438,7 +438,7 @@ namespace vl
 		}
 		
 		/// <summary>Copy a nullable value.</summary>
-		/// <returns>The created nullable value.</summary>
+		/// <returns>The created nullable value.</returns>
 		/// <param name="nullable">The nullable value to copy.</param>
 		Nullable<T>& operator=(const Nullable<T>& nullable)
 		{
@@ -458,7 +458,7 @@ namespace vl
 		}
 		
 		/// <summary>Move a nullable value.</summary>
-		/// <returns>The created nullable value.</summary>
+		/// <returns>The created nullable value.</returns>
 		/// <param name="nullable">The nullable value to move.</param>
 		Nullable<T>& operator=(Nullable<T>&& nullable)
 		{
