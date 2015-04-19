@@ -58,7 +58,7 @@ namespace vl
 		public:
 			typedef T									ElementType;
 
-			/// <summary>Create an enumerator. [M:vl.collections.IEnumeratlr`1.Next] should be called to get the first element.</summary>
+			/// <summary>Create an enumerator. [M:vl.collections.IEnumerator`1.Next] should be called to get the first element.</summary>
 			/// <returns>The enumerator.</returns>
 			virtual IEnumerator<T>*						CreateEnumerator()const=0;
 		};

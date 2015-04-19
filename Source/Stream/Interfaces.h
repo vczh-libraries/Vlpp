@@ -22,11 +22,11 @@ namespace vl
 		/// <summary>
 		/// Interface for streams. Stream functions are grouped into 5 categories:
 		/// 1) Feature testing functions.
-		/// 2) Read functions, available only if [M:v,.stream.IStream.CanRead] returns true.
-		/// 3) Peek functions, available only if [M:v,.stream.IStream.CanPeek] returns true.
-		/// 4) Write functions, available only if [M:v,.stream.IStream.CanWrite] returns true.
-		/// 5) Seek functions, available only if [M:v,.stream.IStream.CanSeek] returns true.
-		/// 6) Size functions, available only if [M:v,.stream.IStream.IsLimited] returns true. But there are still some streams knows that the content is limited, but the size is unknown. In this case, [M:vl.stream.IStream.Size] will return -1.
+		/// 2) Read functions, available only if [M:vl.stream.IStream.CanRead] returns true.
+		/// 3) Peek functions, available only if [M:vl.stream.IStream.CanPeek] returns true.
+		/// 4) Write functions, available only if [M:vl.stream.IStream.CanWrite] returns true.
+		/// 5) Seek functions, available only if [M:vl.stream.IStream.CanSeek] returns true.
+		/// 6) Size functions, available only if [M:vl.stream.IStream.IsLimited] returns true. But there are still some streams knows that the content is limited, but the size is unknown. In this case, [M:vl.stream.IStream.Size] will return -1.
 		/// </summary>
 		class IStream : public virtual Interface
 		{
