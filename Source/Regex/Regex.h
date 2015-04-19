@@ -271,10 +271,11 @@ namespace vl
 			~RegexLexerWalker();
 			
 			/// <summary>Get the start DFA state number, which represents the correct state before parsing any input.</summary>
-			/// <param name="state">The DFA state number.</param>
+			/// <returns>The DFA state number.</returns>
 			vint										GetStartState()const;
 			/// <summary>Test if this state can only lead to the end of one kind of token.</summary>
-			/// <summary>Returns the token index if this state can only lead to the end of one kind of token. Returns -1 if not.</summary>
+			/// <returns>Returns the token index if this state can only lead to the end of one kind of token. Returns -1 if not.</returns>
+			/// <param name="state">The DFA state number.</param>
 			vint										GetRelatedToken(vint state)const;
 			/// <summary>Step forward by one character.</summary>
 			/// <param name="input">The input character.</param>
@@ -289,10 +290,12 @@ namespace vl
 			/// <param name="state">The current state.</param>
 			vint										Walk(wchar_t input, vint state)const;
 			/// <summary>Test if the input text is a complete token.</summary>
+			/// <returns>Returns true if the input text is a complete token.</returns>
 			/// <param name="input">The input text.</param>
 			/// <param name="length">Size of the input text in characters.</param>
 			bool										IsClosedToken(const wchar_t* input, vint length)const;
 			/// <summary>Test if the input is a complete token.</summary>
+			/// <returns>Returns true if the input text is a complete token.</returns>
 			/// <param name="input">The input text.</param>
 			bool										IsClosedToken(const WString& input)const;
 		};
@@ -320,10 +323,10 @@ namespace vl
 			/// <param name="input">The input character.</param>
 			void										Pass(wchar_t input);
 			/// <summary>Get the start DFA state number, which represents the correct state before colorizing any characters.</summary>
-			/// <param name="state">The DFA state number.</param>
+			/// <returns>The DFA state number.</returns>
 			vint										GetStartState()const;
 			/// <summary>Get the current DFA state number.</summary>
-			/// <param name="state">The DFA state number.</param>
+			/// <returns>The DFA state number.</returns>
 			vint										GetCurrentState()const;
 			/// <summary>Colorize a text.</summary>
 			/// <param name="input">The text to colorize.</param>
@@ -341,7 +344,8 @@ namespace vl
 			collections::Array<vint>					ids;
 			collections::Array<vint>					stateTokens;
 		public:
-			/// <summary>Create a lexical analyzer by a set of regular expression. [F:vl.regex.RegexToken.token] will be the index of the matched regular expression.</summary>
+			/// <summary>Create a lexical analyzer by a set of regular expressions. [F:vl.regex.RegexToken.token] will be the index of the matched regular expression.</summary>
+			/// <param name="tokens">The regular expressions.</param>
 			RegexLexer(const collections::IEnumerable<WString>& tokens);
 			~RegexLexer();
 

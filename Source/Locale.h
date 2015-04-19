@@ -49,19 +49,19 @@ namespace vl
 		const WString&				GetName()const;
 
 		/// <summary>Get all short date formats for the locale.</summary>
-		/// <returns>The formats.</returns>
+		/// <param name="formats">The formats.</param>
 		void						GetShortDateFormats(collections::List<WString>& formats)const;
 		/// <summary>Get all long date formats for the locale.</summary>
-		/// <returns>The formats.</returns>
+		/// <param name="formats">The formats.</param>
 		void						GetLongDateFormats(collections::List<WString>& formats)const;
 		/// <summary>Get all Year-Month date formats for the locale.</summary>
-		/// <returns>The formats.</returns>
+		/// <param name="formats">The formats.</param>
 		void						GetYearMonthDateFormats(collections::List<WString>& formats)const;
 		/// <summary>Get all long time formats for the locale.</summary>
-		/// <returns>The formats.</returns>
+		/// <param name="formats">The formats.</param>
 		void						GetLongTimeFormats(collections::List<WString>& formats)const;
 		/// <summary>Get all short time formats for the locale.</summary>
-		/// <returns>The formats.</returns>
+		/// <param name="formats">The formats.</param>
 		void						GetShortTimeFormats(collections::List<WString>& formats)const;
 
 		/// <summary>Convert a date to a formatted string.</summary>
@@ -72,16 +72,16 @@ namespace vl
 		/// <summary>Convert a time to a formatted string.</summary>
 		/// <returns>The formatted string.</returns>
 		/// <param name="format">The format to use.</param>
-		/// <param name="date">The time to convert.</param>
+		/// <param name="time">The time to convert.</param>
 		WString						FormatTime(const WString& format, DateTime time)const;
 #ifdef VCZH_MSVC
 		/// <summary>Convert a number to a formatted string.</summary>
 		/// <returns>The formatted string.</returns>
-		/// <param name="date">The number to convert.</param>
+		/// <param name="number">The number to convert.</param>
 		WString						FormatNumber(const WString& number)const;
 		/// <summary>Convert a currency (money) to a formatted string.</summary>
 		/// <returns>The formatted string.</returns>
-		/// <param name="date">The currency to convert.</param>
+		/// <param name="currency">The currency to convert.</param>
 		WString						FormatCurrency(const WString& currency)const;
 #endif
 

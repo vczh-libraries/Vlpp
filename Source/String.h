@@ -165,7 +165,7 @@ namespace vl
 
 		/// <summary>Copy a string.</summary>
 		/// <param name="_buffer">Memory to copy. It does not have to contain the zero terminator.</param>
-		/// <param name="length">Size of the content in characters.</param>
+		/// <param name="_length">Size of the content in characters.</param>
 		ObjectString(const T* _buffer, vint _length)
 		{
 			if(_length<=0)

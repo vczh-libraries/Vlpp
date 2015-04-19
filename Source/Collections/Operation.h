@@ -161,6 +161,7 @@ LazyList
 			}
 			
 			/// <summary>Create a lazy list with a container.</summary>
+			/// <typeparam name="TContainer">Type of the container.</typeparam>
 			/// <param name="container">The container.</param>
 			template<typename TContainer>
 			LazyList(Ptr<TContainer> container)
@@ -265,9 +266,10 @@ LazyList
 			}
 			
 			/// <summary>Aggregate a lazy list.</summary>
+			/// <typeparam name="I">Type of the initial value.</typeparam>
 			/// <typeparam name="F">Type of the lambda expression.</typeparam>
 			/// <returns>The aggregated value.</returns>
-			/// <param name="init">The extra value that is virtually added before the lazy list.</param>
+			/// <param name="init">The initial value that is virtually added before the lazy list.</param>
 			/// <param name="f">The lambda expression as an aggregator.</param>
 			template<typename I, typename F>
 			I Aggregate(I init, F f)const
@@ -443,6 +445,7 @@ LazyList
 			//-------------------------------------------------------
 
 			/// <summary>Create a new lazy list of pairs from elements from two containers.</summary>
+			/// <typeparam name="U">Type of all elements in the second container.</typeparam>
 			/// <returns>The created lazy list.</returns>
 			/// <param name="remains">The second container.</param>
 			template<typename U>

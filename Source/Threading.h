@@ -61,27 +61,27 @@ namespace vl
 		
 		/// <summary>Wait for multiple objects. This function is only available in Windows.</summary>
 		/// <returns>Returns true if all objects are signaled. Returns false if this operation failed.</returns>
-		/// <param name="object">A pointer to an array to <see cref="WaitableObject"/> pointers.</param>
+		/// <param name="objects">A pointer to an array to <see cref="WaitableObject"/> pointers.</param>
 		/// <param name="count">The number of <see cref="WaitableObject"/> objects in the array.</param>
 		static bool									WaitAll(WaitableObject** objects, vint count);
 		/// <summary>Wait for multiple objects for a period of time. This function is only available in Windows.</summary>
 		/// <returns>Returns true if all objects are signaled. Returns false if this operation failed, including time out.</returns>
-		/// <param name="object">A pointer to an array to <see cref="WaitableObject"/> pointers.</param>
+		/// <param name="objects">A pointer to an array to <see cref="WaitableObject"/> pointers.</param>
 		/// <param name="count">The number of <see cref="WaitableObject"/> objects in the array.</param>
 		/// <param name="ms">Time in milliseconds.</param>
 		static bool									WaitAllForTime(WaitableObject** objects, vint count, vint ms);
 		/// <summary>Wait for one of the objects. This function is only available in Windows.</summary>
 		/// <returns>Returns the index of the first signaled or abandoned object, according to the "abandoned" parameter. Returns -1 if this operation failed.</returns>
-		/// <param name="object">A pointer to an array to <see cref="WaitableObject"/> pointers.</param>
+		/// <param name="objects">A pointer to an array to <see cref="WaitableObject"/> pointers.</param>
 		/// <param name="count">The number of <see cref="WaitableObject"/> objects in the array.</param>
-		/// <param name="abondoned">Returns true if the waiting is canceled by an abandoned object. An abandoned object is caused by it's owner thread existing without releasing it.</param>
+		/// <param name="abandoned">Returns true if the waiting is canceled by an abandoned object. An abandoned object is caused by it's owner thread existing without releasing it.</param>
 		static vint									WaitAny(WaitableObject** objects, vint count, bool* abandoned);
 		/// <summary>Wait for one of the objects for a period of time. This function is only available in Windows.</summary>
 		/// <returns>Returns the index of the first signaled or abandoned object, according to the "abandoned" parameter. Returns -1 if this operation failed, including time out.</returns>
-		/// <param name="object">A pointer to an array to <see cref="WaitableObject"/> pointers.</param>
+		/// <param name="objects">A pointer to an array to <see cref="WaitableObject"/> pointers.</param>
 		/// <param name="count">The number of <see cref="WaitableObject"/> objects in the array.</param>
 		/// <param name="ms">Time in milliseconds.</param>
-		/// <param name="abondoned">Returns true if the waiting is canceled by an abandoned object. An abandoned object is caused by it's owner thread existing without releasing it.</param>
+		/// <param name="abandoned">Returns true if the waiting is canceled by an abandoned object. An abandoned object is caused by it's owner thread existing without releasing it.</param>
 		static vint									WaitAnyForTime(WaitableObject** objects, vint count, vint ms, bool* abandoned);
 #elif defined VCZH_GCC
 		virtual bool								Wait() = 0;
@@ -164,7 +164,7 @@ namespace vl
 
 		/// <summary>Create a mutex.</summary>
 		/// <returns>Returns true if this operation succeeded.</returns>
-		/// <param name="owner">Set to true to own the created mutex.</param>
+		/// <param name="owned">Set to true to own the created mutex.</param>
 		/// <param name="name">Name of the mutex. If it is not empty, than it is a global named mutex. This argument is ignored in Linux.</param>
 		bool										Create(bool owned=false, const WString& name=L"");
 		/// <summary>Open an existing global named mutex.</summary>
@@ -276,7 +276,6 @@ namespace vl
 		
 		/// <summary>Queue a lambda expression.</summary>
 		/// <typeparam name="T">The type of the lambda expression.</typeparam>
-		/// <returns>Returns true if this operation succeeded.</returns>
 		/// <param name="proc">The lambda expression.</param>
 		template<typename T>
 		static void QueueLambda(const T& proc)
@@ -560,7 +559,7 @@ Dynamically create instances of them are undefined behavior.
 		}
 
 		/// <summary>Set data to this storage.</summary>
-		/// <param name="T">The data to set.</param>
+		/// <param name="value">The data to set.</param>
 		void Set(const T& value)
 		{
 			storage.Clear();

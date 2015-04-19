@@ -437,13 +437,13 @@ Value
 				/// <returns>How the value is stored.</returns>
 				ValueType						GetValueType()const;
 				/// <summary>Get the stored raw pointer if possible.</summary>
-				/// <summary>The stored raw pointer. Returns null if failed.</summary>
+				/// <returns>The stored raw pointer. Returns null if failed.</returns>
 				DescriptableObject*				GetRawPtr()const;
 				/// <summary>Get the stored shared pointer if possible.</summary>
-				/// <summary>The stored shared pointer. Returns null if failed.</summary>
+				/// <returns>The stored shared pointer. Returns null if failed.</returns>
 				Ptr<DescriptableObject>			GetSharedPtr()const;
 				/// <summary>Get the stored text if possible.</summary>
-				/// <summary>The stored text. Returns empty if failed.</summary>
+				/// <returns>The stored text. Returns empty if failed.</returns>
 				const WString&					GetText()const;
 				/// <summary>Get the real type of the stored object.</summary>
 				/// <returns>The real type. Returns null if the value is null.</returns>

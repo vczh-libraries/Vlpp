@@ -267,7 +267,7 @@ General Syntax Tree
 			ParsingTreeNode*					FindDeepestNode(const ParsingTextPos& position);
 			/// <summary>Find a most deepest indirect child node at the range. Using this function requires running <see cref="InitializeQueryCache"/> before.</summary>
 			/// <returns>The found node.</returns>
-			/// <param name="position">The range.</param>
+			/// <param name="range">The range.</param>
 			ParsingTreeNode*					FindDeepestNode(const ParsingTextRange& range);
 		};
 

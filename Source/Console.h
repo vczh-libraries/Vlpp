@@ -36,6 +36,7 @@ namespace vl
 			static void WriteLine(const WString& string);
 
 			/// <summary>Read from the command line window.</summary>
+			/// <returns>The whole line read from the command line window.</returns>
 			static WString Read();
 
 			static void SetColor(bool red, bool green, bool blue, bool light);

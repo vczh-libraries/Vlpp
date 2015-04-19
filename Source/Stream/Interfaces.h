@@ -88,6 +88,7 @@ namespace vl
 		{
 		public:
 			/// <summary>Set a target writable stream. The <see cref="Write"/> function will transform the content and write to this tream.</summary>
+			/// <param name="_stream">The target writable stream.</param>
 			virtual void					Setup(IStream* _stream)=0;
 			/// <summary>Stop the transformation, ensuring all written content is transformed to the target stream.</summary>
 			virtual	void					Close()=0;
@@ -103,6 +104,7 @@ namespace vl
 		{
 		public:
 			/// <summary>Set a target readable stream. The <see cref="Read"/> function will read from this tream and transform the content.</summary>
+			/// <param name="_stream">The target readable stream.</param>
 			virtual void					Setup(IStream* _stream)=0;
 			/// <summary>Stop the transformation.</summary>
 			virtual	void					Close()=0;

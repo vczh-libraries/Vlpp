@@ -241,7 +241,7 @@ namespace vl
 			}
 
 			/// <summary>Set a preference of using memory.</summary>
-			/// <returns>Set to true (by default) to let the container efficiently reduce memory usage when necessary.</returns>
+			/// <param name="mode">Set to true (by default) to let the container efficiently reduce memory usage when necessary.</param>
 			void SetLessMemoryMode(bool mode)
 			{
 				lessMemoryMode=mode;
@@ -263,7 +263,7 @@ namespace vl
 			/// <summary>Remove elements.</summary>
 			/// <returns>Returns true if the element is removed.</returns>
 			/// <param name="index">The index of the first element to remove.</param>
-			/// <param name="count">The number of elements to remove.</param>
+			/// <param name="_count">The number of elements to remove.</param>
 			bool RemoveRange(vint index, vint _count)
 			{
 				vint previousCount=ArrayBase<T>::count;
@@ -477,6 +477,7 @@ namespace vl
 			}
 			
 			/// <summary>Replace an item.</summary>
+			/// <returns>Returns true if this operation succeeded.</returns>
 			/// <param name="index">The position of the item.</param>
 			/// <param name="item">The new item to put into the array.</param>
 			bool Set(vint index, const T& item)
@@ -518,7 +519,7 @@ namespace vl
 			}
 			
 			/// <summary>Get the position of an item in this list.</summary>
-			/// <typeparam name="key">Type of the item to find.</typeparam>
+			/// <typeparam name="Key">Type of the item to find.</typeparam>
 			/// <returns>Returns the position. Returns -1 if not exists</returns>
 			/// <param name="item">The item to find.</param>
 			template<typename Key>

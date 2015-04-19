@@ -245,6 +245,7 @@ Encoding Test
 
 		/// <summary>Guess the text encoding in a buffer.</summary>
 		/// <param name="buffer">The buffer to guess.</param>
+		/// <param name="size">Size of the buffer in bytes.</param>
 		/// <param name="encoding">Returns the most possible encoding.</param>
 		/// <param name="containsBom">Returns true if the BOM information is at the beginning of the buffer.</param>
 		extern void							TestEncoding(unsigned char* buffer, vint size, BomEncoder::Encoding& encoding, bool& containsBom);

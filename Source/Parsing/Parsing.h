@@ -32,7 +32,8 @@ namespace vl
 				ParsingGeneralParser(Ptr<ParsingTable> _table);
 				~ParsingGeneralParser();
 				
-				/// <summary>The parser table that used to do the parsing.</summary>
+				/// <summary>Get the parser table that used to do the parsing.</summary>
+				/// <returns>The parser table that used to do the parsing.</returns>
 				Ptr<ParsingTable>							GetTable();
 				/// <summary>Initialization. It should be called before each time of parsing.</summary>
 				virtual void								BeginParse();

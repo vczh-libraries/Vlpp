@@ -518,7 +518,7 @@ TypeInfoRetriver Helper Functions (BoxValue, UnboxValue)
 			/// <summary>Unbox an reflectable object. Its type cannot be generic.</summary>
 			/// <returns>The unboxed object.</returns>
 			/// <typeparam name="T">Type of the object.</typeparam>
-			/// <param name="object">The value to unbox.</param>
+			/// <param name="value">The value to unbox.</param>
 			/// <param name="typeDescriptor">The type descriptor of the object (optional).</param>
 			/// <param name="valueName">The name of the object to provide a friendly exception message if the conversion is failed (optional).</param>
 			template<typename T>
@@ -549,7 +549,7 @@ TypeInfoRetriver Helper Functions (UnboxParameter)
 			
 			/// <summary>Box an reflectable object. It supports generic types such as containers, functions, etc.</summary>
 			/// <typeparam name="T">Type of the object.</typeparam>
-			/// <param name="object">The value to unbox.</param>
+			/// <param name="value">The value to unbox.</param>
 			/// <param name="result">The unboxed object.</param>
 			/// <param name="typeDescriptor">The type descriptor of the object (optional).</param>
 			/// <param name="valueName">The name of the object to provide a friendly exception message if the conversion is failed (optional).</param>

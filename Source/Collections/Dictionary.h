@@ -99,7 +99,7 @@ namespace vl
 			}
 			
 			/// <summary>Set a preference of using memory.</summary>
-			/// <returns>Set to true (by default) to let the container efficiently reduce memory usage when necessary.</returns>
+			/// <param name="mode">Set to true (by default) to let the container efficiently reduce memory usage when necessary.</param>
 			void SetLessMemoryMode(bool mode)
 			{
 				keys.SetLessMemoryMode(mode);
