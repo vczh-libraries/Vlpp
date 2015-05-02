@@ -743,6 +743,7 @@ StructValueSerializer
 						{
 						case L'{':
 							result+=L"{{";
+							break;
 						case L'}':
 							result+=L"}}";
 							break;
@@ -767,7 +768,7 @@ StructValueSerializer
 							case L'\0':
 								return false;
 							case L'{':
-								if(end[1]==L'{') return false;
+								if(end[1]!=L'{') return false;
 								end+=2;
 								field+=L'{';
 								break;

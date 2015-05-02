@@ -320,6 +320,12 @@ namespace test
 		Size size;
 	};
 
+	struct RectPair
+	{
+		Rect a;
+		Rect b;
+	};
+
 	class Base : public Object, public Description<Base>
 	{
 	public:
@@ -457,6 +463,7 @@ using namespace test;
 	F(test::Point)\
 	F(test::Size)\
 	F(test::Rect)\
+	F(test::RectPair)\
 
 BEGIN_TYPE_INFO_NAMESPACE
 
@@ -519,6 +526,11 @@ BEGIN_TYPE_INFO_NAMESPACE
 		STRUCT_MEMBER(point)
 		STRUCT_MEMBER(size)
 	END_STRUCT_MEMBER(test::Rect)
+
+	BEGIN_STRUCT_MEMBER(test::RectPair)
+		STRUCT_MEMBER(a)
+		STRUCT_MEMBER(b)
+	END_STRUCT_MEMBER(test::RectPair)
 
 	Ptr<IValueReadonlyList> BaseSummer_GetBases(BaseSummer* thisObject)
 	{
@@ -844,6 +856,23 @@ namespace reflection_test
 			TEST_ASSERT(rect.point.y==20);
 			TEST_ASSERT(rect.size.cx==30);
 			TEST_ASSERT(rect.size.cy==40);
+		}
+		{
+			Rect a={{1, 2}, {3, 4}};
+			Rect b = { { 10, 20 }, { 30, 40 } };
+			RectPair rp={ a, b };
+			Value value=BoxValue<RectPair>(rp);
+			TEST_ASSERT(value.GetText()==L"a:{point:{{x:1 y:2}} size:{{cx:3 cy:4}}} b:{point:{{x:10 y:20}} size:{{cx:30 cy:40}}}");
+
+			rp=UnboxValue<RectPair>(value);
+			TEST_ASSERT(rp.a.point.x==1);
+			TEST_ASSERT(rp.a.point.y==2);
+			TEST_ASSERT(rp.a.size.cx==3);
+			TEST_ASSERT(rp.a.size.cy==4);
+			TEST_ASSERT(rp.b.point.x==10);
+			TEST_ASSERT(rp.b.point.y==20);
+			TEST_ASSERT(rp.b.size.cx==30);
+			TEST_ASSERT(rp.b.size.cy==40);
 		}
 	}
 
