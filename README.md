@@ -8,7 +8,7 @@ Using this library requires you to use C++ source files in
 
 All other files are for librari development only.
 
-###  Notice:
+### Notice:
  * **TEST**: Learn by reading unit test
  * **TUTORIAL**: Find big comment for tutorial in the code, not always at the top of the file.
 
