@@ -1,11 +1,16 @@
 # Vlpp
-Common Cross-Platform C++ Construction. Using this library requires you to use C++ source files in [this folder](https://github.com/vczh-libraries/Vlpp/tree/master/Release).
+### Common Cross-Platform C++ Construction.
 
-## Notice:
+Using this library requires you to use C++ source files in
+   * The [Release folder](https://github.com/vczh-libraries/Vlpp/tree/master/Release).
+
+All other files are for librari development only.
+
+###  Notice:
  * **TEST**: Learn by reading unit test
  * **TUTORIAL**: Find big comment for tutorial in the code, not always at the top of the file.
 
-## Content:
+### Content:
 
 * **Lazy<T>, DateTime**
     * **TEST** [TestBasic.cpp](https://github.com/vczh-libraries/Vlpp/blob/master/Test/Source/TestBasic.cpp)
