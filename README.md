@@ -2,7 +2,8 @@
 ### Common Cross-Platform C++ Construction.
 
 Using this library requires you to use C++ source files in
-   * The [Release folder](https://github.com/vczh-libraries/Vlpp/tree/master/Release).
+   * The [Release folder](https://github.com/vczh-libraries/Vlpp/tree/master/Release) for this library.
+   * The [ParserGen.exe](https://github.com/vczh-libraries/Vlpp/tree/master/Tools/ParserGen) if you want to build your own parser.
 
 All other files are for librari development only.
 
