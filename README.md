@@ -41,4 +41,4 @@ All other files are for librari development only.
     * **TEST** [TestThread.cpp](https://github.com/vczh-libraries/Vlpp/blob/master/Test/Source/TestThread.cpp)
 * Reflection for C++
     * **TEST** [TestReflection.cpp](https://github.com/vczh-libraries/Vlpp/blob/master/Test/Source/TestReflection.cpp)
-    * **TUTORIAL** [GuiTypeDescriptor.h](https://github.com/vczh-libraries/Vlpp/blob/master/Source/Reflection/GuiTypeDescrip)tor.h
+    * **TUTORIAL** [GuiTypeDescriptor.h](https://github.com/vczh-libraries/Vlpp/blob/master/Source/Reflection/GuiTypeDescriptor.h)
