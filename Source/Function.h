@@ -239,7 +239,7 @@ vl::function_lambda::LambdaRetriveType<R(TArgs...)>
 			typedef Func<R(TArgs...)> Type;
 			typedef R(FunctionType)(TArgs...);
 			typedef R ResultType;
-		}; 
+		};
  
 		/// <summary>Create a function reference to a function object or a lambda expression, with all type information autotimatically inferred. You can use the macro called "LAMBDA" to refer to this function.</summary>
 		/// <typeparam name="T">Type of the function object or the lambda expression.</typeparam>

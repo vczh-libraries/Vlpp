@@ -9,6 +9,7 @@ XML Representation for Code Generation:
 #ifndef VCZH_REFLECTION_GUITYPEDESCRIPTORPREDEFINED
 #define VCZH_REFLECTION_GUITYPEDESCRIPTORPREDEFINED
 
+#include <math.h>
 #include "GuiTypeDescriptor.h"
 
 namespace vl
@@ -353,10 +354,74 @@ SerializableTypeDescriptor
 			};
 
 /***********************************************************************
+Predefined Libraries
+***********************************************************************/
+
+			class Sys : public Description<Sys>
+			{
+			public:
+				static vint			Len(const WString& value)							{ return value.Length(); }
+				static WString		Left(const WString& value, vint length)				{ return value.Left(length); }
+				static WString		Right(const WString& value, vint length)			{ return value.Right(length); }
+				static WString		Mid(const WString& value, vint start, vint length)	{ return value.Sub(start, length); }
+				static vint			Find(const WString& value, const WString& substr)	{ return INVLOC.FindFirst(value, substr, Locale::Normalization::None).key; }
+			};
+
+			class Math : public Description<Math>
+			{
+			public:
+				static vint8_t		Abs(vint8_t value)				{ return abs(value); }
+				static vint16_t		Abs(vint16_t value)				{ return abs(value); }
+				static vint32_t		Abs(vint32_t value)				{ return abs(value); }
+				static vint64_t		Abs(vint64_t value)				{ return abs(value); }
+				static float		Abs(float value)				{ return abs(value); }
+				static double		Abs(double value)				{ return abs(value); }
+
+				static vint8_t		Max(vint8_t a, vint8_t b)		{ return a > b ? a : b; }
+				static vint16_t		Max(vint16_t a, vint16_t b)		{ return a > b ? a : b; }
+				static vint32_t		Max(vint32_t a, vint32_t b)		{ return a > b ? a : b; }
+				static vint64_t		Max(vint64_t a, vint64_t b)		{ return a > b ? a : b; }
+				static float		Max(float a, float b)			{ return a > b ? a : b; }
+				static double		Max(double a, double b)			{ return a > b ? a : b; }
+
+				static vint8_t		Min(vint8_t a, vint8_t b)		{ return a < b ? a : b; }
+				static vint16_t		Min(vint16_t a, vint16_t b)		{ return a < b ? a : b; }
+				static vint32_t		Min(vint32_t a, vint32_t b)		{ return a < b ? a : b; }
+				static vint64_t		Min(vint64_t a, vint64_t b)		{ return a < b ? a : b; }
+				static float		Min(float a, float b)			{ return a < b ? a : b; }
+				static double		Min(double a, double b)			{ return a < b ? a : b; }
+
+				static double		Sin(double value)				{ return sin(value); }
+				static double		Cos(double value)				{ return cos(value); }
+				static double		Tan(double value)				{ return tan(value); }
+				static double		ASin(double value)				{ return asin(value); }
+				static double		ACos(double value)				{ return acos(value); }
+				static double		ATan(double value)				{ return atan(value); }
+				static double		ATan2(double x, double y)		{ return atan2(y, x); }
+
+				static double		Exp(double value)				{ return exp(value);  }
+				static double		LogN(double value)				{ return log(value); }
+				static double		Log10(double value)				{ return log10(value); }
+				static double		Log(double value, double base)	{ return log(value) / log(base); }
+				static double		Pow(double value, double power)	{ return pow(value, power); }
+				static double		Ceil(double value)				{ return ceil(value); }
+				static double		Floor(double value)				{ return floor(value); }
+				static double		Round(double value)				{ return round(value); }
+				static double		Trunc(double value)				{ return trunc(value); }
+				static vint64_t		CeilI(double value)				{ return (vint64_t)ceil(value); }
+				static vint64_t		FloorI(double value)			{ return (vint64_t)floor(value); }
+				static vint64_t		RoundI(double value)			{ return (vint64_t)round(value); }
+				static vint64_t		TruncI(double value)			{ return (vint64_t)trunc(value); }
+			};
+
+/***********************************************************************
 Predefined Types
 ***********************************************************************/
 
 			struct VoidValue{};
+
+			DECL_TYPE_INFO(Sys)
+			DECL_TYPE_INFO(Math)
 			
 			DECL_TYPE_INFO(void)
 			DECL_TYPE_INFO(VoidValue)
