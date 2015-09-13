@@ -18630,6 +18630,10 @@ LoadPredefinedTypes
 					AddSerializableType<TypedDefaultValueSerializer<Locale>>(manager);
 					AddSerializableType<BoolValueSerializer>(manager);
 					AddSerializableType<DateTimeValueSerializer>(manager);
+
+					ADD_TYPE_INFO(Sys)
+					ADD_TYPE_INFO(Math)
+
 					ADD_TYPE_INFO(VoidValue)
 					ADD_TYPE_INFO(IDescriptable)
 					ADD_TYPE_INFO(DescriptableObject)
