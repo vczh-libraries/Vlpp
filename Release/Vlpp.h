@@ -10904,12 +10904,12 @@ Predefined Libraries
 			class Math : public Description<Math>
 			{
 			public:
-				static vint8_t		Abs(vint8_t value)				{ return abs(value); }
-				static vint16_t		Abs(vint16_t value)				{ return abs(value); }
-				static vint32_t		Abs(vint32_t value)				{ return abs(value); }
-				static vint64_t		Abs(vint64_t value)				{ return abs(value); }
-				static float		Abs(float value)				{ return abs(value); }
-				static double		Abs(double value)				{ return abs(value); }
+				static vint8_t		Abs(vint8_t value)				{ return value > 0 ? value : -value; }
+				static vint16_t		Abs(vint16_t value)				{ return value > 0 ? value : -value; }
+				static vint32_t		Abs(vint32_t value)				{ return value > 0 ? value : -value; }
+				static vint64_t		Abs(vint64_t value)				{ return value > 0 ? value : -value; }
+				static float		Abs(float value)				{ return value > 0 ? value : -value; }
+				static double		Abs(double value)				{ return value > 0 ? value : -value; }
 
 				static vint8_t		Max(vint8_t a, vint8_t b)		{ return a > b ? a : b; }
 				static vint16_t		Max(vint16_t a, vint16_t b)		{ return a > b ? a : b; }
