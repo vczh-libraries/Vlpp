@@ -553,7 +553,6 @@ description::TypeManager
 						{
 							typeLoaders[i]->Load(this);
 						}
-						rootType=description::GetTypeDescriptor<Value>();
 						return true;
 					}
 					else
@@ -595,6 +594,10 @@ description::TypeManager
 
 				ITypeDescriptor* GetRootType()override
 				{
+					if (!rootType)
+					{
+						rootType=description::GetTypeDescriptor<Value>();
+					}
 					return rootType;
 				}
 			};
