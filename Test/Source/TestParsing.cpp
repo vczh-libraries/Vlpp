@@ -42,7 +42,8 @@ namespace test
 		writer.WriteLine(L"=============================================================");
 		Log(loggable, writer);
 
-		if(&errors && errors.Count()>0)
+		auto perrors = &errors; // clang++: -WUndefined-bool-conversion
+		if(perrors && errors.Count()>0)
 		{
 			writer.WriteLine(L"=============================================================");
 			writer.WriteLine(L"Errors");
