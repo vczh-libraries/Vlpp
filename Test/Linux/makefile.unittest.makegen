@@ -6,7 +6,7 @@ folder UNITTEST_CALCULATOR = ../Source/Parser.Calculator
 	cpp = *.cpp
 
 folder UNITTEST = ../Source
-	cpp = TestBasic.cpp TestString.cpp TestList.cpp TestFunction.cpp TestGlobalStorage.cpp TestRegex.cpp TestReflection.cpp TestParsing.cpp TestThread.cpp TestStream.cpp TestLocaleString.cpp
+	cpp = TestBasic.cpp TestString.cpp TestList.cpp TestFunction.cpp TestGlobalStorage.cpp TestRegex.cpp TestReflection.cpp TestParsing.cpp TestThread.cpp TestStream.cpp TestLocaleString.cpp TestFileSystem.cpp
 
 folder HOST = .
 	cpp = Main.cpp
