@@ -36,7 +36,7 @@ All other files are for librari development only.
     * **TEST** [TestStream.cpp](https://github.com/vczh-libraries/Vlpp/blob/master/Test/Source/TestStream.cpp)
 * **General-LR Parsing**
     * **TEST** [TestParsing.cpp](https://github.com/vczh-libraries/Vlpp/blob/master/Test/Source/TestParsing.cpp)
-    * **TUTORIA** [ParsingTable.h](https://github.com/vczh-libraries/Vlpp/blob/master/Source/Parsing/ParsingTable.h)
+    * **TUTORIAL** [ParsingTable.h](https://github.com/vczh-libraries/Vlpp/blob/master/Source/Parsing/ParsingTable.h)
 * **Multi-Threading**
     * **TEST** [TestThread.cpp](https://github.com/vczh-libraries/Vlpp/blob/master/Test/Source/TestThread.cpp)
 * Reflection for C++
