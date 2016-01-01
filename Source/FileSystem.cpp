@@ -3,6 +3,7 @@
 #include "Collections/OperationForEach.h"
 #include "Stream/FileStream.h"
 #include "Stream/Accessor.h"
+#include "Exception.h"
 #if defined VCZH_MSVC
 #include <Windows.h>
 #include <Shlwapi.h>
@@ -91,6 +92,10 @@ FilePath
 							components.RemoveAt(i);
 							components.RemoveAt(i - 1);
 							i -= 2;
+						}
+						else
+						{
+							throw ArgumentException(L"Illegal path.");
 						}
 					}
 				}

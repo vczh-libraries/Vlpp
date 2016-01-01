@@ -1,6 +1,7 @@
 #include "../../Source/UnitTest/UnitTest.h"
 #include "../../Source/FileSystem.h"
 #include "../../Source/Locale.h"
+#include "../../Source/Exception.h"
 
 using namespace vl;
 using namespace vl::filesystem;
@@ -164,6 +165,19 @@ TEST_CASE(TestFilePath)
 		FilePath q = L"/bin/ls";
 		auto r = p.GetRelativePathFor(q);
 		TEST_ASSERT(r == L"../../bin/ls");
+	}
+	{
+		bool exceptionThrown = false;
+		try
+		{
+			FilePath p = L"/../../bin";
+		}
+		catch(ArgumentException&)
+		{
+			exceptionThrown = true;
+		}
+
+		TEST_ASSERT(exceptionThrown == true);
 	}
 #endif
 }
