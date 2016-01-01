@@ -1,6 +1,7 @@
 #include "../../Source/UnitTest/UnitTest.h"
 #include "../../Source/FileSystem.h"
 #include "../../Source/Locale.h"
+#include "../../Source/Exception.h"
 
 using namespace vl;
 using namespace vl::filesystem;
@@ -20,7 +21,7 @@ void ClearTestFolders()
 #if defined VCZH_MSVC
 	TEST_ASSERT(folderPath[1] == L':');
 	TEST_ASSERT(INVLOC.FindLast(folderPath, L"\\FileSystem", Locale::None).key == folderPath.Length() - 11);
-#elif define VCZH_GCC
+#elif defined VCZH_GCC
 	TEST_ASSERT(folderPath[0] == L'/');
 	TEST_ASSERT(INVLOC.FindLast(folderPath, L"/FileSystem", Locale::None).key == folderPath.Length() - 11);
 #endif
@@ -36,6 +37,7 @@ void ClearTestFolders()
 
 TEST_CASE(TestFilePath)
 {
+#if defined VCZH_MSVC
 	ClearTestFolders();
 	{
 		FilePath p;
@@ -108,6 +110,76 @@ TEST_CASE(TestFilePath)
 		auto r = p.GetRelativePathFor(q);
 		TEST_ASSERT(r == L"D:\\Windows\\Explorer.exe");
 	}
+#elif defined VCZH_GCC
+	ClearTestFolders();
+	{
+		FilePath p = L"/";
+		TEST_ASSERT(p.IsFile() == false);
+		TEST_ASSERT(p.IsFolder() == true);
+		TEST_ASSERT(p.IsRoot() == true);
+		TEST_ASSERT(p.GetFullPath() == L"/");
+	}
+	{
+		FilePath p = L"/bin/";
+		TEST_ASSERT(p.IsFile() == false);
+		TEST_ASSERT(p.IsFolder() == true);
+		TEST_ASSERT(p.IsRoot() == false);
+		TEST_ASSERT(p.GetFullPath() == L"/bin");
+		TEST_ASSERT(p.GetName() == L"bin");
+		TEST_ASSERT(p.GetFolder().GetFullPath() == L"/");
+	}
+	{
+		FilePath p = L"/bin/ls";
+		TEST_ASSERT(p.IsFile() == true);
+		TEST_ASSERT(p.IsFolder() == false);
+		TEST_ASSERT(p.IsRoot() == false);
+		TEST_ASSERT(p.GetFullPath() == L"/bin/ls");
+		TEST_ASSERT(p.GetName() == L"ls");
+		TEST_ASSERT(p.GetFolder().GetFullPath() == L"/bin");
+	}
+	{
+		FilePath p = L"/bin/vczh.txt";
+		TEST_ASSERT(p.IsFile() == false);
+		TEST_ASSERT(p.IsFolder() == false);
+		TEST_ASSERT(p.IsRoot() == false);
+		TEST_ASSERT(p.GetFullPath() == L"/bin/vczh.txt");
+	}
+	{
+		FilePath p = L"/bin";
+		auto q = p / L"ls";
+		TEST_ASSERT(q.GetFullPath() == L"/bin/ls");
+	}
+	{
+		FilePath p = L"/usr/bin/";
+		auto q = p / L"../../bin/./ls";
+		TEST_ASSERT(q.GetFullPath() == L"/bin/ls");
+	}
+	{
+		FilePath p = L"/usr/bin/";
+		FilePath q = L"/bin/ls";
+		auto r = p.GetRelativePathFor(q);
+		TEST_ASSERT(r == L"../../bin/ls");
+	}
+	{
+		FilePath p = L"/usr/bin/cc";
+		FilePath q = L"/bin/ls";
+		auto r = p.GetRelativePathFor(q);
+		TEST_ASSERT(r == L"../../bin/ls");
+	}
+	{
+		bool exceptionThrown = false;
+		try
+		{
+			FilePath p = L"/../../bin";
+		}
+		catch(ArgumentException&)
+		{
+			exceptionThrown = true;
+		}
+
+		TEST_ASSERT(exceptionThrown == true);
+	}
+#endif
 }
 
 TEST_CASE(CreateDeleteFolders)
@@ -193,8 +265,8 @@ TEST_CASE(EnumerateFoldersAndFiles)
 	TEST_ASSERT(d.Exists() == true);
 	files.Clear();
 	folders.Clear();
-	TEST_ASSERT(Folder(folder).GetFiles(files) == true && files.Count() == 2 && files[0].GetFilePath().GetName() == L"a.txt" && files[1].GetFilePath().GetName() == L"b.txt");
-	TEST_ASSERT(Folder(folder).GetFolders(folders) == true && folders.Count() == 2 && folders[0].GetFilePath().GetName() == L"c" && folders[1].GetFilePath().GetName() == L"d");
+	TEST_ASSERT(Folder(folder).GetFiles(files) == true && files.Count() == 2 && ((files[0].GetFilePath().GetName() == L"a.txt" && files[1].GetFilePath().GetName() == L"b.txt") || (files[0].GetFilePath().GetName() == L"b.txt" && files[1].GetFilePath().GetName() == L"a.txt")));
+	TEST_ASSERT(Folder(folder).GetFolders(folders) == true && folders.Count() == 2 && ((folders[0].GetFilePath().GetName() == L"c" && folders[1].GetFilePath().GetName() == L"d") || (folders[0].GetFilePath().GetName() == L"d" && folders[1].GetFilePath().GetName() == L"c")));
 
 	TEST_ASSERT(a.Delete() == true);
 	TEST_ASSERT(b.Delete() == true);
