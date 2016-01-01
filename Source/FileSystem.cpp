@@ -277,7 +277,21 @@ FilePath
 				if(index.key != 0)
 					components.Add(pathRemaining.Left(index.key));
 				else
+				{
+#if defined VCZH_GCC
+					// Unix absolute path starting with "/"
+					// components[0] will be L"/"
 					components.Add(delimiter);
+#elif defined VCZH_MSVC
+					if(pathRemaining.Length() >= 2 && pathRemaining[1] == Delimiter)
+					{
+						// Windows UNC Path starting with "\\"
+						// components[0] will be L"\\"
+						components.Add(L"\\");
+						index.value++;
+					}
+#endif
+				}
 
 				pathRemaining = pathRemaining.Right(pathRemaining.Length() - (index.key + index.value));
 			}
@@ -298,6 +312,13 @@ FilePath
 #if defined VCZH_GCC
 			// For Unix-like OSes, if first component is "/" then take it as absolute path
 			if(components.Count() > 0 && components[0] == delimiter)
+			{
+				result += delimiter;
+				i++;
+			}
+#elif defined VCZH_MSVC
+			// For Windows, if first component is "\\" then it is an UNC path
+			if(components.Count() > 0 && components[0] == L"\\")
 			{
 				result += delimiter;
 				i++;
