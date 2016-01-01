@@ -3,6 +3,7 @@
 #include "Collections/OperationForEach.h"
 #include "Stream/FileStream.h"
 #include "Stream/Accessor.h"
+#include "Exception.h"
 #if defined VCZH_MSVC
 #include <Windows.h>
 #include <Shlwapi.h>
@@ -48,7 +49,11 @@ FilePath
 			if (fullPath.Length() < 2 || fullPath[1] != L':')
 			{
 				wchar_t buffer[MAX_PATH + 1] = { 0 };
-				GetCurrentDirectory(sizeof(buffer) / sizeof(*buffer), buffer);
+				auto result = GetCurrentDirectory(sizeof(buffer) / sizeof(*buffer), buffer);
+				if (result > MAX_PATH + 1 || result == 0)
+				{
+					throw ArgumentException(L"Failed to call GetCurrentDirectory.", L"vl::filesystem::FilePath::Initialize", L"");
+				}
 				fullPath = WString(buffer) + L"\\" + fullPath;
 			}
 			{
@@ -57,7 +62,11 @@ FilePath
 				{
 					fullPath += L"\\";
 				}
-				GetFullPathName(fullPath.Buffer(), sizeof(buffer) / sizeof(*buffer), buffer, NULL);
+				auto result = GetFullPathName(fullPath.Buffer(), sizeof(buffer) / sizeof(*buffer), buffer, NULL);
+				if (result > MAX_PATH + 1 || result == 0)
+				{
+					throw ArgumentException(L"The path is illegal.", L"vl::filesystem::FilePath::FilePath", L"_filePath");
+				}
 				fullPath = buffer;
 			}
 
