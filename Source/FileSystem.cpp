@@ -73,30 +73,30 @@ FilePath
 				getcwd(buffer, PATH_MAX);
 				fullPath = atow(AString(buffer)) + Delimiter + fullPath;
 			}
-			
-			while(true)
+
 			{
-				auto index = INVLOC.FindFirst(fullPath, L"/../", Locale::None);
-				if(index.key == -1)
-					break;
+				collections::List<WString> components;
+				GetPathComponents(fullPath, components);
+				for(int i = 0; i < components.Count(); i++)
+				{
+					if(components[i] == L".")
+					{
+						components.RemoveAt(i);
+						i--;
+					}
+					else if(components[i] == L"..")
+					{
+						if(i > 0)
+						{
+							components.RemoveAt(i);
+							components.RemoveAt(i - 1);
+							i -= 2;
+						}
+					}
+				}
 
-				WString leftStr = fullPath.Left(index.key - 1);
-				auto lastSec = INVLOC.FindLast(leftStr, L"/", Locale::None);
-				if(leftStr == L"/" || lastSec.key == -1)
-					break;
-
-				fullPath = leftStr.Left(lastSec.key) + fullPath.Right(fullPath.Length() - (index.key + index.value - 1));
+				fullPath = ComponentsToPath(components);
 			}
-
-			while(true)
-			{
-				auto index = INVLOC.FindFirst(fullPath, L"/./", Locale::None);
-				if(index.key == -1)
-					break;
-
-				fullPath = fullPath.Left(index.key) + fullPath.Right(fullPath.Length() - (index.key + index.value - 1));
-			}
-
 #endif
 			if (fullPath != L"/" && fullPath[fullPath.Length() - 1] == Delimiter)
 			{
@@ -226,39 +226,87 @@ FilePath
 				);
 			return buffer;
 #elif defined VCZH_GCC
-			WString srcFilePath = IsFolder() ? fullPath : GetFolder().GetFullPath();
-			WString tgtFilePath = _filePath.fullPath;
-			int minLength = srcFilePath.Length() <= tgtFilePath.Length() ? srcFilePath.Length() : tgtFilePath.Length();
-			int lastDelim = 0;
+			collections::List<WString> srcComponents, tgtComponents, resultComponents;
+			GetPathComponents(IsFolder() ? fullPath : GetFolder().GetFullPath(), srcComponents);
+			GetPathComponents(_filePath.fullPath, tgtComponents);
 
+			int minLength = srcComponents.Count() <= tgtComponents.Count() ? srcComponents.Count() : tgtComponents.Count();
+			int lastCommonComponent = 0;
 			for(int i = 0; i < minLength; i++)
 			{
-				if(srcFilePath[i] == tgtFilePath[i])
+				if(srcComponents[i] == tgtComponents[i])
 				{
-					if(srcFilePath[i] == Delimiter)
-					{
-						lastDelim = i;
-					}
+					lastCommonComponent = i;
 				}
-				else break;
-			}
-			
-			WString srcRemaining = srcFilePath.Right(srcFilePath.Length() - lastDelim);
-			WString tgtRemaining = tgtFilePath.Right(tgtFilePath.Length() - lastDelim - 1);
-		
-			WString result;
-			for(int i = 0; i < srcRemaining.Length(); i++)
-			{
-				if(srcRemaining[i] == Delimiter)
-				{
-					result += L"../";
-				}
+				else
+					break;
 			}
 
-			result += tgtRemaining;
+			for(int i = lastCommonComponent + 1; i < srcComponents.Count(); i++)
+			{
+				resultComponents.Add(L"..");
+			}
+
+			for(int i = lastCommonComponent + 1; i < tgtComponents.Count(); i++)
+			{
+				resultComponents.Add(tgtComponents[i]);
+			}
+
+			return ComponentsToPath(resultComponents);
+#endif
+		}
+
+		void FilePath::GetPathComponents(WString path, collections::List<WString>& components)
+		{
+			WString pathRemaining = path;
+			WString delimiter = Delimiter;
+
+			components.Clear();
+
+			while(true)
+			{
+				auto index = INVLOC.FindFirst(pathRemaining, delimiter, Locale::None);
+				if (index.key == -1)
+					break;
+
+				if(index.key != 0)
+					components.Add(pathRemaining.Left(index.key));
+				else
+					components.Add(delimiter);
+
+				pathRemaining = pathRemaining.Right(pathRemaining.Length() - (index.key + index.value));
+			}
+
+			if(pathRemaining.Length() != 0)
+			{
+				components.Add(pathRemaining);
+			}
+		}
+
+		WString FilePath::ComponentsToPath(const collections::List<WString>& components)
+		{
+			WString result;
+			WString delimiter = Delimiter;
+
+			int i = 0;
+
+#if defined VCZH_GCC
+			// For Unix-like OSes, if first component is "/" then take it as absolute path
+			if(components.Count() > 0 && components[0] == delimiter)
+			{
+				result += delimiter;
+				i++;
+			}
+#endif
+
+			for(; i < components.Count(); i++)
+			{
+				result += components[i];
+				if(i + 1 < components.Count())
+					result += delimiter;
+			}
 
 			return result;
-#endif
 		}
 
 /***********************************************************************
@@ -489,8 +537,9 @@ Folder
 			struct dirent* entry;
 			while ((entry = readdir(dir)) != NULL)
 			{
-				FilePath childFullPath = filePath / (atow(AString(entry->d_name)));
-				if (childFullPath.IsFolder() && childFullPath.GetName() != L"." && childFullPath.GetName() != L"..")
+				WString childName = atow(AString(entry->d_name));
+				FilePath childFullPath = filePath / childName;
+				if (childName != L"." && childName != L".." && childFullPath.IsFolder())
 				{
 					folders.Add(Folder(childFullPath));
 				}
