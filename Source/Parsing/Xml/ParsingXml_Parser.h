@@ -209,8 +209,8 @@ namespace vl
 				}
 
 			END_INTERFACE_PROXY(vl::parsing::xml::XmlNode::IVisitor)
-#endif
 
+#endif
 			extern bool XmlLoadTypes();
 		}
 	}

@@ -127,10 +127,10 @@ namespace vl
 				{
 					INVOKE_INTERFACE_PROXY(Visit, node);
 				}
-				
-			END_INTERFACE_PROXY(test::parser::CalExpression::IVisitor)
-#endif
 
+			END_INTERFACE_PROXY(test::parser::CalExpression::IVisitor)
+
+#endif
 			extern bool CalLoadTypes();
 		}
 	}

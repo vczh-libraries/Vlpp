@@ -37,7 +37,7 @@ void WriteTypeReflectionDeclaration(ParsingSymbolManager* manager, const WString
 			writer.WriteString(L"BEGIN_INTERFACE_PROXY_NOPARENT_SHAREDPTR(");
 			PrintNamespaces(config.codeNamespaces, writer);
 			PrintType(type, config.classPrefix, writer);
-			writer.WriteLine(L")");
+			writer.WriteLine(L"::IVisitor)");
 			List<ParsingSymbol*> visitableTypes;
 			SearchLeafDescendantClasses(type, manager, visitableTypes);
 			FOREACH(ParsingSymbol*, child, visitableTypes)
@@ -60,12 +60,12 @@ void WriteTypeReflectionDeclaration(ParsingSymbolManager* manager, const WString
 			writer.WriteString(L"END_INTERFACE_PROXY(");
 			PrintNamespaces(config.codeNamespaces, writer);
 			PrintType(type, config.classPrefix, writer);
-			writer.WriteLine(L")");
+			writer.WriteLine(L"::IVisitor)");
 			writer.WriteLine(L"");
 		}
 	}
-
-	writer.WriteLine(L"");
+	
+	writer.WriteLine(L"#endif");
 	writer.WriteString(prefix);
 	writer.WriteString(L"extern bool ");
 	writer.WriteString(config.classPrefix);

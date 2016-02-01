@@ -409,8 +409,8 @@ namespace vl
 				}
 
 			END_INTERFACE_PROXY(vczh::whoknows::xmlutility::TestXmlAnimal::TestXmlBody::TestXmlFur::IVisitor)
-#endif
 
+#endif
 			extern bool TestXmlLoadTypes();
 		}
 	}

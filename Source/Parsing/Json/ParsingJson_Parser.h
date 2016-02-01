@@ -186,10 +186,10 @@ namespace vl
 				{
 					INVOKE_INTERFACE_PROXY(Visit, node);
 				}
-				
-			END_INTERFACE_PROXY(vl::parsing::json::JsonNode::IVisitor)
-#endif
 
+			END_INTERFACE_PROXY(vl::parsing::json::JsonNode::IVisitor)
+
+#endif
 			extern bool JsonLoadTypes();
 		}
 	}
