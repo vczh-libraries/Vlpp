@@ -248,6 +248,7 @@ TypeDescriptorImpl
 			{
 			private:
 				bool														loaded;
+				TypeDescriptorFlags											typeDescriptorFlags;
 				WString														typeName;
 				WString														cppFullTypeName;
 				Ptr<IValueSerializer>										valueSerializer;
@@ -269,9 +270,10 @@ TypeDescriptorImpl
 				virtual void				LoadInternal()=0;
 				void						Load();
 			public:
-				TypeDescriptorImpl(const WString& _typeName, const WString& _cppFullTypeName);
+				TypeDescriptorImpl(TypeDescriptorFlags _typeDescriptorFlags, const WString& _typeName, const WString& _cppFullTypeName);
 				~TypeDescriptorImpl();
 
+				TypeDescriptorFlags			GetTypeDescriptorFlags()override;
 				const WString&				GetTypeName()override;
 				const WString&				GetCppFullTypeName()override;
 				IValueSerializer*			GetValueSerializer()override;
@@ -865,8 +867,8 @@ StructValueSerializer
 				}
 			};
 
-			template<typename TSerializer>
-			class StructTypeDescriptor : public SerializableTypeDescriptor<TSerializer>
+			template<typename TSerializer, TypeDescriptorFlags TDFlags>
+			class StructTypeDescriptor : public SerializableTypeDescriptor<TSerializer, TDFlags>
 			{
 			protected:
 				Ptr<TSerializer>				typedSerializer;
@@ -874,7 +876,7 @@ StructValueSerializer
 			public:
 				StructTypeDescriptor()
 				{
-					auto serializer = SerializableTypeDescriptor<TSerializer>::serializer;
+					auto serializer = SerializableTypeDescriptor<TSerializer, TDFlags>::serializer;
 					typedSerializer = serializer.template Cast<TSerializer>();
 				}
 

@@ -763,8 +763,9 @@ TypeDescriptorImpl
 				}
 			}
 
-			TypeDescriptorImpl::TypeDescriptorImpl(const WString& _typeName, const WString& _cppFullTypeName)
-				:typeName(_typeName)
+			TypeDescriptorImpl::TypeDescriptorImpl(TypeDescriptorFlags _typeDescriptorFlags, const WString& _typeName, const WString& _cppFullTypeName)
+				:typeDescriptorFlags(_typeDescriptorFlags)
+				,typeName(_typeName)
 				,cppFullTypeName(_cppFullTypeName)
 				,loaded(false)
 			{
@@ -772,6 +773,11 @@ TypeDescriptorImpl
 
 			TypeDescriptorImpl::~TypeDescriptorImpl()
 			{
+			}
+
+			TypeDescriptorFlags TypeDescriptorImpl::GetTypeDescriptorFlags()
+			{
+				return typeDescriptorFlags;
 			}
 
 			const WString& TypeDescriptorImpl::GetTypeName()

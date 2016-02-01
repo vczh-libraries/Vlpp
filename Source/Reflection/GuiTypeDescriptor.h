@@ -614,31 +614,62 @@ ITypeDescriptor (method)
 ITypeDescriptor
 ***********************************************************************/
 
+			enum class TypeDescriptorFlags : vint
+			{
+				Undefined			= 0,
+				Object				= 1<<0,
+				IDescriptable		= 1<<1,
+				Class				= 1<<2,
+				Interface			= 1<<3,
+				Primitive			= 1<<4,
+				Struct				= 1<<5,
+				FlagEnum			= 1<<6,
+				NormalEnum			= 1<<7,
+
+				ClassType			= Object | Class,
+				InterfaceType		= IDescriptable | Interface,
+				ReferenceType		= ClassType | InterfaceType,
+				EnumType			= FlagEnum | NormalEnum,
+				StructType			= Primitive | Struct,
+				SerializableType	= StructType | EnumType,
+			};
+
+			inline TypeDescriptorFlags operator&(TypeDescriptorFlags a, TypeDescriptorFlags b)
+			{
+				return (TypeDescriptorFlags)((vint)a & (vint)b);
+			}
+
+			inline TypeDescriptorFlags operator|(TypeDescriptorFlags a, TypeDescriptorFlags b)
+			{
+				return (TypeDescriptorFlags)((vint)a | (vint)b);
+			}
+
 			class ITypeDescriptor : public virtual IDescriptable, public Description<ITypeDescriptor>
 			{
 			public:
-				virtual const WString&			GetTypeName()=0;
-				virtual const WString&			GetCppFullTypeName()=0;
-				virtual IValueSerializer*		GetValueSerializer()=0;
-				virtual vint					GetBaseTypeDescriptorCount()=0;
-				virtual ITypeDescriptor*		GetBaseTypeDescriptor(vint index)=0;
-				virtual bool					CanConvertTo(ITypeDescriptor* targetType)=0;
+				virtual TypeDescriptorFlags		GetTypeDescriptorFlags() = 0;
+				virtual const WString&			GetTypeName() = 0;
+				virtual const WString&			GetCppFullTypeName() = 0;
+				virtual IValueSerializer*		GetValueSerializer() = 0;
+				virtual vint					GetBaseTypeDescriptorCount() = 0;
+				virtual ITypeDescriptor*		GetBaseTypeDescriptor(vint index) = 0;
+				virtual bool					CanConvertTo(ITypeDescriptor* targetType) = 0;
 
-				virtual vint					GetPropertyCount()=0;
-				virtual IPropertyInfo*			GetProperty(vint index)=0;
-				virtual bool					IsPropertyExists(const WString& name, bool inheritable)=0;
-				virtual IPropertyInfo*			GetPropertyByName(const WString& name, bool inheritable)=0;
+				virtual vint					GetPropertyCount() = 0;
+				virtual IPropertyInfo*			GetProperty(vint index) = 0;
+				virtual bool					IsPropertyExists(const WString& name, bool inheritable) = 0;
+				virtual IPropertyInfo*			GetPropertyByName(const WString& name, bool inheritable) = 0;
 
-				virtual vint					GetEventCount()=0;
-				virtual IEventInfo*				GetEvent(vint index)=0;
-				virtual bool					IsEventExists(const WString& name, bool inheritable)=0;
-				virtual IEventInfo*				GetEventByName(const WString& name, bool inheritable)=0;
+				virtual vint					GetEventCount() = 0;
+				virtual IEventInfo*				GetEvent(vint index) = 0;
+				virtual bool					IsEventExists(const WString& name, bool inheritable) = 0;
+				virtual IEventInfo*				GetEventByName(const WString& name, bool inheritable) = 0;
 
-				virtual vint					GetMethodGroupCount()=0;
-				virtual IMethodGroupInfo*		GetMethodGroup(vint index)=0;
-				virtual bool					IsMethodGroupExists(const WString& name, bool inheritable)=0;
-				virtual IMethodGroupInfo*		GetMethodGroupByName(const WString& name, bool inheritable)=0;
-				virtual IMethodGroupInfo*		GetConstructorGroup()=0;
+				virtual vint					GetMethodGroupCount() = 0;
+				virtual IMethodGroupInfo*		GetMethodGroup(vint index) = 0;
+				virtual bool					IsMethodGroupExists(const WString& name, bool inheritable) = 0;
+				virtual IMethodGroupInfo*		GetMethodGroupByName(const WString& name, bool inheritable) = 0;
+				virtual IMethodGroupInfo*		GetConstructorGroup() = 0;
 			};
 
 /***********************************************************************

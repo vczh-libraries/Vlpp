@@ -314,13 +314,15 @@ SerializableTypeDescriptor
 			class SerializableTypeDescriptorBase : public Object, public ITypeDescriptor
 			{
 			protected:
+				TypeDescriptorFlags							typeDescriptorFlags;
 				Ptr<IValueSerializer>						serializer;
 				WString										typeName;
 				WString										cppFullTypeName;
 			public:
-				SerializableTypeDescriptorBase(const WString& _typeName, const WString& _cppFullTypeName, Ptr<IValueSerializer> _serializer);
+				SerializableTypeDescriptorBase(TypeDescriptorFlags _typeDescriptorFlags, const WString& _typeName, const WString& _cppFullTypeName, Ptr<IValueSerializer> _serializer);
 				~SerializableTypeDescriptorBase();
 
+				TypeDescriptorFlags							GetTypeDescriptorFlags()override;
 				const WString&								GetTypeName()override;
 				const WString&								GetCppFullTypeName()override;
 				IValueSerializer*							GetValueSerializer()override;
@@ -342,12 +344,12 @@ SerializableTypeDescriptor
 				IMethodGroupInfo*							GetConstructorGroup()override;
 			};
 
-			template<typename TSerializer>
+			template<typename TSerializer, TypeDescriptorFlags TDFlags>
 			class SerializableTypeDescriptor : public SerializableTypeDescriptorBase
 			{
 			public:
 				SerializableTypeDescriptor()
-					:SerializableTypeDescriptorBase(TypeInfo<typename TSerializer::ValueType>::TypeName, TypeInfo<typename TSerializer::ValueType>::CppFullTypeName, 0)
+					:SerializableTypeDescriptorBase(TDFlags, TypeInfo<typename TSerializer::ValueType>::TypeName, TypeInfo<typename TSerializer::ValueType>::CppFullTypeName, 0)
 				{
 					serializer=new TSerializer(this);
 				}

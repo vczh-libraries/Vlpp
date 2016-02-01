@@ -56,10 +56,11 @@ Type
 Enum
 ***********************************************************************/
 
-#define BEGIN_ENUM_ITEM_FLAG(TYPENAME, DEFAULTVALUE, FLAG)\
+#define BEGIN_ENUM_ITEM_FLAG(TYPENAME, DEFAULTVALUE, FLAG, TDFLAGS)\
 			template<>\
 			struct CustomTypeDescriptorSelector<TYPENAME>\
 			{\
+				static const TypeDescriptorFlags TDFlags = TDFLAGS;\
 			public:\
 				class CustomEnumValueSerializer : public EnumValueSerializer<TYPENAME, FLAG>\
 				{\
@@ -69,14 +70,14 @@ Enum
 						:EnumValueSerializer(_ownerTypeDescriptor, DEFAULTVALUE)\
 					{
 
-#define BEGIN_ENUM_ITEM_DEFAULT_VALUE(TYPENAME, DEFAULTVALUE) BEGIN_ENUM_ITEM_FLAG(TYPENAME, TYPENAME::DEFAULTVALUE, false)
-#define BEGIN_ENUM_ITEM(TYPENAME) BEGIN_ENUM_ITEM_FLAG(TYPENAME, (TYPENAME)0, false)
-#define BEGIN_ENUM_ITEM_MERGABLE(TYPENAME) BEGIN_ENUM_ITEM_FLAG(TYPENAME, (TYPENAME)0, true)
+#define BEGIN_ENUM_ITEM_DEFAULT_VALUE(TYPENAME, DEFAULTVALUE) BEGIN_ENUM_ITEM_FLAG(TYPENAME, TYPENAME::DEFAULTVALUE, false, TypeDescriptorFlags::NormalEnum)
+#define BEGIN_ENUM_ITEM(TYPENAME) BEGIN_ENUM_ITEM_FLAG(TYPENAME, (TYPENAME)0, false, TypeDescriptorFlags::NormalEnum)
+#define BEGIN_ENUM_ITEM_MERGABLE(TYPENAME) BEGIN_ENUM_ITEM_FLAG(TYPENAME, (TYPENAME)0, true, TypeDescriptorFlags::FlagEnum)
 
 #define END_ENUM_ITEM(TYPENAME)\
 					}\
 				};\
-				typedef SerializableTypeDescriptor<CustomEnumValueSerializer> CustomTypeDescriptorImpl;\
+				typedef SerializableTypeDescriptor<CustomEnumValueSerializer, TDFlags> CustomTypeDescriptorImpl;\
 			};
 
 #define ENUM_ITEM_NAMESPACE(TYPENAME) typedef TYPENAME EnumItemNamespace;
@@ -105,11 +106,14 @@ Struct
 					void LoadInternal()override\
 					{
 
-#define END_STRUCT_MEMBER(TYPENAME)\
+#define END_STRUCT_MEMBER_FLAG(TYPENAME, TDFLAGS)\
 					}\
 				};\
-				typedef StructTypeDescriptor<CustomStructValueSerializer> CustomTypeDescriptorImpl;\
+				typedef StructTypeDescriptor<CustomStructValueSerializer, TDFLAGS> CustomTypeDescriptorImpl;\
 			};
+
+#define END_STRUCT_MEMBER(TYPENAME)\
+			END_STRUCT_MEMBER_FLAG(TYPENAME, TypeDescriptorFlags::Struct)
 
 #define STRUCT_MEMBER(FIELDNAME)\
 	fieldSerializers.Add(L ## #FIELDNAME, new FieldSerializer<decltype(((StructType*)0)->FIELDNAME)>(GetOwnerTypeDescriptor(), &StructType::FIELDNAME, L ## #FIELDNAME));
@@ -128,7 +132,7 @@ Class
 					typedef TYPENAME ClassType;\
 				public:\
 					CustomTypeDescriptorImpl()\
-						:TypeDescriptorImpl(TypeInfo<TYPENAME>::TypeName, TypeInfo<TYPENAME>::CppFullTypeName)\
+						:TypeDescriptorImpl(TypeDescriptorFlags::Class, TypeInfo<TYPENAME>::TypeName, TypeInfo<TYPENAME>::CppFullTypeName)\
 					{\
 						Description<TYPENAME>::SetAssociatedTypeDescroptor(this);\
 					}\
@@ -153,7 +157,7 @@ Class
 Interface
 ***********************************************************************/
 
-#define BEGIN_INTERFACE_MEMBER_NOPROXY(TYPENAME)\
+#define BEGIN_INTERFACE_MEMBER_NOPROXY_FLAG(TYPENAME, TDFLAGS)\
 			template<>\
 			struct CustomTypeDescriptorSelector<TYPENAME>\
 			{\
@@ -163,7 +167,7 @@ Interface
 					typedef TYPENAME ClassType;\
 				public:\
 					CustomTypeDescriptorImpl()\
-						:TypeDescriptorImpl(TypeInfo<TYPENAME>::TypeName, TypeInfo<TYPENAME>::CppFullTypeName)\
+						:TypeDescriptorImpl(TDFLAGS, TypeInfo<TYPENAME>::TypeName, TypeInfo<TYPENAME>::CppFullTypeName)\
 					{\
 						Description<TYPENAME>::SetAssociatedTypeDescroptor(this);\
 					}\
@@ -174,6 +178,9 @@ Interface
 				protected:\
 					void LoadInternal()override\
 					{
+
+#define BEGIN_INTERFACE_MEMBER_NOPROXY(TYPENAME)\
+			BEGIN_INTERFACE_MEMBER_NOPROXY_FLAG(TYPENAME, TypeDescriptorFlags::Interface)
 
 #define BEGIN_INTERFACE_MEMBER(TYPENAME)\
 	BEGIN_INTERFACE_MEMBER_NOPROXY(TYPENAME)\

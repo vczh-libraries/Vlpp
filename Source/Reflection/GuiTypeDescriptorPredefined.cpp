@@ -17,8 +17,9 @@ namespace vl
 SerializableTypeDescriptorBase
 ***********************************************************************/
 
-			SerializableTypeDescriptorBase::SerializableTypeDescriptorBase(const WString& _typeName, const WString& _cppFullTypeName, Ptr<IValueSerializer> _serializer)
-				:typeName(_typeName)
+			SerializableTypeDescriptorBase::SerializableTypeDescriptorBase(TypeDescriptorFlags _typeDescriptorFlags, const WString& _typeName, const WString& _cppFullTypeName, Ptr<IValueSerializer> _serializer)
+				:typeDescriptorFlags(_typeDescriptorFlags)
+				,typeName(_typeName)
 				,cppFullTypeName(_cppFullTypeName)
 				,serializer(_serializer)
 			{
@@ -26,6 +27,11 @@ SerializableTypeDescriptorBase
 
 			SerializableTypeDescriptorBase::~SerializableTypeDescriptorBase()
 			{
+			}
+
+			TypeDescriptorFlags SerializableTypeDescriptorBase::GetTypeDescriptorFlags()
+			{
+				return typeDescriptorFlags;
 			}
 
 			const WString& SerializableTypeDescriptorBase::GetTypeName()
@@ -471,7 +477,7 @@ ObjectTypeDescriptor
 			{
 			public:
 				ObjectTypeDescriptor()
-					:SerializableTypeDescriptorBase(TypeInfo<Value>::TypeName, TypeInfo<Value>::CppFullTypeName, 0)
+					:SerializableTypeDescriptorBase(TypeDescriptorFlags::Object, TypeInfo<Value>::TypeName, TypeInfo<Value>::CppFullTypeName, 0)
 				{
 				}
 			};
@@ -602,7 +608,7 @@ Collections
 				{
 				public:
 					CustomTypeDescriptorImpl()
-						:TypeDescriptorImpl(TypeInfo<DescriptableObject>::TypeName, TypeInfo<DescriptableObject>::CppFullTypeName)
+						:TypeDescriptorImpl(TypeDescriptorFlags::Class, TypeInfo<DescriptableObject>::TypeName, TypeInfo<DescriptableObject>::CppFullTypeName)
 					{
 						Description<DescriptableObject>::SetAssociatedTypeDescroptor(this);
 					}
@@ -672,10 +678,10 @@ Collections
 			END_CLASS_MEMBER(Math)
 
 			BEGIN_STRUCT_MEMBER(VoidValue)
-			END_STRUCT_MEMBER(VoidValue)
+			END_STRUCT_MEMBER_FLAG(VoidValue, TypeDescriptorFlags::Primitive)
 
-			BEGIN_CLASS_MEMBER(IDescriptable)
-			END_CLASS_MEMBER(IDescriptable)
+			BEGIN_INTERFACE_MEMBER_NOPROXY_FLAG(IDescriptable, TypeDescriptorFlags::IDescriptable)
+			END_INTERFACE_MEMBER(IDescriptable)
 
 			BEGIN_INTERFACE_MEMBER(IValueEnumerator)
 				CLASS_MEMBER_PROPERTY_READONLY_FAST(Current)
@@ -912,29 +918,32 @@ LoadPredefinedTypes
 			{
 			public:
 				template<typename TSerializer>
-				void AddSerializableType(ITypeManager* manager)
+				void AddPrimitiveType(ITypeManager* manager)
 				{
-					manager->SetTypeDescriptor(TypeInfo<typename TSerializer::ValueType>::TypeName, new SerializableTypeDescriptor<TSerializer>);
+					manager->SetTypeDescriptor(
+						TypeInfo<typename TSerializer::ValueType>::TypeName,
+						new SerializableTypeDescriptor<TSerializer, TypeDescriptorFlags::Primitive>
+						);
 				}
 
 				void Load(ITypeManager* manager)override
 				{
 					manager->SetTypeDescriptor(TypeInfo<Value>::TypeName, new ObjectTypeDescriptor);
-					AddSerializableType<TypedDefaultValueSerializer<vuint8_t>>(manager);
-					AddSerializableType<TypedDefaultValueSerializer<vuint16_t>>(manager);
-					AddSerializableType<TypedDefaultValueSerializer<vuint32_t>>(manager);
-					AddSerializableType<TypedDefaultValueSerializer<vuint64_t>>(manager);
-					AddSerializableType<TypedDefaultValueSerializer<vint8_t>>(manager);
-					AddSerializableType<TypedDefaultValueSerializer<vint16_t>>(manager);
-					AddSerializableType<TypedDefaultValueSerializer<vint32_t>>(manager);
-					AddSerializableType<TypedDefaultValueSerializer<vint64_t>>(manager);
-					AddSerializableType<TypedDefaultValueSerializer<float>>(manager);
-					AddSerializableType<TypedDefaultValueSerializer<double>>(manager);
-					AddSerializableType<TypedDefaultValueSerializer<wchar_t>>(manager);
-					AddSerializableType<TypedDefaultValueSerializer<WString>>(manager);
-					AddSerializableType<TypedDefaultValueSerializer<Locale>>(manager);
-					AddSerializableType<BoolValueSerializer>(manager);
-					AddSerializableType<DateTimeValueSerializer>(manager);
+					AddPrimitiveType<TypedDefaultValueSerializer<vuint8_t>>(manager);
+					AddPrimitiveType<TypedDefaultValueSerializer<vuint16_t>>(manager);
+					AddPrimitiveType<TypedDefaultValueSerializer<vuint32_t>>(manager);
+					AddPrimitiveType<TypedDefaultValueSerializer<vuint64_t>>(manager);
+					AddPrimitiveType<TypedDefaultValueSerializer<vint8_t>>(manager);
+					AddPrimitiveType<TypedDefaultValueSerializer<vint16_t>>(manager);
+					AddPrimitiveType<TypedDefaultValueSerializer<vint32_t>>(manager);
+					AddPrimitiveType<TypedDefaultValueSerializer<vint64_t>>(manager);
+					AddPrimitiveType<TypedDefaultValueSerializer<float>>(manager);
+					AddPrimitiveType<TypedDefaultValueSerializer<double>>(manager);
+					AddPrimitiveType<TypedDefaultValueSerializer<wchar_t>>(manager);
+					AddPrimitiveType<TypedDefaultValueSerializer<WString>>(manager);
+					AddPrimitiveType<TypedDefaultValueSerializer<Locale>>(manager);
+					AddPrimitiveType<BoolValueSerializer>(manager);
+					AddPrimitiveType<DateTimeValueSerializer>(manager);
 
 					ADD_TYPE_INFO(Sys)
 					ADD_TYPE_INFO(Math)

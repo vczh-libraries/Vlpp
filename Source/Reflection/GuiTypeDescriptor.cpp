@@ -665,7 +665,7 @@ LogTypeManager (enum)
 
 			void LogTypeManager_Enum(stream::TextWriter& writer, ITypeDescriptor* type, IValueSerializer* serializer)
 			{
-				writer.WriteLine((serializer->CanMergeCandidate()?L"flags ":L"enum ")+type->GetTypeName());
+				writer.WriteLine((type->GetTypeDescriptorFlags() == TypeDescriptorFlags::FlagEnum ? L"flags " : L"enum ") + type->GetTypeName());
 				writer.WriteLine(L"{");
 				for(vint j=0;j<serializer->GetCandidateCount();j++)
 				{
@@ -696,7 +696,7 @@ LogTypeManager (data)
 
 			void LogTypeManager_Data(stream::TextWriter& writer, ITypeDescriptor* type)
 			{
-				writer.WriteLine(L"data "+type->GetTypeName()+L";");
+				writer.WriteLine(L"primitive "+type->GetTypeName()+L";");
 			}
 
 /***********************************************************************
@@ -813,7 +813,7 @@ LogTypeManager (class)
 			void LogTypeManager_Class(stream::TextWriter& writer, ITypeDescriptor* type)
 			{
 				bool acceptProxy = false;
-				bool isInterface=IsInterfaceType(type, acceptProxy);
+				bool isInterface = (type->GetTypeDescriptorFlags() & TypeDescriptorFlags::InterfaceType) != TypeDescriptorFlags::Undefined;
 				writer.WriteString((isInterface?L"interface ":L"class ")+type->GetTypeName());
 				for(vint j=0;j<type->GetBaseTypeDescriptorCount();j++)
 				{
@@ -889,24 +889,25 @@ LogTypeManager
 				{
 					ITypeDescriptor* type=globalTypeManager->GetTypeDescriptor(i);
 					IValueSerializer* serializer=type->GetValueSerializer();
-					if(serializer)
+
+					switch (type->GetTypeDescriptorFlags())
 					{
-						if(serializer->HasCandidate())
-						{
-							LogTypeManager_Enum(writer, type, serializer);
-						}
-						else if(type->GetPropertyCount()>0)
-						{
-							LogTypeManager_Struct(writer, type);
-						}
-						else
-						{
-							LogTypeManager_Data(writer, type);
-						}
-					}
-					else
-					{
+					case TypeDescriptorFlags::Object:
+					case TypeDescriptorFlags::IDescriptable:
+					case TypeDescriptorFlags::Class:
+					case TypeDescriptorFlags::Interface:
 						LogTypeManager_Class(writer, type);
+						break;
+					case TypeDescriptorFlags::FlagEnum:
+					case TypeDescriptorFlags::NormalEnum:
+						LogTypeManager_Enum(writer, type, serializer);
+						break;
+					case TypeDescriptorFlags::Primitive:
+						LogTypeManager_Data(writer, type);
+						break;
+					case TypeDescriptorFlags::Struct:
+						LogTypeManager_Struct(writer, type);
+						break;
 					}
 					writer.WriteLine(L"");
 				}
