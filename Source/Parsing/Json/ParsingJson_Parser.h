@@ -156,54 +156,38 @@ namespace vl
 			DECL_TYPE_INFO(vl::parsing::json::JsonObject)
 			DECL_TYPE_INFO(vl::parsing::json::JsonNode::IVisitor)
 
-			namespace interface_proxy
-			{
-				class JsonNode_IVisitor : public ValueInterfaceRoot, public virtual vl::parsing::json::JsonNode::IVisitor
+			BEGIN_INTERFACE_PROXY_NOPARENT_SHAREDPTR(vl::parsing::json::JsonNode::IVisitor)
+				void Visit(vl::parsing::json::JsonLiteral* node)override
 				{
-				public:
-					JsonNode_IVisitor(Ptr<IValueInterfaceProxy> proxy)
-						:ValueInterfaceRoot(proxy)
-					{
-					}
+					INVOKE_INTERFACE_PROXY(Visit, node);
+				}
 
-					static Ptr<vl::parsing::json::JsonNode::IVisitor> Create(Ptr<IValueInterfaceProxy> proxy)
-					{
-						return new JsonNode_IVisitor(proxy);
-					}
+				void Visit(vl::parsing::json::JsonString* node)override
+				{
+					INVOKE_INTERFACE_PROXY(Visit, node);
+				}
 
-					void Visit(vl::parsing::json::JsonLiteral* node)override
-					{
-						INVOKE_INTERFACE_PROXY(Visit, node);
-					}
+				void Visit(vl::parsing::json::JsonNumber* node)override
+				{
+					INVOKE_INTERFACE_PROXY(Visit, node);
+				}
 
-					void Visit(vl::parsing::json::JsonString* node)override
-					{
-						INVOKE_INTERFACE_PROXY(Visit, node);
-					}
+				void Visit(vl::parsing::json::JsonArray* node)override
+				{
+					INVOKE_INTERFACE_PROXY(Visit, node);
+				}
 
-					void Visit(vl::parsing::json::JsonNumber* node)override
-					{
-						INVOKE_INTERFACE_PROXY(Visit, node);
-					}
+				void Visit(vl::parsing::json::JsonObjectField* node)override
+				{
+					INVOKE_INTERFACE_PROXY(Visit, node);
+				}
 
-					void Visit(vl::parsing::json::JsonArray* node)override
-					{
-						INVOKE_INTERFACE_PROXY(Visit, node);
-					}
-
-					void Visit(vl::parsing::json::JsonObjectField* node)override
-					{
-						INVOKE_INTERFACE_PROXY(Visit, node);
-					}
-
-					void Visit(vl::parsing::json::JsonObject* node)override
-					{
-						INVOKE_INTERFACE_PROXY(Visit, node);
-					}
-
-				};
-
-			}
+				void Visit(vl::parsing::json::JsonObject* node)override
+				{
+					INVOKE_INTERFACE_PROXY(Visit, node);
+				}
+				
+			END_INTERFACE_PROXY(vl::parsing::json::JsonNode::IVisitor)
 #endif
 
 			extern bool JsonLoadTypes();

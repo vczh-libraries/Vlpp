@@ -274,19 +274,12 @@ Attribute
 		///			};
 		///
 		///			If you want this interface implementable by Workflow script, you should first add a proxy like this:
-		///			class IMyInterfaceProxy : public [T:vl.reflection.description.ValueInterfaceRoot], public virtual IMyInterface
-		///			{
-		///			public:
-		///				IMyInterfaceProxy(Ptr<IValueInterfaceProxy> proxy)
-		///					:ValueInterfaceRoot(proxy)
-		///				{
-		///				}
-		///
-		///				static Ptr<IMyInterface> Create(Ptr<IValueInterfaceProxy> proxy)
-		///				{
-		///					return new IMyInterfaceProxy(proxy);
-		///				}
-		///
+		///			#pragma warning(push)
+		///			#pragma warning(disable:4250)
+		///			BEGIN_INTERFACE_PROXY_NOPARENT_RAWPTR(IMyInterface)
+		///			 or BEGIN_INTERFACE_PROXY_RAWPTR(IMyInterface, baseInterfaces...)
+		///			 or BEGIN_INTERFACE_PROXY_NOPARENT_SHAREDPTR(IMyInterface)
+		///			 or BEGIN_INTERFACE_PROXY_SHAREDPTR(IMyInterface, baseInterfaces...)
 		///				int GetX()override
 		///				{
 		///					return INVOKEGET_INTERFACE_PROXY_NOPARAMS(GetX)
@@ -296,12 +289,15 @@ Attribute
 		///				{
 		///					INVOKE_INTERFACE_PROXY(SetX, value)
 		///				}
-		///			};
+		///			END_INTERFACE_PROXY(IMyInterface)
+		///			#pragma warning(pop)
 		///
-		///			And then use this code to register the constructor:
-		///			CLASS_MEMBER_EXTERNALCTOR(Ptr<IMyInterface>(Ptr<IValueInterfaceProxy>), {L"proxy"}, &IMyInterfaceProxy::Create)
+		///			And then use this code to register the interface:
+		///			BEGIN_INTERFACE_MEMBER(IMyInterface)
+		///				...
+		///			END_INTERFACE_MEMBER(IMyInterface)
 		///
-		///			Everything else is the same as registering classes
+		///			Everything else is the same as registering classes. Use BEGIN_INTERFACE_MEMBER_NOPROXY to register an interface without a proxy, which means you cannot implement it in runtime dynamically.
 		///
 		///		#undef _
 		///
@@ -795,17 +791,30 @@ Interface Implementation Proxy (Implement)
 			{
 			protected:
 				Ptr<IValueInterfaceProxy>		proxy;
-			public:
-				ValueInterfaceRoot(Ptr<IValueInterfaceProxy> _proxy)
-					:proxy(_proxy)
-				{
-				}
 
+				void SetProxy(Ptr<IValueInterfaceProxy> value)
+				{
+					proxy = value;
+				}
+			public:
 				Ptr<IValueInterfaceProxy> GetProxy()
 				{
 					return proxy;
 				}
 			};
+
+			template<typename T>
+			class ValueInterfaceProxy
+			{
+			};
+			
+#pragma warning(push)
+#pragma warning(disable:4250)
+			template<typename TInterface, typename ...TBaseInterfaces>
+			class ValueInterfaceImpl : public virtual ValueInterfaceRoot, public virtual TInterface, public ValueInterfaceProxy<TBaseInterfaces>...
+			{
+			};
+#pragma warning(pop)
 
 /***********************************************************************
 Runtime Exception

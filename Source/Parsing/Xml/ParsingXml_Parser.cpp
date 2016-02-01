@@ -546,10 +546,7 @@ namespace vl
 				CLASS_MEMBER_FIELD(rootElement)
 			END_CLASS_MEMBER(XmlDocument)
 
-			BEGIN_CLASS_MEMBER(XmlNode::IVisitor)
-				CLASS_MEMBER_BASE(vl::reflection::IDescriptable)
-				CLASS_MEMBER_EXTERNALCTOR(Ptr<XmlNode::IVisitor>(Ptr<IValueInterfaceProxy>), {L"proxy"}, &interface_proxy::XmlNode_IVisitor::Create)
-
+			BEGIN_INTERFACE_MEMBER(XmlNode::IVisitor)
 				CLASS_MEMBER_METHOD_OVERLOAD(Visit, {L"node"}, void(XmlNode::IVisitor::*)(XmlText* node))
 				CLASS_MEMBER_METHOD_OVERLOAD(Visit, {L"node"}, void(XmlNode::IVisitor::*)(XmlCData* node))
 				CLASS_MEMBER_METHOD_OVERLOAD(Visit, {L"node"}, void(XmlNode::IVisitor::*)(XmlAttribute* node))
@@ -557,7 +554,7 @@ namespace vl
 				CLASS_MEMBER_METHOD_OVERLOAD(Visit, {L"node"}, void(XmlNode::IVisitor::*)(XmlElement* node))
 				CLASS_MEMBER_METHOD_OVERLOAD(Visit, {L"node"}, void(XmlNode::IVisitor::*)(XmlInstruction* node))
 				CLASS_MEMBER_METHOD_OVERLOAD(Visit, {L"node"}, void(XmlNode::IVisitor::*)(XmlDocument* node))
-			END_CLASS_MEMBER(XmlNode)
+			END_INTERFACE_MEMBER(XmlNode)
 
 			class XmlTypeLoader : public vl::Object, public ITypeLoader
 			{

@@ -323,14 +323,11 @@ namespace vl
 				CLASS_MEMBER_FIELD(arguments)
 			END_CLASS_MEMBER(CalFunctionExpression)
 
-			BEGIN_CLASS_MEMBER(CalExpression::IVisitor)
-				CLASS_MEMBER_BASE(vl::reflection::IDescriptable)
-				CLASS_MEMBER_EXTERNALCTOR(Ptr<CalExpression::IVisitor>(Ptr<IValueInterfaceProxy>), {L"proxy"}, &interface_proxy::CalExpression_IVisitor::Create)
-
+			BEGIN_INTERFACE_MEMBER(CalExpression::IVisitor)
 				CLASS_MEMBER_METHOD_OVERLOAD(Visit, {L"node"}, void(CalExpression::IVisitor::*)(CalNumberExpression* node))
 				CLASS_MEMBER_METHOD_OVERLOAD(Visit, {L"node"}, void(CalExpression::IVisitor::*)(CalBinaryExpression* node))
 				CLASS_MEMBER_METHOD_OVERLOAD(Visit, {L"node"}, void(CalExpression::IVisitor::*)(CalFunctionExpression* node))
-			END_CLASS_MEMBER(CalExpression)
+			END_INTERFACE_MEMBER(CalExpression)
 
 			class CalTypeLoader : public vl::Object, public ITypeLoader
 			{

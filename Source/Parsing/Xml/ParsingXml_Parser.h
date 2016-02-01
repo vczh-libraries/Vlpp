@@ -172,59 +172,43 @@ namespace vl
 			DECL_TYPE_INFO(vl::parsing::xml::XmlDocument)
 			DECL_TYPE_INFO(vl::parsing::xml::XmlNode::IVisitor)
 
-			namespace interface_proxy
-			{
-				class XmlNode_IVisitor : public ValueInterfaceRoot, public virtual vl::parsing::xml::XmlNode::IVisitor
+			BEGIN_INTERFACE_PROXY_NOPARENT_SHAREDPTR(vl::parsing::xml::XmlNode::IVisitor)
+				void Visit(vl::parsing::xml::XmlText* node)override
 				{
-				public:
-					XmlNode_IVisitor(Ptr<IValueInterfaceProxy> proxy)
-						:ValueInterfaceRoot(proxy)
-					{
-					}
+					INVOKE_INTERFACE_PROXY(Visit, node);
+				}
 
-					static Ptr<vl::parsing::xml::XmlNode::IVisitor> Create(Ptr<IValueInterfaceProxy> proxy)
-					{
-						return new XmlNode_IVisitor(proxy);
-					}
+				void Visit(vl::parsing::xml::XmlCData* node)override
+				{
+					INVOKE_INTERFACE_PROXY(Visit, node);
+				}
 
-					void Visit(vl::parsing::xml::XmlText* node)override
-					{
-						INVOKE_INTERFACE_PROXY(Visit, node);
-					}
+				void Visit(vl::parsing::xml::XmlAttribute* node)override
+				{
+					INVOKE_INTERFACE_PROXY(Visit, node);
+				}
 
-					void Visit(vl::parsing::xml::XmlCData* node)override
-					{
-						INVOKE_INTERFACE_PROXY(Visit, node);
-					}
+				void Visit(vl::parsing::xml::XmlComment* node)override
+				{
+					INVOKE_INTERFACE_PROXY(Visit, node);
+				}
 
-					void Visit(vl::parsing::xml::XmlAttribute* node)override
-					{
-						INVOKE_INTERFACE_PROXY(Visit, node);
-					}
+				void Visit(vl::parsing::xml::XmlElement* node)override
+				{
+					INVOKE_INTERFACE_PROXY(Visit, node);
+				}
 
-					void Visit(vl::parsing::xml::XmlComment* node)override
-					{
-						INVOKE_INTERFACE_PROXY(Visit, node);
-					}
+				void Visit(vl::parsing::xml::XmlInstruction* node)override
+				{
+					INVOKE_INTERFACE_PROXY(Visit, node);
+				}
 
-					void Visit(vl::parsing::xml::XmlElement* node)override
-					{
-						INVOKE_INTERFACE_PROXY(Visit, node);
-					}
+				void Visit(vl::parsing::xml::XmlDocument* node)override
+				{
+					INVOKE_INTERFACE_PROXY(Visit, node);
+				}
 
-					void Visit(vl::parsing::xml::XmlInstruction* node)override
-					{
-						INVOKE_INTERFACE_PROXY(Visit, node);
-					}
-
-					void Visit(vl::parsing::xml::XmlDocument* node)override
-					{
-						INVOKE_INTERFACE_PROXY(Visit, node);
-					}
-
-				};
-
-			}
+			END_INTERFACE_PROXY(vl::parsing::xml::XmlNode::IVisitor)
 #endif
 
 			extern bool XmlLoadTypes();

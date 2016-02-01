@@ -488,17 +488,14 @@ namespace vl
 				CLASS_MEMBER_FIELD(fields)
 			END_CLASS_MEMBER(JsonObject)
 
-			BEGIN_CLASS_MEMBER(JsonNode::IVisitor)
-				CLASS_MEMBER_BASE(vl::reflection::IDescriptable)
-				CLASS_MEMBER_EXTERNALCTOR(Ptr<JsonNode::IVisitor>(Ptr<IValueInterfaceProxy>), {L"proxy"}, &interface_proxy::JsonNode_IVisitor::Create)
-
+			BEGIN_INTERFACE_MEMBER(JsonNode::IVisitor)
 				CLASS_MEMBER_METHOD_OVERLOAD(Visit, {L"node"}, void(JsonNode::IVisitor::*)(JsonLiteral* node))
 				CLASS_MEMBER_METHOD_OVERLOAD(Visit, {L"node"}, void(JsonNode::IVisitor::*)(JsonString* node))
 				CLASS_MEMBER_METHOD_OVERLOAD(Visit, {L"node"}, void(JsonNode::IVisitor::*)(JsonNumber* node))
 				CLASS_MEMBER_METHOD_OVERLOAD(Visit, {L"node"}, void(JsonNode::IVisitor::*)(JsonArray* node))
 				CLASS_MEMBER_METHOD_OVERLOAD(Visit, {L"node"}, void(JsonNode::IVisitor::*)(JsonObjectField* node))
 				CLASS_MEMBER_METHOD_OVERLOAD(Visit, {L"node"}, void(JsonNode::IVisitor::*)(JsonObject* node))
-			END_CLASS_MEMBER(JsonNode)
+			END_INTERFACE_MEMBER(JsonNode)
 
 			class JsonTypeLoader : public vl::Object, public ITypeLoader
 			{

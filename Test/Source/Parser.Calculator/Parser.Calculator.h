@@ -112,39 +112,23 @@ namespace vl
 			DECL_TYPE_INFO(test::parser::CalFunctionExpression)
 			DECL_TYPE_INFO(test::parser::CalExpression::IVisitor)
 
-			namespace interface_proxy
-			{
-				class CalExpression_IVisitor : public ValueInterfaceRoot, public virtual test::parser::CalExpression::IVisitor
+			BEGIN_INTERFACE_PROXY_NOPARENT_SHAREDPTR(test::parser::CalExpression::IVisitor)
+				void Visit(test::parser::CalNumberExpression* node)override
 				{
-				public:
-					CalExpression_IVisitor(Ptr<IValueInterfaceProxy> proxy)
-						:ValueInterfaceRoot(proxy)
-					{
-					}
+					INVOKE_INTERFACE_PROXY(Visit, node);
+				}
 
-					static Ptr<test::parser::CalExpression::IVisitor> Create(Ptr<IValueInterfaceProxy> proxy)
-					{
-						return new CalExpression_IVisitor(proxy);
-					}
+				void Visit(test::parser::CalBinaryExpression* node)override
+				{
+					INVOKE_INTERFACE_PROXY(Visit, node);
+				}
 
-					void Visit(test::parser::CalNumberExpression* node)override
-					{
-						INVOKE_INTERFACE_PROXY(Visit, node);
-					}
-
-					void Visit(test::parser::CalBinaryExpression* node)override
-					{
-						INVOKE_INTERFACE_PROXY(Visit, node);
-					}
-
-					void Visit(test::parser::CalFunctionExpression* node)override
-					{
-						INVOKE_INTERFACE_PROXY(Visit, node);
-					}
-
-				};
-
-			}
+				void Visit(test::parser::CalFunctionExpression* node)override
+				{
+					INVOKE_INTERFACE_PROXY(Visit, node);
+				}
+				
+			END_INTERFACE_PROXY(test::parser::CalExpression::IVisitor)
 #endif
 
 			extern bool CalLoadTypes();

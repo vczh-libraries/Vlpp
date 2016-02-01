@@ -150,6 +150,42 @@ Class
 			};
 
 /***********************************************************************
+Interface
+***********************************************************************/
+
+#define BEGIN_INTERFACE_MEMBER_NOPROXY(TYPENAME)\
+			template<>\
+			struct CustomTypeDescriptorSelector<TYPENAME>\
+			{\
+			public:\
+				class CustomTypeDescriptorImpl : public TypeDescriptorImpl\
+				{\
+					typedef TYPENAME ClassType;\
+				public:\
+					CustomTypeDescriptorImpl()\
+						:TypeDescriptorImpl(TypeInfo<TYPENAME>::TypeName, TypeInfo<TYPENAME>::CppFullTypeName)\
+					{\
+						Description<TYPENAME>::SetAssociatedTypeDescroptor(this);\
+					}\
+					~CustomTypeDescriptorImpl()\
+					{\
+						Description<TYPENAME>::SetAssociatedTypeDescroptor(0);\
+					}\
+				protected:\
+					void LoadInternal()override\
+					{
+
+#define BEGIN_INTERFACE_MEMBER(TYPENAME)\
+	BEGIN_INTERFACE_MEMBER_NOPROXY(TYPENAME)\
+	CLASS_MEMBER_EXTERNALCTOR(decltype(ValueInterfaceProxy<TYPENAME>::Create(nullptr))(Ptr<IValueInterfaceProxy>), { L"proxy" }, &ValueInterfaceProxy<TYPENAME>::Create)
+
+#define END_INTERFACE_MEMBER(TYPENAME)\
+						if (GetBaseTypeDescriptorCount() == 0) CLASS_MEMBER_BASE(IDescriptable)\
+					}\
+				};\
+			};
+
+/***********************************************************************
 Field
 ***********************************************************************/
 
@@ -317,6 +353,57 @@ Property
 #define CLASS_MEMBER_PROPERTY_EVENT_READONLY_FAST(PROPERTYNAME, EVENTNAME)\
 			CLASS_MEMBER_METHOD(Get##PROPERTYNAME, NO_PARAMETER)\
 			CLASS_MEMBER_PROPERTY_EVENT_READONLY(PROPERTYNAME, Get##PROPERTYNAME, EVENTNAME)\
+
+/***********************************************************************
+InterfaceProxy
+***********************************************************************/
+
+#define INTERFACE_PROXY_CTOR_RAWPTR(INTERFACE)\
+			static INTERFACE* Create(Ptr<IValueInterfaceProxy> proxy)\
+			{\
+				auto obj = new ValueInterfaceProxy<INTERFACE>();\
+				obj->SetProxy(proxy);\
+				return obj;\
+			}\
+
+#define INTERFACE_PROXY_CTOR_SHAREDPTR(INTERFACE)\
+			static Ptr<INTERFACE> Create(Ptr<IValueInterfaceProxy> proxy)\
+			{\
+				auto obj = new ValueInterfaceProxy<INTERFACE>();\
+				obj->SetProxy(proxy);\
+				return obj;\
+			}\
+
+#define BEGIN_INTERFACE_PROXY_NOPARENT_HEADER(INTERFACE)\
+			template<>\
+			class ValueInterfaceProxy<INTERFACE> : ValueInterfaceImpl<INTERFACE>\
+			{\
+			public:\
+
+#define BEGIN_INTERFACE_PROXY_NOPARENT_RAWPTR(INTERFACE)\
+			BEGIN_INTERFACE_PROXY_NOPARENT_HEADER(INTERFACE)\
+			INTERFACE_PROXY_CTOR_RAWPTR(INTERFACE)\
+
+#define BEGIN_INTERFACE_PROXY_NOPARENT_SHAREDPTR(INTERFACE)\
+			BEGIN_INTERFACE_PROXY_NOPARENT_HEADER(INTERFACE)\
+			INTERFACE_PROXY_CTOR_SHAREDPTR(INTERFACE)\
+
+#define BEGIN_INTERFACE_PROXY_HEADER(INTERFACE, ...)\
+			template<>\
+			class ValueInterfaceProxy<INTERFACE> : ValueInterfaceImpl<INTERFACE, __VA_ARGS__>\
+			{\
+			public:\
+
+#define BEGIN_INTERFACE_PROXY_RAWPTR(INTERFACE, ...)\
+			BEGIN_INTERFACE_PROXY_HEADER(INTERFACE, __VA_ARGS__)\
+			INTERFACE_PROXY_CTOR_RAWPTR(INTERFACE)\
+
+#define BEGIN_INTERFACE_PROXY_SHAREDPTR(INTERFACE, ...)\
+			BEGIN_INTERFACE_PROXY_HEADER(INTERFACE, __VA_ARGS__)\
+			INTERFACE_PROXY_CTOR_SHAREDPTR(INTERFACE)\
+
+#define END_INTERFACE_PROXY(INTERFACE)\
+			};
 
 		}
 	}
