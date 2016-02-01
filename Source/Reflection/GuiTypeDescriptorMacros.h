@@ -28,6 +28,92 @@ namespace vl
 			template<typename T>
 			struct CustomTypeDescriptorSelector{};
 
+			struct MethodPointerBinaryData
+			{
+				typedef collections::Dictionary<MethodPointerBinaryData, IMethodInfo*>		MethodMap;
+
+				class IIndexer : public virtual IDescriptable
+				{
+				public:
+					virtual void IndexMethodInfo(const MethodPointerBinaryData& data, IMethodInfo* methodInfo) = 0;
+					virtual IMethodInfo* GetIndexedMethodInfo(const MethodPointerBinaryData& data) = 0;
+				};
+
+				vint data[4];
+
+				static inline vint Compare(const MethodPointerBinaryData& a, const MethodPointerBinaryData& b)
+				{
+					{
+						auto result = a.data[0] - b.data[0];
+						if (result != 0) return result;
+					}
+					{
+						auto result = a.data[1] - b.data[1];
+						if (result != 0) return result;
+					}
+					{
+						auto result = a.data[2] - b.data[2];
+						if (result != 0) return result;
+					}
+					{
+						auto result = a.data[3] - b.data[3];
+						if (result != 0) return result;
+					}
+					return 0;
+				}
+
+#define COMPARE(OPERATOR)\
+				inline bool operator OPERATOR(const MethodPointerBinaryData& d)const\
+				{\
+					return Compare(*this, d) OPERATOR 0;\
+				}
+
+				COMPARE(<)
+				COMPARE(<=)
+				COMPARE(>)
+				COMPARE(>=)
+				COMPARE(==)
+				COMPARE(!=)
+#undef COMPARE
+			};
+
+			template<typename T>
+			union MethodPointerBinaryDataRetriver
+			{
+				T methodPointer;
+				MethodPointerBinaryData binaryData = {{0, 0, 0, 0}};
+
+				MethodPointerBinaryDataRetriver(T _methodPointer)
+					:methodPointer(_methodPointer)
+				{
+				}
+
+				const MethodPointerBinaryData& GetBinaryData()
+				{
+					static_assert(sizeof(T) <= sizeof(MethodPointerBinaryData), "Your C++ compiler is bad!");
+					return binaryData;
+				}
+			};
+
+			template<typename T, TypeDescriptorFlags TDFlags>
+			struct MethodPointerBinaryDataRecorder
+			{
+				static void RecordMethod(const MethodPointerBinaryData& data, ITypeDescriptor* td, IMethodInfo* methodInfo)
+				{
+				}
+			};
+
+			template<typename T>
+			struct MethodPointerBinaryDataRecorder<T, TypeDescriptorFlags::Interface>
+			{
+				static void RecordMethod(const MethodPointerBinaryData& data, ITypeDescriptor* td, IMethodInfo* methodInfo)
+				{
+					auto impl = dynamic_cast<MethodPointerBinaryData::IIndexer*>(td);
+					CHECK_ERROR(impl != nullptr, L"Internal error: RecordMethod can only be called when registering methods.");
+					impl->IndexMethodInfo(data, methodInfo);
+				}
+			};
+
 /***********************************************************************
 Type
 ***********************************************************************/
@@ -40,17 +126,100 @@ Type
 				manager->SetTypeDescriptor(TypeInfo<TYPENAME>::TypeName, type);\
 			}
 
+/***********************************************************************
+InterfaceProxy
+***********************************************************************/
+
+#define INTERFACE_PROXY_CTOR_RAWPTR(INTERFACE)\
+			static INTERFACE* Create(Ptr<IValueInterfaceProxy> proxy)\
+			{\
+				auto obj = new ValueInterfaceProxy<INTERFACE>();\
+				obj->SetProxy(proxy);\
+				return obj;\
+			}\
+
+#define INTERFACE_PROXY_CTOR_SHAREDPTR(INTERFACE)\
+			static Ptr<INTERFACE> Create(Ptr<IValueInterfaceProxy> proxy)\
+			{\
+				auto obj = new ValueInterfaceProxy<INTERFACE>();\
+				obj->SetProxy(proxy);\
+				return obj;\
+			}\
+
+#define BEGIN_INTERFACE_PROXY_NOPARENT_HEADER(INTERFACE)\
+			template<>\
+			class ValueInterfaceProxy<INTERFACE> : ValueInterfaceImpl<INTERFACE>\
+			{\
+				typedef INTERFACE _interface_proxy_InterfaceType;\
+			public:\
+
+#define BEGIN_INTERFACE_PROXY_NOPARENT_RAWPTR(INTERFACE)\
+			BEGIN_INTERFACE_PROXY_NOPARENT_HEADER(INTERFACE)\
+			INTERFACE_PROXY_CTOR_RAWPTR(INTERFACE)\
+
+#define BEGIN_INTERFACE_PROXY_NOPARENT_SHAREDPTR(INTERFACE)\
+			BEGIN_INTERFACE_PROXY_NOPARENT_HEADER(INTERFACE)\
+			INTERFACE_PROXY_CTOR_SHAREDPTR(INTERFACE)\
+
+#define BEGIN_INTERFACE_PROXY_HEADER(INTERFACE, ...)\
+			template<>\
+			class ValueInterfaceProxy<INTERFACE> : ValueInterfaceImpl<INTERFACE, __VA_ARGS__>\
+			{\
+				typedef INTERFACE _interface_proxy_InterfaceType;\
+			public:\
+
+#define BEGIN_INTERFACE_PROXY_RAWPTR(INTERFACE, ...)\
+			BEGIN_INTERFACE_PROXY_HEADER(INTERFACE, __VA_ARGS__)\
+			INTERFACE_PROXY_CTOR_RAWPTR(INTERFACE)\
+
+#define BEGIN_INTERFACE_PROXY_SHAREDPTR(INTERFACE, ...)\
+			BEGIN_INTERFACE_PROXY_HEADER(INTERFACE, __VA_ARGS__)\
+			INTERFACE_PROXY_CTOR_SHAREDPTR(INTERFACE)\
+
+#define END_INTERFACE_PROXY(INTERFACE)\
+			};
+
+/***********************************************************************
+InterfaceProxy::Invoke
+***********************************************************************/
+
+			template<typename TClass, typename TReturn, typename ...TArgument>
+			auto MethodTypeTrait(TArgument...)->TReturn(TClass::*)(TArgument...)
+			{
+				return nullptr;
+			}
+
+#define PREPARE_INVOKE_INTERFACE_PROXY(METHODNAME, ...)\
+			static ITypeDescriptor* _interface_proxy_typeDescriptor = nullptr;\
+			static IMethodInfo* _interface_proxy_methodInfo = nullptr;\
+			if (_interface_proxy_typeDescriptor != static_cast<DescriptableObject*>(this)->GetTypeDescriptor())\
+			{\
+				_interface_proxy_typeDescriptor = static_cast<DescriptableObject*>(this)->GetTypeDescriptor();\
+				CHECK_ERROR(_interface_proxy_typeDescriptor != nullptr, L"Internal error: The type of this interface has not been registered.");\
+				auto impl = dynamic_cast<MethodPointerBinaryData::IIndexer*>(_interface_proxy_typeDescriptor);\
+				CHECK_ERROR(impl != nullptr, L"Internal error: BEGIN_INTERFACE_PROXY is the only correct way to register an interface with a proxy.");\
+				const auto _interface_proxy_method\
+					= (decltype(MethodTypeTrait<_interface_proxy_InterfaceType, decltype(METHODNAME(__VA_ARGS__))>(__VA_ARGS__)))\
+					&_interface_proxy_InterfaceType::METHODNAME;\
+				MethodPointerBinaryDataRetriver<decltype(_interface_proxy_method)> binaryData(_interface_proxy_method);\
+				_interface_proxy_methodInfo = impl->GetIndexedMethodInfo(binaryData.GetBinaryData());\
+			}\
+
 #define INVOKE_INTERFACE_PROXY(METHODNAME, ...)\
-	proxy->Invoke(L ## #METHODNAME, IValueList::Create(collections::From((collections::Array<Value>&)(Value_xs(), __VA_ARGS__))))
+			PREPARE_INVOKE_INTERFACE_PROXY(METHODNAME, __VA_ARGS__)\
+			proxy->Invoke(_interface_proxy_methodInfo, IValueList::Create(collections::From((collections::Array<Value>&)(Value_xs(), __VA_ARGS__))))
 
 #define INVOKE_INTERFACE_PROXY_NOPARAMS(METHODNAME)\
-	proxy->Invoke(L ## #METHODNAME, IValueList::Create())
+			PREPARE_INVOKE_INTERFACE_PROXY(METHODNAME)\
+			proxy->Invoke(_interface_proxy_methodInfo, IValueList::Create())
 
 #define INVOKEGET_INTERFACE_PROXY(METHODNAME, ...)\
-	UnboxValue<decltype(METHODNAME(__VA_ARGS__))>(proxy->Invoke(L ## #METHODNAME, IValueList::Create(collections::From((collections::Array<Value>&)(Value_xs(), __VA_ARGS__)))))
+			PREPARE_INVOKE_INTERFACE_PROXY(METHODNAME, __VA_ARGS__)\
+			return UnboxValue<decltype(METHODNAME(__VA_ARGS__))>(proxy->Invoke(_interface_proxy_methodInfo, IValueList::Create(collections::From((collections::Array<Value>&)(Value_xs(), __VA_ARGS__)))))
 
 #define INVOKEGET_INTERFACE_PROXY_NOPARAMS(METHODNAME)\
-	UnboxValue<decltype(METHODNAME())>(proxy->Invoke(L ## #METHODNAME, IValueList::Create()))
+			PREPARE_INVOKE_INTERFACE_PROXY(METHODNAME)\
+			return UnboxValue<decltype(METHODNAME())>(proxy->Invoke(_interface_proxy_methodInfo, IValueList::Create()))
 
 /***********************************************************************
 Enum
@@ -130,9 +299,10 @@ Class
 				class CustomTypeDescriptorImpl : public TypeDescriptorImpl\
 				{\
 					typedef TYPENAME ClassType;\
+					static const TypeDescriptorFlags		TDFlags = TypeDescriptorFlags::Class;\
 				public:\
 					CustomTypeDescriptorImpl()\
-						:TypeDescriptorImpl(TypeDescriptorFlags::Class, TypeInfo<TYPENAME>::TypeName, TypeInfo<TYPENAME>::CppFullTypeName)\
+						:TypeDescriptorImpl(TDFlags, TypeInfo<TYPENAME>::TypeName, TypeInfo<TYPENAME>::CppFullTypeName)\
 					{\
 						Description<TYPENAME>::SetAssociatedTypeDescroptor(this);\
 					}\
@@ -162,9 +332,11 @@ Interface
 			struct CustomTypeDescriptorSelector<TYPENAME>\
 			{\
 			public:\
-				class CustomTypeDescriptorImpl : public TypeDescriptorImpl\
+				class CustomTypeDescriptorImpl : public TypeDescriptorImpl, public MethodPointerBinaryData::IIndexer\
 				{\
-					typedef TYPENAME ClassType;\
+					typedef TYPENAME						ClassType;\
+					static const TypeDescriptorFlags		TDFlags = TDFLAGS;\
+					MethodPointerBinaryData::MethodMap		methodsForProxy;\
 				public:\
 					CustomTypeDescriptorImpl()\
 						:TypeDescriptorImpl(TDFLAGS, TypeInfo<TYPENAME>::TypeName, TypeInfo<TYPENAME>::CppFullTypeName)\
@@ -174,6 +346,15 @@ Interface
 					~CustomTypeDescriptorImpl()\
 					{\
 						Description<TYPENAME>::SetAssociatedTypeDescroptor(0);\
+					}\
+					void IndexMethodInfo(const MethodPointerBinaryData& data, IMethodInfo* methodInfo)override\
+					{\
+						methodsForProxy.Add(data, methodInfo);\
+					}\
+					IMethodInfo* GetIndexedMethodInfo(const MethodPointerBinaryData& data)override\
+					{\
+						Load();\
+						return methodsForProxy[data];\
 					}\
 				protected:\
 					void LoadInternal()override\
@@ -244,13 +425,17 @@ Method
 #define CLASS_MEMBER_METHOD_OVERLOAD_RENAME(EXPECTEDNAME, FUNCTIONNAME, PARAMETERNAMES, FUNCTIONTYPE)\
 			{\
 				const wchar_t* parameterNames[]=PARAMETERNAMES;\
-				AddMethod(\
-					L ## #EXPECTEDNAME,\
-					new CustomMethodInfoImpl<\
+				auto methodInfo = new CustomMethodInfoImpl<\
 						ClassType,\
 						vl::function_lambda::LambdaRetriveType<FUNCTIONTYPE>::FunctionType\
-						>(parameterNames, (FUNCTIONTYPE)&ClassType::FUNCTIONNAME)\
+						>\
+					(parameterNames, (FUNCTIONTYPE)&ClassType::FUNCTIONNAME);\
+				AddMethod(\
+					L ## #EXPECTEDNAME,\
+					methodInfo\
 					);\
+				MethodPointerBinaryDataRetriver<FUNCTIONTYPE> binaryDataRetriver(&ClassType::FUNCTIONNAME);\
+				MethodPointerBinaryDataRecorder<ClassType, TDFlags>::RecordMethod(binaryDataRetriver.GetBinaryData(), this, methodInfo);\
 			}
 
 #define CLASS_MEMBER_METHOD_OVERLOAD(FUNCTIONNAME, PARAMETERNAMES, FUNCTIONTYPE)\
@@ -360,57 +545,6 @@ Property
 #define CLASS_MEMBER_PROPERTY_EVENT_READONLY_FAST(PROPERTYNAME, EVENTNAME)\
 			CLASS_MEMBER_METHOD(Get##PROPERTYNAME, NO_PARAMETER)\
 			CLASS_MEMBER_PROPERTY_EVENT_READONLY(PROPERTYNAME, Get##PROPERTYNAME, EVENTNAME)\
-
-/***********************************************************************
-InterfaceProxy
-***********************************************************************/
-
-#define INTERFACE_PROXY_CTOR_RAWPTR(INTERFACE)\
-			static INTERFACE* Create(Ptr<IValueInterfaceProxy> proxy)\
-			{\
-				auto obj = new ValueInterfaceProxy<INTERFACE>();\
-				obj->SetProxy(proxy);\
-				return obj;\
-			}\
-
-#define INTERFACE_PROXY_CTOR_SHAREDPTR(INTERFACE)\
-			static Ptr<INTERFACE> Create(Ptr<IValueInterfaceProxy> proxy)\
-			{\
-				auto obj = new ValueInterfaceProxy<INTERFACE>();\
-				obj->SetProxy(proxy);\
-				return obj;\
-			}\
-
-#define BEGIN_INTERFACE_PROXY_NOPARENT_HEADER(INTERFACE)\
-			template<>\
-			class ValueInterfaceProxy<INTERFACE> : ValueInterfaceImpl<INTERFACE>\
-			{\
-			public:\
-
-#define BEGIN_INTERFACE_PROXY_NOPARENT_RAWPTR(INTERFACE)\
-			BEGIN_INTERFACE_PROXY_NOPARENT_HEADER(INTERFACE)\
-			INTERFACE_PROXY_CTOR_RAWPTR(INTERFACE)\
-
-#define BEGIN_INTERFACE_PROXY_NOPARENT_SHAREDPTR(INTERFACE)\
-			BEGIN_INTERFACE_PROXY_NOPARENT_HEADER(INTERFACE)\
-			INTERFACE_PROXY_CTOR_SHAREDPTR(INTERFACE)\
-
-#define BEGIN_INTERFACE_PROXY_HEADER(INTERFACE, ...)\
-			template<>\
-			class ValueInterfaceProxy<INTERFACE> : ValueInterfaceImpl<INTERFACE, __VA_ARGS__>\
-			{\
-			public:\
-
-#define BEGIN_INTERFACE_PROXY_RAWPTR(INTERFACE, ...)\
-			BEGIN_INTERFACE_PROXY_HEADER(INTERFACE, __VA_ARGS__)\
-			INTERFACE_PROXY_CTOR_RAWPTR(INTERFACE)\
-
-#define BEGIN_INTERFACE_PROXY_SHAREDPTR(INTERFACE, ...)\
-			BEGIN_INTERFACE_PROXY_HEADER(INTERFACE, __VA_ARGS__)\
-			INTERFACE_PROXY_CTOR_SHAREDPTR(INTERFACE)\
-
-#define END_INTERFACE_PROXY(INTERFACE)\
-			};
 
 		}
 	}

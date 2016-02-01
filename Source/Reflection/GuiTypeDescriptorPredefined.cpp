@@ -737,7 +737,7 @@ Collections
 			END_INTERFACE_MEMBER(IValueDictionary)
 
 			BEGIN_INTERFACE_MEMBER_NOPROXY(IValueInterfaceProxy)
-				CLASS_MEMBER_METHOD(Invoke, {L"name" _ L"arguments"})
+				CLASS_MEMBER_METHOD(Invoke, {L"methodInfo" _ L"arguments"})
 			END_INTERFACE_MEMBER(IValueInterfaceProxy)
 
 			BEGIN_INTERFACE_MEMBER_NOPROXY(IValueFunctionProxy)
@@ -890,9 +890,6 @@ Collections
 				
 				CLASS_MEMBER_METHOD(GetBaseTypeDescriptor, {L"index"})
 				CLASS_MEMBER_METHOD(CanConvertTo, {L"targetType"})
-				CLASS_MEMBER_METHOD(GetProperty, {L"index"})
-				CLASS_MEMBER_METHOD(IsPropertyExists, {L"name" _ L"inheritable"})
-				CLASS_MEMBER_METHOD(GetPropertyByName, {L"name" _ L"inheritable"})
 				CLASS_MEMBER_METHOD(GetProperty, {L"index"})
 				CLASS_MEMBER_METHOD(IsPropertyExists, {L"name" _ L"inheritable"})
 				CLASS_MEMBER_METHOD(GetPropertyByName, {L"name" _ L"inheritable"})

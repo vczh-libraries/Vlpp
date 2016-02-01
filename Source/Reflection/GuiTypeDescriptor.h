@@ -282,7 +282,7 @@ Attribute
 		///			 or BEGIN_INTERFACE_PROXY_SHAREDPTR(IMyInterface, baseInterfaces...)
 		///				int GetX()override
 		///				{
-		///					return INVOKEGET_INTERFACE_PROXY_NOPARAMS(GetX)
+		///					INVOKEGET_INTERFACE_PROXY_NOPARAMS(GetX)
 		///				}
 		///
 		///				void SetX(int value)override
@@ -789,7 +789,7 @@ Interface Implementation Proxy
 			class IValueInterfaceProxy : public virtual IDescriptable, public Description<IValueInterfaceProxy>
 			{
 			public:
-				virtual Value					Invoke(const WString& methodName, Ptr<IValueList> arguments)=0;
+				virtual Value					Invoke(IMethodInfo* methodInfo, Ptr<IValueList> arguments)=0;
 			};
 
 			class IValueFunctionProxy : public virtual IDescriptable, public Description<IValueFunctionProxy>

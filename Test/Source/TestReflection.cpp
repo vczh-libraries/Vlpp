@@ -1,5 +1,6 @@
 #include "../../Source/UnitTest/UnitTest.h"
 #include "../../Source/Reflection/GuiTypeDescriptorMacros.h"
+#include "../../Source/Reflection/GuiTypeDescriptorInterfaceProxies.h"
 #include "../../Source/Stream/FileStream.h"
 #include "../../Source/Stream/Accessor.h"
 #include "../../Source/Stream/CharFormat.h"
@@ -1058,6 +1059,29 @@ namespace reflection_test
 			//TEST_ASSERT(*rc==1);
 		}
 	}
+
+	class InterfaceProxy : public Object, public IValueInterfaceProxy
+	{
+	public:
+		IMethodInfo* lastMethodInfo = nullptr;
+
+		Value Invoke(IMethodInfo* methodInfo, Ptr<IValueList> arguments)
+		{
+			lastMethodInfo = methodInfo;
+			return Value();
+		}
+	};
+
+	void TestInterfaceProxy()
+	{
+		auto mock = MakePtr<InterfaceProxy>();
+		Ptr<IValueEnumerable> proxy = ValueInterfaceProxy<IValueEnumerable>::Create(mock);
+		proxy->CreateEnumerator();
+
+		auto td = GetTypeDescriptor<IValueEnumerable>();
+		auto methodInfo = td->GetMethodGroupByName(L"CreateEnumerator", false)->GetMethod(0);
+		TEST_ASSERT(mock->lastMethodInfo == methodInfo);
+	}
 }
 using namespace reflection_test;
 
@@ -1084,3 +1108,4 @@ TEST_CASE_REFLECTION(TestReflectionList)
 TEST_CASE_REFLECTION(TestReflectionDictionary)
 TEST_CASE_REFLECTION(TestSharedRawPtrConverting)
 TEST_CASE_REFLECTION(TestSharedRawPtrDestructing)
+TEST_CASE_REFLECTION(TestInterfaceProxy)
