@@ -912,10 +912,7 @@ namespace vl
 				CLASS_MEMBER_PROPERTY(id, get_id, set_id)
 			END_CLASS_MEMBER(TestXmlBlackHole)
 
-			BEGIN_CLASS_MEMBER(TestXmlNode::IVisitor)
-				CLASS_MEMBER_BASE(vl::reflection::IDescriptable)
-				CLASS_MEMBER_EXTERNALCTOR(Ptr<TestXmlNode::IVisitor>(Ptr<IValueInterfaceProxy>), {L"proxy"}, &interface_proxy::TestXmlNode_IVisitor::Create)
-
+			BEGIN_INTERFACE_MEMBER(TestXmlNode::IVisitor)
 				CLASS_MEMBER_METHOD_OVERLOAD(Visit, {L"node"}, void(TestXmlNode::IVisitor::*)(TestXmlAmbiguousNode* node))
 				CLASS_MEMBER_METHOD_OVERLOAD(Visit, {L"node"}, void(TestXmlNode::IVisitor::*)(TestXmlText* node))
 				CLASS_MEMBER_METHOD_OVERLOAD(Visit, {L"node"}, void(TestXmlNode::IVisitor::*)(TestXmlCData* node))
@@ -924,30 +921,21 @@ namespace vl
 				CLASS_MEMBER_METHOD_OVERLOAD(Visit, {L"node"}, void(TestXmlNode::IVisitor::*)(TestXmlElement* node))
 				CLASS_MEMBER_METHOD_OVERLOAD(Visit, {L"node"}, void(TestXmlNode::IVisitor::*)(TestXmlInstruction* node))
 				CLASS_MEMBER_METHOD_OVERLOAD(Visit, {L"node"}, void(TestXmlNode::IVisitor::*)(TestXmlDocument* node))
-			END_CLASS_MEMBER(TestXmlNode)
+			END_INTERFACE_MEMBER(TestXmlNode)
 
-			BEGIN_CLASS_MEMBER(TestXmlAnimal::IVisitor)
-				CLASS_MEMBER_BASE(vl::reflection::IDescriptable)
-				CLASS_MEMBER_EXTERNALCTOR(Ptr<TestXmlAnimal::IVisitor>(Ptr<IValueInterfaceProxy>), {L"proxy"}, &interface_proxy::TestXmlAnimal_IVisitor::Create)
-
+			BEGIN_INTERFACE_MEMBER(TestXmlAnimal::IVisitor)
 				CLASS_MEMBER_METHOD_OVERLOAD(Visit, {L"node"}, void(TestXmlAnimal::IVisitor::*)(TestXmlGoose* node))
 				CLASS_MEMBER_METHOD_OVERLOAD(Visit, {L"node"}, void(TestXmlAnimal::IVisitor::*)(TestXmlDuck* node))
-			END_CLASS_MEMBER(TestXmlAnimal)
+			END_INTERFACE_MEMBER(TestXmlAnimal)
 
-			BEGIN_CLASS_MEMBER(TestXmlAnimal::TestXmlBody::IVisitor)
-				CLASS_MEMBER_BASE(vl::reflection::IDescriptable)
-				CLASS_MEMBER_EXTERNALCTOR(Ptr<TestXmlAnimal::TestXmlBody::IVisitor>(Ptr<IValueInterfaceProxy>), {L"proxy"}, &interface_proxy::TestXmlAnimal_TestXmlBody_IVisitor::Create)
-
+			BEGIN_INTERFACE_MEMBER(TestXmlAnimal::TestXmlBody::IVisitor)
 				CLASS_MEMBER_METHOD_OVERLOAD(Visit, {L"node"}, void(TestXmlAnimal::TestXmlBody::IVisitor::*)(TestXmlAnimal::TestXmlLeg* node))
 				CLASS_MEMBER_METHOD_OVERLOAD(Visit, {L"node"}, void(TestXmlAnimal::TestXmlBody::IVisitor::*)(TestXmlAnimal::TestXmlTail* node))
-			END_CLASS_MEMBER(TestXmlAnimal::TestXmlBody)
+			END_INTERFACE_MEMBER(TestXmlAnimal::TestXmlBody)
 
-			BEGIN_CLASS_MEMBER(TestXmlAnimal::TestXmlBody::TestXmlFur::IVisitor)
-				CLASS_MEMBER_BASE(vl::reflection::IDescriptable)
-				CLASS_MEMBER_EXTERNALCTOR(Ptr<TestXmlAnimal::TestXmlBody::TestXmlFur::IVisitor>(Ptr<IValueInterfaceProxy>), {L"proxy"}, &interface_proxy::TestXmlAnimal_TestXmlBody_TestXmlFur_IVisitor::Create)
-
+			BEGIN_INTERFACE_MEMBER(TestXmlAnimal::TestXmlBody::TestXmlFur::IVisitor)
 				CLASS_MEMBER_METHOD_OVERLOAD(Visit, {L"node"}, void(TestXmlAnimal::TestXmlBody::TestXmlFur::IVisitor::*)(TestXmlBlackHole* node))
-			END_CLASS_MEMBER(TestXmlAnimal::TestXmlBody::TestXmlFur)
+			END_INTERFACE_MEMBER(TestXmlAnimal::TestXmlBody::TestXmlFur)
 
 			class TestXmlTypeLoader : public vl::Object, public ITypeLoader
 			{

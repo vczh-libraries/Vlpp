@@ -187,19 +187,9 @@ void WriteTypeReflectionImplementation(ParsingSymbolManager* manager, const WStr
 		{
 			writer.WriteLine(L"");
 			writer.WriteString(prefix);
-			writer.WriteString(L"BEGIN_CLASS_MEMBER(");
+			writer.WriteString(L"BEGIN_INTERFACE_MEMBER(");
 			PrintType(type, config.classPrefix, writer);
 			writer.WriteLine(L"::IVisitor)");
-
-			writer.WriteString(prefix);
-			writer.WriteLine(L"\tCLASS_MEMBER_BASE(vl::reflection::IDescriptable)");
-			writer.WriteString(prefix);
-			writer.WriteString(L"\tCLASS_MEMBER_EXTERNALCTOR(Ptr<");
-			PrintType(type, config.classPrefix, writer);
-			writer.WriteString(L"::IVisitor>(Ptr<IValueInterfaceProxy>), {L\"proxy\"}, &interface_proxy::");
-			PrintType(type, config.classPrefix, writer, L"_");
-			writer.WriteLine(L"_IVisitor::Create)");
-			writer.WriteLine(L"");
 
 			List<ParsingSymbol*> visitableTypes;
 			SearchLeafDescendantClasses(type, manager, visitableTypes);
@@ -214,7 +204,7 @@ void WriteTypeReflectionImplementation(ParsingSymbolManager* manager, const WStr
 			}
 
 			writer.WriteString(prefix);
-			writer.WriteString(L"END_CLASS_MEMBER(");
+			writer.WriteString(L"END_INTERFACE_MEMBER(");
 			PrintType(type, config.classPrefix, writer);
 			writer.WriteLine(L")");
 		}
