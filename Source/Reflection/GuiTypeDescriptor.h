@@ -61,13 +61,28 @@ Attribute
 
 			typedef collections::Dictionary<WString, Ptr<Object>>		InternalPropertyMap;
 			typedef bool(*DestructorProc)(DescriptableObject* obj, bool forceDisposing);
-		protected:
+		private:
 			volatile vint							referenceCounter;
 			DestructorProc							sharedPtrDestructorProc;
 
 			size_t									objectSize;
 			description::ITypeDescriptor**			typeDescriptor;
 			Ptr<InternalPropertyMap>				internalProperties;
+
+			bool									destructing;
+			DescriptableObject**					aggregationInfo;
+			vint									aggregationSize;
+
+		protected:
+
+			bool									IsAggregated();
+			vint									GetAggregationSize();
+			DescriptableObject*						GetAggregationRoot();
+			void									SetAggregationRoot(DescriptableObject* value);
+			DescriptableObject*						GetAggregationParent(vint index);
+			void									SetAggregationParent(vint index, DescriptableObject* value);
+			void									SetAggregationParent(vint index, Ptr<DescriptableObject>& value);
+			void									InitializeAggregation(vint size);
 		public:
 			DescriptableObject();
 			virtual ~DescriptableObject();
@@ -370,6 +385,13 @@ ReferenceCounterOperator
 		static __forceinline volatile vint* CreateCounter(T* reference)
 		{
 			reflection::DescriptableObject* obj=reference;
+			if (obj->IsAggregated())
+			{
+				if (auto root = obj->GetAggregationRoot())
+				{
+					return &root->referenceCounter;
+				}
+			}
 			return &obj->referenceCounter;
 		}
 

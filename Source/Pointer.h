@@ -70,17 +70,20 @@ Ptr
 			}
 		}
 
-		void Dec()
+		void Dec(bool deleteIfZero = true)
 		{
 			if(counter)
 			{
 				if(DECRC(counter)==0)
 				{
-					originalDestructor(counter, originalReference);
-					counter=0;
-					reference=0;
-					originalReference=0;
-					originalDestructor=0;
+					if (deleteIfZero)
+					{
+						originalDestructor(counter, originalReference);
+					}
+					counter=nullptr;
+					reference=nullptr;
+					originalReference=nullptr;
+					originalDestructor=nullptr;
 				}
 			}
 		}
@@ -176,6 +179,15 @@ Ptr
 		~Ptr()
 		{
 			Dec();
+		}
+		
+		/// <summary>Detach the contained object from this smart pointer.</summary>
+		/// <returns>The detached object. Returns null if this smart pointer is empty.</returns>
+		T* Detach()
+		{
+			auto detached = reference;
+			Dec(false);
+			return detached;
 		}
 		
 		/// <summary>Cast a smart pointer.</summary>

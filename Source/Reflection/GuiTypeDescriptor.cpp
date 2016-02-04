@@ -11,16 +11,118 @@ namespace vl
 DescriptableObject
 ***********************************************************************/
 
+		bool DescriptableObject::IsAggregated()
+		{
+			return aggregationInfo != nullptr;
+		}
+
+		vint DescriptableObject::GetAggregationSize()
+		{
+			CHECK_ERROR(IsAggregated(), L"vl::reflection::DescriptableObject::GetAggregationSize()#This function should not be called on non-aggregated objects.");
+			return aggregationSize;
+		}
+
+		DescriptableObject* DescriptableObject::GetAggregationRoot()
+		{
+			CHECK_ERROR(IsAggregated(), L"vl::reflection::DescriptableObject::GetAggregationRoot()#This function should not be called on non-aggregated objects.");
+			return aggregationInfo[aggregationSize];
+		}
+
+		void DescriptableObject::SetAggregationRoot(DescriptableObject* value)
+		{
+			CHECK_ERROR(value != nullptr, L"vl::reflection::DescriptableObject::SetAggregationRoot(Descriptable*)#The root object should not null.");
+			CHECK_ERROR(value->IsAggregated() && value->GetAggregationRoot() == nullptr, L"vl::reflection::DescriptableObject::SetAggregationRoot(Descriptable*)#The root object should not have an aggregation root.");
+			if (!IsAggregated())
+			{
+				InitializeAggregation(0);
+			}
+			aggregationInfo[aggregationSize] = value;
+			for (vint i = 0; i < aggregationSize; i++)
+			{
+				if (aggregationInfo[i])
+				{
+					aggregationInfo[i]->SetAggregationRoot(value);
+				}
+			}
+		}
+
+		DescriptableObject* DescriptableObject::GetAggregationParent(vint index)
+		{
+			CHECK_ERROR(IsAggregated(), L"vl::reflection::DescriptableObject::GetAggregationParent(vint)#This function should not be called on non-aggregated objects.");
+			CHECK_ERROR(0 <= index && index < aggregationSize, L"vl::reflection::DescriptableObject::GetAggregationParent(vint)#Index out of range.");
+			return aggregationInfo[index];
+		}
+
+		void DescriptableObject::SetAggregationParent(vint index, DescriptableObject* value)
+		{
+			CHECK_ERROR(IsAggregated(), L"vl::reflection::DescriptableObject::SetAggregationParent(vint, DescriptableObject*)#This function should not be called on non-aggregated objects.");
+			CHECK_ERROR(0 <= index && index < aggregationSize, L"vl::reflection::DescriptableObject::SetAggregationParent(vint, DescriptableObject*)#Index out of range.");
+			CHECK_ERROR(aggregationInfo[index] == nullptr, L"vl::reflection::DescriptableObject::SetAggregationParent(vint, DescriptableObject*)#This index has been used.");
+			CHECK_ERROR(value != nullptr, L"vl::reflection::DescriptableObject::SetAggregationParent(vint, DescriptableObject*)#Parent should not be null.");
+			CHECK_ERROR(!value->IsAggregated() || value->GetAggregationRoot() == nullptr, L"vl::reflection::DescriptableObject::SetAggregationParent(vint, DescriptableObject*)#Parent already has a aggregation root.");
+			CHECK_ERROR(value->referenceCounter == 0, L"vl::reflection::DescriptableObject::SetAggregationParent(vint, DescriptableObject*)#Parent should not be contained in any smart pointer.");
+			value->SetAggregationRoot(this);
+			aggregationInfo[index] = value;
+		}
+
+		void DescriptableObject::SetAggregationParent(vint index, Ptr<DescriptableObject>& value)
+		{
+			CHECK_ERROR(IsAggregated(), L"vl::reflection::DescriptableObject::SetAggregationParent(vint, Ptr<DescriptableObject>&)#This function should not be called on non-aggregated objects.");
+			CHECK_ERROR(0 <= index && index < aggregationSize, L"vl::reflection::DescriptableObject::SetAggregationParent(vint, Ptr<DescriptableObject>&)#Index out of range.");
+			CHECK_ERROR(aggregationInfo[index] == nullptr, L"vl::reflection::DescriptableObject::SetAggregationParent(vint, Ptr<DescriptableObject>&)#This index has been used.");
+			CHECK_ERROR(value, L"vl::reflection::DescriptableObject::SetAggregationParent(vint, Ptr<DescriptableObject>&)#Parent should not be null");
+			CHECK_ERROR(!value->IsAggregated() || value->GetAggregationRoot() == nullptr, L"vl::reflection::DescriptableObject::SetAggregationParent(vint, Ptr<DescriptableObject>&)#Parent already has a aggregation root.");
+			CHECK_ERROR(value->referenceCounter == 1, L"vl::reflection::DescriptableObject::SetAggregationParent(vint, Ptr<DescriptableObject>&)#Parent should not be contained in any other smart pointer.");
+			value->SetAggregationRoot(this);
+
+			auto parent = value.Detach();
+			aggregationInfo[index] = parent;
+		}
+
+		void DescriptableObject::InitializeAggregation(vint size)
+		{
+			CHECK_ERROR(!IsAggregated(), L"vl::reflection::DescriptableObject::InitializeAggregation(vint)#This function should not be called on aggregated objects.");
+			CHECK_ERROR(size >= 0, L"vl::reflection::DescriptableObject::InitializeAggregation(vint)#Size shout not be negative.");
+			aggregationSize = size;
+			aggregationInfo = new DescriptableObject*[size + 1];
+			memset(aggregationInfo, 0, sizeof(*aggregationInfo) * (size + 1));
+		}
+
 		DescriptableObject::DescriptableObject()
 			:referenceCounter(0)
-			,sharedPtrDestructorProc(0)
-			,objectSize(0)
-			,typeDescriptor(0)
+			, sharedPtrDestructorProc(0)
+			, objectSize(0)
+			, typeDescriptor(0)
+			, destructing(false)
+			, aggregationInfo(nullptr)
+			, aggregationSize(-1)
 		{
 		}
 
 		DescriptableObject::~DescriptableObject()
 		{
+			destructing = true;
+			if (IsAggregated())
+			{
+				if (auto root = GetAggregationRoot())
+				{
+					if (!root->destructing)
+					{
+						delete root;
+					}
+				}
+				for (vint i = 0; i < aggregationSize; i++)
+				{
+					if (auto parent = GetAggregationParent(i))
+					{
+						if (!parent->destructing)
+						{
+							delete parent;
+						}
+					}
+				}
+				delete[] aggregationInfo;
+			}
 		}
 
 		description::ITypeDescriptor* DescriptableObject::GetTypeDescriptor()
@@ -76,6 +178,14 @@ DescriptableObject
 
 		bool DescriptableObject::Dispose(bool forceDisposing)
 		{
+			if (IsAggregated())
+			{
+				if (auto root = GetAggregationRoot())
+				{
+					return root->Dispose(forceDisposing);
+				}
+			}
+
 			if (referenceCounter > 0 && forceDisposing)
 			{
 				throw description::ValueNotDisposableException();

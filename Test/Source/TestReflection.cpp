@@ -1082,6 +1082,140 @@ namespace reflection_test
 		auto methodInfo = td->GetMethodGroupByName(L"CreateEnumerator", false)->GetMethod(0);
 		TEST_ASSERT(mock->lastMethodInfo == methodInfo);
 	}
+
+	class Agg : public Description<Agg>
+	{
+	public:
+		DescriptableObject* Root()
+		{
+			return GetAggregationRoot();
+		}
+	};
+
+	class AggParentShared : public Agg, public Description<AggParentShared>
+	{
+	public:
+	};
+
+	class AggParentRaw : public Agg, public Description<AggParentRaw>
+	{
+	public:
+	};
+
+	class AggParentBase : public Agg, public Description<AggParentBase>
+	{
+	public:
+		AggParentBase()
+		{
+			Ptr<DescriptableObject> shared = new AggParentShared;
+			auto raw = new AggParentRaw;
+
+			InitializeAggregation(2);
+			SetAggregationParent(0, shared);
+			SetAggregationParent(1, raw);
+		}
+
+		AggParentShared* GetParentShared()
+		{
+			return dynamic_cast<AggParentShared*>(GetAggregationParent(0));
+		}
+
+		AggParentRaw* GetParentRaw()
+		{
+			return dynamic_cast<AggParentRaw*>(GetAggregationParent(1));
+		}
+	};
+
+	class AggParentDerived : public Agg, public Description<AggParentDerived>
+	{
+	public:
+		AggParentDerived()
+		{
+			auto base = new AggParentBase;
+
+			InitializeAggregation(1);
+			SetAggregationParent(0, base);
+		}
+
+		AggParentBase* GetParentBase()
+		{
+			return dynamic_cast<AggParentBase*>(GetAggregationParent(0));
+		}
+	};
+
+	void TestDescriptableObjectAggregation()
+	{
+		{
+			auto derived = new AggParentDerived;
+			auto base = derived->GetParentBase();
+			auto shared = base->GetParentShared();
+			auto raw = base->GetParentRaw();
+
+			TEST_ASSERT(derived);
+			TEST_ASSERT(base);
+			TEST_ASSERT(shared);
+			TEST_ASSERT(raw);
+
+			TEST_ASSERT(derived->Root() == nullptr);
+			TEST_ASSERT(base->Root() == derived);
+			TEST_ASSERT(shared->Root() == derived);
+			TEST_ASSERT(raw->Root() == derived);
+
+			auto derivedRC = ReferenceCounterOperator<AggParentDerived>::CreateCounter(derived);
+			auto baseRC = ReferenceCounterOperator<AggParentBase>::CreateCounter(base);
+			auto sharedRC = ReferenceCounterOperator<AggParentShared>::CreateCounter(shared);
+			auto rawRC = ReferenceCounterOperator<AggParentRaw>::CreateCounter(raw);
+
+			TEST_ASSERT(*derivedRC == 0);
+			TEST_ASSERT(derivedRC == baseRC);
+			TEST_ASSERT(derivedRC == sharedRC);
+			TEST_ASSERT(derivedRC == rawRC);
+
+			Ptr<Agg> derivedPtr = derived;
+			TEST_ASSERT(*derivedRC == 1);
+			{
+				Ptr<Agg> basePtr = base;
+				TEST_ASSERT(*derivedRC == 2);
+				Ptr<Agg> sharedPtr = shared;
+				TEST_ASSERT(*derivedRC == 3);
+				Ptr<Agg> rawPtr = raw;
+				TEST_ASSERT(*derivedRC == 4);
+			}
+			TEST_ASSERT(*derivedRC == 1);
+		}
+		{
+			auto derived = new AggParentDerived;
+			delete derived;
+		}
+		{
+			auto derived = new AggParentDerived;
+			delete derived->GetParentBase();
+		}
+		{
+			auto derived = new AggParentDerived;
+			delete derived->GetParentBase()->GetParentShared();
+		}
+		{
+			auto derived = new AggParentDerived;
+			delete derived->GetParentBase()->GetParentRaw();
+		}
+		{
+			auto derived = new AggParentDerived;
+			Ptr<Agg> agg = derived;
+		}
+		{
+			auto derived = new AggParentDerived;
+			Ptr<Agg> agg = derived->GetParentBase();
+		}
+		{
+			auto derived = new AggParentDerived;
+			Ptr<Agg> agg = derived->GetParentBase()->GetParentShared();
+		}
+		{
+			auto derived = new AggParentDerived;
+			Ptr<Agg> agg = derived->GetParentBase()->GetParentRaw();
+		}
+	}
 }
 using namespace reflection_test;
 
@@ -1109,3 +1243,5 @@ TEST_CASE_REFLECTION(TestReflectionDictionary)
 TEST_CASE_REFLECTION(TestSharedRawPtrConverting)
 TEST_CASE_REFLECTION(TestSharedRawPtrDestructing)
 TEST_CASE_REFLECTION(TestInterfaceProxy)
+TEST_CASE_REFLECTION(TestDescriptableObjectAggregation)
+
