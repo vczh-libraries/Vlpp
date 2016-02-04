@@ -202,6 +202,18 @@ DescriptableObject
 			}
 		}
 
+		DescriptableObject* DescriptableObject::SafeGetAggregationRoot()
+		{
+			if (IsAggregated())
+			{
+				if (auto root = GetAggregationRoot())
+				{
+					return root;
+				}
+			}
+			return this;
+		}
+
 /***********************************************************************
 description::Value
 ***********************************************************************/
@@ -210,17 +222,25 @@ description::Value
 		{
 			Value::Value(DescriptableObject* value)
 				:valueType(value ? RawPtr :Null)
-				,rawPtr(value)
+				,rawPtr(nullptr)
 				,typeDescriptor(0)
 			{
+				if (value)
+				{
+					rawPtr = value->SafeGetAggregationRoot();
+				}
 			}
 
 			Value::Value(Ptr<DescriptableObject> value)
 				:valueType(value ? SharedPtr : Null)
-				,rawPtr(value.Obj())
-				,sharedPtr(value)
+				,rawPtr(nullptr)
 				,typeDescriptor(0)
 			{
+				if (value)
+				{
+					rawPtr = value->SafeGetAggregationRoot();
+					sharedPtr = rawPtr;
+				}
 			}
 
 			Value::Value(const WString& value, ITypeDescriptor* associatedTypeDescriptor)

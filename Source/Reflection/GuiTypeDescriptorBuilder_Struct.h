@@ -183,8 +183,8 @@ ParameterAccessor<TStruct>
 
 				static T* UnboxValue(const Value& value, ITypeDescriptor* typeDescriptor, const WString& valueName)
 				{
-					if(value.IsNull()) return 0;
-					T* result=dynamic_cast<T*>(value.GetRawPtr());
+					if(value.IsNull()) return nullptr;
+					T* result = value.GetRawPtr()->SafeAggregationCast<T>();
 					if(!result)
 					{
 						if(!typeDescriptor)
@@ -207,15 +207,11 @@ ParameterAccessor<TStruct>
 
 				static Ptr<T> UnboxValue(const Value& value, ITypeDescriptor* typeDescriptor, const WString& valueName)
 				{
-					if(value.IsNull()) return 0;
+					if (value.IsNull()) return nullptr;
 					Ptr<T> result;
-					if(value.GetValueType()==Value::SharedPtr)
+					if(value.GetValueType()==Value::RawPtr || value.GetValueType()==Value::SharedPtr)
 					{
-						result=value.GetSharedPtr().Cast<T>();
-					}
-					else if(value.GetValueType()==Value::RawPtr)
-					{
-						result=dynamic_cast<T*>(value.GetRawPtr());
+						result = value.GetRawPtr()->SafeAggregationCast<T>();
 					}
 					if(!result)
 					{

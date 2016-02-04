@@ -448,6 +448,66 @@ namespace test
 			ValueChanged(oldValue, value);
 		}
 	};
+
+	class Agg : public Description<Agg>
+	{
+	public:
+		DescriptableObject* Root()
+		{
+			return GetAggregationRoot();
+		}
+	};
+
+	class AggParentShared : public Agg, public Description<AggParentShared>
+	{
+	public:
+	};
+
+	class AggParentRaw : public Agg, public Description<AggParentRaw>
+	{
+	public:
+	};
+
+	class AggParentBase : public Agg, public Description<AggParentBase>
+	{
+	public:
+		AggParentBase()
+		{
+			Ptr<DescriptableObject> shared = new AggParentShared;
+			auto raw = new AggParentRaw;
+
+			InitializeAggregation(2);
+			SetAggregationParent(0, shared);
+			SetAggregationParent(1, raw);
+		}
+
+		AggParentShared* GetParentShared()
+		{
+			return dynamic_cast<AggParentShared*>(GetAggregationParent(0));
+		}
+
+		AggParentRaw* GetParentRaw()
+		{
+			return dynamic_cast<AggParentRaw*>(GetAggregationParent(1));
+		}
+	};
+
+	class AggParentDerived : public Agg, public Description<AggParentDerived>
+	{
+	public:
+		AggParentDerived()
+		{
+			auto base = new AggParentBase;
+
+			InitializeAggregation(1);
+			SetAggregationParent(0, base);
+		}
+
+		AggParentBase* GetParentBase()
+		{
+			return dynamic_cast<AggParentBase*>(GetAggregationParent(0));
+		}
+	};
 }
 using namespace test;
 
@@ -465,6 +525,11 @@ using namespace test;
 	F(test::Size)\
 	F(test::Rect)\
 	F(test::RectPair)\
+	F(test::Agg)\
+	F(test::AggParentShared)\
+	F(test::AggParentRaw)\
+	F(test::AggParentBase)\
+	F(test::AggParentDerived)\
 
 BEGIN_TYPE_INFO_NAMESPACE
 
@@ -569,6 +634,21 @@ BEGIN_TYPE_INFO_NAMESPACE
 		CLASS_MEMBER_EVENT(ValueChanged)
 		CLASS_MEMBER_PROPERTY_EVENT_FAST(Value, ValueChanged)
 	END_CLASS_MEMBER(EventRaiser)
+
+	BEGIN_CLASS_MEMBER(test::Agg)
+	END_CLASS_MEMBER(test::Agg)
+
+	BEGIN_CLASS_MEMBER(test::AggParentShared)
+	END_CLASS_MEMBER(test::AggParentShared)
+
+	BEGIN_CLASS_MEMBER(test::AggParentRaw)
+	END_CLASS_MEMBER(test::AggParentRaw)
+
+	BEGIN_CLASS_MEMBER(test::AggParentBase)
+	END_CLASS_MEMBER(test::AggParentBase)
+
+	BEGIN_CLASS_MEMBER(test::AggParentDerived)
+	END_CLASS_MEMBER(test::AggParentDerived)
 
 	class TestTypeLoader : public Object, public ITypeLoader
 	{
@@ -1083,66 +1163,6 @@ namespace reflection_test
 		TEST_ASSERT(mock->lastMethodInfo == methodInfo);
 	}
 
-	class Agg : public Description<Agg>
-	{
-	public:
-		DescriptableObject* Root()
-		{
-			return GetAggregationRoot();
-		}
-	};
-
-	class AggParentShared : public Agg, public Description<AggParentShared>
-	{
-	public:
-	};
-
-	class AggParentRaw : public Agg, public Description<AggParentRaw>
-	{
-	public:
-	};
-
-	class AggParentBase : public Agg, public Description<AggParentBase>
-	{
-	public:
-		AggParentBase()
-		{
-			Ptr<DescriptableObject> shared = new AggParentShared;
-			auto raw = new AggParentRaw;
-
-			InitializeAggregation(2);
-			SetAggregationParent(0, shared);
-			SetAggregationParent(1, raw);
-		}
-
-		AggParentShared* GetParentShared()
-		{
-			return dynamic_cast<AggParentShared*>(GetAggregationParent(0));
-		}
-
-		AggParentRaw* GetParentRaw()
-		{
-			return dynamic_cast<AggParentRaw*>(GetAggregationParent(1));
-		}
-	};
-
-	class AggParentDerived : public Agg, public Description<AggParentDerived>
-	{
-	public:
-		AggParentDerived()
-		{
-			auto base = new AggParentBase;
-
-			InitializeAggregation(1);
-			SetAggregationParent(0, base);
-		}
-
-		AggParentBase* GetParentBase()
-		{
-			return dynamic_cast<AggParentBase*>(GetAggregationParent(0));
-		}
-	};
-
 	void TestDescriptableObjectAggregation()
 	{
 		{
@@ -1216,6 +1236,124 @@ namespace reflection_test
 			Ptr<Agg> agg = derived->GetParentBase()->GetParentRaw();
 		}
 	}
+
+	void TestDescriptableObjectAggregationCast()
+	{
+		{
+			auto derived = new AggParentDerived;
+			auto base = derived->GetParentBase();
+			auto shared = base->GetParentShared();
+			auto raw = base->GetParentRaw();
+
+			TEST_ASSERT(derived->SafeAggregationCast<AggParentDerived>() == derived);
+			TEST_ASSERT(derived->SafeAggregationCast<AggParentBase>() == base);
+			TEST_ASSERT(derived->SafeAggregationCast<AggParentShared>() == shared);
+			TEST_ASSERT(derived->SafeAggregationCast<AggParentRaw>() == raw);
+
+			TEST_ASSERT(base->SafeAggregationCast<AggParentDerived>() == derived);
+			TEST_ASSERT(base->SafeAggregationCast<AggParentBase>() == base);
+			TEST_ASSERT(base->SafeAggregationCast<AggParentShared>() == shared);
+			TEST_ASSERT(derived->SafeAggregationCast<AggParentRaw>() == raw);
+
+			TEST_ASSERT(shared->SafeAggregationCast<AggParentDerived>() == derived);
+			TEST_ASSERT(shared->SafeAggregationCast<AggParentBase>() == base);
+			TEST_ASSERT(shared->SafeAggregationCast<AggParentShared>() == shared);
+			TEST_ASSERT(shared->SafeAggregationCast<AggParentRaw>() == raw);
+
+			TEST_ASSERT(raw->SafeAggregationCast<AggParentDerived>() == derived);
+			TEST_ASSERT(raw->SafeAggregationCast<AggParentBase>() == base);
+			TEST_ASSERT(raw->SafeAggregationCast<AggParentShared>() == shared);
+			TEST_ASSERT(raw->SafeAggregationCast<AggParentRaw>() == raw);
+
+			TEST_ERROR(derived->SafeAggregationCast<Agg>());
+			TEST_ERROR(base->SafeAggregationCast<Agg>());
+			TEST_ERROR(shared->SafeAggregationCast<Agg>());
+			TEST_ERROR(raw->SafeAggregationCast<Agg>());
+
+			delete derived;
+		}
+		{
+			auto derived = new AggParentDerived;
+			auto base = derived->GetParentBase();
+			auto shared = base->GetParentShared();
+			auto raw = base->GetParentRaw();
+
+			{
+				auto value = Value::From(derived);
+				TEST_ASSERT(UnboxValue<AggParentDerived*>(value) == derived);
+				TEST_ASSERT(UnboxValue<AggParentBase*>(value) == base);
+				TEST_ASSERT(UnboxValue<AggParentShared*>(value) == shared);
+				TEST_ASSERT(UnboxValue<AggParentRaw*>(value) == raw);
+				TEST_ERROR(UnboxValue<Agg*>(value));
+			}
+			{
+				auto value = Value::From(base);
+				TEST_ASSERT(UnboxValue<AggParentDerived*>(value) == derived);
+				TEST_ASSERT(UnboxValue<AggParentBase*>(value) == base);
+				TEST_ASSERT(UnboxValue<AggParentShared*>(value) == shared);
+				TEST_ASSERT(UnboxValue<AggParentRaw*>(value) == raw);
+				TEST_ERROR(UnboxValue<Agg*>(value));
+			}
+			{
+				auto value = Value::From(shared);
+				TEST_ASSERT(UnboxValue<AggParentDerived*>(value) == derived);
+				TEST_ASSERT(UnboxValue<AggParentBase*>(value) == base);
+				TEST_ASSERT(UnboxValue<AggParentShared*>(value) == shared);
+				TEST_ASSERT(UnboxValue<AggParentRaw*>(value) == raw);
+				TEST_ERROR(UnboxValue<Agg*>(value));
+			}
+			{
+				auto value = Value::From(raw);
+				TEST_ASSERT(UnboxValue<AggParentDerived*>(value) == derived);
+				TEST_ASSERT(UnboxValue<AggParentBase*>(value) == base);
+				TEST_ASSERT(UnboxValue<AggParentShared*>(value) == shared);
+				TEST_ASSERT(UnboxValue<AggParentRaw*>(value) == raw);
+				TEST_ERROR(UnboxValue<Agg*>(value));
+			}
+
+			delete derived;
+		}
+		{
+			auto derived = new AggParentDerived;
+			auto base = derived->GetParentBase();
+			auto shared = base->GetParentShared();
+			auto raw = base->GetParentRaw();
+
+			Ptr<Agg> ptr = derived;
+			{
+				auto value = Value::From(ptr);
+				TEST_ASSERT(UnboxValue<Ptr<AggParentDerived>>(value) == derived);
+				TEST_ASSERT(UnboxValue<Ptr<AggParentBase>>(value) == base);
+				TEST_ASSERT(UnboxValue<Ptr<AggParentShared>>(value) == shared);
+				TEST_ASSERT(UnboxValue<Ptr<AggParentRaw>>(value) == raw);
+				TEST_ERROR(UnboxValue<Ptr<Agg>>(value));
+			}
+			{
+				auto value = Value::From(ptr);
+				TEST_ASSERT(UnboxValue<Ptr<AggParentDerived>>(value) == derived);
+				TEST_ASSERT(UnboxValue<Ptr<AggParentBase>>(value) == base);
+				TEST_ASSERT(UnboxValue<Ptr<AggParentShared>>(value) == shared);
+				TEST_ASSERT(UnboxValue<Ptr<AggParentRaw>>(value) == raw);
+				TEST_ERROR(UnboxValue<Ptr<Agg>>(value));
+			}
+			{
+				auto value = Value::From(ptr);
+				TEST_ASSERT(UnboxValue<Ptr<AggParentDerived>>(value) == derived);
+				TEST_ASSERT(UnboxValue<Ptr<AggParentBase>>(value) == base);
+				TEST_ASSERT(UnboxValue<Ptr<AggParentShared>>(value) == shared);
+				TEST_ASSERT(UnboxValue<Ptr<AggParentRaw>>(value) == raw);
+				TEST_ERROR(UnboxValue<Ptr<Agg>>(value));
+			}
+			{
+				auto value = Value::From(ptr);
+				TEST_ASSERT(UnboxValue<Ptr<AggParentDerived>>(value) == derived);
+				TEST_ASSERT(UnboxValue<Ptr<AggParentBase>>(value) == base);
+				TEST_ASSERT(UnboxValue<Ptr<AggParentShared>>(value) == shared);
+				TEST_ASSERT(UnboxValue<Ptr<AggParentRaw>>(value) == raw);
+				TEST_ERROR(UnboxValue<Ptr<Agg>>(value));
+			}
+		}
+	}
 }
 using namespace reflection_test;
 
@@ -1244,4 +1382,5 @@ TEST_CASE_REFLECTION(TestSharedRawPtrConverting)
 TEST_CASE_REFLECTION(TestSharedRawPtrDestructing)
 TEST_CASE_REFLECTION(TestInterfaceProxy)
 TEST_CASE_REFLECTION(TestDescriptableObjectAggregation)
+TEST_CASE_REFLECTION(TestDescriptableObjectAggregationCast)
 

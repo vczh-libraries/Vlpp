@@ -83,6 +83,27 @@ Attribute
 			void									SetAggregationParent(vint index, DescriptableObject* value);
 			void									SetAggregationParent(vint index, Ptr<DescriptableObject>& value);
 			void									InitializeAggregation(vint size);
+
+			template<typename T>
+			void SafeAggregationCast(T*& result)
+			{
+				auto expected = dynamic_cast<T*>(this);
+				if (expected)
+				{
+					CHECK_ERROR(result == nullptr, L"vl::reflection::DescriptableObject::SafeAggregationCast<T>()#Found multiple ways to do aggregation cast.");
+					result = expected;
+				}
+				if (IsAggregated())
+				{
+					for (vint i = 0; i < aggregationSize; i++)
+					{
+						if (auto parent = GetAggregationParent(i))
+						{
+							parent->SafeAggregationCast<T>(result);
+						}
+					}
+				}
+			}
 		public:
 			DescriptableObject();
 			virtual ~DescriptableObject();
@@ -102,6 +123,18 @@ Attribute
 			/// <returns>Returns true if this operation succeeded. Returns false if the object refuces to be dispose.</returns>
 			/// <param name="forceDisposing">Set to true to force disposing this object. If the reference counter is not 0 if you force disposing it, it will raise a [T:vl.reflection.description.ValueNotDisposableException].</param>
 			bool									Dispose(bool forceDisposing);
+			/// <summary>Get the aggregation root object.</summary>
+			/// <returns>The aggregation root object. If this object is not aggregated, or it is the root object of others, than this function return itself.</returns>
+			DescriptableObject*						SafeGetAggregationRoot();
+			/// <summary>Cast the object to another type, considered aggregation.</summary>
+			/// <typeparam name="T">The expected type to cast.</typeparam>
+			template<typename T>
+			T* SafeAggregationCast()
+			{
+				T* result = nullptr;
+				SafeGetAggregationRoot()->SafeAggregationCast<T>(result);
+				return result;
+			}
 		};
 		
 		/// <summary><![CDATA[
