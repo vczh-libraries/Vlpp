@@ -81,11 +81,12 @@ namespace vl
 			union MethodPointerBinaryDataRetriver
 			{
 				T methodPointer;
-				MethodPointerBinaryData binaryData = {{0, 0, 0, 0}};
+				MethodPointerBinaryData binaryData;
 
 				MethodPointerBinaryDataRetriver(T _methodPointer)
-					:methodPointer(_methodPointer)
 				{
+					memset(&binaryData, 0, sizeof(binaryData));
+					methodPointer = _methodPointer;
 				}
 
 				const MethodPointerBinaryData& GetBinaryData()
@@ -198,7 +199,7 @@ InterfaceProxy::Invoke
 				CHECK_ERROR(_interface_proxy_typeDescriptor != nullptr, L"Internal error: The type of this interface has not been registered.");\
 				auto impl = dynamic_cast<MethodPointerBinaryData::IIndexer*>(_interface_proxy_typeDescriptor);\
 				CHECK_ERROR(impl != nullptr, L"Internal error: BEGIN_INTERFACE_PROXY is the only correct way to register an interface with a proxy.");\
-				const auto _interface_proxy_method\
+				auto _interface_proxy_method\
 					= (decltype(MethodTypeTrait<_interface_proxy_InterfaceType, decltype(METHODNAME(__VA_ARGS__))>(__VA_ARGS__)))\
 					&_interface_proxy_InterfaceType::METHODNAME;\
 				MethodPointerBinaryDataRetriver<decltype(_interface_proxy_method)> binaryData(_interface_proxy_method);\

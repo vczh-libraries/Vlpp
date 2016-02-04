@@ -1038,6 +1038,7 @@ LogTypeManager
 					case TypeDescriptorFlags::Struct:
 						LogTypeManager_Struct(writer, type);
 						break;
+					default:;
 					}
 					writer.WriteLine(L"");
 				}
