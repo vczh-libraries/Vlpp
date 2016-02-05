@@ -369,7 +369,7 @@ Interface
 	CLASS_MEMBER_EXTERNALCTOR(decltype(ValueInterfaceProxy<TYPENAME>::Create(nullptr))(Ptr<IValueInterfaceProxy>), { L"proxy" }, &ValueInterfaceProxy<TYPENAME>::Create)
 
 #define END_INTERFACE_MEMBER(TYPENAME)\
-						if (GetBaseTypeDescriptorCount() == 0) CLASS_MEMBER_BASE(IDescriptable)\
+						if (GetBaseTypeDescriptorCount() == 0 && TDFlags == TypeDescriptorFlags::Interface) CLASS_MEMBER_BASE(IDescriptable)\
 					}\
 				};\
 			};

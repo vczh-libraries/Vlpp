@@ -12329,7 +12329,11 @@ ParameterAccessor<TStruct>
 				static T* UnboxValue(const Value& value, ITypeDescriptor* typeDescriptor, const WString& valueName)
 				{
 					if(value.IsNull()) return nullptr;
-					T* result = value.GetRawPtr()->SafeAggregationCast<T>();
+					T* result = nullptr;
+					if (value.GetRawPtr())
+					{
+						result = value.GetRawPtr()->SafeAggregationCast<T>();
+					}
 					if(!result)
 					{
 						if(!typeDescriptor)
@@ -14092,7 +14096,7 @@ Interface
 	CLASS_MEMBER_EXTERNALCTOR(decltype(ValueInterfaceProxy<TYPENAME>::Create(nullptr))(Ptr<IValueInterfaceProxy>), { L"proxy" }, &ValueInterfaceProxy<TYPENAME>::Create)
 
 #define END_INTERFACE_MEMBER(TYPENAME)\
-						if (GetBaseTypeDescriptorCount() == 0) CLASS_MEMBER_BASE(IDescriptable)\
+						if (GetBaseTypeDescriptorCount() == 0 && TDFlags == TypeDescriptorFlags::Interface) CLASS_MEMBER_BASE(IDescriptable)\
 					}\
 				};\
 			};

@@ -184,7 +184,11 @@ ParameterAccessor<TStruct>
 				static T* UnboxValue(const Value& value, ITypeDescriptor* typeDescriptor, const WString& valueName)
 				{
 					if(value.IsNull()) return nullptr;
-					T* result = value.GetRawPtr()->SafeAggregationCast<T>();
+					T* result = nullptr;
+					if (value.GetRawPtr())
+					{
+						result = value.GetRawPtr()->SafeAggregationCast<T>();
+					}
 					if(!result)
 					{
 						if(!typeDescriptor)
