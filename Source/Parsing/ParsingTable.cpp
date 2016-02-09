@@ -291,13 +291,13 @@ ParsingTable::TransitionItem
 
 			ParsingTable::ParsingTable(stream::IStream& input)
 			{
-				stream::internal::Reader reader(input);
+				stream::internal::ContextFreeReader reader(input);
 				IO(reader);
 			}
 
 			void ParsingTable::Serialize(stream::IStream& output)
 			{
-				stream::internal::Writer writer(output);
+				stream::internal::ContextFreeWriter writer(output);
 				IO(writer);
 			}
 

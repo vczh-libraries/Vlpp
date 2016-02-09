@@ -4547,25 +4547,34 @@ Serialization
 
 		namespace internal
 		{
+			template<typename T>
 			struct Reader
 			{
-				stream::IStream& input;
+				stream::IStream&			input;
+				T							context;
 
 				Reader(stream::IStream& _input)
 					:input(_input)
+					, context(nullptr)
 				{
 				}
 			};
 				
+			template<typename T>
 			struct Writer
 			{
-				stream::IStream& output;
+				stream::IStream&			output;
+				T							context;
 
 				Writer(stream::IStream& _output)
 					:output(_output)
+					, context(nullptr)
 				{
 				}
 			};
+
+			using ContextFreeReader = Reader<void*>;
+			using ContextFreeWriter = Writer<void*>;
 
 			template<typename T>
 			struct Serialization
@@ -4574,17 +4583,17 @@ Serialization
 				static void IO(TIO& io, T& value);
 			};
 
-			template<typename T>
-			Reader& operator<<(Reader& reader, T& value)
+			template<typename TValue, typename TContext>
+			Reader<TContext>& operator<<(Reader<TContext>& reader, TValue& value)
 			{
-				Serialization<T>::IO(reader, value);
+				Serialization<TValue>::IO(reader, value);
 				return reader;
 			}
 
-			template<typename T>
-			Writer& operator<<(Writer& writer, T& value)
+			template<typename TValue, typename TContext>
+			Writer<TContext>& operator<<(Writer<TContext>& writer, TValue& value)
 			{
-				Serialization<T>::IO(writer, value);
+				Serialization<TValue>::IO(writer, value);
 				return writer;
 			}
 
@@ -4593,15 +4602,17 @@ Serialization
 			template<>
 			struct Serialization<vint64_t>
 			{
-				static void IO(Reader& reader, vint64_t& value)
+				template<typename TContext>
+				static void IO(Reader<TContext>& reader, vint64_t& value)
 				{
 					if (reader.input.Read(&value, sizeof(value)) != sizeof(value))
 					{
 						CHECK_FAIL(L"Deserialization failed.");
 					}
 				}
-					
-				static void IO(Writer& writer, vint64_t& value)
+				
+				template<typename TContext>
+				static void IO(Writer<TContext>& writer, vint64_t& value)
 				{
 					if (writer.output.Write(&value, sizeof(value)) != sizeof(value))
 					{
@@ -4613,14 +4624,16 @@ Serialization
 			template<>
 			struct Serialization<vint32_t>
 			{
-				static void IO(Reader& reader, vint32_t& value)
+				template<typename TContext>
+				static void IO(Reader<TContext>& reader, vint32_t& value)
 				{
 					vint64_t v = 0;
 					Serialization<vint64_t>::IO(reader, v);
 					value = (vint32_t)v;
 				}
 					
-				static void IO(Writer& writer, vint32_t& value)
+				template<typename TContext>
+				static void IO(Writer<TContext>& writer, vint32_t& value)
 				{
 					vint64_t v = (vint64_t)value;
 					Serialization<vint64_t>::IO(writer, v);
@@ -4630,7 +4643,8 @@ Serialization
 			template<>
 			struct Serialization<bool>
 			{
-				static void IO(Reader& reader, bool& value)
+				template<typename TContext>
+				static void IO(Reader<TContext>& reader, bool& value)
 				{
 					vint8_t v = 0;
 					if (reader.input.Read(&v, sizeof(v)) != sizeof(v))
@@ -4643,7 +4657,8 @@ Serialization
 					}
 				}
 					
-				static void IO(Writer& writer, bool& value)
+				template<typename TContext>
+				static void IO(Writer<TContext>& writer, bool& value)
 				{
 					vint8_t v = value ? -1 : 0;
 					if (writer.output.Write(&v, sizeof(v)) != sizeof(v))
@@ -4656,7 +4671,8 @@ Serialization
 			template<typename T>
 			struct Serialization<Ptr<T>>
 			{
-				static void IO(Reader& reader, Ptr<T>& value)
+				template<typename TContext>
+				static void IO(Reader<TContext>& reader, Ptr<T>& value)
 				{
 					bool notNull = false;
 					reader << notNull;
@@ -4671,7 +4687,8 @@ Serialization
 					}
 				}
 					
-				static void IO(Writer& writer, Ptr<T>& value)
+				template<typename TContext>
+				static void IO(Writer<TContext>& writer, Ptr<T>& value)
 				{
 					bool notNull = value;
 					writer << notNull;
@@ -4685,7 +4702,8 @@ Serialization
 			template<typename T>
 			struct Serialization<Nullable<T>>
 			{
-				static void IO(Reader& reader, Nullable<T>& value)
+				template<typename TContext>
+				static void IO(Reader<TContext>& reader, Nullable<T>& value)
 				{
 					bool notNull = false;
 					reader << notNull;
@@ -4700,8 +4718,9 @@ Serialization
 						value = Nullable<T>();
 					}
 				}
-					
-				static void IO(Writer& writer, Nullable<T>& value)
+				
+				template<typename TContext>	
+				static void IO(Writer<TContext>& writer, Nullable<T>& value)
 				{
 					bool notNull = value;
 					writer << notNull;
@@ -4716,86 +4735,53 @@ Serialization
 			template<>
 			struct Serialization<WString>
 			{
-				static void IO(Reader& reader, WString& value)
+				template<typename TContext>
+				static void IO(Reader<TContext>& reader, WString& value)
 				{
-#if defined VCZH_MSVC
-					vint32_t count = -1;
+					vint count = -1;
 					reader << count;
-					collections::Array<wchar_t> buffer(count + 1);
-					if (reader.input.Read((void*)&buffer[0], count*sizeof(wchar_t)) != count*sizeof(wchar_t))
+					if (count > 0)
 					{
-						CHECK_FAIL(L"Deserialization failed.");
-					}
-					buffer[count] = 0;
+						MemoryStream stream;
+						reader << (IStream&)stream;
+						Utf8Decoder decoder;
+						decoder.Setup(&stream);
 
-					value = &buffer[0];
-#elif defined VCZH_GCC
-					vint32_t count = -1;
-					reader << count;
-					if (count == 0)
+						collections::Array<wchar_t> stringBuffer(count + 1);
+						vint stringSize = decoder.Read(&stringBuffer[0], count * sizeof(wchar_t));
+						stringBuffer[stringSize / sizeof(wchar_t)] = 0;
+
+						value = &stringBuffer[0];
+					}
+					else
 					{
 						value = L"";
-						return;
 					}
-
-					vint size = count * 2;
-					collections::Array<char> buffer(size);
-					if (reader.input.Read((void*)&buffer[0],size) != size)
-					{
-						CHECK_FAIL(L"Deserialization failed.");
-					}
-
-					MemoryWrapperStream stream(&buffer[0], size + 1);
-					Utf16Decoder decoder;
-					decoder.Setup(&stream);
-
-					collections::Array<wchar_t> stringBuffer(count + 1);
-					vint stringSize = decoder.Read(&stringBuffer[0], count*sizeof(wchar_t));
-					stringBuffer[stringSize/sizeof(wchar_t)] = 0;
-
-					value = &stringBuffer[0];
-#endif
 				}
 					
-				static void IO(Writer& writer, WString& value)
+				template<typename TContext>
+				static void IO(Writer<TContext>& writer, WString& value)
 				{
-#if defined VCZH_MSVC
-					vint32_t count = (vint32_t)value.Length();
+					vint count = value.Length();
 					writer << count;
-					if (writer.output.Write((void*)value.Buffer(), count*sizeof(wchar_t)) != count*sizeof(wchar_t))
+					if (count > 0)
 					{
-						CHECK_FAIL(L"Serialization failed.");
+						MemoryStream stream;
+						{
+							Utf8Encoder encoder;
+							encoder.Setup(&stream);
+							encoder.Write((void*)value.Buffer(), count * sizeof(wchar_t));
+						}
+						writer << (IStream&)stream;
 					}
-#elif defined VCZH_GCC
-					if (value == L"")
-					{
-						vint32_t count = 0;
-						writer << count;
-						return;
-					}
-
-					MemoryStream stream;
-					{
-						Utf16Encoder encoder;
-						encoder.Setup(&stream);
-						encoder.Write((void*)value.Buffer(), value.Length() * sizeof(wchar_t));
-					}
-					
-					vint size = (vint)stream.Size();
-					vint32_t count = (vint32_t)size / 2;
-					writer << count;
-					if (writer.output.Write(stream.GetInternalBuffer(), size) != size)
-					{
-						CHECK_FAIL(L"Serialization failed.");
-					}
-#endif
 				}
 			};
 
 			template<typename T>
 			struct Serialization<collections::List<T>>
 			{
-				static void IO(Reader& reader, collections::List<T>& value)
+				template<typename TContext>
+				static void IO(Reader<TContext>& reader, collections::List<T>& value)
 				{
 					vint32_t count = -1;
 					reader << count;
@@ -4808,7 +4794,8 @@ Serialization
 					}
 				}
 					
-				static void IO(Writer& writer, collections::List<T>& value)
+				template<typename TContext>
+				static void IO(Writer<TContext>& writer, collections::List<T>& value)
 				{
 					vint32_t count = (vint32_t)value.Count();
 					writer << count;
@@ -4822,7 +4809,8 @@ Serialization
 			template<typename T>
 			struct Serialization<collections::Array<T>>
 			{
-				static void IO(Reader& reader, collections::Array<T>& value)
+				template<typename TContext>
+				static void IO(Reader<TContext>& reader, collections::Array<T>& value)
 				{
 					vint32_t count = -1;
 					reader << count;
@@ -4833,7 +4821,8 @@ Serialization
 					}
 				}
 					
-				static void IO(Writer& writer, collections::Array<T>& value)
+				template<typename TContext>
+				static void IO(Writer<TContext>& writer, collections::Array<T>& value)
 				{
 					vint32_t count = (vint32_t)value.Count();
 					writer << count;
@@ -4847,7 +4836,8 @@ Serialization
 			template<typename K, typename V>
 			struct Serialization<collections::Dictionary<K, V>>
 			{
-				static void IO(Reader& reader, collections::Dictionary<K, V>& value)
+				template<typename TContext>
+				static void IO(Reader<TContext>& reader, collections::Dictionary<K, V>& value)
 				{
 					vint32_t count = -1;
 					reader << count;
@@ -4861,7 +4851,8 @@ Serialization
 					}
 				}
 					
-				static void IO(Writer& writer, collections::Dictionary<K, V>& value)
+				template<typename TContext>
+				static void IO(Writer<TContext>& writer, collections::Dictionary<K, V>& value)
 				{
 					vint32_t count = (vint32_t)value.Count();
 					writer << count;
@@ -4877,7 +4868,8 @@ Serialization
 			template<typename K, typename V>
 			struct Serialization<collections::Group<K, V>>
 			{
-				static void IO(Reader& reader, collections::Group<K, V>& value)
+				template<typename TContext>
+				static void IO(Reader<TContext>& reader, collections::Group<K, V>& value)
 				{
 					vint32_t count = -1;
 					reader << count;
@@ -4894,7 +4886,8 @@ Serialization
 					}
 				}
 					
-				static void IO(Writer& writer, collections::Group<K, V>& value)
+				template<typename TContext>
+				static void IO(Writer<TContext>& writer, collections::Group<K, V>& value)
 				{
 					vint32_t count = (vint32_t)value.Count();
 					writer << count;
@@ -4910,7 +4903,8 @@ Serialization
 			template<>
 			struct Serialization<stream::IStream>
 			{
-				static void IO(Reader& reader, stream::IStream& value)
+				template<typename TContext>
+				static void IO(Reader<TContext>& reader, stream::IStream& value)
 				{
 					vint32_t count = 0;
 					reader.input.Read(&count, sizeof(count));
@@ -4934,7 +4928,8 @@ Serialization
 					}
 				}
 					
-				static void IO(Writer& writer, stream::IStream& value)
+				template<typename TContext>
+				static void IO(Writer<TContext>& writer, stream::IStream& value)
 				{
 					vint32_t count = (vint32_t)value.Size();
 					writer.output.Write(&count, sizeof(count));
@@ -4982,13 +4977,15 @@ Serialization
 			template<>\
 			struct Serialization<TYPE>\
 			{\
-				static void IO(Reader& reader, TYPE& value)\
+				template<typename TContext>\
+				static void IO(Reader<TContext>& reader, TYPE& value)\
 				{\
 					vint32_t v = 0;\
 					Serialization<vint32_t>::IO(reader, v);\
 					value = (TYPE)v;\
 				}\
-				static void IO(Writer& writer, TYPE& value)\
+				template<typename TContext>\
+				static void IO(Writer<TContext>& writer, TYPE& value)\
 				{\
 					vint32_t v = (vint32_t)value;\
 					Serialization<vint32_t>::IO(writer, v);\
