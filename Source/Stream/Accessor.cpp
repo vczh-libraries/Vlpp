@@ -31,7 +31,7 @@ TextReader
 		WString TextReader::ReadLine()
 		{
 			WString result;
-			wchar_t buffer[65537];
+			auto buffer = new wchar_t[65537];
 			buffer[0]=L'\0';
 			vint i=0;
 			while(true)
@@ -58,6 +58,7 @@ TextReader
 				}
 			}
 			result+=buffer;
+			delete[] buffer;
 			if(result.Length()>0 && result[result.Length()-1]==L'\r')
 			{
 				return result.Left(result.Length()-1);
@@ -71,7 +72,7 @@ TextReader
 		WString TextReader::ReadToEnd()
 		{
 			WString result;
-			wchar_t buffer[65537];
+			auto buffer = new wchar_t[65537];
 			buffer[0]=L'\0';
 			vint i=0;
 			while(true)
@@ -98,6 +99,7 @@ TextReader
 				}
 			}
 			result+=buffer;
+			delete[] buffer;
 			return result;
 		}
 
