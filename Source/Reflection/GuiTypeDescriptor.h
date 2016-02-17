@@ -57,7 +57,6 @@ Attribute
 			friend struct vl::ReferenceCounterOperator;
 			template<typename T>
 			friend class Description;
-			friend class DescriptableValue;
 
 			typedef collections::Dictionary<WString, Ptr<Object>>		InternalPropertyMap;
 			typedef bool(*DestructorProc)(DescriptableObject* obj, bool forceDisposing);
