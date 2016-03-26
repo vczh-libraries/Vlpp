@@ -8145,7 +8145,6 @@ Attribute
 			friend struct vl::ReferenceCounterOperator;
 			template<typename T>
 			friend class Description;
-			friend class DescriptableValue;
 
 			typedef collections::Dictionary<WString, Ptr<Object>>		InternalPropertyMap;
 			typedef bool(*DestructorProc)(DescriptableObject* obj, bool forceDisposing);
@@ -10839,15 +10838,15 @@ EnumValueSerializer
 				static bool Serialize(collections::Dictionary<WString, T>& candidates, const T& input, WString& output)
 				{
 					WString result;
-					for(vint i=0;i<candidates.Count();i++)
+					for (vint i = 0; i < candidates.Count(); i++)
 					{
-						if(candidates.Values().Get(i)&input)
+						if (static_cast<vuint64_t>(candidates.Values().Get(i)) & static_cast<vuint64_t>(input))
 						{
-							if(result!=L"") result+=L"|";
-							result+=candidates.Keys()[i];
+							if (result != L"") result += L"|";
+							result += candidates.Keys()[i];
 						}
 					}
-					output=result;
+					output = result;
 					return true;
 				}
 
@@ -11108,6 +11107,7 @@ Predefined Types
 			DECL_TYPE_INFO(IParameterInfo)
 			DECL_TYPE_INFO(IMethodInfo)
 			DECL_TYPE_INFO(IMethodGroupInfo)
+			DECL_TYPE_INFO(TypeDescriptorFlags)
 			DECL_TYPE_INFO(ITypeDescriptor)
 
 			template<>

@@ -17882,6 +17882,7 @@ TypeName
 			IMPL_TYPE_INFO_RENAME(vl::reflection::description::IParameterInfo,				system::reflection::ParameterInfo)
 			IMPL_TYPE_INFO_RENAME(vl::reflection::description::IMethodInfo,					system::reflection::MethodInfo)
 			IMPL_TYPE_INFO_RENAME(vl::reflection::description::IMethodGroupInfo,			system::reflection::MethodGroupInfo)
+			IMPL_TYPE_INFO_RENAME(vl::reflection::description::TypeDescriptorFlags,			system::reflection::TypeDescriptorFlags)
 			IMPL_TYPE_INFO_RENAME(vl::reflection::description::ITypeDescriptor,				system::reflection::TypeDescriptor)
 
 /***********************************************************************
@@ -18581,7 +18582,19 @@ Collections
 				CLASS_MEMBER_METHOD(GetMethod, {L"index"})
 			END_INTERFACE_MEMBER(IMethodGroupInfo)
 
+			BEGIN_ENUM_ITEM_MERGABLE(TypeDescriptorFlags)
+				ENUM_CLASS_ITEM(Object)
+				ENUM_CLASS_ITEM(IDescriptable)
+				ENUM_CLASS_ITEM(Class)
+				ENUM_CLASS_ITEM(Interface)
+				ENUM_CLASS_ITEM(Primitive)
+				ENUM_CLASS_ITEM(Struct)
+				ENUM_CLASS_ITEM(FlagEnum)
+				ENUM_CLASS_ITEM(NormalEnum)
+			END_ENUM_ITEM(TypeDescriptorFlags)
+
 			BEGIN_INTERFACE_MEMBER_NOPROXY(ITypeDescriptor)
+				CLASS_MEMBER_PROPERTY_READONLY_FAST(TypeDescriptorFlags)
 				CLASS_MEMBER_PROPERTY_READONLY_FAST(TypeName)
 				CLASS_MEMBER_PROPERTY_READONLY_FAST(ValueSerializer)
 				CLASS_MEMBER_PROPERTY_READONLY_FAST(BaseTypeDescriptorCount)
@@ -18676,6 +18689,7 @@ LoadPredefinedTypes
 					ADD_TYPE_INFO(IParameterInfo)
 					ADD_TYPE_INFO(IMethodInfo)
 					ADD_TYPE_INFO(IMethodGroupInfo)
+					ADD_TYPE_INFO(TypeDescriptorFlags)
 					ADD_TYPE_INFO(ITypeDescriptor)
 				}
 
