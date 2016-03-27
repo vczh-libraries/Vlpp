@@ -8150,7 +8150,6 @@ Attribute
 			typedef bool(*DestructorProc)(DescriptableObject* obj, bool forceDisposing);
 		private:
 			volatile vint							referenceCounter;
-			DestructorProc							sharedPtrDestructorProc;
 
 			size_t									objectSize;
 			description::ITypeDescriptor**			typeDescriptor;
@@ -8159,6 +8158,9 @@ Attribute
 			bool									destructing;
 			DescriptableObject**					aggregationInfo;
 			vint									aggregationSize;
+
+		protected:
+			DestructorProc							sharedPtrDestructorProc;
 
 		protected:
 
