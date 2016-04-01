@@ -536,6 +536,15 @@ Logging
 			void								Record(ParsingTreeCustomBase* node, const ParsingTextRange& range)override;
 		};
 
+		class ParsingUpdateLocationRecorder : public Object, public virtual IParsingPrintNodeRecorder
+		{
+		public:
+			ParsingUpdateLocationRecorder();
+			~ParsingUpdateLocationRecorder();
+
+			void								Record(ParsingTreeCustomBase* node, const ParsingTextRange& range)override;
+		};
+
 		class ParsingWriter : public stream::TextWriter
 		{
 			typedef collections::Pair<ParsingTreeCustomBase*, ParsingTextPos>				NodePosPair;
