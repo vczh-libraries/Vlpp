@@ -312,6 +312,10 @@ Class
 						Description<TYPENAME>::SetAssociatedTypeDescroptor(0);\
 					}\
 				protected:\
+					bool IsAggregatable()override\
+					{\
+						return AcceptValue<typename RequiresConvertable<TYPENAME, AggregatableDescription<TYPENAME>>::YesNoType>::Result;\
+					}\
 					void LoadInternal()override\
 					{
 

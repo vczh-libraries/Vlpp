@@ -84,6 +84,7 @@ Attribute
 			void									SetAggregationParent(vint index, DescriptableObject* value);
 			void									SetAggregationParent(vint index, Ptr<DescriptableObject>& value);
 			void									InitializeAggregation(vint size);
+			void									FinalizeAggregation();
 
 			template<typename T>
 			void SafeAggregationCast(T*& result)
@@ -143,6 +144,15 @@ Attribute
 		/// class YourClass : public Description<YourClass>
 		/// {
 		///		...
+		/// };
+		///
+		/// If you want YourClass to be inheritable in scripts, instead of using Description, you should use AggregatableDescription, like this:
+		/// class YourClass : public AggregatableDescription<YourClass>
+		/// {
+		///		~YourClass()
+		///		{
+		///			FinalizeAggregation();
+		///		}
 		/// };
 		///
 		/// After you have complete your type, use the following macros and functions to register your class into the global type table. Everything should be defined in vl::reflection::description namespaces.
@@ -396,6 +406,11 @@ Attribute
 			{
 				associatedTypeDescriptor=typeDescroptor;
 			}
+		};
+
+		template<typename T>
+		class AggregatableDescription : public Description<T>
+		{
 		};
 
 		template<typename T>
@@ -704,6 +719,8 @@ ITypeDescriptor
 			{
 			public:
 				virtual TypeDescriptorFlags		GetTypeDescriptorFlags() = 0;
+				virtual bool					IsAggregatable() = 0;
+
 				virtual const WString&			GetTypeName() = 0;
 				virtual const WString&			GetCppFullTypeName() = 0;
 				virtual IValueSerializer*		GetValueSerializer() = 0;
@@ -900,6 +917,11 @@ Interface Implementation Proxy (Implement)
 			template<typename TInterface, typename ...TBaseInterfaces>
 			class ValueInterfaceImpl : public virtual ValueInterfaceRoot, public virtual TInterface, public ValueInterfaceProxy<TBaseInterfaces>...
 			{
+			public:
+				~ValueInterfaceImpl()
+				{
+					FinalizeAggregation();
+				}
 			};
 #pragma warning(pop)
 

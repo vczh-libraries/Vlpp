@@ -458,17 +458,25 @@ namespace test
 		}
 	};
 
-	class AggParentShared : public Agg, public Description<AggParentShared>
+	class AggParentShared : public Agg, public AggregatableDescription<AggParentShared>
 	{
 	public:
+		~AggParentShared()
+		{
+			FinalizeAggregation();
+		}
 	};
 
-	class AggParentRaw : public Agg, public Description<AggParentRaw>
+	class AggParentRaw : public Agg, public AggregatableDescription<AggParentRaw>
 	{
 	public:
+		~AggParentRaw()
+		{
+			FinalizeAggregation();
+		}
 	};
 
-	class AggParentBase : public Agg, public Description<AggParentBase>
+	class AggParentBase : public Agg, public AggregatableDescription<AggParentBase>
 	{
 	public:
 		AggParentBase()
@@ -479,6 +487,11 @@ namespace test
 			InitializeAggregation(2);
 			SetAggregationParent(0, shared);
 			SetAggregationParent(1, raw);
+		}
+
+		~AggParentBase()
+		{
+			FinalizeAggregation();
 		}
 
 		AggParentShared* GetParentShared()
@@ -1354,6 +1367,14 @@ namespace reflection_test
 			}
 		}
 	}
+
+	void TestDescriptableObjectIsAggregation()
+	{
+		TEST_ASSERT(GetTypeDescriptor<AggParentShared>()->IsAggregatable() == true);
+		TEST_ASSERT(GetTypeDescriptor<AggParentRaw>()->IsAggregatable() == true);
+		TEST_ASSERT(GetTypeDescriptor<AggParentBase>()->IsAggregatable() == true);
+		TEST_ASSERT(GetTypeDescriptor<AggParentDerived>()->IsAggregatable() == false);
+	}
 }
 using namespace reflection_test;
 
@@ -1383,4 +1404,5 @@ TEST_CASE_REFLECTION(TestSharedRawPtrDestructing)
 TEST_CASE_REFLECTION(TestInterfaceProxy)
 TEST_CASE_REFLECTION(TestDescriptableObjectAggregation)
 TEST_CASE_REFLECTION(TestDescriptableObjectAggregationCast)
+TEST_CASE_REFLECTION(TestDescriptableObjectIsAggregation)
 

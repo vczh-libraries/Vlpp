@@ -323,6 +323,7 @@ SerializableTypeDescriptor
 				~SerializableTypeDescriptorBase();
 
 				TypeDescriptorFlags							GetTypeDescriptorFlags()override;
+				bool										IsAggregatable()override;
 				const WString&								GetTypeName()override;
 				const WString&								GetCppFullTypeName()override;
 				IValueSerializer*							GetValueSerializer()override;

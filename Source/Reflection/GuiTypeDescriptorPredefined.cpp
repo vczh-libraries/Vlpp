@@ -34,6 +34,11 @@ SerializableTypeDescriptorBase
 				return typeDescriptorFlags;
 			}
 
+			bool SerializableTypeDescriptorBase::IsAggregatable()
+			{
+				return false;
+			}
+
 			const WString& SerializableTypeDescriptorBase::GetTypeName()
 			{
 				return typeName;

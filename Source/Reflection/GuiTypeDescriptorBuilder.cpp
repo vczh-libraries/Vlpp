@@ -780,6 +780,11 @@ TypeDescriptorImpl
 				return typeDescriptorFlags;
 			}
 
+			bool TypeDescriptorImpl::IsAggregatable()
+			{
+				return false;
+			}
+
 			const WString& TypeDescriptorImpl::GetTypeName()
 			{
 				return typeName;
