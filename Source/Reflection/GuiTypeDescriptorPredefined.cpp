@@ -17,6 +17,19 @@ namespace vl
 ValueTypeDescriptorBase
 ***********************************************************************/
 
+			void ValueTypeDescriptorBase::LoadInternal()
+			{
+			}
+
+			void ValueTypeDescriptorBase::Load()
+			{
+				if (!loaded)
+				{
+					loaded = true;
+					LoadInternal();
+				}
+			}
+
 			ValueTypeDescriptorBase::ValueTypeDescriptorBase(TypeDescriptorFlags _typeDescriptorFlags, const WString& _typeName, const WString& _cppFullTypeName)
 				:typeDescriptorFlags(_typeDescriptorFlags)
 				, typeName(_typeName)
@@ -50,16 +63,19 @@ ValueTypeDescriptorBase
 
 			IValueType* ValueTypeDescriptorBase::GetValueType()
 			{
+				Load();
 				return valueType.Obj();
 			}
 
 			IEnumType* ValueTypeDescriptorBase::GetEnumType()
 			{
+				Load();
 				return enumType.Obj();
 			}
 
 			ISerializableType* ValueTypeDescriptorBase::GetSerializableType()
 			{
+				Load();
 				return serializableType.Obj();
 			}
 
@@ -1028,6 +1044,7 @@ LoadPredefinedTypes
 					ADD_TYPE_INFO(IValueException)
 
 					ADD_TYPE_INFO(IBoxedValue)
+					ADD_TYPE_INFO(IValueType::CompareResult)
 					ADD_TYPE_INFO(IValueType)
 					ADD_TYPE_INFO(IEnumType)
 					ADD_TYPE_INFO(ISerializableType)

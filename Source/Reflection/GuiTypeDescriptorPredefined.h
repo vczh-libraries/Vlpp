@@ -191,12 +191,16 @@ SerializableTypeDescriptor
 			class ValueTypeDescriptorBase : public Object, public ITypeDescriptor
 			{
 			protected:
+				bool										loaded;
 				TypeDescriptorFlags							typeDescriptorFlags;
 				Ptr<IValueType>								valueType;
 				Ptr<IEnumType>								enumType;
 				Ptr<ISerializableType>						serializableType;
 				WString										typeName;
 				WString										cppFullTypeName;
+
+				virtual void								LoadInternal();;
+				void										Load();
 			public:
 				ValueTypeDescriptorBase(TypeDescriptorFlags _typeDescriptorFlags, const WString& _typeName, const WString& _cppFullTypeName);
 				~ValueTypeDescriptorBase();

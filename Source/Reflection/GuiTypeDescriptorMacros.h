@@ -235,8 +235,9 @@ Enum
 				{\
 					typedef TYPENAME EnumType;\
 				public:\
-					CustomTypeDescriptorImpl()\
-					{
+					void LoadInternal()override\
+					{\
+						EnumTypeDescriptor<TYPENAME, TDFLAGS>::LoadInternal();\
 
 #define BEGIN_ENUM_ITEM(TYPENAME) BEGIN_ENUM_ITEM_FLAG(TYPENAME, TypeDescriptorFlags::NormalEnum)
 #define BEGIN_ENUM_ITEM_MERGABLE(TYPENAME) BEGIN_ENUM_ITEM_FLAG(TYPENAME, TypeDescriptorFlags::FlagEnum)

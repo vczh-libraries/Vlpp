@@ -581,16 +581,16 @@ Value_xs
 				template<typename T>
 				Value_xs& operator,(T& value)
 				{
-					arguments.Resize(arguments.Count()+1);
-					arguments[arguments.Count()-1]=BoxParameter<T>(value);
+					arguments.Resize(arguments.Count() + 1);
+					arguments[arguments.Count() - 1] = BoxParameter<T>(value);
 					return *this;
 				}
 
 				template<typename T>
 				Value_xs& operator,(const T& value)
 				{
-					arguments.Resize(arguments.Count()+1);
-					arguments[arguments.Count()-1]=BoxParameter<const T>(value);
+					arguments.Resize(arguments.Count() + 1);
+					arguments[arguments.Count() - 1] = BoxParameter<const T>(value);
 					return *this;
 				}
 
@@ -650,8 +650,8 @@ PrimitiveTypeDescriptor
 			template<typename T>
 			class PrimitiveTypeDescriptor : public TypedValueTypeDescriptorBase<T, TypeDescriptorFlags::Primitive>
 			{
-			public:
-				PrimitiveTypeDescriptor()
+			protected:
+				void LoadInternal()override
 				{
 					valueType = new SerializableValueType<T>();
 					serializableType = new SerializableType<T>();
@@ -669,10 +669,9 @@ EnumTypeDescriptor
 			protected:
 				Ptr<TEnumType>					enumType;
 
-			public:
-				EnumTypeDescriptor()
-					:enumType(new TEnumType)
+				void LoadInternal()override
 				{
+					enumType = new TEnumType;
 					valueType = new EnumValueType<T>();
 					TypedValueTypeDescriptorBase<T, TDFlags>::enumType = enumType;
 				}
@@ -720,19 +719,8 @@ StructTypeDescriptor
 				};
 
 			protected:
-				bool														loaded;
 				collections::Dictionary<WString, Ptr<IPropertyInfo>>		fields;
 
-				virtual void												LoadInternal() = 0;
-
-				void Load()
-				{
-					if (!loaded)
-					{
-						loaded = true;
-						LoadInternal();
-					}
-				}
 			public:
 				StructTypeDescriptor()
 				{
