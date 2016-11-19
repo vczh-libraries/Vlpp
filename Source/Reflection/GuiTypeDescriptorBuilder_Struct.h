@@ -255,39 +255,27 @@ ParameterAccessor<TStruct>
 			{
 				static Value BoxValue(const T& object, ITypeDescriptor* typeDescriptor)
 				{
-					typedef ITypedValueSerializer<typename RemoveCVR<T>::Type> TSerializer;
 					if(!typeDescriptor)
 					{
-						typeDescriptor=GetTypeDescriptor<typename TypeInfoRetriver<T>::Type>();
+						typeDescriptor = GetTypeDescriptor<typename TypeInfoRetriver<T>::Type>();
 					}
-					TSerializer* serializer=dynamic_cast<TSerializer*>(typeDescriptor->GetValueSerializer());
-					Value result;
-					serializer->Serialize(object, result);
-					return result;
+					return Value::From(new IValueType::TypedBox<T>(object), typeDescriptor);
 				}
 
 				static T UnboxValue(const Value& value, ITypeDescriptor* typeDescriptor, const WString& valueName)
 				{
-					ITypeDescriptor* valueTd = value.GetTypeDescriptor();
-					ITypedValueSerializer<T>* serializer = valueTd ? dynamic_cast<ITypedValueSerializer<T>*>(valueTd->GetValueSerializer()) : 0;
-					if(!serializer)
+					if (auto unboxedValue = value.GetBoxedValue().Cast<IValueType::TypedBox<T>>())
 					{
-						if(!typeDescriptor)
-						{
-							typeDescriptor=GetTypeDescriptor<typename TypeInfoRetriver<T>::Type>();
-						}
-						serializer=dynamic_cast<ITypedValueSerializer<T>*>(typeDescriptor->GetValueSerializer());
+						return unboxedValue->value;
 					}
-					T result;
-					if(!serializer->Deserialize(value, result))
+					else
 					{
-						if(!typeDescriptor)
+						if (!typeDescriptor)
 						{
-							typeDescriptor=GetTypeDescriptor<typename TypeInfoRetriver<T>::Type>();
+							typeDescriptor = GetTypeDescriptor<typename TypeInfoRetriver<T>::Type>();
 						}
-						throw ArgumentTypeMismtatchException(valueName, typeDescriptor, Value::Text, value);
+						throw ArgumentTypeMismtatchException(valueName, typeDescriptor, Value::BoxedValue, value);
 					}
-					return result;
 				}
 			};
 

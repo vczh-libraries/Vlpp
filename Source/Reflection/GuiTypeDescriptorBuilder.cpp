@@ -662,7 +662,7 @@ FieldInfoImpl
 				else
 				{
 					auto td = thisObject.GetTypeDescriptor();
-					auto valueType = td->GetValueSerializer() ? Value::Text : Value::RawPtr;
+					auto valueType = td->GetValueType() ? Value::BoxedValue : Value::RawPtr;
 					if(!thisObject.CanConvertTo(ownerTypeDescriptor, valueType))
 					{
 						throw ArgumentTypeMismtatchException(L"thisObject", ownerTypeDescriptor, valueType, thisObject);
@@ -680,7 +680,7 @@ FieldInfoImpl
 				else
 				{
 					auto td = thisObject.GetTypeDescriptor();
-					auto valueType = td->GetValueSerializer() ? Value::Text : Value::RawPtr;
+					auto valueType = td->GetValueType() ? Value::BoxedValue : Value::RawPtr;
 					if(!thisObject.CanConvertTo(ownerTypeDescriptor, valueType))
 					{
 						throw ArgumentTypeMismtatchException(L"thisObject", ownerTypeDescriptor, valueType, thisObject);
@@ -795,10 +795,19 @@ TypeDescriptorImpl
 				return cppFullTypeName;
 			}
 
-			IValueSerializer* TypeDescriptorImpl::GetValueSerializer()
+			IValueType* TypeDescriptorImpl::GetValueType()
 			{
-				Load();
-				return valueSerializer.Obj();
+				return nullptr;
+			}
+
+			IEnumType* TypeDescriptorImpl::GetEnumType()
+			{
+				return nullptr;
+			}
+
+			ISerializableType* TypeDescriptorImpl::GetSerializableType()
+			{
+				return nullptr;
 			}
 
 			vint TypeDescriptorImpl::GetBaseTypeDescriptorCount()

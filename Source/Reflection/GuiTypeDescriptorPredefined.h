@@ -34,113 +34,13 @@ TypeInfo
 			};
 
 			template<typename T>
-			ITypedValueSerializer<T>* GetValueSerializer()
-			{
-				return dynamic_cast<ITypedValueSerializer<T>*>(GetValueSerializer(TypeInfo<T>::TypeName));
-			}
-
-			template<typename T>
 			ITypeDescriptor* GetTypeDescriptor()
 			{
 				return GetTypeDescriptor(TypeInfo<T>::TypeName);
 			}
 
 /***********************************************************************
-GeneralValueSerializer
-***********************************************************************/
-
-			template<typename T>
-			class GeneralValueSerializer : public Object, public ITypedValueSerializer<T>
-			{
-			protected:
-				ITypeDescriptor*							ownedTypeDescriptor;
-
-				virtual T									GetDefaultValue() = 0;
-				virtual bool								Serialize(const T& input, WString& output)=0;
-				virtual bool								Deserialize(const WString& input, T& output)=0;
-			public:
-				typedef T ValueType;
-
-				GeneralValueSerializer(ITypeDescriptor* _ownedTypeDescriptor)
-					:ownedTypeDescriptor(_ownedTypeDescriptor)
-				{
-				}
-
-				ITypeDescriptor* GetOwnerTypeDescriptor()override
-				{
-					return ownedTypeDescriptor;
-				}
-
-				bool Validate(const WString& text)override
-				{
-					T output;
-					return Deserialize(text, output);
-				}
-
-				bool Parse(const WString& input, Value& output)override
-				{
-					T value;
-					if(Deserialize(input, value))
-					{
-						WString text;
-						Serialize(value, text);
-						output = Value::From(text, ownedTypeDescriptor);
-						return true;
-					}
-					return false;
-				}
-
-				WString GetDefaultText()override
-				{
-					T defaultValue = GetDefaultValue();
-					WString output;
-					Serialize(defaultValue, output);
-					return output;
-				}
-
-				bool HasCandidate()override
-				{
-					return false;
-				}
-
-				vint GetCandidateCount()override
-				{
-					return 0;
-				}
-
-				WString GetCandidate(vint index)override
-				{
-					return L"";
-				}
-
-				bool CanMergeCandidate()override
-				{
-					return false;
-				}
-
-				bool Serialize(const T& input, Value& output)override
-				{
-					WString text;
-					if(Serialize(input, text))
-					{
-						output=Value::From(text, ownedTypeDescriptor);
-						return true;
-					}
-					return false;
-				}
-
-				bool Deserialize(const Value& input, T& output)override
-				{
-					if(input.GetValueType()!=Value::Text)
-					{
-						return false;
-					}
-					return Deserialize(input.GetText(), output);
-				}
-			};
-
-/***********************************************************************
-TypedValueSerializer
+SerializableType
 ***********************************************************************/
 
 			template<typename T>
@@ -149,161 +49,138 @@ TypedValueSerializer
 			};
 
 			template<typename T>
-			class TypedValueSerializer : public GeneralValueSerializer<T>
+			class SerializableValueType : public Object, public virtual IValueType
 			{
-			protected:
-				T											defaultValue;
-
-				T GetDefaultValue()override
-				{
-					return defaultValue;
-				}
-
-				bool Serialize(const T& input, WString& output)override
-				{
-					return TypedValueSerializerProvider<T>::Serialize(input, output);
-				}
-
-				bool Deserialize(const WString& input, T& output)override
-				{
-					return TypedValueSerializerProvider<T>::Deserialize(input, output);
-				}
 			public:
-				TypedValueSerializer(ITypeDescriptor* _ownedTypeDescriptor, const T& _defaultValue)
-					:GeneralValueSerializer<T>(_ownedTypeDescriptor)
-					, defaultValue(_defaultValue)
+				Value CreateDefault()override
 				{
+					return BoxValue<T>(TypedValueSerializerProvider<T>::GetDefaultValue());
+				}
+
+				CompareResult Compare(const Value& a, const Value& b)override
+				{
+					auto va = UnboxValue<T>(a);
+					auto vb = UnboxValue<T>(b);
+					return TypedValueSerializerProvider<T>::Compare(va, vb);
 				}
 			};
 
 			template<typename T>
-			class TypedDefaultValueSerializer : public TypedValueSerializer<T>
+			class SerializableType : public Object, public virtual ISerializableType
 			{
 			public:
-				TypedDefaultValueSerializer(ITypeDescriptor* _ownedTypeDescriptor)
-					:TypedValueSerializer<T>(_ownedTypeDescriptor, TypedValueSerializerProvider<T>::GetDefaultValue())
+				bool Serialize(const Value& input, WString& output)override
 				{
+					return TypedValueSerializerProvider<T>::Serialize(UnboxValue<T>(input), output);
+				}
+
+				bool Deserialize(const WString& input, Value& output)override
+				{
+					T value;
+					if (!TypedValueSerializerProvider<T>::Deserialize(input, value))
+					{
+						return false;
+					}
+					output = BoxValue<T>(value);
+					return true;
 				}
 			};
 
 /***********************************************************************
-EnumValueSerializer
+EnumType
 ***********************************************************************/
 
-			template<typename T, bool CanMerge>
-			struct EnumValueSerializerProvider
-			{
-			};
-
 			template<typename T>
-			struct EnumValueSerializerProvider<T, true>
+			class EnumValueType : public Object, public virtual IValueType
 			{
-				static bool Serialize(collections::Dictionary<WString, T>& candidates, const T& input, WString& output)
+			public:
+				Value CreateDefault()override
 				{
-					WString result;
-					for (vint i = 0; i < candidates.Count(); i++)
-					{
-						if (static_cast<vuint64_t>(candidates.Values().Get(i)) & static_cast<vuint64_t>(input))
-						{
-							if (result != L"") result += L"|";
-							result += candidates.Keys()[i];
-						}
-					}
-					output = result;
-					return true;
+					return BoxValue<T>(static_cast<T>(0));
 				}
 
-				static bool Deserialize(collections::Dictionary<WString, T>& candidates, const WString& input, T& output)
+				CompareResult Compare(const Value& a, const Value& b)override
 				{
-					T result=(T)0;
-					const wchar_t* reading=input.Buffer();
-					while(*reading)
-					{
-						const wchar_t* sep=wcschr(reading, L'|');
-						if(!sep) sep=reading+wcslen(reading);
-						WString item(reading, vint(sep-reading));
-						reading=*sep?sep+1:sep;
-
-						vint index=candidates.Keys().IndexOf(item);
-						if(index==-1) return false;
-						result=(T)(result|candidates.Values().Get(index));
-					}
-					output=result;
-					return true;
+					auto ea = static_cast<vuint64_t>(UnboxValue<T>(a));
+					auto eb = static_cast<vuint64_t>(UnboxValue<T>(b));
+					if (ea < eb) return IValueType::Smaller;
+					if (ea > eb)return IValueType::Greater;
+					return IValueType::Equal;
 				}
 			};
 
-			template<typename T>
-			struct EnumValueSerializerProvider<T, false>
-			{
-				static bool Serialize(collections::Dictionary<WString, T>& candidates, const T& input, WString& output)
-				{
-					for(vint i=0;i<candidates.Count();i++)
-					{
-						if(candidates.Values().Get(i)==input)
-						{
-							output=candidates.Keys()[i];
-							return true;
-						}
-					}
-					return false;
-				}
-
-				static bool Deserialize(collections::Dictionary<WString, T>& candidates, const WString& input, T& output)
-				{
-					vint index=candidates.Keys().IndexOf(input);
-					if(index==-1) return false;
-					output=candidates.Values().Get(index);
-					return true;
-				}
-			};
-
-			template<typename T, bool CanMerge>
-			class EnumValueSerializer : public GeneralValueSerializer<T>
+			template<typename T, bool Flag>
+			class EnumType : public Object, public virtual IEnumType
 			{
 			protected:
-				T											defaultValue;
 				collections::Dictionary<WString, T>			candidates;
 
-				T GetDefaultValue()override
-				{
-					return defaultValue;
-				}
-
-				bool Serialize(const T& input, WString& output)override
-				{
-					return EnumValueSerializerProvider<T, CanMerge>::Serialize(candidates, input, output);
-				}
-
-				bool Deserialize(const WString& input, T& output)override
-				{
-					return EnumValueSerializerProvider<T, CanMerge>::Deserialize(candidates, input, output);
-				}
 			public:
-				EnumValueSerializer(ITypeDescriptor* _ownedTypeDescriptor, const T& _defaultValue)
-					:GeneralValueSerializer<T>(_ownedTypeDescriptor)
-					, defaultValue(_defaultValue)
+				void AddItem(WString name, T value)
 				{
+					candidates.Add(name, value);
 				}
 
-				bool HasCandidate()override
+				bool IsFlagEnum()override
 				{
-					return true;
+					return Flag;
 				}
 
-				vint GetCandidateCount()override
+				vint GetItemCount()override
 				{
 					return candidates.Count();
 				}
 
-				WString GetCandidate(vint index)override
+				WString GetItemName(vint index)override
 				{
+					if (index < 0 || index >= candidates.Count())
+					{
+						return L"";
+					}
 					return candidates.Keys()[index];
 				}
 
-				bool CanMergeCandidate()override
+				vuint64_t GetItemValue(vint index)override
 				{
-					return CanMerge;
+					if (index < 0 || index >= candidates.Count())
+					{
+						return 0;
+					}
+					return static_cast<vuint64_t>(candidates.Values()[index]);
+				}
+
+				vint IndexOfItem(WString name)override
+				{
+					return candidates.Keys().IndexOf(name);
+				}
+
+				Value ToEnum(vuint64_t value)override
+				{
+					return BoxValue<T>(static_cast<T>(value));
+				}
+
+				vuint64_t FromEnum(const Value& value)override
+				{
+					return static_cast<vuint64_t>(UnboxValue<T>(value));
+				}
+			};
+
+/***********************************************************************
+StructType
+***********************************************************************/
+
+			template<typename T>
+			class StructValueType : public Object, public virtual IValueType
+			{
+			public:
+				Value CreateDefault()override
+				{
+					return BoxValue<T>(T{});
+				}
+
+				CompareResult Compare(const Value& a, const Value& b)override
+				{
+					return IValueType::NotComparable;
 				}
 			};
 
@@ -311,22 +188,28 @@ EnumValueSerializer
 SerializableTypeDescriptor
 ***********************************************************************/
 
-			class SerializableTypeDescriptorBase : public Object, public ITypeDescriptor
+			class ValueTypeDescriptorBase : public Object, public ITypeDescriptor
 			{
 			protected:
 				TypeDescriptorFlags							typeDescriptorFlags;
-				Ptr<IValueSerializer>						serializer;
+				Ptr<IValueType>								valueType;
+				Ptr<IEnumType>								enumType;
+				Ptr<ISerializableType>						serializableType;
 				WString										typeName;
 				WString										cppFullTypeName;
 			public:
-				SerializableTypeDescriptorBase(TypeDescriptorFlags _typeDescriptorFlags, const WString& _typeName, const WString& _cppFullTypeName, Ptr<IValueSerializer> _serializer);
-				~SerializableTypeDescriptorBase();
+				ValueTypeDescriptorBase(TypeDescriptorFlags _typeDescriptorFlags, const WString& _typeName, const WString& _cppFullTypeName);
+				~ValueTypeDescriptorBase();
 
 				TypeDescriptorFlags							GetTypeDescriptorFlags()override;
 				bool										IsAggregatable()override;
 				const WString&								GetTypeName()override;
 				const WString&								GetCppFullTypeName()override;
-				IValueSerializer*							GetValueSerializer()override;
+
+				IValueType*									GetValueType()override;
+				IEnumType*									GetEnumType()override;
+				ISerializableType*							GetSerializableType()override;
+
 				vint										GetBaseTypeDescriptorCount()override;
 				ITypeDescriptor*							GetBaseTypeDescriptor(vint index)override;
 				bool										CanConvertTo(ITypeDescriptor* targetType)override;
@@ -345,14 +228,13 @@ SerializableTypeDescriptor
 				IMethodGroupInfo*							GetConstructorGroup()override;
 			};
 
-			template<typename TSerializer, TypeDescriptorFlags TDFlags>
-			class SerializableTypeDescriptor : public SerializableTypeDescriptorBase
+			template<typename T, TypeDescriptorFlags TDFlags>
+			class TypedValueTypeDescriptorBase : public ValueTypeDescriptorBase
 			{
 			public:
-				SerializableTypeDescriptor()
-					:SerializableTypeDescriptorBase(TDFlags, TypeInfo<typename TSerializer::ValueType>::TypeName, TypeInfo<typename TSerializer::ValueType>::CppFullTypeName, 0)
+				TypedValueTypeDescriptorBase()
+					:ValueTypeDescriptorBase(TDFlags, TypeInfo<T>::TypeName, TypeInfo<T>::CppFullTypeName)
 				{
-					serializer=new TSerializer(this);
 				}
 			};
 
@@ -444,8 +326,8 @@ Predefined Types
 			DECL_TYPE_INFO(bool)
 			DECL_TYPE_INFO(wchar_t)
 			DECL_TYPE_INFO(WString)
-			DECL_TYPE_INFO(DateTime)
 			DECL_TYPE_INFO(Locale)
+			DECL_TYPE_INFO(DateTime)
 
 			DECL_TYPE_INFO(IValueEnumerator)
 			DECL_TYPE_INFO(IValueEnumerable)
@@ -461,7 +343,11 @@ Predefined Types
 			DECL_TYPE_INFO(IValueCallStack)
 			DECL_TYPE_INFO(IValueException)
 
-			DECL_TYPE_INFO(IValueSerializer)
+			DECL_TYPE_INFO(IBoxedValue)
+			DECL_TYPE_INFO(IValueType::CompareResult)
+			DECL_TYPE_INFO(IValueType)
+			DECL_TYPE_INFO(IEnumType)
+			DECL_TYPE_INFO(ISerializableType)
 			DECL_TYPE_INFO(ITypeInfo)
 			DECL_TYPE_INFO(ITypeInfo::Decorator)
 			DECL_TYPE_INFO(IMemberInfo)
@@ -474,109 +360,33 @@ Predefined Types
 			DECL_TYPE_INFO(TypeDescriptorFlags)
 			DECL_TYPE_INFO(ITypeDescriptor)
 
-			template<>
-			struct TypedValueSerializerProvider<vuint8_t>
-			{
-				static vuint8_t GetDefaultValue();
-				static bool Serialize(const vuint8_t& input, WString& output);
-				static bool Deserialize(const WString& input, vuint8_t& output);
-			};
 
-			template<>
-			struct TypedValueSerializerProvider<vuint16_t>
-			{
-				static vuint16_t GetDefaultValue();
-				static bool Serialize(const vuint16_t& input, WString& output);
-				static bool Deserialize(const WString& input, vuint16_t& output);
-			};
+#define DEFINE_TYPED_VALUE_SERIALIZER_PROVIDER(TYPENAME)\
+			template<>\
+			struct TypedValueSerializerProvider<TYPENAME>\
+			{\
+				static TYPENAME GetDefaultValue();\
+				static bool Serialize(const TYPENAME& input, WString& output);\
+				static bool Deserialize(const WString& input, TYPENAME& output);\
+				static IValueType::CompareResult Compare(const TYPENAME& a, const TYPENAME& b);\
+			};\
 
-			template<>
-			struct TypedValueSerializerProvider<vuint32_t>
-			{
-				static vuint32_t GetDefaultValue();
-				static bool Serialize(const vuint32_t& input, WString& output);
-				static bool Deserialize(const WString& input, vuint32_t& output);
-			};
+			DEFINE_TYPED_VALUE_SERIALIZER_PROVIDER(vuint8_t)
+			DEFINE_TYPED_VALUE_SERIALIZER_PROVIDER(vuint16_t)
+			DEFINE_TYPED_VALUE_SERIALIZER_PROVIDER(vuint32_t)
+			DEFINE_TYPED_VALUE_SERIALIZER_PROVIDER(vuint64_t)
+			DEFINE_TYPED_VALUE_SERIALIZER_PROVIDER(vint8_t)
+			DEFINE_TYPED_VALUE_SERIALIZER_PROVIDER(vint16_t)
+			DEFINE_TYPED_VALUE_SERIALIZER_PROVIDER(vint32_t)
+			DEFINE_TYPED_VALUE_SERIALIZER_PROVIDER(vint64_t)
+			DEFINE_TYPED_VALUE_SERIALIZER_PROVIDER(float)
+			DEFINE_TYPED_VALUE_SERIALIZER_PROVIDER(double)
+			DEFINE_TYPED_VALUE_SERIALIZER_PROVIDER(bool)
+			DEFINE_TYPED_VALUE_SERIALIZER_PROVIDER(wchar_t)
+			DEFINE_TYPED_VALUE_SERIALIZER_PROVIDER(WString)
+			DEFINE_TYPED_VALUE_SERIALIZER_PROVIDER(Locale)
 
-			template<>
-			struct TypedValueSerializerProvider<vuint64_t>
-			{
-				static vuint64_t GetDefaultValue();
-				static bool Serialize(const vuint64_t& input, WString& output);
-				static bool Deserialize(const WString& input, vuint64_t& output);
-			};
-
-			template<>
-			struct TypedValueSerializerProvider<vint8_t>
-			{
-				static vint8_t GetDefaultValue();
-				static bool Serialize(const vint8_t& input, WString& output);
-				static bool Deserialize(const WString& input, vint8_t& output);
-			};
-
-			template<>
-			struct TypedValueSerializerProvider<vint16_t>
-			{
-				static vint16_t GetDefaultValue();
-				static bool Serialize(const vint16_t& input, WString& output);
-				static bool Deserialize(const WString& input, vint16_t& output);
-			};
-
-			template<>
-			struct TypedValueSerializerProvider<vint32_t>
-			{
-				static vint32_t GetDefaultValue();
-				static bool Serialize(const vint32_t& input, WString& output);
-				static bool Deserialize(const WString& input, vint32_t& output);
-			};
-
-			template<>
-			struct TypedValueSerializerProvider<vint64_t>
-			{
-				static vint64_t GetDefaultValue();
-				static bool Serialize(const vint64_t& input, WString& output);
-				static bool Deserialize(const WString& input, vint64_t& output);
-			};
-
-			template<>
-			struct TypedValueSerializerProvider<float>
-			{
-				static float GetDefaultValue();
-				static bool Serialize(const float& input, WString& output);
-				static bool Deserialize(const WString& input, float& output);
-			};
-
-			template<>
-			struct TypedValueSerializerProvider<double>
-			{
-				static double GetDefaultValue();
-				static bool Serialize(const double& input, WString& output);
-				static bool Deserialize(const WString& input, double& output);
-			};
-
-			template<>
-			struct TypedValueSerializerProvider<wchar_t>
-			{
-				static wchar_t GetDefaultValue();
-				static bool Serialize(const wchar_t& input, WString& output);
-				static bool Deserialize(const WString& input, wchar_t& output);
-			};
-
-			template<>
-			struct TypedValueSerializerProvider<WString>
-			{
-				static WString GetDefaultValue();
-				static bool Serialize(const WString& input, WString& output);
-				static bool Deserialize(const WString& input, WString& output);
-			};
-
-			template<>
-			struct TypedValueSerializerProvider<Locale>
-			{
-				static Locale GetDefaultValue();
-				static bool Serialize(const Locale& input, WString& output);
-				static bool Deserialize(const WString& input, Locale& output);
-			};
+#undef DEFINE_TYPED_VALUE_SERIALIZER_PROVIDER
 
 /***********************************************************************
 LoadPredefinedTypes

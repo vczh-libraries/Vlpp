@@ -23,11 +23,9 @@ namespace test
 	void TestNumber(TValue(&values)[Count], TValue min, TValue max, bool testGetText)
 	{
 		ITypeDescriptor* type=GetTypeDescriptor<T>();
-		ITypedValueSerializer<T>* serializer=GetValueSerializer<T>();
+		auto serializer = type->GetSerializableType();
 		TEST_ASSERT(type);
 		TEST_ASSERT(serializer);
-		TEST_ASSERT(type->GetValueSerializer()==serializer);
-		TEST_ASSERT(serializer->GetOwnerTypeDescriptor()==type);
 #ifdef VCZH_GCC
 		TEST_PRINT(L"\tValidate Serializer of: " + type->GetTypeName());
 #endif
@@ -39,38 +37,25 @@ namespace test
 			if(min<=i && i<=max)
 			{
 				Value value;
-				TEST_ASSERT(serializer->Validate(ToString(i))==true);
 				{
-					TEST_ASSERT(serializer->Parse(ToString(i), value));
-#ifdef VCZH_GCC
-					TEST_PRINT(L"\tPrinting: " + value.GetText());
-#endif
-					TEST_ASSERT(value.GetValueType()==Value::Text);
+					TEST_ASSERT(serializer->Deserialize(ToString(i), value));
+					TEST_ASSERT(value.GetValueType()==Value::BoxedValue);
 					TEST_ASSERT(value.GetTypeDescriptor()==type);
 					TEST_ASSERT(value.GetRawPtr()==0);
 					TEST_ASSERT(value.GetSharedPtr().Obj()==0);
-					if (testGetText)
-					{
-						TEST_ASSERT(value.GetText()==ToString(i));
-					}
-				}
-				{
-					TEST_ASSERT(serializer->Serialize((T)i, value));
+
+					WString output;
+					TEST_ASSERT(serializer->Serialize(value, output));
 #ifdef VCZH_GCC
 					TEST_PRINT(L"\tPrinting: " + value.GetText());
 #endif
-					TEST_ASSERT(value.GetValueType()==Value::Text);
-					TEST_ASSERT(value.GetTypeDescriptor()==type);
-					TEST_ASSERT(value.GetRawPtr()==0);
-					TEST_ASSERT(value.GetSharedPtr().Obj()==0);
 					if (testGetText)
 					{
-						TEST_ASSERT(value.GetText()==ToString(i));
+						TEST_ASSERT(output == ToString(i));
 					}
 				}
 				{
-					T n=2;
-					TEST_ASSERT(serializer->Deserialize(value, n));
+					T n = UnboxValue<T>(value);
 #ifdef VCZH_MSVC
 					TEST_ASSERT(n==(T)i);
 #endif
@@ -79,19 +64,12 @@ namespace test
 			else
 			{
 				Value value;
-				TEST_ASSERT(serializer->Validate(ToString(i))==false);
 				{
-					TEST_ASSERT(serializer->Parse(ToString(i), value)==false);
+					TEST_ASSERT(serializer->Deserialize(ToString(i), value)==false);
 					TEST_ASSERT(value.GetValueType()==Value::Null);
 					TEST_ASSERT(value.GetTypeDescriptor()==0);
 					TEST_ASSERT(value.GetRawPtr()==0);
 					TEST_ASSERT(value.GetSharedPtr().Obj()==0);
-					TEST_ASSERT(value.GetText()==L"");
-				}
-				{
-					T n=2;
-					TEST_ASSERT(serializer->Deserialize(value, n)==false);
-					TEST_ASSERT(n==2);
 				}
 			}
 		}
@@ -101,11 +79,9 @@ namespace test
 	void TestLiteral(WString legalsText[], WString illegalsText[], T legals[])
 	{
 		ITypeDescriptor* type=GetTypeDescriptor<T>();
-		ITypedValueSerializer<T>* serializer=GetValueSerializer<T>();
+		auto serializer = type->GetSerializableType();
 		TEST_ASSERT(type);
 		TEST_ASSERT(serializer);
-		TEST_ASSERT(type->GetValueSerializer()==serializer);
-		TEST_ASSERT(serializer->GetOwnerTypeDescriptor()==type);
 
 		for(vint x=0;x<LegalCount;x++)
 		{
@@ -115,33 +91,24 @@ namespace test
 #endif
 			T j=legals[x];
 			Value value;
-			TEST_ASSERT(serializer->Validate(i)==true);
 			{
-				TEST_ASSERT(serializer->Parse(i, value));
-#ifdef VCZH_GCC
-				TEST_PRINT(L"\tPrinting: " + value.GetText());
-#endif
-				TEST_ASSERT(value.GetValueType()==Value::Text);
-				TEST_ASSERT(value.GetTypeDescriptor()==type);
-				TEST_ASSERT(value.GetRawPtr()==0);
-				TEST_ASSERT(value.GetSharedPtr().Obj()==0);
-				TEST_ASSERT(value.GetText()==i);
+				TEST_ASSERT(serializer->Deserialize(i, value));
+				TEST_ASSERT(value.GetValueType() == Value::BoxedValue);
+				TEST_ASSERT(value.GetTypeDescriptor() == type);
+				TEST_ASSERT(value.GetRawPtr() == 0);
+				TEST_ASSERT(value.GetSharedPtr().Obj() == 0);
 			}
 			{
-				TEST_ASSERT(serializer->Serialize(j, value));
+				WString output;
+				TEST_ASSERT(serializer->Serialize(value, output));
+				TEST_ASSERT(i == output);
 #ifdef VCZH_GCC
-				TEST_PRINT(L"\tPrinting: " + value.GetText());
+				TEST_PRINT(L"\tPrinting: " + output);
 #endif
-				TEST_ASSERT(value.GetValueType()==Value::Text);
-				TEST_ASSERT(value.GetTypeDescriptor()==type);
-				TEST_ASSERT(value.GetRawPtr()==0);
-				TEST_ASSERT(value.GetSharedPtr().Obj()==0);
-				TEST_ASSERT(value.GetText()==i);
 			}
 			{
-				T n;
-				TEST_ASSERT(serializer->Deserialize(value, n));
-				TEST_ASSERT(n==j);
+				T n = UnboxValue<T>(value);
+				TEST_ASSERT(n == j);
 			}
 		}
 		
@@ -152,18 +119,12 @@ namespace test
 			TEST_PRINT(L"\tParsing: " + i + L" using " + type->GetTypeName());
 #endif
 			Value value;
-			TEST_ASSERT(serializer->Validate(i)==false);
 			{
-				TEST_ASSERT(serializer->Parse(i, value)==false);
-				TEST_ASSERT(value.GetValueType()==Value::Null);
-				TEST_ASSERT(value.GetTypeDescriptor()==0);
-				TEST_ASSERT(value.GetRawPtr()==0);
-				TEST_ASSERT(value.GetSharedPtr().Obj()==0);
-				TEST_ASSERT(value.GetText()==L"");
-			}
-			{
-				T n;
-				TEST_ASSERT(serializer->Deserialize(value, n)==false);
+				TEST_ASSERT(serializer->Deserialize(i, value) == false);
+				TEST_ASSERT(value.GetValueType() == Value::Null);
+				TEST_ASSERT(value.GetTypeDescriptor() == 0);
+				TEST_ASSERT(value.GetRawPtr() == 0);
+				TEST_ASSERT(value.GetSharedPtr().Obj() == 0);
 			}
 		}
 	}
@@ -751,7 +712,9 @@ namespace reflection_test
 		TEST_ASSERT(GetTypeDescriptor<IValueSubscription>()->GetTypeDescriptorFlags() == TypeDescriptorFlags::Interface);
 		TEST_ASSERT(GetTypeDescriptor<IValueCallStack>()->GetTypeDescriptorFlags() == TypeDescriptorFlags::Interface);
 		TEST_ASSERT(GetTypeDescriptor<IValueException>()->GetTypeDescriptorFlags() == TypeDescriptorFlags::Interface);
-		TEST_ASSERT(GetTypeDescriptor<IValueSerializer>()->GetTypeDescriptorFlags() == TypeDescriptorFlags::Interface);
+		TEST_ASSERT(GetTypeDescriptor<IValueType>()->GetTypeDescriptorFlags() == TypeDescriptorFlags::Interface);
+		TEST_ASSERT(GetTypeDescriptor<IEnumType>()->GetTypeDescriptorFlags() == TypeDescriptorFlags::Interface);
+		TEST_ASSERT(GetTypeDescriptor<ISerializableType>()->GetTypeDescriptorFlags() == TypeDescriptorFlags::Interface);
 		TEST_ASSERT(GetTypeDescriptor<ITypeInfo>()->GetTypeDescriptorFlags() == TypeDescriptorFlags::Interface);
 		TEST_ASSERT(GetTypeDescriptor<ITypeInfo::Decorator>()->GetTypeDescriptorFlags() == TypeDescriptorFlags::NormalEnum);
 		TEST_ASSERT(GetTypeDescriptor<IMemberInfo>()->GetTypeDescriptorFlags() == TypeDescriptorFlags::Interface);
@@ -971,7 +934,6 @@ namespace reflection_test
 		{
 			Point point={10, 20};
 			Value value=BoxValue<Point>(point);
-			TEST_ASSERT(value.GetText()==L"x:10 y:20");
 
 			point=UnboxValue<Point>(value);
 			TEST_ASSERT(point.x==10);
@@ -980,7 +942,6 @@ namespace reflection_test
 		{
 			Size size={10, 20};
 			Value value=BoxValue<Size>(size);
-			TEST_ASSERT(value.GetText()==L"cx:10 cy:20");
 
 			size=UnboxValue<Size>(value);
 			TEST_ASSERT(size.cx==10);
@@ -989,7 +950,6 @@ namespace reflection_test
 		{
 			Rect rect={{10, 20}, {30, 40}};
 			Value value=BoxValue<Rect>(rect);
-			TEST_ASSERT(value.GetText()==L"point:{x:10 y:20} size:{cx:30 cy:40}");
 
 			rect=UnboxValue<Rect>(value);
 			TEST_ASSERT(rect.point.x==10);
@@ -1002,7 +962,6 @@ namespace reflection_test
 			Rect b = { { 10, 20 }, { 30, 40 } };
 			RectPair rp={ a, b };
 			Value value=BoxValue<RectPair>(rp);
-			TEST_ASSERT(value.GetText()==L"a:{point:{{x:1 y:2}} size:{{cx:3 cy:4}}} b:{point:{{x:10 y:20}} size:{{cx:30 cy:40}}}");
 
 			rp=UnboxValue<RectPair>(value);
 			TEST_ASSERT(rp.a.point.x==1);
@@ -1013,6 +972,24 @@ namespace reflection_test
 			TEST_ASSERT(rp.b.point.y==20);
 			TEST_ASSERT(rp.b.size.cx==30);
 			TEST_ASSERT(rp.b.size.cy==40);
+		}
+		{
+			Point point = { 10, 20 };
+			Value value = BoxValue<Point>(point);
+			Value a = value;
+			Value b;
+			b = value;
+
+			value.SetProperty(L"x", BoxValue<vint>(1));
+			value.SetProperty(L"y", BoxValue<vint>(2));
+			
+			auto pa = UnboxValue<Point>(a);
+			TEST_ASSERT(pa.x == 10);
+			TEST_ASSERT(pa.y == 20);
+
+			auto pb = UnboxValue<Point>(b);
+			TEST_ASSERT(pb.x == 10);
+			TEST_ASSERT(pb.y == 20);
 		}
 	}
 

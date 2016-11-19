@@ -19,7 +19,7 @@ namespace vl
 		{
 
 /***********************************************************************
-TypeInfoImp;
+TypeInfoImp
 ***********************************************************************/
 
 			class TypeInfoImpl : public Object, public ITypeInfo
@@ -251,7 +251,6 @@ TypeDescriptorImpl
 				TypeDescriptorFlags											typeDescriptorFlags;
 				WString														typeName;
 				WString														cppFullTypeName;
-				Ptr<IValueSerializer>										valueSerializer;
 				collections::List<ITypeDescriptor*>							baseTypeDescriptors;
 				collections::Dictionary<WString, Ptr<IPropertyInfo>>		properties;
 				collections::Dictionary<WString, Ptr<IEventInfo>>			events;
@@ -275,10 +274,13 @@ TypeDescriptorImpl
 
 				TypeDescriptorFlags			GetTypeDescriptorFlags()override;
 				bool						IsAggregatable()override;
-
 				const WString&				GetTypeName()override;
 				const WString&				GetCppFullTypeName()override;
-				IValueSerializer*			GetValueSerializer()override;
+
+				IValueType*					GetValueType()override;
+				IEnumType*					GetEnumType()override;
+				ISerializableType*			GetSerializableType()override;
+
 				vint						GetBaseTypeDescriptorCount()override;
 				ITypeDescriptor*			GetBaseTypeDescriptor(vint index)override;
 				bool						CanConvertTo(ITypeDescriptor* targetType)override;
@@ -642,267 +644,129 @@ CustomFieldInfoImpl
 			};
 
 /***********************************************************************
-StructValueSerializer
+PrimitiveTypeDescriptor
 ***********************************************************************/
 
 			template<typename T>
-			class StructValueSerializer : public GeneralValueSerializer<T>
+			class PrimitiveTypeDescriptor : public TypedValueTypeDescriptorBase<T, TypeDescriptorFlags::Primitive>
 			{
 			public:
-				class FieldSerializerBase : public Object
+				PrimitiveTypeDescriptor()
 				{
-				public:
-					virtual bool				SerializeField(const T& input, WString& output)=0;
-					virtual bool				DeserializeField(WString& input, T& output)=0;
-				};
+					valueType = new SerializableValueType<T>();
+					serializableType = new SerializableType<T>();
+				}
+			};
 
+/***********************************************************************
+EnumTypeDescriptor
+***********************************************************************/
+
+			template<typename T, TypeDescriptorFlags TDFlags>
+			class EnumTypeDescriptor : public TypedValueTypeDescriptorBase<T, TDFlags>
+			{
+				using TEnumType = EnumType<T, TDFlags == TypeDescriptorFlags::FlagEnum>;
+			protected:
+				Ptr<TEnumType>					enumType;
+
+			public:
+				EnumTypeDescriptor()
+					:enumType(new TEnumType)
+				{
+					valueType = new EnumValueType<T>();
+					TypedValueTypeDescriptorBase<T, TDFlags>::enumType = enumType;
+				}
+			};
+
+/***********************************************************************
+StructTypeDescriptor
+***********************************************************************/
+
+			template<typename T, TypeDescriptorFlags TDFlags>
+			class StructTypeDescriptor : public TypedValueTypeDescriptorBase<T, TDFlags>
+			{
+			protected:
 				template<typename TField>
-				class FieldSerializer : public FieldSerializerBase, public FieldInfoImpl
+				class StructFieldInfo : public FieldInfoImpl
 				{
 				protected:
 					TField T::*					field;
 
 					Value GetValueInternal(const Value& thisObject)override
 					{
-						T structValue=UnboxValue<T>(thisObject, GetOwnerTypeDescriptor(), L"thisObject");
-						TField fieldValue=structValue.*field;
-						return BoxValue<TField>(fieldValue, GetReturn()->GetTypeDescriptor());
+						auto structValue = thisObject.GetBoxedValue().Cast<IValueType::TypedBox<T>>();
+						if (!structValue)
+						{
+							throw ArgumentTypeMismtatchException(L"thisObject", GetOwnerTypeDescriptor(), Value::BoxedValue, thisObject);
+						}
+						return BoxValue<TField>(structValue->value.*field);
 					}
 
 					void SetValueInternal(Value& thisObject, const Value& newValue)override
 					{
-						T structValue=UnboxValue<T>(thisObject, GetOwnerTypeDescriptor(), L"thisObject");
-						TField fieldValue=UnboxValue<TField>(newValue, GetReturn()->GetTypeDescriptor(), L"newValue");
-						structValue.*field=fieldValue;
-						thisObject=BoxValue<T>(structValue, GetOwnerTypeDescriptor());
+						auto structValue = thisObject.GetBoxedValue().Cast<IValueType::TypedBox<T>>();
+						if (!structValue)
+						{
+							throw ArgumentTypeMismtatchException(L"thisObject", GetOwnerTypeDescriptor(), Value::BoxedValue, thisObject);
+						}
+						(structValue->value.*field) = UnboxValue<TField>(newValue);
 					}
 				public:
-					FieldSerializer(ITypeDescriptor* _ownerTypeDescriptor, TField T::* _field, const WString& _name)
+					StructFieldInfo(ITypeDescriptor* _ownerTypeDescriptor, TField T::* _field, const WString& _name)
 						:field(_field)
-						,FieldInfoImpl(_ownerTypeDescriptor, _name, TypeInfoRetriver<TField>::CreateTypeInfo())
+						, FieldInfoImpl(_ownerTypeDescriptor, _name, TypeInfoRetriver<TField>::CreateTypeInfo())
 					{
-					}
-
-					bool SerializeField(const T& input, WString& output)override
-					{
-						ITypedValueSerializer<TField>* serializer=GetValueSerializer<TField>();
-						if(!serializer) return false;
-						Value result;
-						if(!serializer->Serialize(input.*field, result)) return false;
-						output=result.GetText();
-						return true;
-					}
-
-					bool DeserializeField(WString& input, T& output)override
-					{
-						ITypedValueSerializer<TField>* serializer=GetValueSerializer<TField>();
-						if(!serializer) return false;
-						Value value=Value::From(input, serializer->GetOwnerTypeDescriptor());
-						return serializer->Deserialize(value, output.*field);
 					}
 				};
 
 			protected:
-				collections::Dictionary<WString, Ptr<FieldSerializerBase>>		fieldSerializers;
-				bool															loaded;
+				bool														loaded;
+				collections::Dictionary<WString, Ptr<IPropertyInfo>>		fields;
 
-				virtual void													LoadInternal()=0;
+				virtual void												LoadInternal() = 0;
 
 				void Load()
 				{
-					if(!loaded)
+					if (!loaded)
 					{
-						loaded=true;
+						loaded = true;
 						LoadInternal();
 					}
 				}
-
-				bool IsSpace(wchar_t c)
-				{
-					return c == L' ' || c == L'\t' || c == L'\r' || c == L'\n';
-				}
-
-				const wchar_t* FindSpace(const wchar_t* text)
-				{
-					while (*text)
-					{
-						if (IsSpace(*text)) return text;
-						text++;
-					}
-					return 0;
-				}
-
-				WString Escape(const WString& text)
-				{
-					const wchar_t* reading=text.Buffer();
-					if(FindSpace(reading)==0 && wcschr(reading, L'{')==0 && wcschr(reading, L'}')==0)
-					{
-						return text;
-					}
-
-					WString result;
-					while(wchar_t c=*reading++)
-					{
-						switch(c)
-						{
-						case L'{':
-							result+=L"{{";
-							break;
-						case L'}':
-							result+=L"}}";
-							break;
-						default:
-							result+=c;
-						}
-					}
-					return L"{"+result+L"}";
-				}
-
-				bool Unescape(const wchar_t*& reading, WString& field)
-				{
-					if(*reading==L'{')
-					{
-						const wchar_t* start=reading+1;
-						const wchar_t* end=start;
-						bool stop=false;
-						while(!stop)
-						{
-							switch(*end)
-							{
-							case L'\0':
-								return false;
-							case L'{':
-								if(end[1]!=L'{') return false;
-								end+=2;
-								field+=L'{';
-								break;
-							case L'}':
-								if(end[1]==L'}')
-								{
-									end+=2;
-									field+=L'}';
-								}
-								else
-								{
-									stop=true;
-								}
-								break;
-							default:
-								field+=*end;
-								end++;
-							}
-						}
-						reading=end+1;
-					}
-					else
-					{
-						const wchar_t* space=FindSpace(reading);
-						if(space)
-						{
-							field=WString(reading, vint(space-reading));
-							reading=space+1;
-						}
-						else
-						{
-							field=reading;
-							reading+=field.Length();
-						}
-					}
-					return true;
-				}
-
-				T GetDefaultValue()override
-				{
-					return T();
-				}
-
-				bool Serialize(const T& input, WString& output)override
-				{
-					Load();
-					WString result, field;
-					for(vint i=0;i<fieldSerializers.Count();i++)
-					{
-						if(result!=L"") result+=L" ";
-						result+=fieldSerializers.Keys()[i]+L":";
-
-						Ptr<FieldSerializerBase> fieldSerializer=fieldSerializers.Values().Get(i);
-						if(!fieldSerializer->SerializeField(input, field)) return false;
-						result+=Escape(field);
-					}
-					output=result;
-					return true;
-				}
-
-				bool Deserialize(const WString& input, T& output)override
-				{
-					Load();
-					const wchar_t* reading=input.Buffer();
-					while(true)
-					{
-						while(IsSpace(*reading)) reading++;
-						if(*reading==0) break;
-						const wchar_t* comma=wcschr(reading, L':');
-						if(!comma) return false;
-
-						vint index=fieldSerializers.Keys().IndexOf(WString(reading, vint(comma-reading)));
-						if(index==-1) return false;
-						reading=comma+1;
-
-						WString field;
-						if(!Unescape(reading, field)) return false;
-						Ptr<FieldSerializerBase> fieldSerializer=fieldSerializers.Values().Get(index);
-						if(!fieldSerializer->DeserializeField(field, output)) return false;
-					}
-					return true;
-				}
-			public:
-				StructValueSerializer(ITypeDescriptor* _ownedTypeDescriptor)
-					:GeneralValueSerializer<T>(_ownedTypeDescriptor)
-					,loaded(false)
-				{
-				}
-
-				const collections::Dictionary<WString, Ptr<FieldSerializerBase>>& GetFieldSerializers()
-				{
-					Load();
-					return fieldSerializers;
-				}
-			};
-
-			template<typename TSerializer, TypeDescriptorFlags TDFlags>
-			class StructTypeDescriptor : public SerializableTypeDescriptor<TSerializer, TDFlags>
-			{
-			protected:
-				Ptr<TSerializer>				typedSerializer;
-
 			public:
 				StructTypeDescriptor()
 				{
-					auto serializer = SerializableTypeDescriptor<TSerializer, TDFlags>::serializer;
-					typedSerializer = serializer.template Cast<TSerializer>();
+					valueType = new StructValueType<T>();
 				}
 
 				vint GetPropertyCount()override
 				{
-					return typedSerializer->GetFieldSerializers().Count();
+					Load();
+					return fields.Count();
 				}
 
 				IPropertyInfo* GetProperty(vint index)override
 				{
-					auto serializer = typedSerializer->GetFieldSerializers().Values().Get(index);
-					return serializer.template Cast<IPropertyInfo>().Obj();
+					Load();
+					if (index < 0 || index >= fields.Count())
+					{
+						return nullptr;
+					}
+					return fields.Values()[index].Obj();
 				}
 
 				bool IsPropertyExists(const WString& name, bool inheritable)override
 				{
-					return typedSerializer->GetFieldSerializers().Keys().Contains(name);
+					Load();
+					return fields.Keys().Contains(name);
 				}
 
 				IPropertyInfo* GetPropertyByName(const WString& name, bool inheritable)override
 				{
-					vint index=typedSerializer->GetFieldSerializers().Keys().IndexOf(name);
-					if(index==-1) return 0;
-					return GetProperty(index);
+					Load();
+					vint index = fields.Keys().IndexOf(name);
+					if (index == -1) return nullptr;
+					return fields.Values()[index].Obj();
 				}
 			};
 		}

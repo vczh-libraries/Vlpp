@@ -179,7 +179,6 @@ Attribute
 		///
 		///		a) enum:
 		///			use BEGIN_ENUM_ITEM_MERGABLE instead of BEGIN_ENUM_ITEM if enum items are consider mergable using "|".
-		///			if you want to provide a default value, use BEGIN_ENUM_ITEM_DEFAULT_VALUE(<your type>, <default value>)
 		///
 		///			BEGIN_ENUM_ITEM(Season)
 		///				ENUM_ITEM(Spring)
@@ -461,6 +460,12 @@ ReferenceCounterOperator
 Value
 ***********************************************************************/
 
+			class IBoxedValue : public virtual IDescriptable, public Description<IBoxedValue>
+			{
+			public:
+				virtual Ptr<IBoxedValue>		Copy() = 0;
+			};
+
 			/// <summary>A type to store all values of reflectable types.</summary>
 			class Value : public Object
 			{
@@ -474,31 +479,31 @@ Value
 					RawPtr,
 					/// <summary>The value stored using a smart pointer.</summary>
 					SharedPtr,
-					/// <summary>The value stored using a string.</summary>
-					Text,
+					/// <summary>The value stored using a boxed value.</summary>
+					BoxedValue,
 				};
 			protected:
 				ValueType						valueType;
 				DescriptableObject*				rawPtr;
 				Ptr<DescriptableObject>			sharedPtr;
-				WString							text;
+				Ptr<IBoxedValue>				boxedValue;
 				ITypeDescriptor*				typeDescriptor;
 
 				Value(DescriptableObject* value);
 				Value(Ptr<DescriptableObject> value);
-				Value(const WString& value, ITypeDescriptor* associatedTypeDescriptor);
+				Value(Ptr<IBoxedValue> value, ITypeDescriptor* associatedTypeDescriptor);
 
 				vint							Compare(const Value& a, const Value& b)const;
 			public:
 				Value();
 				Value(const Value& value);
 				Value&							operator=(const Value& value);
-				bool							operator==(const Value& value)const { return Compare(*this, value)==0; }
-				bool							operator!=(const Value& value)const { return Compare(*this, value)!=0; }
+				bool							operator==(const Value& value)const { return Compare(*this, value) == 0; }
+				bool							operator!=(const Value& value)const { return Compare(*this, value) != 0; }
 				bool							operator<(const Value& value)const { return Compare(*this, value)<0; }
-				bool							operator<=(const Value& value)const { return Compare(*this, value)<=0; }
+				bool							operator<=(const Value& value)const { return Compare(*this, value) <= 0; }
 				bool							operator>(const Value& value)const { return Compare(*this, value)>0; }
-				bool							operator>=(const Value& value)const { return Compare(*this, value)>=0; }
+				bool							operator>=(const Value& value)const { return Compare(*this, value) >= 0; }
 
 				/// <summary>Get how the value is stored.</summary>
 				/// <returns>How the value is stored.</returns>
@@ -511,7 +516,7 @@ Value
 				Ptr<DescriptableObject>			GetSharedPtr()const;
 				/// <summary>Get the stored text if possible.</summary>
 				/// <returns>The stored text. Returns empty if failed.</returns>
-				const WString&					GetText()const;
+				Ptr<IBoxedValue>				GetBoxedValue()const;
 				/// <summary>Get the real type of the stored object.</summary>
 				/// <returns>The real type. Returns null if the value is null.</returns>
 				ITypeDescriptor*				GetTypeDescriptor()const;
@@ -532,7 +537,7 @@ Value
 				/// <returns>The boxed value.</returns>
 				/// <param name="value">The text to store.</param>
 				/// <param name="type">The type that you expect to interpret the text.</param>
-				static Value					From(const WString& value, ITypeDescriptor* type);
+				static Value					From(Ptr<IBoxedValue> value, ITypeDescriptor* type);
 
 				static IMethodInfo*				SelectMethod(IMethodGroupInfo* methodGroup, collections::Array<Value>& arguments);
 				static Value					Create(ITypeDescriptor* type);
@@ -551,26 +556,65 @@ Value
 				bool							DeleteRawPtr();
 			};
 
-			class IValueSerializer : public virtual IDescriptable, public Description<IValueSerializer>
+/***********************************************************************
+ValueType
+***********************************************************************/
+
+			class IValueType : public virtual IDescriptable, public Description<IValueType>
 			{
 			public:
-				virtual ITypeDescriptor*		GetOwnerTypeDescriptor()=0;
-				virtual bool					Validate(const WString& text)=0;
-				virtual bool					Parse(const WString& input, Value& output)=0;
-				virtual WString					GetDefaultText() = 0;
+				template<typename T>
+				class TypedBox : public IBoxedValue
+				{
+				public:
+					T							value;
 
-				virtual bool					HasCandidate()=0;
-				virtual vint					GetCandidateCount()=0;
-				virtual WString					GetCandidate(vint index)=0;
-				virtual bool					CanMergeCandidate()=0;
+					TypedBox()
+						:value{}
+					{
+					}
+
+					TypedBox(const T& _value)
+						:value(_value)
+					{
+					}
+
+					Ptr<IBoxedValue> Copy()override
+					{
+						return new TypedBox<T>(value);
+					}
+				};
+
+				enum CompareResult
+				{
+					Smaller,
+					Greater,
+					Equal,
+					NotComparable,
+				};
+
+				virtual Value					CreateDefault() = 0;
+				virtual CompareResult			Compare(const Value& a, const Value& b) = 0;
 			};
 
-			template<typename T>
-			class ITypedValueSerializer : public IValueSerializer
+			class IEnumType : public virtual IDescriptable, public Description<IEnumType>
 			{
 			public:
-				virtual bool					Serialize(const T& input, Value& output)=0;
-				virtual bool					Deserialize(const Value& input, T& output)=0;
+				virtual bool					IsFlagEnum() = 0;
+				virtual vint					GetItemCount() = 0;
+				virtual WString					GetItemName(vint index) = 0;
+				virtual vuint64_t				GetItemValue(vint index) = 0;
+				virtual vint					IndexOfItem(WString name) = 0;
+
+				virtual Value					ToEnum(vuint64_t value) = 0;
+				virtual vuint64_t				FromEnum(const Value& value) = 0;
+			};
+
+			class ISerializableType : public virtual IDescriptable, public Description<ISerializableType>
+			{
+			public:
+				virtual bool					Serialize(const Value& input, WString& output) = 0;
+				virtual bool					Deserialize(const WString& input, Value& output) = 0;
 			};
 
 /***********************************************************************
@@ -720,10 +764,13 @@ ITypeDescriptor
 			public:
 				virtual TypeDescriptorFlags		GetTypeDescriptorFlags() = 0;
 				virtual bool					IsAggregatable() = 0;
-
 				virtual const WString&			GetTypeName() = 0;
 				virtual const WString&			GetCppFullTypeName() = 0;
-				virtual IValueSerializer*		GetValueSerializer() = 0;
+
+				virtual IValueType*				GetValueType() = 0;
+				virtual IEnumType*				GetEnumType() = 0;
+				virtual ISerializableType*		GetSerializableType() = 0;
+
 				virtual vint					GetBaseTypeDescriptorCount() = 0;
 				virtual ITypeDescriptor*		GetBaseTypeDescriptor(vint index) = 0;
 				virtual bool					CanConvertTo(ITypeDescriptor* targetType) = 0;
@@ -778,7 +825,6 @@ ITypeManager
 			extern ITypeManager*				GetGlobalTypeManager();
 			extern bool							DestroyGlobalTypeManager();
 			extern bool							ResetGlobalTypeManager();
-			extern IValueSerializer*			GetValueSerializer(const WString& name);
 			extern ITypeDescriptor*				GetTypeDescriptor(const WString& name);
 			extern bool							IsInterfaceType(ITypeDescriptor* typeDescriptor, bool& acceptProxy);
 			extern void							LogTypeManager(stream::TextWriter& writer);
@@ -965,6 +1011,15 @@ Exceptions
 			public:
 				TypeDescriptorException(const WString& message)
 					:Exception(message)
+				{
+				}
+			};
+
+			class TypeNotComparableException : public TypeDescriptorException
+			{
+			public:
+				TypeNotComparableException(ITypeDescriptor* type)
+					:TypeDescriptorException(L"Value of type \"" + type->GetTypeName() + L" is not comparable.")
 				{
 				}
 			};

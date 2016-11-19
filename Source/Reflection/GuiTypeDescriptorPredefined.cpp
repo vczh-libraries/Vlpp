@@ -14,122 +14,131 @@ namespace vl
 		{
 
 /***********************************************************************
-SerializableTypeDescriptorBase
+ValueTypeDescriptorBase
 ***********************************************************************/
 
-			SerializableTypeDescriptorBase::SerializableTypeDescriptorBase(TypeDescriptorFlags _typeDescriptorFlags, const WString& _typeName, const WString& _cppFullTypeName, Ptr<IValueSerializer> _serializer)
+			ValueTypeDescriptorBase::ValueTypeDescriptorBase(TypeDescriptorFlags _typeDescriptorFlags, const WString& _typeName, const WString& _cppFullTypeName)
 				:typeDescriptorFlags(_typeDescriptorFlags)
-				,typeName(_typeName)
-				,cppFullTypeName(_cppFullTypeName)
-				,serializer(_serializer)
+				, typeName(_typeName)
+				, cppFullTypeName(_cppFullTypeName)
 			{
 			}
 
-			SerializableTypeDescriptorBase::~SerializableTypeDescriptorBase()
+			ValueTypeDescriptorBase::~ValueTypeDescriptorBase()
 			{
 			}
 
-			TypeDescriptorFlags SerializableTypeDescriptorBase::GetTypeDescriptorFlags()
+			TypeDescriptorFlags ValueTypeDescriptorBase::GetTypeDescriptorFlags()
 			{
 				return typeDescriptorFlags;
 			}
 
-			bool SerializableTypeDescriptorBase::IsAggregatable()
+			bool ValueTypeDescriptorBase::IsAggregatable()
 			{
 				return false;
 			}
 
-			const WString& SerializableTypeDescriptorBase::GetTypeName()
+			const WString& ValueTypeDescriptorBase::GetTypeName()
 			{
 				return typeName;
 			}
 
-			const WString& SerializableTypeDescriptorBase::GetCppFullTypeName()
+			const WString& ValueTypeDescriptorBase::GetCppFullTypeName()
 			{
 				return cppFullTypeName;
 			}
 
-			IValueSerializer* SerializableTypeDescriptorBase::GetValueSerializer()
+			IValueType* ValueTypeDescriptorBase::GetValueType()
 			{
-				return serializer.Obj();
+				return valueType.Obj();
 			}
 
-			vint SerializableTypeDescriptorBase::GetBaseTypeDescriptorCount()
+			IEnumType* ValueTypeDescriptorBase::GetEnumType()
+			{
+				return enumType.Obj();
+			}
+
+			ISerializableType* ValueTypeDescriptorBase::GetSerializableType()
+			{
+				return serializableType.Obj();
+			}
+
+			vint ValueTypeDescriptorBase::GetBaseTypeDescriptorCount()
 			{
 				return 0;
 			}
 
-			ITypeDescriptor* SerializableTypeDescriptorBase::GetBaseTypeDescriptor(vint index)
+			ITypeDescriptor* ValueTypeDescriptorBase::GetBaseTypeDescriptor(vint index)
 			{
 				return 0;
 			}
 
-			bool SerializableTypeDescriptorBase::CanConvertTo(ITypeDescriptor* targetType)
+			bool ValueTypeDescriptorBase::CanConvertTo(ITypeDescriptor* targetType)
 			{
 				return this==targetType;
 			}
 
-			vint SerializableTypeDescriptorBase::GetPropertyCount()
+			vint ValueTypeDescriptorBase::GetPropertyCount()
 			{
 				return 0;
 			}
 
-			IPropertyInfo* SerializableTypeDescriptorBase::GetProperty(vint index)
+			IPropertyInfo* ValueTypeDescriptorBase::GetProperty(vint index)
 			{
 				return 0;
 			}
 
-			bool SerializableTypeDescriptorBase::IsPropertyExists(const WString& name, bool inheritable)
+			bool ValueTypeDescriptorBase::IsPropertyExists(const WString& name, bool inheritable)
 			{
 				return false;
 			}
 
-			IPropertyInfo* SerializableTypeDescriptorBase::GetPropertyByName(const WString& name, bool inheritable)
+			IPropertyInfo* ValueTypeDescriptorBase::GetPropertyByName(const WString& name, bool inheritable)
 			{
 				return 0;
 			}
 
-			vint SerializableTypeDescriptorBase::GetEventCount()
+			vint ValueTypeDescriptorBase::GetEventCount()
 			{
 				return 0;
 			}
 
-			IEventInfo* SerializableTypeDescriptorBase::GetEvent(vint index)
+			IEventInfo* ValueTypeDescriptorBase::GetEvent(vint index)
 			{
 				return 0;
 			}
 
-			bool SerializableTypeDescriptorBase::IsEventExists(const WString& name, bool inheritable)
+			bool ValueTypeDescriptorBase::IsEventExists(const WString& name, bool inheritable)
 			{
 				return false;
 			}
 
-			IEventInfo* SerializableTypeDescriptorBase::GetEventByName(const WString& name, bool inheritable)
+			IEventInfo* ValueTypeDescriptorBase::GetEventByName(const WString& name, bool inheritable)
 			{
 				return 0;
 			}
 
-			vint SerializableTypeDescriptorBase::GetMethodGroupCount()
+			vint ValueTypeDescriptorBase::GetMethodGroupCount()
 			{
 				return 0;
 			}
 
-			IMethodGroupInfo* SerializableTypeDescriptorBase::GetMethodGroup(vint index)
+			IMethodGroupInfo* ValueTypeDescriptorBase::GetMethodGroup(vint index)
 			{
 				return 0;
 			}
 
-			bool SerializableTypeDescriptorBase::IsMethodGroupExists(const WString& name, bool inheritable)
+			bool ValueTypeDescriptorBase::IsMethodGroupExists(const WString& name, bool inheritable)
 			{
 				return false;
 			}
 
-			IMethodGroupInfo* SerializableTypeDescriptorBase::GetMethodGroupByName(const WString& name, bool inheritable)
+			IMethodGroupInfo* ValueTypeDescriptorBase::GetMethodGroupByName(const WString& name, bool inheritable)
 			{
 				return 0;
 			}
 
-			IMethodGroupInfo* SerializableTypeDescriptorBase::GetConstructorGroup()
+			IMethodGroupInfo* ValueTypeDescriptorBase::GetConstructorGroup()
 			{
 				return 0;
 			}
@@ -175,7 +184,11 @@ TypeName
 			IMPL_TYPE_INFO_RENAME(vl::reflection::description::IValueCallStack,				system::CallStack)
 			IMPL_TYPE_INFO_RENAME(vl::reflection::description::IValueException,				system::Exception)
 
-			IMPL_TYPE_INFO_RENAME(vl::reflection::description::IValueSerializer,			system::reflection::ValueSerializer)
+			IMPL_TYPE_INFO_RENAME(vl::reflection::description::IBoxedValue,					system::reflection::BoxedValue)
+			IMPL_TYPE_INFO_RENAME(vl::reflection::description::IValueType::CompareResult,	system::reflection::ValueType::CompareResult)
+			IMPL_TYPE_INFO_RENAME(vl::reflection::description::IValueType,					system::reflection::ValueType)
+			IMPL_TYPE_INFO_RENAME(vl::reflection::description::IEnumType,					system::reflection::EnumType)
+			IMPL_TYPE_INFO_RENAME(vl::reflection::description::ISerializableType,			system::reflection::SerializableType)
 			IMPL_TYPE_INFO_RENAME(vl::reflection::description::ITypeInfo,					system::reflection::TypeInfo)
 			IMPL_TYPE_INFO_RENAME(vl::reflection::description::ITypeInfo::Decorator,		system::reflection::TypeInfo::Decorator)
 			IMPL_TYPE_INFO_RENAME(vl::reflection::description::IMemberInfo,					system::reflection::MemberInfo)
@@ -191,6 +204,31 @@ TypeName
 /***********************************************************************
 TypedValueSerializerProvider
 ***********************************************************************/
+
+#define DEFINE_COMPARE(TYPENAME)\
+			IValueType::CompareResult TypedValueSerializerProvider<TYPENAME>::Compare(const TYPENAME& a, const TYPENAME& b)\
+			{\
+				if (a < b) return IValueType::Smaller;\
+				if (a > b) return IValueType::Greater;\
+				return IValueType::Equal;\
+			}\
+
+			DEFINE_COMPARE(vuint8_t)
+			DEFINE_COMPARE(vuint16_t)
+			DEFINE_COMPARE(vuint32_t)
+			DEFINE_COMPARE(vuint64_t)
+			DEFINE_COMPARE(vint8_t)
+			DEFINE_COMPARE(vint16_t)
+			DEFINE_COMPARE(vint32_t)
+			DEFINE_COMPARE(vint64_t)
+			DEFINE_COMPARE(float)
+			DEFINE_COMPARE(double)
+			DEFINE_COMPARE(bool)
+			DEFINE_COMPARE(wchar_t)
+			DEFINE_COMPARE(WString)
+			DEFINE_COMPARE(Locale)
+
+#undef DEFINE_COMPARE
 
 			vuint8_t TypedValueSerializerProvider<vuint8_t>::GetDefaultValue()
 			{
@@ -458,6 +496,25 @@ TypedValueSerializerProvider
 
 			//---------------------------------------
 
+			bool TypedValueSerializerProvider<bool>::GetDefaultValue()
+			{
+				return false;
+			}
+
+			bool TypedValueSerializerProvider<bool>::Serialize(const bool& input, WString& output)
+			{
+				output = input ? L"true" : L"false";
+				return true;
+			}
+
+			bool TypedValueSerializerProvider<bool>::Deserialize(const WString& input, bool& output)
+			{
+				output = input == L"true";
+				return input == L"true" || input == L"false";
+			}
+
+			//---------------------------------------
+
 			Locale TypedValueSerializerProvider<Locale>::GetDefaultValue()
 			{
 				return Locale();
@@ -476,46 +533,13 @@ TypedValueSerializerProvider
 			}
 
 /***********************************************************************
-ObjectTypeDescriptor
-***********************************************************************/
-
-			class ObjectTypeDescriptor : public SerializableTypeDescriptorBase
-			{
-			public:
-				ObjectTypeDescriptor()
-					:SerializableTypeDescriptorBase(TypeDescriptorFlags::Object, TypeInfo<Value>::TypeName, TypeInfo<Value>::CppFullTypeName, 0)
-				{
-				}
-			};
-
-/***********************************************************************
-BoolValueSerializer
-***********************************************************************/
-
-			class BoolValueSerializer : public EnumValueSerializer<bool, false>
-			{
-			public:
-				BoolValueSerializer(ITypeDescriptor* _ownerTypeDescriptor)
-					:EnumValueSerializer(_ownerTypeDescriptor, false)
-				{
-					candidates.Add(L"true", true);
-					candidates.Add(L"false", false);
-				}
-			};
-
-/***********************************************************************
 DateTimeValueSerializer
 ***********************************************************************/
 
-			class DateTimeValueSerializer : public GeneralValueSerializer<DateTime>
+			class DateTimeValueSerializer : public Object, public virtual ISerializableType
 			{
 			protected:
 				Regex				regexDateTime;
-
-				DateTime GetDefaultValue()override
-				{
-					return DateTime();
-				}
 
 				WString Format(vint number, vint length)
 				{
@@ -527,39 +551,40 @@ DateTimeValueSerializer
 					return result;
 				}
 
-				bool Serialize(const DateTime& input, WString& output)override
-				{
-					output = 
-						Format(input.year, 4) + L"-" + Format(input.month, 2) + L"-" + Format(input.day, 2) + L" " + 
-						Format(input.hour, 2) + L":" + Format(input.minute, 2) + L":" + Format(input.second, 2) + L"." + 
-						Format(input.milliseconds, 3);
-					return true;
-				}
-
-				bool Deserialize(const WString& input, DateTime& output)override
-				{
-					Ptr<RegexMatch> match=regexDateTime.Match(input);
-					if(!match) return false;
-					if(!match->Success()) return false;
-					if(match->Result().Start()!=0) return false;
-					if(match->Result().Length()!=input.Length()) return false;
-
-					vint year=wtoi(match->Groups()[L"Y"].Get(0).Value());
-					vint month=wtoi(match->Groups()[L"M"].Get(0).Value());
-					vint day=wtoi(match->Groups()[L"D"].Get(0).Value());
-					vint hour=wtoi(match->Groups()[L"h"].Get(0).Value());
-					vint minute=wtoi(match->Groups()[L"m"].Get(0).Value());
-					vint second=wtoi(match->Groups()[L"s"].Get(0).Value());
-					vint milliseconds=wtoi(match->Groups()[L"ms"].Get(0).Value());
-
-					output=DateTime::FromDateTime(year, month, day, hour, minute, second, milliseconds);
-					return true;
-				}
 			public:
-				DateTimeValueSerializer(ITypeDescriptor* _ownerTypeDescriptor)
-					:GeneralValueSerializer<DateTime>(_ownerTypeDescriptor)
-					,regexDateTime(L"(<Y>/d/d/d/d)-(<M>/d/d)-(<D>/d/d) (<h>/d/d):(<m>/d/d):(<s>/d/d).(<ms>/d/d/d)")
+				DateTimeValueSerializer()
+					:regexDateTime(L"(<Y>/d/d/d/d)-(<M>/d/d)-(<D>/d/d) (<h>/d/d):(<m>/d/d):(<s>/d/d).(<ms>/d/d/d)")
 				{
+				}
+
+				bool Serialize(const Value& input, WString& output)override
+				{
+					auto dt = UnboxValue<DateTime>(input);
+					output =
+						Format(dt.year, 4) + L"-" + Format(dt.month, 2) + L"-" + Format(dt.day, 2) + L" " +
+						Format(dt.hour, 2) + L":" + Format(dt.minute, 2) + L":" + Format(dt.second, 2) + L"." +
+						Format(dt.milliseconds, 3);
+					return true;
+				}
+
+				bool Deserialize(const WString& input, Value& output)override
+				{
+					Ptr<RegexMatch> match = regexDateTime.Match(input);
+					if (!match) return false;
+					if (!match->Success()) return false;
+					if (match->Result().Start() != 0) return false;
+					if (match->Result().Length() != input.Length()) return false;
+
+					vint year = wtoi(match->Groups()[L"Y"].Get(0).Value());
+					vint month = wtoi(match->Groups()[L"M"].Get(0).Value());
+					vint day = wtoi(match->Groups()[L"D"].Get(0).Value());
+					vint hour = wtoi(match->Groups()[L"h"].Get(0).Value());
+					vint minute = wtoi(match->Groups()[L"m"].Get(0).Value());
+					vint second = wtoi(match->Groups()[L"s"].Get(0).Value());
+					vint milliseconds = wtoi(match->Groups()[L"ms"].Get(0).Value());
+
+					output = BoxValue<DateTime>(DateTime::FromDateTime(year, month, day, hour, minute, second, milliseconds));
+					return true;
 				}
 			};
 
@@ -585,19 +610,6 @@ Helper Functions
 			ITypeDescriptor* ITypeDescriptor_GetTypeDescriptor(const Value& value)
 			{
 				return value.GetTypeDescriptor();
-			}
-
-			Value IValueSerializer_Parse(IValueSerializer* serializer, const WString& input)
-			{
-				Value value;
-				if(serializer->Parse(input, value))
-				{
-					return value;
-				}
-				else
-				{
-					return Value();
-				}
 			}
 
 /***********************************************************************
@@ -683,11 +695,23 @@ Collections
 				CLASS_MEMBER_STATIC_METHOD(TruncI, { L"value" })
 			END_CLASS_MEMBER(Math)
 
-			BEGIN_STRUCT_MEMBER(VoidValue)
-			END_STRUCT_MEMBER_FLAG(VoidValue, TypeDescriptorFlags::Primitive)
+			BEGIN_STRUCT_MEMBER_FLAG(VoidValue, TypeDescriptorFlags::Primitive)
+			END_STRUCT_MEMBER(VoidValue)
 
 			BEGIN_INTERFACE_MEMBER_NOPROXY_FLAG(IDescriptable, TypeDescriptorFlags::IDescriptable)
 			END_INTERFACE_MEMBER(IDescriptable)
+
+			BEGIN_STRUCT_MEMBER(DateTime)
+				serializableType = new DateTimeValueSerializer();
+				STRUCT_MEMBER(year)
+				STRUCT_MEMBER(month)
+				STRUCT_MEMBER(dayOfWeek)
+				STRUCT_MEMBER(day)
+				STRUCT_MEMBER(hour)
+				STRUCT_MEMBER(minute)
+				STRUCT_MEMBER(second)
+				STRUCT_MEMBER(milliseconds)
+			END_STRUCT_MEMBER(DateTime)
 
 			BEGIN_INTERFACE_MEMBER(IValueEnumerator)
 				CLASS_MEMBER_PROPERTY_READONLY_FAST(Current)
@@ -785,16 +809,38 @@ Collections
 				CLASS_MEMBER_PROPERTY_READONLY_FAST(CallStack)
 			END_INTERFACE_MEMBER(IValueException)
 
-			BEGIN_INTERFACE_MEMBER_NOPROXY(IValueSerializer)
-				CLASS_MEMBER_PROPERTY_READONLY_FAST(OwnerTypeDescriptor)
-				CLASS_MEMBER_PROPERTY_READONLY_FAST(CandidateCount)
+			BEGIN_INTERFACE_MEMBER_NOPROXY(IBoxedValue)
+				CLASS_MEMBER_METHOD(Copy, NO_PARAMETER)
+			END_INTERFACE_MEMBER(IBoxedValue)
 
-				CLASS_MEMBER_METHOD(Validate, {L"text"})
-				CLASS_MEMBER_EXTERNALMETHOD(Parse, {L"input"}, Value(IValueSerializer::*)(const WString&), &IValueSerializer_Parse)
-				CLASS_MEMBER_METHOD(HasCandidate, NO_PARAMETER)
-				CLASS_MEMBER_METHOD(GetCandidate, {L"index"})
-				CLASS_MEMBER_METHOD(CanMergeCandidate, NO_PARAMETER)
-			END_INTERFACE_MEMBER(IValueSerializer)
+			BEGIN_ENUM_ITEM(IValueType::CompareResult)
+				ENUM_ITEM_NAMESPACE(IValueType)
+
+				ENUM_NAMESPACE_ITEM(Smaller)
+				ENUM_NAMESPACE_ITEM(Greater)
+				ENUM_NAMESPACE_ITEM(Equal)
+				ENUM_NAMESPACE_ITEM(NotComparable)
+			END_ENUM_ITEM(ITypeInfo::Decorator)
+
+			BEGIN_INTERFACE_MEMBER_NOPROXY(IValueType)
+				CLASS_MEMBER_METHOD(CreateDefault, NO_PARAMETER)
+				CLASS_MEMBER_METHOD(Compare, {L"a" _ L"b"})
+			END_INTERFACE_MEMBER(IValueType)
+
+			BEGIN_INTERFACE_MEMBER_NOPROXY(IEnumType)
+				CLASS_MEMBER_METHOD(IsFlagEnum, NO_PARAMETER)
+				CLASS_MEMBER_METHOD(GetItemCount, NO_PARAMETER)
+				CLASS_MEMBER_METHOD(GetItemName, { L"index" })
+				CLASS_MEMBER_METHOD(GetItemValue, { L"index" })
+				CLASS_MEMBER_METHOD(IndexOfItem, { L"name" })
+				CLASS_MEMBER_METHOD(ToEnum, { L"value" })
+				CLASS_MEMBER_METHOD(FromEnum, { L"value" })
+			END_INTERFACE_MEMBER(IEnumType)
+
+			BEGIN_INTERFACE_MEMBER_NOPROXY(ISerializableType)
+				CLASS_MEMBER_METHOD(Serialize, { L"input" _ L"output" })
+				CLASS_MEMBER_METHOD(Deserialize, { L"input" _ L"output" })
+			END_INTERFACE_MEMBER(ISerializableType)
 
 			BEGIN_INTERFACE_MEMBER_NOPROXY(ITypeInfo)
 				CLASS_MEMBER_PROPERTY_READONLY_FAST(Decorator)
@@ -899,7 +945,9 @@ Collections
 			BEGIN_INTERFACE_MEMBER_NOPROXY(ITypeDescriptor)
 				CLASS_MEMBER_PROPERTY_READONLY_FAST(TypeDescriptorFlags)
 				CLASS_MEMBER_PROPERTY_READONLY_FAST(TypeName)
-				CLASS_MEMBER_PROPERTY_READONLY_FAST(ValueSerializer)
+				CLASS_MEMBER_PROPERTY_READONLY_FAST(ValueType)
+				CLASS_MEMBER_PROPERTY_READONLY_FAST(EnumType)
+				CLASS_MEMBER_PROPERTY_READONLY_FAST(SerializableType)
 				CLASS_MEMBER_PROPERTY_READONLY_FAST(BaseTypeDescriptorCount)
 				CLASS_MEMBER_PROPERTY_READONLY_FAST(PropertyCount)
 				CLASS_MEMBER_PROPERTY_READONLY_FAST(EventCount)
@@ -932,33 +980,29 @@ LoadPredefinedTypes
 			class PredefinedTypeLoader : public Object, public ITypeLoader
 			{
 			public:
-				template<typename TSerializer>
+				template<typename T>
 				void AddPrimitiveType(ITypeManager* manager)
 				{
-					manager->SetTypeDescriptor(
-						TypeInfo<typename TSerializer::ValueType>::TypeName,
-						new SerializableTypeDescriptor<TSerializer, TypeDescriptorFlags::Primitive>
-						);
+					manager->SetTypeDescriptor(TypeInfo<T>::TypeName, new PrimitiveTypeDescriptor<T>());
 				}
 
 				void Load(ITypeManager* manager)override
 				{
-					manager->SetTypeDescriptor(TypeInfo<Value>::TypeName, new ObjectTypeDescriptor);
-					AddPrimitiveType<TypedDefaultValueSerializer<vuint8_t>>(manager);
-					AddPrimitiveType<TypedDefaultValueSerializer<vuint16_t>>(manager);
-					AddPrimitiveType<TypedDefaultValueSerializer<vuint32_t>>(manager);
-					AddPrimitiveType<TypedDefaultValueSerializer<vuint64_t>>(manager);
-					AddPrimitiveType<TypedDefaultValueSerializer<vint8_t>>(manager);
-					AddPrimitiveType<TypedDefaultValueSerializer<vint16_t>>(manager);
-					AddPrimitiveType<TypedDefaultValueSerializer<vint32_t>>(manager);
-					AddPrimitiveType<TypedDefaultValueSerializer<vint64_t>>(manager);
-					AddPrimitiveType<TypedDefaultValueSerializer<float>>(manager);
-					AddPrimitiveType<TypedDefaultValueSerializer<double>>(manager);
-					AddPrimitiveType<TypedDefaultValueSerializer<wchar_t>>(manager);
-					AddPrimitiveType<TypedDefaultValueSerializer<WString>>(manager);
-					AddPrimitiveType<TypedDefaultValueSerializer<Locale>>(manager);
-					AddPrimitiveType<BoolValueSerializer>(manager);
-					AddPrimitiveType<DateTimeValueSerializer>(manager);
+					manager->SetTypeDescriptor(TypeInfo<Value>::TypeName, new TypedValueTypeDescriptorBase<Value, TypeDescriptorFlags::Object>);
+					AddPrimitiveType<vuint8_t>(manager);
+					AddPrimitiveType<vuint16_t>(manager);
+					AddPrimitiveType<vuint32_t>(manager);
+					AddPrimitiveType<vuint64_t>(manager);
+					AddPrimitiveType<vint8_t>(manager);
+					AddPrimitiveType<vint16_t>(manager);
+					AddPrimitiveType<vint32_t>(manager);
+					AddPrimitiveType<vint64_t>(manager);
+					AddPrimitiveType<float>(manager);
+					AddPrimitiveType<double>(manager);
+					AddPrimitiveType<wchar_t>(manager);
+					AddPrimitiveType<WString>(manager);
+					AddPrimitiveType<Locale>(manager);
+					AddPrimitiveType<bool>(manager);
 
 					ADD_TYPE_INFO(Sys)
 					ADD_TYPE_INFO(Math)
@@ -966,6 +1010,7 @@ LoadPredefinedTypes
 					ADD_TYPE_INFO(VoidValue)
 					ADD_TYPE_INFO(IDescriptable)
 					ADD_TYPE_INFO(DescriptableObject)
+					ADD_TYPE_INFO(DateTime)
 
 					ADD_TYPE_INFO(IValueEnumerator)
 					ADD_TYPE_INFO(IValueEnumerable)
@@ -982,7 +1027,10 @@ LoadPredefinedTypes
 					ADD_TYPE_INFO(IValueCallStack)
 					ADD_TYPE_INFO(IValueException)
 
-					ADD_TYPE_INFO(IValueSerializer)
+					ADD_TYPE_INFO(IBoxedValue)
+					ADD_TYPE_INFO(IValueType)
+					ADD_TYPE_INFO(IEnumType)
+					ADD_TYPE_INFO(ISerializableType)
 					ADD_TYPE_INFO(ITypeInfo)
 					ADD_TYPE_INFO(ITypeInfo::Decorator)
 					ADD_TYPE_INFO(IMemberInfo)

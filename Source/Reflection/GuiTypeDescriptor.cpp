@@ -272,11 +272,11 @@ description::Value
 				}
 			}
 
-			Value::Value(const WString& value, ITypeDescriptor* associatedTypeDescriptor)
-				:valueType(Text)
-				,rawPtr(0)
-				,text(value)
-				,typeDescriptor(associatedTypeDescriptor)
+			Value::Value(Ptr<IBoxedValue> value, ITypeDescriptor* associatedTypeDescriptor)
+				:valueType(value ? BoxedValue : Null)
+				, rawPtr(nullptr)
+				, boxedValue(value)
+				, typeDescriptor(associatedTypeDescriptor)
 			{
 			}
 
@@ -288,8 +288,25 @@ description::Value
 				{
 					switch(va)
 					{
-					case Text:
-						return WString::Compare(a.text, b.text);
+					case BoxedValue:
+						{
+							if (a.GetTypeDescriptor() != b.GetTypeDescriptor())
+							{
+								throw ArgumentTypeMismtatchException(L"b", a.GetTypeDescriptor(), ValueType::BoxedValue, b);
+							}
+							auto valueType = a.GetTypeDescriptor()->GetValueType();
+							switch (valueType->Compare(a, b))
+							{
+							case IValueType::Smaller:
+								return -1;
+							case IValueType::Greater:
+								return 1;
+							case IValueType::Equal:
+								return 0;
+							default:
+								throw TypeNotComparableException(a.GetTypeDescriptor());
+							}
+						}
 					case RawPtr:
 					case SharedPtr:
 						return (vint)a.rawPtr-(vint)b.rawPtr;
@@ -314,18 +331,18 @@ description::Value
 				:valueType(value.valueType)
 				,rawPtr(value.rawPtr)
 				,sharedPtr(value.sharedPtr)
-				,text(value.text)
+				,boxedValue(value.boxedValue ? value.boxedValue->Copy() : nullptr)
 				,typeDescriptor(value.typeDescriptor)
 			{
 			}
 
 			Value& Value::operator=(const Value& value)
 			{
-				valueType=value.valueType;
-				rawPtr=value.rawPtr;
-				sharedPtr=value.sharedPtr;
-				text=value.text;
-				typeDescriptor=value.typeDescriptor;
+				valueType = value.valueType;
+				rawPtr = value.rawPtr;
+				sharedPtr = value.sharedPtr;
+				boxedValue = value.boxedValue ? value.boxedValue->Copy() : nullptr;
+				typeDescriptor = value.typeDescriptor;
 				return *this;
 			}
 
@@ -344,9 +361,9 @@ description::Value
 				return sharedPtr;
 			}
 
-			const WString& Value::GetText()const
+			Ptr<IBoxedValue> Value::GetBoxedValue()const
 			{
-				return text;
+				return boxedValue;
 			}
 
 			ITypeDescriptor* Value::GetTypeDescriptor()const
@@ -356,7 +373,7 @@ description::Value
 				case RawPtr:
 				case SharedPtr:
 					return rawPtr?rawPtr->GetTypeDescriptor():0;
-				case Text:
+				case BoxedValue:
 					return typeDescriptor;
 				default:;
 				}
@@ -371,7 +388,7 @@ description::Value
 					return GetTypeDescriptor()->GetTypeName()+L"*";
 				case SharedPtr:
 					return L"Ptr<"+GetTypeDescriptor()->GetTypeName()+L">";
-				case Text:
+				case BoxedValue:
 					return GetTypeDescriptor()->GetTypeName();
 				default:
 					return L"null";
@@ -392,13 +409,13 @@ description::Value
 				switch(valueType)
 				{
 				case Null:
-					return targetValueType!=Text;
+					return targetValueType != BoxedValue;
 				case RawPtr:
 				case SharedPtr:
-					if(targetValueType!=RawPtr && targetValueType!=SharedPtr) return false;
+					if (targetValueType != RawPtr && targetValueType != SharedPtr) return false;
 					break;
-				case Text:
-					return targetValueType==Text;
+				case BoxedValue:
+					return targetValueType == BoxedValue;
 				}
 				return GetTypeDescriptor()->CanConvertTo(targetType);
 			}
@@ -426,7 +443,7 @@ description::Value
 							break;
 						case ITypeInfo::TypeDescriptor:
 						case ITypeInfo::Nullable:
-							targetValueType=Text;
+							targetValueType=BoxedValue;
 							currentType=0;
 							break;
 						default:
@@ -447,7 +464,7 @@ description::Value
 				return Value(value);
 			}
 
-			Value Value::From(const WString& value, ITypeDescriptor* type)
+			Value Value::From(Ptr<IBoxedValue> value, ITypeDescriptor* type)
 			{
 				return Value(value, type);
 			}
@@ -799,12 +816,6 @@ description::TypeManager helper functions
 				return true;
 			}
 
-			IValueSerializer* GetValueSerializer(const WString& name)
-			{
-				ITypeDescriptor* descriptor=GetTypeDescriptor(name);
-				return descriptor?descriptor->GetValueSerializer():0;
-			}
-
 			ITypeDescriptor* GetTypeDescriptor(const WString& name)
 			{
 				if(globalTypeManager)
@@ -822,14 +833,17 @@ description::TypeManager helper functions
 LogTypeManager (enum)
 ***********************************************************************/
 
-			void LogTypeManager_Enum(stream::TextWriter& writer, ITypeDescriptor* type, IValueSerializer* serializer)
+			void LogTypeManager_Enum(stream::TextWriter& writer, ITypeDescriptor* type)
 			{
 				writer.WriteLine((type->GetTypeDescriptorFlags() == TypeDescriptorFlags::FlagEnum ? L"flags " : L"enum ") + type->GetTypeName());
 				writer.WriteLine(L"{");
-				for(vint j=0;j<serializer->GetCandidateCount();j++)
+
+				auto enumType = type->GetEnumType();
+				for (vint j = 0; j < enumType->GetItemCount(); j++)
 				{
-					writer.WriteLine(L"    "+serializer->GetCandidate(j)+L",");
+					writer.WriteLine(L"    " + enumType->GetItemName(j) + L" = " + u64tow(enumType->GetItemValue(j)) + L",");
 				}
+
 				writer.WriteLine(L"}");
 			}
 
@@ -1047,7 +1061,6 @@ LogTypeManager
 				for(vint i=0;i<globalTypeManager->GetTypeDescriptorCount();i++)
 				{
 					ITypeDescriptor* type=globalTypeManager->GetTypeDescriptor(i);
-					IValueSerializer* serializer=type->GetValueSerializer();
 
 					switch (type->GetTypeDescriptorFlags())
 					{
@@ -1059,7 +1072,7 @@ LogTypeManager
 						break;
 					case TypeDescriptorFlags::FlagEnum:
 					case TypeDescriptorFlags::NormalEnum:
-						LogTypeManager_Enum(writer, type, serializer);
+						LogTypeManager_Enum(writer, type);
 						break;
 					case TypeDescriptorFlags::Primitive:
 						LogTypeManager_Data(writer, type);

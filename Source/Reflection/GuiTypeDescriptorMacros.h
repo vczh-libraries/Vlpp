@@ -226,67 +226,57 @@ InterfaceProxy::Invoke
 Enum
 ***********************************************************************/
 
-#define BEGIN_ENUM_ITEM_FLAG(TYPENAME, DEFAULTVALUE, FLAG, TDFLAGS)\
+#define BEGIN_ENUM_ITEM_FLAG(TYPENAME, TDFLAGS)\
 			template<>\
 			struct CustomTypeDescriptorSelector<TYPENAME>\
 			{\
-				static const TypeDescriptorFlags TDFlags = TDFLAGS;\
 			public:\
-				class CustomEnumValueSerializer : public EnumValueSerializer<TYPENAME, FLAG>\
+				class CustomTypeDescriptorImpl : public EnumTypeDescriptor<TYPENAME, TDFLAGS>\
 				{\
 					typedef TYPENAME EnumType;\
 				public:\
-					CustomEnumValueSerializer(ITypeDescriptor* _ownerTypeDescriptor)\
-						:EnumValueSerializer(_ownerTypeDescriptor, DEFAULTVALUE)\
+					CustomTypeDescriptorImpl()\
 					{
 
-#define BEGIN_ENUM_ITEM_DEFAULT_VALUE(TYPENAME, DEFAULTVALUE) BEGIN_ENUM_ITEM_FLAG(TYPENAME, TYPENAME::DEFAULTVALUE, false, TypeDescriptorFlags::NormalEnum)
-#define BEGIN_ENUM_ITEM(TYPENAME) BEGIN_ENUM_ITEM_FLAG(TYPENAME, (TYPENAME)0, false, TypeDescriptorFlags::NormalEnum)
-#define BEGIN_ENUM_ITEM_MERGABLE(TYPENAME) BEGIN_ENUM_ITEM_FLAG(TYPENAME, (TYPENAME)0, true, TypeDescriptorFlags::FlagEnum)
+#define BEGIN_ENUM_ITEM(TYPENAME) BEGIN_ENUM_ITEM_FLAG(TYPENAME, TypeDescriptorFlags::NormalEnum)
+#define BEGIN_ENUM_ITEM_MERGABLE(TYPENAME) BEGIN_ENUM_ITEM_FLAG(TYPENAME, TypeDescriptorFlags::FlagEnum)
 
 #define END_ENUM_ITEM(TYPENAME)\
 					}\
 				};\
-				typedef SerializableTypeDescriptor<CustomEnumValueSerializer, TDFlags> CustomTypeDescriptorImpl;\
 			};
 
 #define ENUM_ITEM_NAMESPACE(TYPENAME) typedef TYPENAME EnumItemNamespace;
-#define ENUM_ITEM(ITEMNAME) candidates.Add(L ## #ITEMNAME, ITEMNAME);
-#define ENUM_NAMESPACE_ITEM(ITEMNAME) candidates.Add(L ## #ITEMNAME, EnumItemNamespace::ITEMNAME);
-#define ENUM_CLASS_ITEM(ITEMNAME) candidates.Add(L ## #ITEMNAME, EnumType::ITEMNAME);
+#define ENUM_ITEM(ITEMNAME) enumType->AddItem(L ## #ITEMNAME, ITEMNAME);
+#define ENUM_NAMESPACE_ITEM(ITEMNAME) enumType->AddItem(L ## #ITEMNAME, EnumItemNamespace::ITEMNAME);
+#define ENUM_CLASS_ITEM(ITEMNAME) enumType->AddItem(L ## #ITEMNAME, EnumType::ITEMNAME);
 
 /***********************************************************************
 Struct
 ***********************************************************************/
 
-#define BEGIN_STRUCT_MEMBER(TYPENAME)\
+#define BEGIN_STRUCT_MEMBER_FLAG(TYPENAME, TDFLAGS)\
 			template<>\
 			struct CustomTypeDescriptorSelector<TYPENAME>\
 			{\
 			public:\
-				class CustomStructValueSerializer : public StructValueSerializer<TYPENAME>\
+				class CustomTypeDescriptorImpl : public StructTypeDescriptor<TYPENAME, TDFLAGS>\
 				{\
 					typedef TYPENAME StructType;\
-				public:\
-					CustomStructValueSerializer(ITypeDescriptor* _ownerTypeDescriptor)\
-						:StructValueSerializer(_ownerTypeDescriptor)\
-					{\
-					}\
 				protected:\
 					void LoadInternal()override\
 					{
 
-#define END_STRUCT_MEMBER_FLAG(TYPENAME, TDFLAGS)\
-					}\
-				};\
-				typedef StructTypeDescriptor<CustomStructValueSerializer, TDFLAGS> CustomTypeDescriptorImpl;\
-			};
+#define BEGIN_STRUCT_MEMBER(TYPENAME)\
+			BEGIN_STRUCT_MEMBER_FLAG(TYPENAME, TypeDescriptorFlags::Struct)
 
 #define END_STRUCT_MEMBER(TYPENAME)\
-			END_STRUCT_MEMBER_FLAG(TYPENAME, TypeDescriptorFlags::Struct)
+					}\
+				};\
+			};
 
 #define STRUCT_MEMBER(FIELDNAME)\
-	fieldSerializers.Add(L ## #FIELDNAME, new FieldSerializer<decltype(((StructType*)0)->FIELDNAME)>(GetOwnerTypeDescriptor(), &StructType::FIELDNAME, L ## #FIELDNAME));
+	fields.Add(L ## #FIELDNAME, new StructFieldInfo<decltype(((StructType*)0)->FIELDNAME)>(this, &StructType::FIELDNAME, L ## #FIELDNAME));
 
 /***********************************************************************
 Class
