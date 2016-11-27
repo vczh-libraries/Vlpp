@@ -23,10 +23,17 @@ namespace vl
 TypeInfo
 ***********************************************************************/
 
-#define DECL_TYPE_INFO(TYPENAME) template<>struct TypeInfo<TYPENAME>{static const wchar_t* TypeName; static const wchar_t* CppFullTypeName;};
-#define IMPL_VL_TYPE_INFO(TYPENAME) const wchar_t* TypeInfo<TYPENAME>::TypeName = L ## #TYPENAME; const wchar_t* TypeInfo<TYPENAME>::CppFullTypeName = L"vl::" L ## #TYPENAME;
-#define IMPL_CPP_TYPE_INFO(TYPENAME) const wchar_t* TypeInfo<TYPENAME>::TypeName = L ## #TYPENAME; const wchar_t* TypeInfo<TYPENAME>::CppFullTypeName = L ## #TYPENAME;
-#define IMPL_TYPE_INFO_RENAME(TYPENAME, EXPECTEDNAME) const wchar_t* TypeInfo<TYPENAME>::TypeName = L ## #EXPECTEDNAME; const wchar_t* TypeInfo<TYPENAME>::CppFullTypeName = L ## #TYPENAME;
+#define DECL_TYPE_INFO(TYPENAME) template<>struct TypeInfo<TYPENAME>{static const wchar_t* TypeName; static const wchar_t* CppFullTypeName; static const TypeInfoCppName CppName;};
+#define IMPL_VL_TYPE_INFO(TYPENAME) const wchar_t* TypeInfo<TYPENAME>::TypeName = L ## #TYPENAME; const wchar_t* TypeInfo<TYPENAME>::CppFullTypeName = nullptr; const TypeInfoCppName TypeInfo<TYPENAME>::CppName = TypeInfoCppName::VlppType;
+#define IMPL_CPP_TYPE_INFO(TYPENAME) const wchar_t* TypeInfo<TYPENAME>::TypeName = L ## #TYPENAME; const wchar_t* TypeInfo<TYPENAME>::CppFullTypeName = nullptr; const TypeInfoCppName TypeInfo<TYPENAME>::CppName = TypeInfoCppName::CppType;
+#define IMPL_TYPE_INFO_RENAME(TYPENAME, EXPECTEDNAME) const wchar_t* TypeInfo<TYPENAME>::TypeName = L ## #EXPECTEDNAME; const wchar_t* TypeInfo<TYPENAME>::CppFullTypeName = L ## #TYPENAME; constTypeInfoCppName TypeInfo<TYPENAME>::CppName = TypeInfoCppName::Renamed;
+
+			enum class TypeInfoCppName
+			{
+				VlppType,			// vl::<type-name>
+				CppType,			// <type-name>
+				Renamed,			// CppFullTypeName
+			};
 
 			template<typename T>
 			struct TypeInfo
@@ -208,7 +215,6 @@ SerializableTypeDescriptor
 				TypeDescriptorFlags							GetTypeDescriptorFlags()override;
 				bool										IsAggregatable()override;
 				const WString&								GetTypeName()override;
-				const WString&								GetCppFullTypeName()override;
 
 				IValueType*									GetValueType()override;
 				IEnumType*									GetEnumType()override;

@@ -621,6 +621,15 @@ ValueType
 ITypeDescriptor (type)
 ***********************************************************************/
 
+			enum class TypeInfoHint
+			{
+				Normal,
+				Array,
+				List,
+				SortedList,
+				Dictionary,
+			};
+
 			class ITypeInfo : public virtual IDescriptable, public Description<ITypeInfo>
 			{
 			public:
@@ -633,12 +642,13 @@ ITypeDescriptor (type)
 					Generic,
 				};
 
-				virtual Decorator				GetDecorator()=0;
-				virtual ITypeInfo*				GetElementType()=0;
-				virtual ITypeDescriptor*		GetTypeDescriptor()=0;
-				virtual vint					GetGenericArgumentCount()=0;
-				virtual ITypeInfo*				GetGenericArgument(vint index)=0;
-				virtual WString					GetTypeFriendlyName()=0;
+				virtual Decorator				GetDecorator() = 0;
+				virtual TypeInfoHint			GetHint() = 0;
+				virtual ITypeInfo*				GetElementType() = 0;
+				virtual ITypeDescriptor*		GetTypeDescriptor() = 0;
+				virtual vint					GetGenericArgumentCount() = 0;
+				virtual ITypeInfo*				GetGenericArgument(vint index) = 0;
+				virtual WString					GetTypeFriendlyName() = 0;
 			};
 
 /***********************************************************************
@@ -669,6 +679,38 @@ ITypeDescriptor (event)
 			class IEventInfo : public virtual IMemberInfo, public Description<IEventInfo>
 			{
 			public:
+				class ICpp : public virtual IDescriptable, public Description<ICpp>
+				{
+				public:
+					/*
+					Arguments:
+						$Type:					C++ full type name
+						$Name:					Event name
+						$This:					Expression for the "this" argument
+						$Handler:				Event subscription / Event handler
+						$Arguments:				Expressions for arguments separated by ", "
+					Default (for Vlpp Event):
+						Handler:				vl::Ptr<vl::EventHandler>
+						Attach:					$This->$Name.Add($Handler)
+						Detach:					$This->$Name.Remove($Handler)
+						Invoke:					$This->$Name($Arguments)
+					Example:
+						External constructor:	<full-function-name>($Arguments)
+						External method:		<full-function-name>($This, $Arguments)
+						Renamed method:			$This-><function-name>($Arguments)
+					*/
+					virtual const WString&		GetHandlerType() = 0;
+					virtual const WString&		GetAttachTemplate() = 0;
+					virtual const WString&		GetDetachTemplate() = 0;
+					virtual const WString&		GetInvokeTemplate() = 0;
+				};
+				/*
+				Priority:
+					1. Use ICpp
+					2. Use Default
+				*/
+				virtual ICpp*					GetCpp() = 0;
+
 				virtual ITypeInfo*				GetHandlerType()=0;
 				virtual vint					GetObservingPropertyCount()=0;
 				virtual IPropertyInfo*			GetObservingProperty(vint index)=0;
@@ -683,6 +725,30 @@ ITypeDescriptor (property)
 			class IPropertyInfo : public virtual IMemberInfo, public Description<IPropertyInfo>
 			{
 			public:
+				class ICpp : public virtual IDescriptable, public Description<ICpp>
+				{
+				public:
+					/*
+					Arguments:
+						$Type:					C++ full type name
+						$Name:					Property name
+						$This:					Expression for the "this" argument
+					Default:
+						Struct:					$This.$Name
+						Class:					$This->$Name
+					Example:
+						Token in syntax tree:	$This->$Name.value
+					*/
+					virtual const WString&		GetReferenceTemplate() = 0;
+				};
+				/*
+				Priority:
+					1. Use ICpp
+					2. Use ICpp from getter and setter
+					3. Use default
+				*/
+				virtual ICpp*					GetCpp() = 0;
+
 				virtual bool					IsReadable()=0;
 				virtual bool					IsWritable()=0;
 				virtual ITypeInfo*				GetReturn()=0;
@@ -707,6 +773,29 @@ ITypeDescriptor (method)
 			class IMethodInfo : public virtual IMemberInfo, public Description<IMethodInfo>
 			{
 			public:
+				class ICpp : public virtual IDescriptable, public Description<ICpp>
+				{
+				public:
+					/*
+					Arguments:
+						$Type:					C++ full type name
+						$Name:					Method name
+						$This:					Expression for the "this" argument;
+						$Arguments:				Expressions for arguments separated by ", "
+					Default:
+						Constructor:			new $Type($Arguments)
+						Static:					$Type::$Name($Arguments)
+						Normal:					$This->$Name($Arguments)
+					*/
+					virtual const WString&		GetInvokeTemplate() = 0;
+				};
+				/*
+				Priority:
+					1. Use ICpp
+					2. Use default
+				*/
+				virtual ICpp*					GetCpp() = 0;
+
 				virtual IMethodGroupInfo*		GetOwnerMethodGroup()=0;
 				virtual IPropertyInfo*			GetOwnerProperty()=0;
 				virtual vint					GetParameterCount()=0;
@@ -762,10 +851,24 @@ ITypeDescriptor
 			class ITypeDescriptor : public virtual IDescriptable, public Description<ITypeDescriptor>
 			{
 			public:
+				class ICpp : public virtual IDescriptable, public Description<ICpp>
+				{
+				public:
+					/*
+						Default:				refer to TypeInfoCppName::VlppType
+					*/
+					virtual const WString&		GetFullName() = 0;
+				};
+				/*
+				Priority:
+					1. Use ICpp
+					2. Use default
+				*/
+				virtual ICpp*					GetCpp() = 0;
+
 				virtual TypeDescriptorFlags		GetTypeDescriptorFlags() = 0;
 				virtual bool					IsAggregatable() = 0;
 				virtual const WString&			GetTypeName() = 0;
-				virtual const WString&			GetCppFullTypeName() = 0;
 
 				virtual IValueType*				GetValueType() = 0;
 				virtual IEnumType*				GetEnumType() = 0;
