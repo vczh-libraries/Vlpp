@@ -418,6 +418,15 @@ Predefined Types
 #undef DEFINE_TYPED_VALUE_SERIALIZER_PROVIDER
 
 /***********************************************************************
+Helper Functions
+***********************************************************************/
+
+			extern vint										ITypeDescriptor_GetTypeDescriptorCount();
+			extern ITypeDescriptor*							ITypeDescriptor_GetTypeDescriptor(vint index);
+			extern ITypeDescriptor*							ITypeDescriptor_GetTypeDescriptor(const WString& name);
+			extern ITypeDescriptor*							ITypeDescriptor_GetTypeDescriptor(const Value& value);
+
+/***********************************************************************
 LoadPredefinedTypes
 ***********************************************************************/
 

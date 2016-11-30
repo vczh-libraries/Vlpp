@@ -115,6 +115,9 @@ namespace vl
 				}
 			};
 
+			template<typename T>
+			using FUNCTIONNAME_AddPointer = T*;
+
 /***********************************************************************
 Type
 ***********************************************************************/
@@ -394,13 +397,16 @@ Constructor
 				AddConstructor(new CustomConstructorInfoImpl<FUNCTIONTYPE>(parameterNames));\
 			}
 
-#define CLASS_MEMBER_EXTERNALCTOR(FUNCTIONTYPE, PARAMETERNAMES, SOURCE)\
+#define CLASS_MEMBER_EXTERNALCTOR_INVOKETEMPLATE(FUNCTIONTYPE, PARAMETERNAMES, SOURCE, INVOKETEMPLATE)\
 			{\
 				const wchar_t* parameterNames[]=PARAMETERNAMES;\
 				AddConstructor(\
-					new CustomStaticMethodInfoImpl<FUNCTIONTYPE>(parameterNames, SOURCE)\
+					new CustomStaticMethodInfoImpl<FUNCTIONTYPE>(parameterNames, SOURCE, INVOKETEMPLATE)\
 					);\
 			}
+
+#define CLASS_MEMBER_EXTERNALCTOR(FUNCTIONTYPE, PARAMETERNAMES, SOURCE)\
+			CLASS_MEMBER_EXTERNALCTOR_INVOKETEMPLATE(FUNCTIONTYPE, PARAMETERNAMES, (FUNCTIONNAME_AddPointer<FUNCTIONTYPE>)&::SOURCE, L"::" L ## #SOURCE L"($Arguments)")
 
 /***********************************************************************
 Method
@@ -447,19 +453,22 @@ Method
 Static Method
 ***********************************************************************/
 
-#define CLASS_MEMBER_STATIC_EXTERNALMETHOD(FUNCTIONNAME, PARAMETERNAMES, FUNCTIONTYPE, SOURCE)\
+#define CLASS_MEMBER_STATIC_EXTERNALMETHOD_INVOKETEMPLATE(FUNCTIONNAME, PARAMETERNAMES, FUNCTIONTYPE, SOURCE, INVOKETEMPLATE)\
 			{\
 				const wchar_t* parameterNames[]=PARAMETERNAMES;\
 				AddMethod(\
 					L ## #FUNCTIONNAME,\
 					new CustomStaticMethodInfoImpl<\
 						vl::function_lambda::FunctionObjectRetriveType<FUNCTIONTYPE>::FunctionType\
-						>(parameterNames, SOURCE)\
+						>(parameterNames, (FUNCTIONTYPE)SOURCE, INVOKETEMPLATE)\
 					);\
 			}
 
+#define CLASS_MEMBER_STATIC_EXTERNALMETHOD(FUNCTIONNAME, PARAMETERNAMES, FUNCTIONTYPE, SOURCE)\
+			CLASS_MEMBER_STATIC_EXTERNALMETHOD_INVOKETEMPLATE(FUNCTIONNAME, PROTECT_PARAMETERS(PARAMETERNAMES), FUNCTIONTYPE, &::SOURCE, L"::" L ## #SOURCE L"($Arguments)")
+
 #define CLASS_MEMBER_STATIC_METHOD_OVERLOAD(FUNCTIONNAME, PARAMETERNAMES, FUNCTIONTYPE)\
-			CLASS_MEMBER_STATIC_EXTERNALMETHOD(FUNCTIONNAME, PROTECT_PARAMETERS(PARAMETERNAMES), FUNCTIONTYPE, (FUNCTIONTYPE)&ClassType::FUNCTIONNAME)
+			CLASS_MEMBER_STATIC_EXTERNALMETHOD_INVOKETEMPLATE(FUNCTIONNAME, PROTECT_PARAMETERS(PARAMETERNAMES), FUNCTIONTYPE, &ClassType::FUNCTIONNAME, nullptr)
 
 #define CLASS_MEMBER_STATIC_METHOD(FUNCTIONNAME, PARAMETERNAMES)\
 			CLASS_MEMBER_STATIC_METHOD_OVERLOAD(FUNCTIONNAME, PROTECT_PARAMETERS(PARAMETERNAMES), decltype(&ClassType::FUNCTIONNAME))

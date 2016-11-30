@@ -659,7 +659,7 @@ Helper Functions
 			}
 
 /***********************************************************************
-Collections
+LoadPredefinedTypes
 ***********************************************************************/
 
 #define _ ,	
@@ -779,8 +779,8 @@ Collections
 
 			BEGIN_INTERFACE_MEMBER(IValueList)
 				CLASS_MEMBER_BASE(IValueReadonlyList)
-				CLASS_MEMBER_EXTERNALCTOR(Ptr<IValueList>(), NO_PARAMETER, (Ptr<IValueList>(*)())&IValueList::Create)
-				CLASS_MEMBER_EXTERNALCTOR(Ptr<IValueList>(Ptr<IValueReadonlyList>), {L"values"}, (Ptr<IValueList>(*)(Ptr<IValueReadonlyList>))&IValueList::Create)
+				CLASS_MEMBER_EXTERNALCTOR(Ptr<IValueList>(), NO_PARAMETER, vl::reflection::description::IValueList::Create)
+				CLASS_MEMBER_EXTERNALCTOR(Ptr<IValueList>(Ptr<IValueReadonlyList>), {L"values"}, vl::reflection::description::IValueList::Create)
 
 				CLASS_MEMBER_METHOD(Set, {L"index" _ L"value"})
 				CLASS_MEMBER_METHOD(Add, {L"value"})
@@ -805,8 +805,8 @@ Collections
 
 			BEGIN_INTERFACE_MEMBER(IValueDictionary)
 				CLASS_MEMBER_BASE(IValueReadonlyDictionary)
-				CLASS_MEMBER_EXTERNALCTOR(Ptr<IValueDictionary>(), NO_PARAMETER, (Ptr<IValueDictionary>(*)())&IValueDictionary::Create)
-				CLASS_MEMBER_EXTERNALCTOR(Ptr<IValueDictionary>(Ptr<IValueReadonlyDictionary>), {L"values"}, (Ptr<IValueDictionary>(*)(Ptr<IValueReadonlyDictionary>))&IValueDictionary::Create)
+				CLASS_MEMBER_EXTERNALCTOR(Ptr<IValueDictionary>(), NO_PARAMETER, vl::reflection::description::IValueDictionary::Create)
+				CLASS_MEMBER_EXTERNALCTOR(Ptr<IValueDictionary>(Ptr<IValueReadonlyDictionary>), {L"values"}, vl::reflection::description::IValueDictionary::Create)
 				CLASS_MEMBER_METHOD(Set, {L"key" _ L"value"})
 				CLASS_MEMBER_METHOD(Remove, {L"key"})
 				CLASS_MEMBER_METHOD(Clear, NO_PARAMETER)
@@ -1012,16 +1012,12 @@ Collections
 				CLASS_MEMBER_METHOD(IsMethodGroupExists, {L"name" _ L"inheritable"})
 				CLASS_MEMBER_METHOD(GetMethodGroupByName, {L"name" _ L"inheritable"})
 
-				CLASS_MEMBER_STATIC_EXTERNALMETHOD(GetTypeDescriptorCount, NO_PARAMETER, vint(*)(), &ITypeDescriptor_GetTypeDescriptorCount)
-				CLASS_MEMBER_STATIC_EXTERNALMETHOD(GetTypeDescriptor, {L"index"}, ITypeDescriptor*(*)(vint), &ITypeDescriptor_GetTypeDescriptor)
-				CLASS_MEMBER_STATIC_EXTERNALMETHOD(GetTypeDescriptor, {L"name"}, ITypeDescriptor*(*)(const WString&), &ITypeDescriptor_GetTypeDescriptor)
-				CLASS_MEMBER_STATIC_EXTERNALMETHOD(GetTypeDescriptor, {L"value"}, ITypeDescriptor*(*)(const Value&), &ITypeDescriptor_GetTypeDescriptor)
+				CLASS_MEMBER_STATIC_EXTERNALMETHOD(GetTypeDescriptorCount, NO_PARAMETER, vint(*)(), vl::reflection::description::ITypeDescriptor_GetTypeDescriptorCount)
+				CLASS_MEMBER_STATIC_EXTERNALMETHOD(GetTypeDescriptor, {L"index"}, ITypeDescriptor*(*)(vint), vl::reflection::description::ITypeDescriptor_GetTypeDescriptor)
+				CLASS_MEMBER_STATIC_EXTERNALMETHOD(GetTypeDescriptor, {L"name"}, ITypeDescriptor*(*)(const WString&), vl::reflection::description::ITypeDescriptor_GetTypeDescriptor)
+				CLASS_MEMBER_STATIC_EXTERNALMETHOD(GetTypeDescriptor, {L"value"}, ITypeDescriptor*(*)(const Value&), vl::reflection::description::ITypeDescriptor_GetTypeDescriptor)
 			END_INTERFACE_MEMBER(ITypeDescriptor)
 #undef _
-
-/***********************************************************************
-LoadPredefinedTypes
-***********************************************************************/
 
 			class PredefinedTypeLoader : public Object, public ITypeLoader
 			{

@@ -438,7 +438,7 @@ CustomStaticMethodInfoImpl<R(TArgs...)>
 			}
 
 			template<typename R, typename ...TArgs>
-			class CustomStaticMethodInfoImpl<R(TArgs...)> : public MethodInfoImpl
+			class CustomStaticMethodInfoImpl<R(TArgs...)> : public MethodInfoImpl, private IMethodInfo::ICpp
 			{
 			protected:
 				R(* method)(TArgs...);
@@ -453,12 +453,28 @@ CustomStaticMethodInfoImpl<R(TArgs...)>
 					Func<R(TArgs...)> proxy(method);
 					return BoxParameter<Func<R(TArgs...)>>(proxy);
 				}
+			private:
+				WString invokeTemplate;
+
+				const WString& GetInvokeTemplate()override
+				{
+					return invokeTemplate;
+				}
 			public:
-				CustomStaticMethodInfoImpl(const wchar_t* parameterNames[], R(* _method)(TArgs...))
+				CustomStaticMethodInfoImpl(const wchar_t* parameterNames[], R(* _method)(TArgs...), const wchar_t* _invokeTemplate)
 					:MethodInfoImpl(0, TypeInfoRetriver<R>::CreateTypeInfo(), true)
 					,method(_method)
 				{
 					internal_helper::ConstructorArgumentAdder<TypeTuple<TArgs...>>::Add(this, parameterNames, 0);
+					if (_invokeTemplate)
+					{
+						invokeTemplate = WString(invokeTemplate, false);
+					}
+				}
+
+				IMethodInfo::ICpp* GetCpp()override
+				{
+					return invokeTemplate.Length() == 0 ? nullptr : this;
 				}
 			};
  

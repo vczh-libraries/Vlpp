@@ -222,7 +222,9 @@ Attribute
 		///				CLASS_MEMBER_CONSTRUCTOR(Ptr<MyClass>(int, const WString&), {L"numberParameter" _ L"stringParameter"})
 		///
 		///				VI) Inject a global function as a constructor
-		///				CLASS_MEMBER_EXTERNALCTOR(Ptr<MyClass>(int, const WString&), {L"numberParameter" _ L"stringParameter"}, CreateMyClass)
+		///				CLASS_MEMBER_EXTERNALCTOR(Ptr<MyClass>(int, const WString&), {L"numberParameter" _ L"stringParameter"}, mynamespace::CreateMyClass)
+		///				CLASS_MEMBER_EXTERNALCTOR_INVOKETEMPLATE(Ptr<MyClass>(int, const WString&), {L"numberParameter" _ L"stringParameter"}, CreateMyClass, L"mynamespace::GetMyClass($Arguments)")
+		///				CLASS_MEMBER_EXTERNALCTOR_INVOKETEMPLATE(Ptr<MyClass>(), NO_PARAMETER, []()->Ptr<MyClass>{return nullptr;}, L"*")
 		///
 		///				VII) Add unoverloaded functions
 		///				CLASS_MEMBER_METHOD(MyFunction1, NO_PARAMETER)
@@ -256,8 +258,8 @@ Attribute
 		///				CLASS_MEMBER_METHOD_OVERLOAD(MyFunction6, {L"parameter1" _ L"parameter2"}, int(*)(int, const WString&))
 		///
 		///				XIII) Inject global functions as static methods:
-		///				CLASS_MEMBER_STATIC_EXTERNALMETHOD(MyNewName6, {L"parameter"}, int(*)(int), &AGlobalFunction2)
-		///				CLASS_MEMBER_STATIC_EXTERNALMETHOD(MyNewName6, {L"parameter1" _ L"parameter2"}, int(*)(int, const WString&), [](int b, const WString& c){return 0;})
+		///				CLASS_MEMBER_STATIC_EXTERNALMETHOD(MyNewName6, {L"parameter"}, int(*)(int), mynamespace::AGlobalFunction2)
+		///				CLASS_MEMBER_STATIC_EXTERNALMETHOD_INVOKETEMPLATE(MyNewName6, {L"parameter1" _ L"parameter2"}, int(*)(int, const WString&), [](int b, const WString& c){return 0;}, L"*")
 		///
 		///				XIV) Add a getter function as a property
 		///				CLASS_MEMBER_PROPERTY_READONLY_FAST(X)
@@ -698,6 +700,9 @@ ITypeDescriptor (event)
 						External constructor:	<full-function-name>($Arguments)
 						External method:		<full-function-name>($This, $Arguments)
 						Renamed method:			$This-><function-name>($Arguments)
+
+					GetInvokeTemplate() == L"*":
+						This event does not exist in C++
 					*/
 					virtual const WString&		GetHandlerType() = 0;
 					virtual const WString&		GetAttachTemplate() = 0;
@@ -738,6 +743,9 @@ ITypeDescriptor (property)
 						Class:					$This->$Name
 					Example:
 						Token in syntax tree:	$This->$Name.value
+
+					GetReferenceTemplate() == L"*":
+						This property does not exist in C++
 					*/
 					virtual const WString&		GetReferenceTemplate() = 0;
 				};
@@ -786,6 +794,9 @@ ITypeDescriptor (method)
 						Constructor:			new $Type($Arguments)
 						Static:					$Type::$Name($Arguments)
 						Normal:					$This->$Name($Arguments)
+
+					GetInvokeTemplate() == L"*":
+						This method does not exist in C++
 					*/
 					virtual const WString&		GetInvokeTemplate() = 0;
 				};
@@ -856,6 +867,9 @@ ITypeDescriptor
 				public:
 					/*
 						Default:				refer to TypeInfoContent::VlppType
+
+						GetFullName() == L"*":
+							This type does not exist in C++
 					*/
 					virtual const WString&		GetFullName() = 0;
 				};
