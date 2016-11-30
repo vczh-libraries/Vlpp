@@ -22,27 +22,85 @@ namespace vl
 TypeInfoImp
 ***********************************************************************/
 
-			class TypeInfoImpl : public Object, public ITypeInfo
+			class TypeDescriptorTypeInfo : public Object, public ITypeInfo
 			{
 			protected:
-				Decorator								decorator;
 				ITypeDescriptor*						typeDescriptor;
-				collections::List<Ptr<ITypeInfo>>		genericArguments;
-				Ptr<ITypeInfo>							elementType;
+
 			public:
-				TypeInfoImpl(Decorator _decorator);
-				~TypeInfoImpl();
+				TypeDescriptorTypeInfo(ITypeDescriptor* _typeDescriptor);
+				~TypeDescriptorTypeInfo();
 
 				Decorator								GetDecorator()override;
+				TypeInfoHint							GetHint()override;
 				ITypeInfo*								GetElementType()override;
 				ITypeDescriptor*						GetTypeDescriptor()override;
 				vint									GetGenericArgumentCount()override;
 				ITypeInfo*								GetGenericArgument(vint index)override;
 				WString									GetTypeFriendlyName()override;
+			};
 
-				void									SetTypeDescriptor(ITypeDescriptor* value);
+			class DecoratedTypeInfo : public Object, public ITypeInfo
+			{
+			protected:
+				Ptr<ITypeInfo>							elementType;
+
+			public:
+				DecoratedTypeInfo(Ptr<ITypeInfo> _elementType);
+				~DecoratedTypeInfo();
+
+				TypeInfoHint							GetHint()override;
+				ITypeInfo*								GetElementType()override;
+				ITypeDescriptor*						GetTypeDescriptor()override;
+				vint									GetGenericArgumentCount()override;
+				ITypeInfo*								GetGenericArgument(vint index)override;
+			};
+
+			class RawPtrTypeInfo : public DecoratedTypeInfo
+			{
+			public:
+				RawPtrTypeInfo(Ptr<ITypeInfo> _elementType);
+				~RawPtrTypeInfo();
+
+				Decorator								GetDecorator()override;
+				WString									GetTypeFriendlyName()override;
+			};
+
+			class SharedPtrTypeInfo : public DecoratedTypeInfo
+			{
+			public:
+				SharedPtrTypeInfo(Ptr<ITypeInfo> _elementType);
+				~SharedPtrTypeInfo();
+
+				Decorator								GetDecorator()override;
+				WString									GetTypeFriendlyName()override;
+			};
+
+			class NullableTypeInfo : public DecoratedTypeInfo
+			{
+			public:
+				NullableTypeInfo(Ptr<ITypeInfo> _elementType);
+				~NullableTypeInfo();
+
+				Decorator								GetDecorator()override;
+				WString									GetTypeFriendlyName()override;
+			};
+
+			class GenericTypeInfo : public DecoratedTypeInfo
+			{
+			protected:
+				collections::List<Ptr<ITypeInfo>>		genericArguments;
+
+			public:
+				GenericTypeInfo(Ptr<ITypeInfo> _elementType);
+				~GenericTypeInfo();
+
+				Decorator								GetDecorator()override;
+				vint									GetGenericArgumentCount()override;
+				ITypeInfo*								GetGenericArgument(vint index)override;
+				WString									GetTypeFriendlyName()override;
+
 				void									AddGenericArgument(Ptr<ITypeInfo> value);
-				void									SetElementType(Ptr<ITypeInfo> value);
 			};
 
 /***********************************************************************

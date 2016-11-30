@@ -10,88 +10,211 @@ namespace vl
 		{
 
 /***********************************************************************
-TypeInfoImpl
+TypeDescriptorTypeInfo
 ***********************************************************************/
 
-			TypeInfoImpl::TypeInfoImpl(Decorator _decorator)
-				:decorator(_decorator)
-				,typeDescriptor(0)
+			TypeDescriptorTypeInfo::TypeDescriptorTypeInfo(ITypeDescriptor* _typeDescriptor)
+				:typeDescriptor(_typeDescriptor)
 			{
 			}
 
-			TypeInfoImpl::~TypeInfoImpl()
+			TypeDescriptorTypeInfo::~TypeDescriptorTypeInfo()
 			{
 			}
 
-			TypeInfoImpl::Decorator TypeInfoImpl::GetDecorator()
+			ITypeInfo::Decorator TypeDescriptorTypeInfo::GetDecorator()
 			{
-				return decorator;
+				return ITypeInfo::TypeDescriptor;
 			}
 
-			ITypeInfo* TypeInfoImpl::GetElementType()
+			TypeInfoHint TypeDescriptorTypeInfo::GetHint()
+			{
+				return TypeInfoHint::Normal;
+			}
+
+			ITypeInfo* TypeDescriptorTypeInfo::GetElementType()
+			{
+				return nullptr;
+			}
+
+			ITypeDescriptor* TypeDescriptorTypeInfo::GetTypeDescriptor()
+			{
+				return typeDescriptor;
+			}
+
+			vint TypeDescriptorTypeInfo::GetGenericArgumentCount()
+			{
+				return 0;
+			}
+
+			ITypeInfo* TypeDescriptorTypeInfo::GetGenericArgument(vint index)
+			{
+				return nullptr;
+			}
+
+			WString TypeDescriptorTypeInfo::GetTypeFriendlyName()
+			{
+				return typeDescriptor->GetTypeName();
+			}
+
+/***********************************************************************
+DecoratedTypeInfo
+***********************************************************************/
+
+			DecoratedTypeInfo::DecoratedTypeInfo(Ptr<ITypeInfo> _elementType)
+				:elementType(_elementType)
+			{
+			}
+
+			DecoratedTypeInfo::~DecoratedTypeInfo()
+			{
+			}
+
+			TypeInfoHint DecoratedTypeInfo::GetHint()
+			{
+				return elementType->GetHint();
+			}
+
+			ITypeInfo* DecoratedTypeInfo::GetElementType()
 			{
 				return elementType.Obj();
 			}
 
-			ITypeDescriptor* TypeInfoImpl::GetTypeDescriptor()
+			ITypeDescriptor* DecoratedTypeInfo::GetTypeDescriptor()
 			{
-				return
-					typeDescriptor?typeDescriptor:
-					elementType?elementType->GetTypeDescriptor():
-					0;
+				return elementType->GetTypeDescriptor();
 			}
 
-			vint TypeInfoImpl::GetGenericArgumentCount()
+			vint DecoratedTypeInfo::GetGenericArgumentCount()
+			{
+				return 0;
+			}
+
+			ITypeInfo* DecoratedTypeInfo::GetGenericArgument(vint index)
+			{
+				return nullptr;
+			}
+
+/***********************************************************************
+RawPtrTypeInfo
+***********************************************************************/
+
+			RawPtrTypeInfo::RawPtrTypeInfo(Ptr<ITypeInfo> _elementType)
+				:DecoratedTypeInfo(_elementType)
+			{
+			}
+
+			RawPtrTypeInfo::~RawPtrTypeInfo()
+			{
+			}
+
+			ITypeInfo::Decorator RawPtrTypeInfo::GetDecorator()
+			{
+				return ITypeInfo::RawPtr;
+			}
+
+			WString RawPtrTypeInfo::GetTypeFriendlyName()
+			{
+				return elementType->GetTypeFriendlyName() + L"*";
+			}
+
+/***********************************************************************
+SharedPtrTypeInfo
+***********************************************************************/
+
+			SharedPtrTypeInfo::SharedPtrTypeInfo(Ptr<ITypeInfo> _elementType)
+				:DecoratedTypeInfo(_elementType)
+			{
+			}
+
+			SharedPtrTypeInfo::~SharedPtrTypeInfo()
+			{
+			}
+
+			ITypeInfo::Decorator SharedPtrTypeInfo::GetDecorator()
+			{
+				return ITypeInfo::SharedPtr;
+			}
+
+			WString SharedPtrTypeInfo::GetTypeFriendlyName()
+			{
+				return elementType->GetTypeFriendlyName() + L"^";
+			}
+
+/***********************************************************************
+NullableTypeInfo
+***********************************************************************/
+
+			NullableTypeInfo::NullableTypeInfo(Ptr<ITypeInfo> _elementType)
+				:DecoratedTypeInfo(_elementType)
+			{
+			}
+
+			NullableTypeInfo::~NullableTypeInfo()
+			{
+			}
+
+			ITypeInfo::Decorator NullableTypeInfo::GetDecorator()
+			{
+				return ITypeInfo::Nullable;
+			}
+
+			WString NullableTypeInfo::GetTypeFriendlyName()
+			{
+				return elementType->GetTypeFriendlyName() + L"?";
+			}
+
+/***********************************************************************
+GenericTypeInfo
+***********************************************************************/
+
+			GenericTypeInfo::GenericTypeInfo(Ptr<ITypeInfo> _elementType)
+				:DecoratedTypeInfo(_elementType)
+			{
+			}
+
+			GenericTypeInfo::~GenericTypeInfo()
+			{
+			}
+
+			ITypeInfo::Decorator GenericTypeInfo::GetDecorator()
+			{
+				return ITypeInfo::Generic;
+			}
+
+			vint GenericTypeInfo::GetGenericArgumentCount()
 			{
 				return genericArguments.Count();
 			}
 
-			ITypeInfo* TypeInfoImpl::GetGenericArgument(vint index)
+			ITypeInfo* GenericTypeInfo::GetGenericArgument(vint index)
 			{
 				return genericArguments[index].Obj();
 			}
 
-			WString TypeInfoImpl::GetTypeFriendlyName()
+			WString GenericTypeInfo::GetTypeFriendlyName()
 			{
-				switch(decorator)
+				WString result = elementType->GetTypeFriendlyName() + L"<";
+				FOREACH_INDEXER(Ptr<ITypeInfo>, type, i, genericArguments)
 				{
-				case RawPtr:
-					return elementType->GetTypeFriendlyName()+L"*";
-				case SharedPtr:
-					return elementType->GetTypeFriendlyName()+L"^";
-				case Nullable:
-					return elementType->GetTypeFriendlyName()+L"?";
-				case TypeDescriptor:
-					return typeDescriptor->GetTypeName();
-				case Generic:
+					WString result = elementType->GetTypeFriendlyName() + L"<";
+					FOREACH_INDEXER(Ptr<ITypeInfo>, type, i, genericArguments)
 					{
-						WString result=elementType->GetTypeFriendlyName()+L"<";
-						FOREACH_INDEXER(Ptr<ITypeInfo>, type, i, genericArguments)
-						{
-							if(i>0) result+=L", ";
-							result+=type->GetTypeFriendlyName();
-						}
-						result+=L">";
-						return result;
+						if (i>0) result += L", ";
+						result += type->GetTypeFriendlyName();
 					}
-				default:
-					return L"";
+					result += L">";
+					return result;
+					if (i>0) result += L", ";
+					result += type->GetTypeFriendlyName();
 				}
+				result += L">";
+				return result;
 			}
 
-			void TypeInfoImpl::SetTypeDescriptor(ITypeDescriptor* value)
-			{
-				typeDescriptor=value;
-			}
-
-			void TypeInfoImpl::AddGenericArgument(Ptr<ITypeInfo> value)
+			void GenericTypeInfo::AddGenericArgument(Ptr<ITypeInfo> value)
 			{
 				genericArguments.Add(value);
-			}
-
-			void TypeInfoImpl::SetElementType(Ptr<ITypeInfo> value)
-			{
-				elementType=value;
 			}
 
 /***********************************************************************

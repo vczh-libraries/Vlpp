@@ -418,15 +418,12 @@ DetailTypeInfoRetriver<TContainer>
 					typedef typename DetailTypeInfoRetriver<T, TypeFlags::NonGenericType>::Type		ContainerType;
 					typedef typename ContainerType::ElementType										ElementType;
 
-					Ptr<TypeInfoImpl> arrayType=new TypeInfoImpl(ITypeInfo::TypeDescriptor);
-					arrayType->SetTypeDescriptor(Description<IValueEnumerable>::GetAssociatedTypeDescriptor());
+					auto arrayType = MakePtr<TypeDescriptorTypeInfo>(Description<IValueEnumerable>::GetAssociatedTypeDescriptor());
 
-					Ptr<TypeInfoImpl> genericType=new TypeInfoImpl(ITypeInfo::Generic);
-					genericType->SetElementType(arrayType);
+					auto genericType = MakePtr<GenericTypeInfo>(arrayType);
 					genericType->AddGenericArgument(TypeInfoRetriver<ElementType>::CreateTypeInfo());
 
-					Ptr<TypeInfoImpl> type=new TypeInfoImpl(ITypeInfo::SharedPtr);
-					type->SetElementType(genericType);
+					auto type = MakePtr<SharedPtrTypeInfo>(genericType);
 					return type;
 				}
 			};
@@ -447,15 +444,12 @@ DetailTypeInfoRetriver<TContainer>
 					typedef typename DetailTypeInfoRetriver<T, TypeFlags::NonGenericType>::Type		ContainerType;
 					typedef typename ContainerType::ElementType										ElementType;
 
-					Ptr<TypeInfoImpl> arrayType=new TypeInfoImpl(ITypeInfo::TypeDescriptor);
-					arrayType->SetTypeDescriptor(Description<IValueReadonlyList>::GetAssociatedTypeDescriptor());
+					auto arrayType = MakePtr<TypeDescriptorTypeInfo>(Description<IValueReadonlyList>::GetAssociatedTypeDescriptor());
 
-					Ptr<TypeInfoImpl> genericType=new TypeInfoImpl(ITypeInfo::Generic);
-					genericType->SetElementType(arrayType);
+					auto genericType = MakePtr<GenericTypeInfo>(arrayType);
 					genericType->AddGenericArgument(TypeInfoRetriver<ElementType>::CreateTypeInfo());
 
-					Ptr<TypeInfoImpl> type=new TypeInfoImpl(ITypeInfo::SharedPtr);
-					type->SetElementType(genericType);
+					auto type = MakePtr<SharedPtrTypeInfo>(genericType);
 					return type;
 				}
 			};
@@ -476,15 +470,12 @@ DetailTypeInfoRetriver<TContainer>
 					typedef typename DetailTypeInfoRetriver<T, TypeFlags::NonGenericType>::Type		ContainerType;
 					typedef typename ContainerType::ElementType										ElementType;
 
-					Ptr<TypeInfoImpl> arrayType=new TypeInfoImpl(ITypeInfo::TypeDescriptor);
-					arrayType->SetTypeDescriptor(Description<IValueList>::GetAssociatedTypeDescriptor());
+					auto arrayType = MakePtr<TypeDescriptorTypeInfo>(Description<IValueList>::GetAssociatedTypeDescriptor());
 
-					Ptr<TypeInfoImpl> genericType=new TypeInfoImpl(ITypeInfo::Generic);
-					genericType->SetElementType(arrayType);
+					auto genericType = MakePtr<GenericTypeInfo>(arrayType);
 					genericType->AddGenericArgument(TypeInfoRetriver<ElementType>::CreateTypeInfo());
 
-					Ptr<TypeInfoImpl> type=new TypeInfoImpl(ITypeInfo::SharedPtr);
-					type->SetElementType(genericType);
+					auto type = MakePtr<SharedPtrTypeInfo>(genericType);
 					return type;
 				}
 			};
@@ -508,16 +499,13 @@ DetailTypeInfoRetriver<TContainer>
 					typedef typename KeyContainer::ElementType										KeyType;
 					typedef typename ValueContainer::ElementType									ValueType;
 
-					Ptr<TypeInfoImpl> arrayType=new TypeInfoImpl(ITypeInfo::TypeDescriptor);
-					arrayType->SetTypeDescriptor(Description<IValueReadonlyDictionary>::GetAssociatedTypeDescriptor());
+					auto arrayType = MakePtr<TypeDescriptorTypeInfo>(Description<IValueReadonlyDictionary>::GetAssociatedTypeDescriptor());
 
-					Ptr<TypeInfoImpl> genericType=new TypeInfoImpl(ITypeInfo::Generic);
-					genericType->SetElementType(arrayType);
+					auto genericType = MakePtr<GenericTypeInfo>(arrayType);
 					genericType->AddGenericArgument(TypeInfoRetriver<KeyType>::CreateTypeInfo());
 					genericType->AddGenericArgument(TypeInfoRetriver<ValueType>::CreateTypeInfo());
 
-					Ptr<TypeInfoImpl> type=new TypeInfoImpl(ITypeInfo::SharedPtr);
-					type->SetElementType(genericType);
+					auto type = MakePtr<SharedPtrTypeInfo>(genericType);
 					return type;
 				}
 			};
@@ -541,16 +529,13 @@ DetailTypeInfoRetriver<TContainer>
 					typedef typename KeyContainer::ElementType										KeyType;
 					typedef typename ValueContainer::ElementType									ValueType;
 
-					Ptr<TypeInfoImpl> arrayType=new TypeInfoImpl(ITypeInfo::TypeDescriptor);
-					arrayType->SetTypeDescriptor(Description<IValueDictionary>::GetAssociatedTypeDescriptor());
+					auto arrayType = MakePtr<TypeDescriptorTypeInfo>(Description<IValueDictionary>::GetAssociatedTypeDescriptor());
 
-					Ptr<TypeInfoImpl> genericType=new TypeInfoImpl(ITypeInfo::Generic);
-					genericType->SetElementType(arrayType);
+					auto genericType = MakePtr<GenericTypeInfo>(arrayType);
 					genericType->AddGenericArgument(TypeInfoRetriver<KeyType>::CreateTypeInfo());
 					genericType->AddGenericArgument(TypeInfoRetriver<ValueType>::CreateTypeInfo());
 
-					Ptr<TypeInfoImpl> type=new TypeInfoImpl(ITypeInfo::SharedPtr);
-					type->SetElementType(genericType);
+					auto type = MakePtr<SharedPtrTypeInfo>(genericType);
 					return type;
 				}
 			};

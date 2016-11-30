@@ -33,9 +33,7 @@ DetailTypeInfoRetriver<TStruct>
 
 				static Ptr<ITypeInfo> CreateTypeInfo()
 				{
-					Ptr<TypeInfoImpl> type=new TypeInfoImpl(ITypeInfo::TypeDescriptor);
-					type->SetTypeDescriptor(GetTypeDescriptor<Type>());
-					return type;
+					return MakePtr<TypeDescriptorTypeInfo>(GetTypeDescriptor<Type>());
 				}
 			};
 
@@ -86,10 +84,7 @@ DetailTypeInfoRetriver<TStruct>
 
 				static Ptr<ITypeInfo> CreateTypeInfo()
 				{
-					Ptr<ITypeInfo> elementType=TypeInfoRetriver<T>::CreateTypeInfo();
-					Ptr<TypeInfoImpl> type=new TypeInfoImpl(ITypeInfo::RawPtr);
-					type->SetElementType(elementType);
-					return type;
+					return MakePtr<RawPtrTypeInfo>(TypeInfoRetriver<T>::CreateTypeInfo());
 				}
 			};
 
@@ -106,10 +101,7 @@ DetailTypeInfoRetriver<TStruct>
 
 				static Ptr<ITypeInfo> CreateTypeInfo()
 				{
-					Ptr<ITypeInfo> elementType=TypeInfoRetriver<T>::CreateTypeInfo();
-					Ptr<TypeInfoImpl> type=new TypeInfoImpl(ITypeInfo::SharedPtr);
-					type->SetElementType(elementType);
-					return type;
+					return MakePtr<SharedPtrTypeInfo>(TypeInfoRetriver<T>::CreateTypeInfo());
 				}
 			};
 
@@ -126,10 +118,7 @@ DetailTypeInfoRetriver<TStruct>
 
 				static Ptr<ITypeInfo> CreateTypeInfo()
 				{
-					Ptr<ITypeInfo> elementType=TypeInfoRetriver<T>::CreateTypeInfo();
-					Ptr<TypeInfoImpl> type=new TypeInfoImpl(ITypeInfo::Nullable);
-					type->SetElementType(elementType);
-					return type;
+					return MakePtr<NullableTypeInfo>(TypeInfoRetriver<T>::CreateTypeInfo());
 				}
 			};
 

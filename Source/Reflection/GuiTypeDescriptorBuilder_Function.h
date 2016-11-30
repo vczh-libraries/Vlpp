@@ -27,7 +27,7 @@ DetailTypeInfoRetriver<Func<R(TArgs...)>>
 				template<typename T>
 				struct GenericArgumentAdder
 				{
-					static void Add(Ptr<TypeInfoImpl> genericType)
+					static void Add(Ptr<GenericTypeInfo> genericType)
 					{
 					}
 				};
@@ -35,7 +35,7 @@ DetailTypeInfoRetriver<Func<R(TArgs...)>>
 				template<typename T0, typename ...TNextArgs>
 				struct GenericArgumentAdder<TypeTuple<T0, TNextArgs...>>
 				{
-					static void Add(Ptr<TypeInfoImpl> genericType)
+					static void Add(Ptr<GenericTypeInfo> genericType)
 					{
 						genericType->AddGenericArgument(TypeInfoRetriver<T0>::CreateTypeInfo());
 						GenericArgumentAdder<TypeTuple<TNextArgs...>>::Add(genericType);
@@ -56,16 +56,13 @@ DetailTypeInfoRetriver<Func<R(TArgs...)>>
  
 				static Ptr<ITypeInfo> CreateTypeInfo()
 				{
-					Ptr<TypeInfoImpl> functionType=new TypeInfoImpl(ITypeInfo::TypeDescriptor);
-					functionType->SetTypeDescriptor(Description<IValueFunctionProxy>::GetAssociatedTypeDescriptor());
+					auto functionType = MakePtr<TypeDescriptorTypeInfo>(Description<IValueFunctionProxy>::GetAssociatedTypeDescriptor());
  
-					Ptr<TypeInfoImpl> genericType=new TypeInfoImpl(ITypeInfo::Generic);
-					genericType->SetElementType(functionType);
+					auto genericType = MakePtr<GenericTypeInfo>(functionType);
 					genericType->AddGenericArgument(TypeInfoRetriver<R>::CreateTypeInfo());
 					internal_helper::GenericArgumentAdder<TypeTuple<TArgs...>>::Add(genericType);
- 
-					Ptr<TypeInfoImpl> type=new TypeInfoImpl(ITypeInfo::SharedPtr);
-					type->SetElementType(genericType);
+
+					auto type = MakePtr<SharedPtrTypeInfo>(genericType);
 					return type;
 				}
 			};
