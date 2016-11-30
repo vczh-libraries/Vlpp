@@ -269,6 +269,11 @@ namespace vl
 #ifndef VCZH_DEBUG_NO_REFLECTION
 			using namespace test::parser;
 
+#define PARSING_TOKEN_FIELD(NAME)\
+			CLASS_MEMBER_EXTERNALMETHOD(get_##NAME, NO_PARAMETER, vl::WString(XmlText::*)(), [](XmlText* node) { return node->NAME.value; })\
+			CLASS_MEMBER_EXTERNALMETHOD(set_##NAME, { L"value" }, void(XmlText::*)(const vl::WString&), [](XmlText* node, const vl::WString& value) { node->NAME.value = value; })\
+			CLASS_MEMBER_PROPERTY_REFERENCETEMPLATE(NAME, get_##NAME, set_##NAME, L"$This->$Name.value")\
+
 			IMPL_TYPE_INFO_RENAME(test::parser::CalExpression, System::CalExpression)
 			IMPL_TYPE_INFO_RENAME(test::parser::CalNumberExpression, System::CalNumberExpression)
 			IMPL_TYPE_INFO_RENAME(test::parser::CalBinaryExpression, System::CalBinaryExpression)
@@ -286,10 +291,7 @@ namespace vl
 
 				CLASS_MEMBER_CONSTRUCTOR(vl::Ptr<CalNumberExpression>(), NO_PARAMETER)
 
-				CLASS_MEMBER_EXTERNALMETHOD(get_value, NO_PARAMETER, vl::WString(CalNumberExpression::*)(), [](CalNumberExpression* node){ return node->value.value; })
-				CLASS_MEMBER_EXTERNALMETHOD(set_value, {L"value"}, void(CalNumberExpression::*)(const vl::WString&), [](CalNumberExpression* node, const vl::WString& value){ node->value.value = value; })
-
-				CLASS_MEMBER_PROPERTY(value, get_value, set_value)
+				PARSING_TOKEN_FIELD(value)
 			END_CLASS_MEMBER(CalNumberExpression)
 
 			BEGIN_CLASS_MEMBER(CalBinaryExpression)
@@ -316,10 +318,7 @@ namespace vl
 
 				CLASS_MEMBER_CONSTRUCTOR(vl::Ptr<CalFunctionExpression>(), NO_PARAMETER)
 
-				CLASS_MEMBER_EXTERNALMETHOD(get_functionName, NO_PARAMETER, vl::WString(CalFunctionExpression::*)(), [](CalFunctionExpression* node){ return node->functionName.value; })
-				CLASS_MEMBER_EXTERNALMETHOD(set_functionName, {L"value"}, void(CalFunctionExpression::*)(const vl::WString&), [](CalFunctionExpression* node, const vl::WString& value){ node->functionName.value = value; })
-
-				CLASS_MEMBER_PROPERTY(functionName, get_functionName, set_functionName)
+				PARSING_TOKEN_FIELD(functionName)
 				CLASS_MEMBER_FIELD(arguments)
 			END_CLASS_MEMBER(CalFunctionExpression)
 
@@ -328,6 +327,8 @@ namespace vl
 				CLASS_MEMBER_METHOD_OVERLOAD(Visit, {L"node"}, void(CalExpression::IVisitor::*)(CalBinaryExpression* node))
 				CLASS_MEMBER_METHOD_OVERLOAD(Visit, {L"node"}, void(CalExpression::IVisitor::*)(CalFunctionExpression* node))
 			END_INTERFACE_MEMBER(CalExpression)
+
+#undef PARSING_TOKEN_FIELD
 
 			class CalTypeLoader : public vl::Object, public ITypeLoader
 			{

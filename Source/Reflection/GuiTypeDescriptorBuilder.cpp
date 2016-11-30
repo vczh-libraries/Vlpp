@@ -541,6 +541,11 @@ PropertyInfoImpl
 				return name;
 			}
 
+			IPropertyInfo::ICpp* PropertyInfoImpl::GetCpp()
+			{
+				return nullptr;
+			}
+
 			bool PropertyInfoImpl::IsReadable()
 			{
 				return getter!=0;
@@ -596,6 +601,30 @@ PropertyInfoImpl
 				{
 					throw PropertyIsNotWritableException(this);
 				}
+			}
+
+/***********************************************************************
+PropertyInfoImpl_StaticCpp
+***********************************************************************/
+
+			const WString& PropertyInfoImpl_StaticCpp::GetReferenceTemplate()
+			{
+				return referenceTemplate;
+			}
+
+			PropertyInfoImpl_StaticCpp::PropertyInfoImpl_StaticCpp(ITypeDescriptor* _ownerTypeDescriptor, const WString& _name, MethodInfoImpl* _getter, MethodInfoImpl* _setter, EventInfoImpl* _valueChangedEvent, const WString& _referenceTemplate)
+				:PropertyInfoImpl(_ownerTypeDescriptor, _name, _getter, _setter, _valueChangedEvent)
+				, referenceTemplate(_referenceTemplate)
+			{
+			}
+
+			PropertyInfoImpl_StaticCpp::~PropertyInfoImpl_StaticCpp()
+			{
+			}
+
+			IPropertyInfo::ICpp* PropertyInfoImpl_StaticCpp::GetCpp()
+			{
+				return this;
 			}
 
 /***********************************************************************

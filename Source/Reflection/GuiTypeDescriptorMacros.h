@@ -486,8 +486,8 @@ Property
 					this,\
 					L ## #PROPERTYNAME,\
 					dynamic_cast<MethodInfoImpl*>(GetMethodGroupByName(L ## #GETTER, true)->GetMethod(0)),\
-					0,\
-					0\
+					nullptr,\
+					nullptr\
 					)\
 				);
 
@@ -498,7 +498,7 @@ Property
 					L ## #PROPERTYNAME,\
 					dynamic_cast<MethodInfoImpl*>(GetMethodGroupByName(L ## #GETTER, true)->GetMethod(0)),\
 					dynamic_cast<MethodInfoImpl*>(GetMethodGroupByName(L ## #SETTER, true)->GetMethod(0)),\
-					0\
+					nullptr\
 					)\
 				);
 
@@ -519,8 +519,20 @@ Property
 					this,\
 					L ## #PROPERTYNAME,\
 					dynamic_cast<MethodInfoImpl*>(GetMethodGroupByName(L ## #GETTER, true)->GetMethod(0)),\
-					0,\
+					nullptr,\
 					dynamic_cast<EventInfoImpl*>(GetEventByName(L ## #EVENT, true))\
+					)\
+				);
+
+#define CLASS_MEMBER_PROPERTY_REFERENCETEMPLATE(PROPERTYNAME, GETTER, SETTER, REFERENCETEMPLATE)\
+			AddProperty(\
+				new PropertyInfoImpl_StaticCpp(\
+					this,\
+					L ## #PROPERTYNAME,\
+					dynamic_cast<MethodInfoImpl*>(GetMethodGroupByName(L ## #GETTER, true)->GetMethod(0)),\
+					dynamic_cast<MethodInfoImpl*>(GetMethodGroupByName(L ## #SETTER, true)->GetMethod(0)),\
+					nullptr,\
+					WString(REFERENCETEMPLATE, false)\
 					)\
 				);
 

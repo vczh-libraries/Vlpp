@@ -192,15 +192,19 @@ TypeDescriptorImpl
 			protected:
 				ITypeDescriptor*						ownerTypeDescriptor;
 				WString									name;
+				Ptr<ICpp>								cpp;
 				MethodInfoImpl*							getter;
 				MethodInfoImpl*							setter;
 				EventInfoImpl*							valueChangedEvent;
+
 			public:
 				PropertyInfoImpl(ITypeDescriptor* _ownerTypeDescriptor, const WString& _name, MethodInfoImpl* _getter, MethodInfoImpl* _setter, EventInfoImpl* _valueChangedEvent);
 				~PropertyInfoImpl();
 
 				ITypeDescriptor*						GetOwnerTypeDescriptor()override;
 				const WString&							GetName()override;
+				IPropertyInfo::ICpp*					GetCpp()override;
+
 				bool									IsReadable()override;
 				bool									IsWritable()override;
 				ITypeInfo*								GetReturn()override;
@@ -209,6 +213,20 @@ TypeDescriptorImpl
 				IEventInfo*								GetValueChangedEvent()override;
 				Value									GetValue(const Value& thisObject)override;
 				void									SetValue(Value& thisObject, const Value& newValue)override;
+			};
+
+			class PropertyInfoImpl_StaticCpp : public PropertyInfoImpl, private IPropertyInfo::ICpp
+			{
+			private:
+				WString									referenceTemplate;
+
+				const WString&							GetReferenceTemplate()override;
+
+			public:
+				PropertyInfoImpl_StaticCpp(ITypeDescriptor* _ownerTypeDescriptor, const WString& _name, MethodInfoImpl* _getter, MethodInfoImpl* _setter, EventInfoImpl* _valueChangedEvent, const WString& _referenceTemplate);
+				~PropertyInfoImpl_StaticCpp();
+
+				IPropertyInfo::ICpp*					GetCpp()override;
 			};
 
 /***********************************************************************
@@ -633,6 +651,11 @@ CustomFieldInfoImpl
 					:FieldInfoImpl(_ownerTypeDescriptor, _name, TypeInfoRetriver<TField>::CreateTypeInfo())
 					, fieldRef(_fieldRef)
 				{
+				}
+
+				IPropertyInfo::ICpp* GetCpp()override
+				{
+					return nullptr;
 				}
 			};
 

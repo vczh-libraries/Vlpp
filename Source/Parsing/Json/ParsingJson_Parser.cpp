@@ -404,6 +404,11 @@ namespace vl
 #ifndef VCZH_DEBUG_NO_REFLECTION
 			using namespace vl::parsing::json;
 
+#define PARSING_TOKEN_FIELD(NAME)\
+			CLASS_MEMBER_EXTERNALMETHOD(get_##NAME, NO_PARAMETER, vl::WString(XmlText::*)(), [](XmlText* node) { return node->NAME.value; })\
+			CLASS_MEMBER_EXTERNALMETHOD(set_##NAME, { L"value" }, void(XmlText::*)(const vl::WString&), [](XmlText* node, const vl::WString& value) { node->NAME.value = value; })\
+			CLASS_MEMBER_PROPERTY_REFERENCETEMPLATE(NAME, get_##NAME, set_##NAME, L"$This->$Name.value")\
+
 			IMPL_TYPE_INFO_RENAME(vl::parsing::json::JsonNode, system::JsonNode)
 			IMPL_TYPE_INFO_RENAME(vl::parsing::json::JsonLiteral, system::JsonLiteral)
 			IMPL_TYPE_INFO_RENAME(vl::parsing::json::JsonLiteral::JsonValue, system::JsonLiteral::JsonValue)
@@ -440,10 +445,7 @@ namespace vl
 
 				CLASS_MEMBER_CONSTRUCTOR(vl::Ptr<JsonString>(), NO_PARAMETER)
 
-				CLASS_MEMBER_EXTERNALMETHOD(get_content, NO_PARAMETER, vl::WString(JsonString::*)(), [](JsonString* node){ return node->content.value; })
-				CLASS_MEMBER_EXTERNALMETHOD(set_content, {L"value"}, void(JsonString::*)(const vl::WString&), [](JsonString* node, const vl::WString& value){ node->content.value = value; })
-
-				CLASS_MEMBER_PROPERTY(content, get_content, set_content)
+				PARSING_TOKEN_FIELD(content)
 			END_CLASS_MEMBER(JsonString)
 
 			BEGIN_CLASS_MEMBER(JsonNumber)
@@ -451,10 +453,7 @@ namespace vl
 
 				CLASS_MEMBER_CONSTRUCTOR(vl::Ptr<JsonNumber>(), NO_PARAMETER)
 
-				CLASS_MEMBER_EXTERNALMETHOD(get_content, NO_PARAMETER, vl::WString(JsonNumber::*)(), [](JsonNumber* node){ return node->content.value; })
-				CLASS_MEMBER_EXTERNALMETHOD(set_content, {L"value"}, void(JsonNumber::*)(const vl::WString&), [](JsonNumber* node, const vl::WString& value){ node->content.value = value; })
-
-				CLASS_MEMBER_PROPERTY(content, get_content, set_content)
+				PARSING_TOKEN_FIELD(content)
 			END_CLASS_MEMBER(JsonNumber)
 
 			BEGIN_CLASS_MEMBER(JsonArray)
@@ -471,10 +470,7 @@ namespace vl
 
 				CLASS_MEMBER_CONSTRUCTOR(vl::Ptr<JsonObjectField>(), NO_PARAMETER)
 
-				CLASS_MEMBER_EXTERNALMETHOD(get_name, NO_PARAMETER, vl::WString(JsonObjectField::*)(), [](JsonObjectField* node){ return node->name.value; })
-				CLASS_MEMBER_EXTERNALMETHOD(set_name, {L"value"}, void(JsonObjectField::*)(const vl::WString&), [](JsonObjectField* node, const vl::WString& value){ node->name.value = value; })
-
-				CLASS_MEMBER_PROPERTY(name, get_name, set_name)
+				PARSING_TOKEN_FIELD(name)
 				CLASS_MEMBER_FIELD(value)
 			END_CLASS_MEMBER(JsonObjectField)
 
@@ -482,7 +478,6 @@ namespace vl
 				CLASS_MEMBER_BASE(JsonNode)
 
 				CLASS_MEMBER_CONSTRUCTOR(vl::Ptr<JsonObject>(), NO_PARAMETER)
-
 
 				CLASS_MEMBER_FIELD(fields)
 			END_CLASS_MEMBER(JsonObject)
@@ -495,6 +490,8 @@ namespace vl
 				CLASS_MEMBER_METHOD_OVERLOAD(Visit, {L"node"}, void(JsonNode::IVisitor::*)(JsonObjectField* node))
 				CLASS_MEMBER_METHOD_OVERLOAD(Visit, {L"node"}, void(JsonNode::IVisitor::*)(JsonObject* node))
 			END_INTERFACE_MEMBER(JsonNode)
+
+#undef PARSING_TOKEN_FIELD
 
 			class JsonTypeLoader : public vl::Object, public ITypeLoader
 			{
