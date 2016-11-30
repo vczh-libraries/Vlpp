@@ -5,6 +5,8 @@
 #include "../../Source/Stream/Accessor.h"
 #include "../../Source/Stream/CharFormat.h"
 #include "../../Source/Collections/Operation.h"
+#include "../../Source/Parsing/Xml/ParsingXml.h"
+#include "../../Source/Parsing/Json/ParsingJson.h"
 #include <limits>
 #include <float.h>
 
@@ -13,6 +15,8 @@ using namespace vl::collections;
 using namespace vl::reflection;
 using namespace vl::reflection::description;
 using namespace vl::stream;
+using namespace vl::parsing::xml;
+using namespace vl::parsing::json;
 
 extern WString GetTestResourcePath();
 extern WString GetTestOutputPath();
@@ -312,8 +316,8 @@ namespace test
 		void SetB(vint value){b=value;}
 		void Reset(){a=0; b=0;}
 		void Reset(vint _a, vint _b){a=_a; b=_b;}
-		void Reset(ResetOption opt){if(opt&ResetA) a=0; if(opt&ResetB) b=0;}
-		void Reset(Derived* derived){a=derived->a; b=derived->b;}
+		void Reset2(ResetOption opt){if(opt&ResetA) a=0; if(opt&ResetB) b=0;}
+		static void Reset3(Derived* _this, Derived* derived){_this->a=derived->a; _this->b=derived->b;}
 		
 		Nullable<WString> c;
 		Nullable<WString> GetC(){return c;}
@@ -545,8 +549,8 @@ BEGIN_TYPE_INFO_NAMESPACE
 
 		CLASS_MEMBER_METHOD_OVERLOAD(Reset, NO_PARAMETER, void(Derived::*)())
 		CLASS_MEMBER_METHOD_OVERLOAD(Reset, {L"_a" _ L"_b"}, void(Derived::*)(vint _ vint))
-		CLASS_MEMBER_METHOD_OVERLOAD(Reset, {L"opt"}, void(Derived::*)(ResetOption))
-		CLASS_MEMBER_METHOD_OVERLOAD(Reset, {L"derived"}, void(Derived::*)(Derived*))
+		CLASS_MEMBER_METHOD_RENAME(Reset, Reset2, {L"opt"})
+		CLASS_MEMBER_EXTERNALMETHOD(Reset, {L"derived"}, void(Derived::*)(Derived*), test::Derived::Reset3)
 
 		CLASS_MEMBER_FIELD(c)
 		CLASS_MEMBER_PROPERTY_FAST(C)
@@ -1380,6 +1384,121 @@ namespace reflection_test
 			TEST_ASSERT(typeInfo->GetTypeFriendlyName() == L"system::Function<system::Void, system::Int32>^");
 		}
 	}
+
+	void TestCpp()
+	{
+		{
+			auto td = GetTypeDescriptor<void>();
+			TEST_ASSERT(CppExists(td));
+			TEST_ASSERT(CppGetFullName(td) == L"void");
+		}
+		{
+			auto td = GetTypeDescriptor<vint32_t>();
+			TEST_ASSERT(CppExists(td));
+			TEST_ASSERT(CppGetFullName(td) == L"::vl::vint32_t");
+		}
+		{
+			auto td = GetTypeDescriptor<IValueEnumerable>();
+			TEST_ASSERT(CppExists(td));
+			TEST_ASSERT(CppGetFullName(td) == L"::vl::reflection::description::IValueEnumerable");
+		}
+		{
+			auto td = GetTypeDescriptor<Base>();
+			TEST_ASSERT(CppExists(td));
+			TEST_ASSERT(CppGetFullName(td) == L"::test::Base");
+		}
+
+		{
+			auto td = GetTypeDescriptor<Point>();
+			auto prop = td->GetPropertyByName(L"x", false);
+			TEST_ASSERT(CppExists(prop));
+			TEST_ASSERT(CppGetReferenceTemplate(prop) == L"$This.$Name");
+		}
+		{
+			auto td = GetTypeDescriptor<Base>();
+			auto prop = td->GetPropertyByName(L"a", false);
+			TEST_ASSERT(CppExists(prop));
+			TEST_ASSERT(CppGetReferenceTemplate(prop) == L"$This->$Name");
+		}
+		{
+			auto td = GetTypeDescriptor<Derived>();
+			auto prop = td->GetPropertyByName(L"b", false);
+			TEST_ASSERT(!CppExists(prop));
+		}
+		{
+			auto td = GetTypeDescriptor<XmlElement>();
+			auto prop = td->GetPropertyByName(L"name", false);
+			TEST_ASSERT(CppExists(prop));
+			TEST_ASSERT(CppGetReferenceTemplate(prop) == L"$This->$Name.value");
+		}
+
+		{
+			auto td = GetTypeDescriptor<Base>();
+			{
+				auto ctor = td->GetConstructorGroup()->GetMethod(0);
+				TEST_ASSERT(ctor->GetParameterCount() == 0);
+				TEST_ASSERT(CppExists(ctor));
+				TEST_ASSERT(CppGetInvokeTemplate(ctor) == L"new $Type($Arguments)");
+			}
+			{
+				auto ctor = td->GetConstructorGroup()->GetMethod(1);
+				TEST_ASSERT(ctor->GetParameterCount() == 1);
+				TEST_ASSERT(CppExists(ctor));
+				TEST_ASSERT(CppGetInvokeTemplate(ctor) == L"new $Type($Arguments)");
+			}
+			{
+				auto ctor = td->GetConstructorGroup()->GetMethod(2);
+				TEST_ASSERT(ctor->GetParameterCount() == 2);
+				TEST_ASSERT(CppExists(ctor));
+				TEST_ASSERT(CppGetInvokeTemplate(ctor) == L"::test::Base::Create($Arguments)");
+			}
+		}
+
+		{
+			auto td = GetTypeDescriptor<Derived>();
+			{
+				auto method = td->GetMethodGroupByName(L"Create", false)->GetMethod(0);
+				TEST_ASSERT(method->GetParameterCount() == 0);
+				TEST_ASSERT(CppExists(method));
+				TEST_ASSERT(CppGetInvokeTemplate(method) == L"$Type::$Name($Arguments)");
+			}
+			{
+				auto method = td->GetMethodGroupByName(L"Reset", false)->GetMethod(0);
+				TEST_ASSERT(method->GetParameterCount() == 0);
+				TEST_ASSERT(CppExists(method));
+				TEST_ASSERT(CppGetInvokeTemplate(method) == L"$This->$Name($Arguments)");
+			}
+			{
+				auto method = td->GetMethodGroupByName(L"Reset", false)->GetMethod(1);
+				TEST_ASSERT(method->GetParameterCount() == 2);
+				TEST_ASSERT(CppExists(method));
+				TEST_ASSERT(CppGetInvokeTemplate(method) == L"$This->$Name($Arguments)");
+			}
+			{
+				auto method = td->GetMethodGroupByName(L"Reset", false)->GetMethod(2);
+				TEST_ASSERT(method->GetParameterCount() == 1);
+				TEST_ASSERT(CppExists(method));
+				TEST_ASSERT(CppGetInvokeTemplate(method) == L"$This->Reset2($Arguments)");
+			}
+			{
+				auto method = td->GetMethodGroupByName(L"Reset", false)->GetMethod(3);
+				TEST_ASSERT(method->GetParameterCount() == 1);
+				TEST_ASSERT(CppExists(method));
+				TEST_ASSERT(CppGetInvokeTemplate(method) == L"::test::Derived::Reset3($This, $Arguments)");
+			}
+		}
+		{
+			auto td = GetTypeDescriptor<ITypeDescriptor>();
+			auto method = td->GetMethodGroupByName(L"GetTypeDescriptorCount", false)->GetMethod(0);
+			TEST_ASSERT(CppExists(method));
+			TEST_ASSERT(CppGetInvokeTemplate(method) == L"::vl::reflection::description::ITypeDescriptor_GetTypeDescriptorCount($Arguments)");
+		}
+		{
+			auto td = GetTypeDescriptor<XmlElement>();
+			auto method = td->GetMethodGroupByName(L"get_name", false)->GetMethod(0);
+			TEST_ASSERT(!CppExists(method));
+		}
+	}
 }
 using namespace reflection_test;
 
@@ -1387,6 +1506,8 @@ using namespace reflection_test;
 	TEST_CASE(NAME)\
 	{\
 		TEST_ASSERT(LoadPredefinedTypes());\
+		TEST_ASSERT(XmlLoadTypes());\
+		TEST_ASSERT(JsonLoadTypes());\
 		TEST_ASSERT(GetGlobalTypeManager()->AddTypeLoader(new TestTypeLoader));\
 		TEST_ASSERT(GetGlobalTypeManager()->Load());\
 		{\
@@ -1411,4 +1532,5 @@ TEST_CASE_REFLECTION(TestDescriptableObjectAggregation)
 TEST_CASE_REFLECTION(TestDescriptableObjectAggregationCast)
 TEST_CASE_REFLECTION(TestDescriptableObjectIsAggregation)
 TEST_CASE_REFLECTION(TestTypeInfoFriendlyName)
+TEST_CASE_REFLECTION(TestCpp)
 

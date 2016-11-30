@@ -692,7 +692,7 @@ ITypeDescriptor (event)
 						$Handler:				Event subscription / Event handler
 						$Arguments:				Expressions for arguments separated by ", "
 					Default (for Vlpp Event):
-						Handler:				vl::Ptr<vl::EventHandler>
+						Handler:				::vl::Ptr<::vl::EventHandler>
 						Attach:					$This->$Name.Add($Handler)
 						Detach:					$This->$Name.Remove($Handler)
 						Invoke:					$This->$Name($Arguments)
@@ -945,6 +945,23 @@ ITypeManager
 			extern ITypeDescriptor*				GetTypeDescriptor(const WString& name);
 			extern bool							IsInterfaceType(ITypeDescriptor* typeDescriptor, bool& acceptProxy);
 			extern void							LogTypeManager(stream::TextWriter& writer);
+
+/***********************************************************************
+Cpp Helper Functions
+***********************************************************************/
+
+			extern WString						CppGetFullName(ITypeDescriptor* type);
+			extern WString						CppGetReferenceTemplate(IPropertyInfo* prop);
+			extern WString						CppGetInvokeTemplate(IMethodInfo* method);
+			extern WString						CppGetHandlerType(IEventInfo* ev);
+			extern WString						CppGetAttachTemplate(IEventInfo* ev);
+			extern WString						CppGetDetachTemplate(IEventInfo* ev);
+			extern WString						CppGetInvokeTemplate(IEventInfo* ev);
+
+			extern bool							CppExists(ITypeDescriptor* type);
+			extern bool							CppExists(IPropertyInfo* prop);
+			extern bool							CppExists(IMethodInfo* method);
+			extern bool							CppExists(IEventInfo* ev);
 
 /***********************************************************************
 Collections

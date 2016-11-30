@@ -193,8 +193,8 @@ ValueTypeDescriptorBase
 TypeName
 ***********************************************************************/
 			
-			IMPL_TYPE_INFO_RENAME(Sys,														system::Sys)
-			IMPL_TYPE_INFO_RENAME(Math,														system::Math)
+			IMPL_TYPE_INFO_RENAME(vl::reflection::description::Sys,							system::Sys)
+			IMPL_TYPE_INFO_RENAME(vl::reflection::description::Math,						system::Math)
 			IMPL_TYPE_INFO_RENAME(void,														system::Void)
 			IMPL_TYPE_INFO_RENAME(vl::reflection::description::VoidValue,					system::Void)
 			IMPL_TYPE_INFO_RENAME(vl::reflection::IDescriptable,							system::Interface)

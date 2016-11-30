@@ -1087,6 +1087,140 @@ LogTypeManager
 			}
 
 /***********************************************************************
+Cpp Helper Functions
+***********************************************************************/
+
+			WString CppGetFullName(ITypeDescriptor* type)
+			{
+				if (auto cpp = type->GetCpp())
+				{
+					if (cpp->GetFullName() == L"void" || cpp->GetFullName() == L"vl::reflection::description::VoidValue")
+					{
+						return L"void";
+					}
+					else if (cpp->GetFullName() == L"float")
+					{
+						return L"float";
+					}
+					else if (cpp->GetFullName() == L"double")
+					{
+						return L"double";
+					}
+					else if (cpp->GetFullName() == L"bool")
+					{
+						return L"bool";
+					}
+					else if (cpp->GetFullName() == L"wchar_t")
+					{
+						return L"wchar_t";
+					}
+					else
+					{
+						return L"::" + cpp->GetFullName();
+					}
+				}
+				else
+				{
+					return L"::vl::" + type->GetTypeName();
+				}
+			}
+
+			WString CppGetReferenceTemplate(IPropertyInfo* prop)
+			{
+				if (auto cpp = prop->GetCpp())
+				{
+					return cpp->GetReferenceTemplate();
+				}
+				else if ((prop->GetOwnerTypeDescriptor()->GetTypeDescriptorFlags() & TypeDescriptorFlags::ReferenceType) != TypeDescriptorFlags::Undefined)
+				{
+					return WString(L"$This->$Name", false);
+				}
+				else
+				{
+					return WString(L"$This.$Name", false);
+				}
+			}
+
+			WString CppGetInvokeTemplate(IMethodInfo* method)
+			{
+				if (auto cpp = method->GetCpp())
+				{
+					return cpp->GetInvokeTemplate();
+				}
+
+				if (method->GetOwnerMethodGroup() == method->GetOwnerTypeDescriptor()->GetConstructorGroup())
+				{
+					return WString(L"new $Type($Arguments)", false);
+				}
+				else if (method->IsStatic())
+				{
+					return WString(L"$Type::$Name($Arguments)", false);
+				}
+				else
+				{
+					return WString(L"$This->$Name($Arguments)", false);
+				}
+			}
+
+			WString CppGetHandlerType(IEventInfo* ev)
+			{
+				auto cpp = ev->GetCpp();
+				return cpp == nullptr ? WString(L"::vl::Ptr<::vl::EventHandler>", false) : cpp->GetHandlerType();
+			}
+
+			WString CppGetAttachTemplate(IEventInfo* ev)
+			{
+				auto cpp = ev->GetCpp();
+				return cpp == nullptr ? WString(L"$This->$Name.Add($Handler)", false) : cpp->GetAttachTemplate();
+			}
+
+			WString CppGetDetachTemplate(IEventInfo* ev)
+			{
+				auto cpp = ev->GetCpp();
+				return cpp == nullptr ? WString(L"$This->$Name.Remove($Handler)", false) : cpp->GetDetachTemplate();
+			}
+
+			WString CppGetInvokeTemplate(IEventInfo* ev)
+			{
+				auto cpp = ev->GetCpp();
+				return cpp == nullptr ? WString(L"$This->$Name($Arguments)", false) : cpp->GetInvokeTemplate();
+			}
+
+			bool CppExists(ITypeDescriptor* type)
+			{
+				auto cpp = type->GetCpp();
+				return cpp == nullptr || cpp->GetFullName() != L"*";
+			}
+
+			bool CppExists(IPropertyInfo* prop)
+			{
+				if (auto cpp = prop->GetCpp())
+				{
+					return cpp->GetReferenceTemplate() != L"*";
+				}
+				else if (auto method = prop->GetGetter())
+				{
+					return !CppExists(method);
+				}
+				else
+				{
+					return true;
+				}
+			}
+
+			bool CppExists(IMethodInfo* method)
+			{
+				auto cpp = method->GetCpp();
+				return cpp == nullptr || cpp->GetInvokeTemplate() != L"*";
+			}
+
+			bool CppExists(IEventInfo* ev)
+			{
+				auto cpp = ev->GetCpp();
+				return cpp == nullptr || cpp->GetInvokeTemplate() != L"*";
+			}
+
+/***********************************************************************
 IValueEnumerable
 ***********************************************************************/
 
