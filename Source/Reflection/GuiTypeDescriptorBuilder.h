@@ -732,6 +732,11 @@ StructTypeDescriptor
 						, FieldInfoImpl(_ownerTypeDescriptor, _name, TypeInfoRetriver<TField>::CreateTypeInfo())
 					{
 					}
+
+					IPropertyInfo::ICpp* GetCpp()override
+					{
+						return nullptr;
+					}
 				};
 
 			protected:
