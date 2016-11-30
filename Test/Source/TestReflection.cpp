@@ -1352,6 +1352,34 @@ namespace reflection_test
 		TEST_ASSERT(GetTypeDescriptor<AggParentBase>()->IsAggregatable() == true);
 		TEST_ASSERT(GetTypeDescriptor<AggParentDerived>()->IsAggregatable() == false);
 	}
+
+	void TestTypeInfoFriendlyName()
+	{
+		{
+			auto typeInfo = TypeInfoRetriver<void>::CreateTypeInfo();
+			TEST_ASSERT(typeInfo->GetTypeFriendlyName() == L"system::Void");
+		}
+		{
+			auto typeInfo = TypeInfoRetriver<Nullable<vint32_t>>::CreateTypeInfo();
+			TEST_ASSERT(typeInfo->GetTypeFriendlyName() == L"system::Int32?");
+		}
+		{
+			auto typeInfo = TypeInfoRetriver<Base*>::CreateTypeInfo();
+			TEST_ASSERT(typeInfo->GetTypeFriendlyName() == L"test::Base*");
+		}
+		{
+			auto typeInfo = TypeInfoRetriver<Ptr<Base>>::CreateTypeInfo();
+			TEST_ASSERT(typeInfo->GetTypeFriendlyName() == L"test::Base^");
+		}
+		{
+			auto typeInfo = TypeInfoRetriver<List<Ptr<Base>>>::CreateTypeInfo();
+			TEST_ASSERT(typeInfo->GetTypeFriendlyName() == L"system::List<test::Base^>^");
+		}
+		{
+			auto typeInfo = TypeInfoRetriver<Func<void(vint32_t)>>::CreateTypeInfo();
+			TEST_ASSERT(typeInfo->GetTypeFriendlyName() == L"system::Function<system::Void, system::Int32>^");
+		}
+	}
 }
 using namespace reflection_test;
 
@@ -1382,4 +1410,5 @@ TEST_CASE_REFLECTION(TestInterfaceProxy)
 TEST_CASE_REFLECTION(TestDescriptableObjectAggregation)
 TEST_CASE_REFLECTION(TestDescriptableObjectAggregationCast)
 TEST_CASE_REFLECTION(TestDescriptableObjectIsAggregation)
+TEST_CASE_REFLECTION(TestTypeInfoFriendlyName)
 
