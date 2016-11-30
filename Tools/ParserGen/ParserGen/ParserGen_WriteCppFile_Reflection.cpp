@@ -14,6 +14,12 @@ void WriteTypeReflectionImplementation(ParsingSymbolManager* manager, const WStr
 		writer.WriteLine(L";");
 	}
 
+	writer.WriteLine(L"");
+	writer.WriteLine(L"#define PARSING_TOKEN_FIELD(NAME)\\");
+	writer.WriteLine(L"\t\t\tCLASS_MEMBER_EXTERNALMETHOD_INVOKETEMPLATE(get_##NAME, NO_PARAMETER, vl::WString(ClassType::*)(), [](ClassType* node) { return node->NAME.value; }, L\"*\")\\");
+	writer.WriteLine(L"\t\t\tCLASS_MEMBER_EXTERNALMETHOD_INVOKETEMPLATE(set_##NAME, { L\"value\" }, void(ClassType::*)(const vl::WString&), [](ClassType* node, const vl::WString& value) { node->NAME.value = value; }, L\"*\")\\");
+	writer.WriteLine(L"\t\t\tCLASS_MEMBER_PROPERTY_REFERENCETEMPLATE(NAME, get_##NAME, set_##NAME, L\"$This->$Name.value\")\\");
+
 	List<ParsingSymbol*> types, leafClasses;
 	EnumerateAllTypes(manager, manager->GetGlobal(), types);
 	EnumerateAllLeafClass(manager, manager->GetGlobal(), leafClasses);
@@ -120,45 +126,7 @@ void WriteTypeReflectionImplementation(ParsingSymbolManager* manager, const WStr
 						if (fieldType->GetType() == ParsingSymbol::TokenType)
 						{
 							writer.WriteString(prefix);
-							writer.WriteString(L"\tCLASS_MEMBER_EXTERNALMETHOD(get_");
-							writer.WriteString(field->GetName());
-							writer.WriteString(L", NO_PARAMETER, vl::WString(");
-							PrintType(type, config.classPrefix, writer);
-							writer.WriteString(L"::*)(), [](");
-							PrintType(type, config.classPrefix, writer);
-							writer.WriteString(L"* node){ return node->");
-							writer.WriteString(field->GetName());
-							writer.WriteLine(L".value; })");
-							
-							writer.WriteString(prefix);
-							writer.WriteString(L"\tCLASS_MEMBER_EXTERNALMETHOD(set_");
-							writer.WriteString(field->GetName());
-							writer.WriteString(L", {L\"value\"}, void(");
-							PrintType(type, config.classPrefix, writer);
-							writer.WriteString(L"::*)(const vl::WString&), [](");
-							PrintType(type, config.classPrefix, writer);
-							writer.WriteString(L"* node, const vl::WString& value){ node->");
-							writer.WriteString(field->GetName());
-							writer.WriteLine(L".value = value; })");
-						}
-					}
-				}
-				writer.WriteLine(L"");
-
-				for (vint i = 0; i < count; i++)
-				{
-					ParsingSymbol* field = type->GetSubSymbol(i);
-					if (field->GetType() == ParsingSymbol::ClassField)
-					{
-						ParsingSymbol* fieldType = field->GetDescriptorSymbol();
-						if (fieldType->GetType() == ParsingSymbol::TokenType)
-						{
-							writer.WriteString(prefix);
-							writer.WriteString(L"\tCLASS_MEMBER_PROPERTY(");
-							writer.WriteString(field->GetName());
-							writer.WriteString(L", get_");
-							writer.WriteString(field->GetName());
-							writer.WriteString(L", set_");
+							writer.WriteString(L"\tPARSING_TOKEN_FIELD(");
 							writer.WriteString(field->GetName());
 							writer.WriteLine(L")");
 						}
@@ -209,6 +177,9 @@ void WriteTypeReflectionImplementation(ParsingSymbolManager* manager, const WStr
 			writer.WriteLine(L")");
 		}
 	}
+
+	writer.WriteLine(L"");
+	writer.WriteLine(L"#undef PARSING_TOKEN_FIELD");
 
 	writer.WriteLine(L"");
 	writer.WriteString(prefix);

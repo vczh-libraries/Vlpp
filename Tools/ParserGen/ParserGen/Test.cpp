@@ -681,6 +681,11 @@ namespace vl
 #ifndef VCZH_DEBUG_NO_REFLECTION
 			using namespace vczh::whoknows::xmlutility;
 
+#define PARSING_TOKEN_FIELD(NAME)\
+			CLASS_MEMBER_EXTERNALMETHOD_INVOKETEMPLATE(get_##NAME, NO_PARAMETER, vl::WString(ClassType::*)(), [](ClassType* node) { return node->NAME.value; }, L"*")\
+			CLASS_MEMBER_EXTERNALMETHOD_INVOKETEMPLATE(set_##NAME, { L"value" }, void(ClassType::*)(const vl::WString&), [](ClassType* node, const vl::WString& value) { node->NAME.value = value; }, L"*")\
+			CLASS_MEMBER_PROPERTY_REFERENCETEMPLATE(NAME, get_##NAME, set_##NAME, L"$This->$Name.value")\
+
 			IMPL_TYPE_INFO_RENAME(vczh::whoknows::xmlutility::TestXmlNode, system::xmlutility::TestXmlNode)
 			IMPL_TYPE_INFO_RENAME(vczh::whoknows::xmlutility::TestXmlAmbiguousNode, system::xmlutility::TestXmlAmbiguousNode)
 			IMPL_TYPE_INFO_RENAME(vczh::whoknows::xmlutility::TestXmlText, system::xmlutility::TestXmlText)
@@ -709,14 +714,12 @@ namespace vl
 
 			BEGIN_CLASS_MEMBER(TestXmlNode)
 				CLASS_MEMBER_METHOD(Accept, {L"visitor"})
-
 			END_CLASS_MEMBER(TestXmlNode)
 
 			BEGIN_CLASS_MEMBER(TestXmlAmbiguousNode)
 				CLASS_MEMBER_BASE(TestXmlNode)
 
 				CLASS_MEMBER_CONSTRUCTOR(vl::Ptr<TestXmlAmbiguousNode>(), NO_PARAMETER)
-
 
 				CLASS_MEMBER_FIELD(items)
 			END_CLASS_MEMBER(TestXmlAmbiguousNode)
@@ -726,10 +729,7 @@ namespace vl
 
 				CLASS_MEMBER_CONSTRUCTOR(vl::Ptr<TestXmlText>(), NO_PARAMETER)
 
-				CLASS_MEMBER_EXTERNALMETHOD(get_content, NO_PARAMETER, vl::WString(TestXmlText::*)(), [](TestXmlText* node){ return node->content.value; })
-				CLASS_MEMBER_EXTERNALMETHOD(set_content, {L"value"}, void(TestXmlText::*)(const vl::WString&), [](TestXmlText* node, const vl::WString& value){ node->content.value = value; })
-
-				CLASS_MEMBER_PROPERTY(content, get_content, set_content)
+				PARSING_TOKEN_FIELD(content)
 			END_CLASS_MEMBER(TestXmlText)
 
 			BEGIN_CLASS_MEMBER(TestXmlCData)
@@ -737,10 +737,7 @@ namespace vl
 
 				CLASS_MEMBER_CONSTRUCTOR(vl::Ptr<TestXmlCData>(), NO_PARAMETER)
 
-				CLASS_MEMBER_EXTERNALMETHOD(get_content, NO_PARAMETER, vl::WString(TestXmlCData::*)(), [](TestXmlCData* node){ return node->content.value; })
-				CLASS_MEMBER_EXTERNALMETHOD(set_content, {L"value"}, void(TestXmlCData::*)(const vl::WString&), [](TestXmlCData* node, const vl::WString& value){ node->content.value = value; })
-
-				CLASS_MEMBER_PROPERTY(content, get_content, set_content)
+				PARSING_TOKEN_FIELD(content)
 			END_CLASS_MEMBER(TestXmlCData)
 
 			BEGIN_CLASS_MEMBER(TestXmlAttribute)
@@ -748,13 +745,8 @@ namespace vl
 
 				CLASS_MEMBER_CONSTRUCTOR(vl::Ptr<TestXmlAttribute>(), NO_PARAMETER)
 
-				CLASS_MEMBER_EXTERNALMETHOD(get_name, NO_PARAMETER, vl::WString(TestXmlAttribute::*)(), [](TestXmlAttribute* node){ return node->name.value; })
-				CLASS_MEMBER_EXTERNALMETHOD(set_name, {L"value"}, void(TestXmlAttribute::*)(const vl::WString&), [](TestXmlAttribute* node, const vl::WString& value){ node->name.value = value; })
-				CLASS_MEMBER_EXTERNALMETHOD(get_value, NO_PARAMETER, vl::WString(TestXmlAttribute::*)(), [](TestXmlAttribute* node){ return node->value.value; })
-				CLASS_MEMBER_EXTERNALMETHOD(set_value, {L"value"}, void(TestXmlAttribute::*)(const vl::WString&), [](TestXmlAttribute* node, const vl::WString& value){ node->value.value = value; })
-
-				CLASS_MEMBER_PROPERTY(name, get_name, set_name)
-				CLASS_MEMBER_PROPERTY(value, get_value, set_value)
+				PARSING_TOKEN_FIELD(name)
+				PARSING_TOKEN_FIELD(value)
 			END_CLASS_MEMBER(TestXmlAttribute)
 
 			BEGIN_CLASS_MEMBER(TestXmlComment)
@@ -762,10 +754,7 @@ namespace vl
 
 				CLASS_MEMBER_CONSTRUCTOR(vl::Ptr<TestXmlComment>(), NO_PARAMETER)
 
-				CLASS_MEMBER_EXTERNALMETHOD(get_content, NO_PARAMETER, vl::WString(TestXmlComment::*)(), [](TestXmlComment* node){ return node->content.value; })
-				CLASS_MEMBER_EXTERNALMETHOD(set_content, {L"value"}, void(TestXmlComment::*)(const vl::WString&), [](TestXmlComment* node, const vl::WString& value){ node->content.value = value; })
-
-				CLASS_MEMBER_PROPERTY(content, get_content, set_content)
+				PARSING_TOKEN_FIELD(content)
 			END_CLASS_MEMBER(TestXmlComment)
 
 			BEGIN_CLASS_MEMBER(TestXmlElement)
@@ -773,13 +762,8 @@ namespace vl
 
 				CLASS_MEMBER_CONSTRUCTOR(vl::Ptr<TestXmlElement>(), NO_PARAMETER)
 
-				CLASS_MEMBER_EXTERNALMETHOD(get_name, NO_PARAMETER, vl::WString(TestXmlElement::*)(), [](TestXmlElement* node){ return node->name.value; })
-				CLASS_MEMBER_EXTERNALMETHOD(set_name, {L"value"}, void(TestXmlElement::*)(const vl::WString&), [](TestXmlElement* node, const vl::WString& value){ node->name.value = value; })
-				CLASS_MEMBER_EXTERNALMETHOD(get_closingName, NO_PARAMETER, vl::WString(TestXmlElement::*)(), [](TestXmlElement* node){ return node->closingName.value; })
-				CLASS_MEMBER_EXTERNALMETHOD(set_closingName, {L"value"}, void(TestXmlElement::*)(const vl::WString&), [](TestXmlElement* node, const vl::WString& value){ node->closingName.value = value; })
-
-				CLASS_MEMBER_PROPERTY(name, get_name, set_name)
-				CLASS_MEMBER_PROPERTY(closingName, get_closingName, set_closingName)
+				PARSING_TOKEN_FIELD(name)
+				PARSING_TOKEN_FIELD(closingName)
 				CLASS_MEMBER_FIELD(attributes)
 				CLASS_MEMBER_FIELD(subNodes)
 			END_CLASS_MEMBER(TestXmlElement)
@@ -789,10 +773,7 @@ namespace vl
 
 				CLASS_MEMBER_CONSTRUCTOR(vl::Ptr<TestXmlInstruction>(), NO_PARAMETER)
 
-				CLASS_MEMBER_EXTERNALMETHOD(get_name, NO_PARAMETER, vl::WString(TestXmlInstruction::*)(), [](TestXmlInstruction* node){ return node->name.value; })
-				CLASS_MEMBER_EXTERNALMETHOD(set_name, {L"value"}, void(TestXmlInstruction::*)(const vl::WString&), [](TestXmlInstruction* node, const vl::WString& value){ node->name.value = value; })
-
-				CLASS_MEMBER_PROPERTY(name, get_name, set_name)
+				PARSING_TOKEN_FIELD(name)
 				CLASS_MEMBER_FIELD(attributes)
 			END_CLASS_MEMBER(TestXmlInstruction)
 
@@ -800,7 +781,6 @@ namespace vl
 				CLASS_MEMBER_BASE(TestXmlNode)
 
 				CLASS_MEMBER_CONSTRUCTOR(vl::Ptr<TestXmlDocument>(), NO_PARAMETER)
-
 
 				CLASS_MEMBER_FIELD(instructions)
 				CLASS_MEMBER_FIELD(comments)
@@ -816,10 +796,7 @@ namespace vl
 
 			BEGIN_CLASS_MEMBER(TestXmlAnimal)
 				CLASS_MEMBER_METHOD(Accept, {L"visitor"})
-				CLASS_MEMBER_EXTERNALMETHOD(get_name, NO_PARAMETER, vl::WString(TestXmlAnimal::*)(), [](TestXmlAnimal* node){ return node->name.value; })
-				CLASS_MEMBER_EXTERNALMETHOD(set_name, {L"value"}, void(TestXmlAnimal::*)(const vl::WString&), [](TestXmlAnimal* node, const vl::WString& value){ node->name.value = value; })
-
-				CLASS_MEMBER_PROPERTY(name, get_name, set_name)
+				PARSING_TOKEN_FIELD(name)
 			END_CLASS_MEMBER(TestXmlAnimal)
 
 			BEGIN_ENUM_ITEM(TestXmlAnimal::TestXmlIndirectEnum)
@@ -832,20 +809,15 @@ namespace vl
 			BEGIN_CLASS_MEMBER(TestXmlAnimal::TestXmlEmptyClass)
 				CLASS_MEMBER_CONSTRUCTOR(vl::Ptr<TestXmlAnimal::TestXmlEmptyClass>(), NO_PARAMETER)
 
-
 			END_CLASS_MEMBER(TestXmlAnimal::TestXmlEmptyClass)
 
 			BEGIN_CLASS_MEMBER(TestXmlAnimal::TestXmlBody)
 				CLASS_MEMBER_METHOD(Accept, {L"visitor"})
-
 			END_CLASS_MEMBER(TestXmlAnimal::TestXmlBody)
 
 			BEGIN_CLASS_MEMBER(TestXmlAnimal::TestXmlBody::TestXmlFur)
 				CLASS_MEMBER_METHOD(Accept, {L"visitor"})
-				CLASS_MEMBER_EXTERNALMETHOD(get_title, NO_PARAMETER, vl::WString(TestXmlAnimal::TestXmlBody::TestXmlFur::*)(), [](TestXmlAnimal::TestXmlBody::TestXmlFur* node){ return node->title.value; })
-				CLASS_MEMBER_EXTERNALMETHOD(set_title, {L"value"}, void(TestXmlAnimal::TestXmlBody::TestXmlFur::*)(const vl::WString&), [](TestXmlAnimal::TestXmlBody::TestXmlFur* node, const vl::WString& value){ node->title.value = value; })
-
-				CLASS_MEMBER_PROPERTY(title, get_title, set_title)
+				PARSING_TOKEN_FIELD(title)
 			END_CLASS_MEMBER(TestXmlAnimal::TestXmlBody::TestXmlFur)
 
 			BEGIN_CLASS_MEMBER(TestXmlAnimal::TestXmlLeg)
@@ -853,10 +825,7 @@ namespace vl
 
 				CLASS_MEMBER_CONSTRUCTOR(vl::Ptr<TestXmlAnimal::TestXmlLeg>(), NO_PARAMETER)
 
-				CLASS_MEMBER_EXTERNALMETHOD(get_id, NO_PARAMETER, vl::WString(TestXmlAnimal::TestXmlLeg::*)(), [](TestXmlAnimal::TestXmlLeg* node){ return node->id.value; })
-				CLASS_MEMBER_EXTERNALMETHOD(set_id, {L"value"}, void(TestXmlAnimal::TestXmlLeg::*)(const vl::WString&), [](TestXmlAnimal::TestXmlLeg* node, const vl::WString& value){ node->id.value = value; })
-
-				CLASS_MEMBER_PROPERTY(id, get_id, set_id)
+				PARSING_TOKEN_FIELD(id)
 			END_CLASS_MEMBER(TestXmlAnimal::TestXmlLeg)
 
 			BEGIN_CLASS_MEMBER(TestXmlAnimal::TestXmlTail)
@@ -864,19 +833,13 @@ namespace vl
 
 				CLASS_MEMBER_CONSTRUCTOR(vl::Ptr<TestXmlAnimal::TestXmlTail>(), NO_PARAMETER)
 
-				CLASS_MEMBER_EXTERNALMETHOD(get_id, NO_PARAMETER, vl::WString(TestXmlAnimal::TestXmlTail::*)(), [](TestXmlAnimal::TestXmlTail* node){ return node->id.value; })
-				CLASS_MEMBER_EXTERNALMETHOD(set_id, {L"value"}, void(TestXmlAnimal::TestXmlTail::*)(const vl::WString&), [](TestXmlAnimal::TestXmlTail* node, const vl::WString& value){ node->id.value = value; })
-
-				CLASS_MEMBER_PROPERTY(id, get_id, set_id)
+				PARSING_TOKEN_FIELD(id)
 			END_CLASS_MEMBER(TestXmlAnimal::TestXmlTail)
 
 			BEGIN_CLASS_MEMBER(TestXmlBird)
 				CLASS_MEMBER_BASE(TestXmlAnimal)
 
-				CLASS_MEMBER_EXTERNALMETHOD(get_id, NO_PARAMETER, vl::WString(TestXmlBird::*)(), [](TestXmlBird* node){ return node->id.value; })
-				CLASS_MEMBER_EXTERNALMETHOD(set_id, {L"value"}, void(TestXmlBird::*)(const vl::WString&), [](TestXmlBird* node, const vl::WString& value){ node->id.value = value; })
-
-				CLASS_MEMBER_PROPERTY(id, get_id, set_id)
+				PARSING_TOKEN_FIELD(id)
 			END_CLASS_MEMBER(TestXmlBird)
 
 			BEGIN_CLASS_MEMBER(TestXmlGoose)
@@ -884,10 +847,7 @@ namespace vl
 
 				CLASS_MEMBER_CONSTRUCTOR(vl::Ptr<TestXmlGoose>(), NO_PARAMETER)
 
-				CLASS_MEMBER_EXTERNALMETHOD(get_title, NO_PARAMETER, vl::WString(TestXmlGoose::*)(), [](TestXmlGoose* node){ return node->title.value; })
-				CLASS_MEMBER_EXTERNALMETHOD(set_title, {L"value"}, void(TestXmlGoose::*)(const vl::WString&), [](TestXmlGoose* node, const vl::WString& value){ node->title.value = value; })
-
-				CLASS_MEMBER_PROPERTY(title, get_title, set_title)
+				PARSING_TOKEN_FIELD(title)
 			END_CLASS_MEMBER(TestXmlGoose)
 
 			BEGIN_CLASS_MEMBER(TestXmlDuck)
@@ -895,10 +855,7 @@ namespace vl
 
 				CLASS_MEMBER_CONSTRUCTOR(vl::Ptr<TestXmlDuck>(), NO_PARAMETER)
 
-				CLASS_MEMBER_EXTERNALMETHOD(get_title, NO_PARAMETER, vl::WString(TestXmlDuck::*)(), [](TestXmlDuck* node){ return node->title.value; })
-				CLASS_MEMBER_EXTERNALMETHOD(set_title, {L"value"}, void(TestXmlDuck::*)(const vl::WString&), [](TestXmlDuck* node, const vl::WString& value){ node->title.value = value; })
-
-				CLASS_MEMBER_PROPERTY(title, get_title, set_title)
+				PARSING_TOKEN_FIELD(title)
 			END_CLASS_MEMBER(TestXmlDuck)
 
 			BEGIN_CLASS_MEMBER(TestXmlBlackHole)
@@ -906,10 +863,7 @@ namespace vl
 
 				CLASS_MEMBER_CONSTRUCTOR(vl::Ptr<TestXmlBlackHole>(), NO_PARAMETER)
 
-				CLASS_MEMBER_EXTERNALMETHOD(get_id, NO_PARAMETER, vl::WString(TestXmlBlackHole::*)(), [](TestXmlBlackHole* node){ return node->id.value; })
-				CLASS_MEMBER_EXTERNALMETHOD(set_id, {L"value"}, void(TestXmlBlackHole::*)(const vl::WString&), [](TestXmlBlackHole* node, const vl::WString& value){ node->id.value = value; })
-
-				CLASS_MEMBER_PROPERTY(id, get_id, set_id)
+				PARSING_TOKEN_FIELD(id)
 			END_CLASS_MEMBER(TestXmlBlackHole)
 
 			BEGIN_INTERFACE_MEMBER(TestXmlNode::IVisitor)
@@ -936,6 +890,8 @@ namespace vl
 			BEGIN_INTERFACE_MEMBER(TestXmlAnimal::TestXmlBody::TestXmlFur::IVisitor)
 				CLASS_MEMBER_METHOD_OVERLOAD(Visit, {L"node"}, void(TestXmlAnimal::TestXmlBody::TestXmlFur::IVisitor::*)(TestXmlBlackHole* node))
 			END_INTERFACE_MEMBER(TestXmlAnimal::TestXmlBody::TestXmlFur)
+
+#undef PARSING_TOKEN_FIELD
 
 			class TestXmlTypeLoader : public vl::Object, public ITypeLoader
 			{

@@ -283,7 +283,6 @@ namespace vl
 
 			BEGIN_CLASS_MEMBER(CalExpression)
 				CLASS_MEMBER_METHOD(Accept, {L"visitor"})
-
 			END_CLASS_MEMBER(CalExpression)
 
 			BEGIN_CLASS_MEMBER(CalNumberExpression)
@@ -298,7 +297,6 @@ namespace vl
 				CLASS_MEMBER_BASE(CalExpression)
 
 				CLASS_MEMBER_CONSTRUCTOR(vl::Ptr<CalBinaryExpression>(), NO_PARAMETER)
-
 
 				CLASS_MEMBER_FIELD(firstOperand)
 				CLASS_MEMBER_FIELD(secondOperand)
