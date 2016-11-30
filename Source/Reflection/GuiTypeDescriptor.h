@@ -245,8 +245,8 @@ Attribute
 		///				CLASS_MEMBER_METHOD_OVERLOAD_RENAME(MyNewName4, MyFunction3, {L"parameter1" _ L"parameter2"}, int(MyClass::*)(int, const WString&))
 		///
 		///				X) Inject global functions as methods:
-		///				CLASS_MEMBER_EXTERNALMETHOD(MyNewName5, {L"parameter"}, int(MyClass::*)(int), &AGlobalFunction)
-		///				CLASS_MEMBER_EXTERNALMETHOD(MyNewName5, {L"parameter1" _ L"parameter2"}, int(MyClass::*)(int, const WString&), [](MyClass* a, int b, const WString& c){return 0;})
+		///				CLASS_MEMBER_EXTERNALMETHOD(MyNewName5, {L"parameter"}, int(MyClass::*)(int), mynamespace::AGlobalFunction)
+		///				CLASS_MEMBER_EXTERNALMETHOD_INVOKETEMPLATE(MyNewName5, {L"parameter1" _ L"parameter2"}, int(MyClass::*)(int, const WString&), [](MyClass* a, int b, const WString& c){return 0;}, L"*")
 		///
 		///				XI) Add unoverloaded static functions
 		///				CLASS_MEMBER_STATIC_METHOD(MyFunction4, NO_PARAMETER)

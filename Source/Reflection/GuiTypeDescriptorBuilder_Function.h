@@ -300,6 +300,11 @@ CustomConstructorInfoImpl<R(TArgs...)>
 				{
 					internal_helper::ConstructorArgumentAdder<TypeTuple<TArgs...>>::Add(this, parameterNames, 0);
 				}
+
+				IMethodInfo::ICpp* GetCpp()override
+				{
+					return nullptr;
+				}
 			};
  
 /***********************************************************************
@@ -353,9 +358,33 @@ CustomStaticMethodInfoImpl<TClass, R(TArgs...)>
 					}
 				};
 			}
+			class MethodInfoImpl_StaticCpp : public MethodInfoImpl, private IMethodInfo::ICpp
+			{
+			private:
+				WString invokeTemplate;
+
+				const WString& GetInvokeTemplate()override
+				{
+					return invokeTemplate;
+				}
+			public:
+				MethodInfoImpl_StaticCpp(IMethodGroupInfo* _ownerMethodGroup, Ptr<ITypeInfo> _return, bool _isStatic, const wchar_t* _invokeTemplate)
+					:MethodInfoImpl(_ownerMethodGroup, _return, _isStatic)
+				{
+					if (_invokeTemplate)
+					{
+						invokeTemplate = WString(_invokeTemplate, false);
+					}
+				}
+
+				IMethodInfo::ICpp* GetCpp()override
+				{
+					return invokeTemplate.Length() == 0 ? nullptr : this;
+				}
+			};
 
 			template<typename TClass, typename R, typename ...TArgs>
-			class CustomMethodInfoImpl<TClass, R(TArgs...)> : public MethodInfoImpl
+			class CustomMethodInfoImpl<TClass, R(TArgs...)> : public MethodInfoImpl_StaticCpp
 			{
 			protected:
 				R(__thiscall TClass::* method)(TArgs...);
@@ -373,8 +402,8 @@ CustomStaticMethodInfoImpl<TClass, R(TArgs...)>
 					return BoxParameter<Func<R(TArgs...)>>(proxy);
 				}
 			public:
-				CustomMethodInfoImpl(const wchar_t* parameterNames[], R(__thiscall TClass::* _method)(TArgs...))
-					:MethodInfoImpl(0, TypeInfoRetriver<R>::CreateTypeInfo(), false)
+				CustomMethodInfoImpl(const wchar_t* parameterNames[], R(__thiscall TClass::* _method)(TArgs...), const wchar_t* _invokeTemplate)
+					:MethodInfoImpl_StaticCpp(0, TypeInfoRetriver<R>::CreateTypeInfo(), false, _invokeTemplate)
 					,method(_method)
 				{
 					internal_helper::ConstructorArgumentAdder<TypeTuple<TArgs...>>::Add(this, parameterNames, 0);
@@ -382,7 +411,7 @@ CustomStaticMethodInfoImpl<TClass, R(TArgs...)>
 			};
  
 			template<typename TClass, typename R, typename ...TArgs>
-			class CustomExternalMethodInfoImpl<TClass, R(TArgs...)> : public MethodInfoImpl
+			class CustomExternalMethodInfoImpl<TClass, R(TArgs...)> : public MethodInfoImpl_StaticCpp
 			{
 			protected:
 				R(*method)(TClass*, TArgs...);
@@ -400,8 +429,8 @@ CustomStaticMethodInfoImpl<TClass, R(TArgs...)>
 					return BoxParameter<Func<R(TArgs...)>>(proxy);
 				}
 			public:
-				CustomExternalMethodInfoImpl(const wchar_t* parameterNames[], R(*_method)(TClass*, TArgs...))
-					:MethodInfoImpl(0, TypeInfoRetriver<R>::CreateTypeInfo(), false)
+				CustomExternalMethodInfoImpl(const wchar_t* parameterNames[], R(*_method)(TClass*, TArgs...), const wchar_t* _invokeTemplate)
+					:MethodInfoImpl_StaticCpp(0, TypeInfoRetriver<R>::CreateTypeInfo(), false, _invokeTemplate)
 					,method(_method)
 				{
 					internal_helper::ConstructorArgumentAdder<TypeTuple<TArgs...>>::Add(this, parameterNames, 0);
@@ -438,7 +467,7 @@ CustomStaticMethodInfoImpl<R(TArgs...)>
 			}
 
 			template<typename R, typename ...TArgs>
-			class CustomStaticMethodInfoImpl<R(TArgs...)> : public MethodInfoImpl, private IMethodInfo::ICpp
+			class CustomStaticMethodInfoImpl<R(TArgs...)> : public MethodInfoImpl_StaticCpp
 			{
 			protected:
 				R(* method)(TArgs...);
@@ -453,28 +482,12 @@ CustomStaticMethodInfoImpl<R(TArgs...)>
 					Func<R(TArgs...)> proxy(method);
 					return BoxParameter<Func<R(TArgs...)>>(proxy);
 				}
-			private:
-				WString invokeTemplate;
-
-				const WString& GetInvokeTemplate()override
-				{
-					return invokeTemplate;
-				}
 			public:
 				CustomStaticMethodInfoImpl(const wchar_t* parameterNames[], R(* _method)(TArgs...), const wchar_t* _invokeTemplate)
-					:MethodInfoImpl(0, TypeInfoRetriver<R>::CreateTypeInfo(), true)
+					:MethodInfoImpl_StaticCpp(0, TypeInfoRetriver<R>::CreateTypeInfo(), true, _invokeTemplate)
 					,method(_method)
 				{
 					internal_helper::ConstructorArgumentAdder<TypeTuple<TArgs...>>::Add(this, parameterNames, 0);
-					if (_invokeTemplate)
-					{
-						invokeTemplate = WString(invokeTemplate, false);
-					}
-				}
-
-				IMethodInfo::ICpp* GetCpp()override
-				{
-					return invokeTemplate.Length() == 0 ? nullptr : this;
 				}
 			};
  

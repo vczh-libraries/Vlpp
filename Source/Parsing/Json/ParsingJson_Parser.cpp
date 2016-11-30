@@ -405,8 +405,8 @@ namespace vl
 			using namespace vl::parsing::json;
 
 #define PARSING_TOKEN_FIELD(NAME)\
-			CLASS_MEMBER_EXTERNALMETHOD(get_##NAME, NO_PARAMETER, vl::WString(XmlText::*)(), [](XmlText* node) { return node->NAME.value; })\
-			CLASS_MEMBER_EXTERNALMETHOD(set_##NAME, { L"value" }, void(XmlText::*)(const vl::WString&), [](XmlText* node, const vl::WString& value) { node->NAME.value = value; })\
+			CLASS_MEMBER_EXTERNALMETHOD_INVOKETEMPLATE(get_##NAME, NO_PARAMETER, vl::WString(ClassType::*)(), [](ClassType* node) { return node->NAME.value; }, L"*")\
+			CLASS_MEMBER_EXTERNALMETHOD_INVOKETEMPLATE(set_##NAME, { L"value" }, void(ClassType::*)(const vl::WString&), [](ClassType* node, const vl::WString& value) { node->NAME.value = value; }, L"*")\
 			CLASS_MEMBER_PROPERTY_REFERENCETEMPLATE(NAME, get_##NAME, set_##NAME, L"$This->$Name.value")\
 
 			IMPL_TYPE_INFO_RENAME(vl::parsing::json::JsonNode, system::JsonNode)
