@@ -1020,7 +1020,7 @@ LogTypeManager
 					{
 						if(IMethodInfo* info=group->GetMethod(0))
 						{
-							if(info->GetParameterCount()==1 && info->GetParameter(0)->GetType()->GetTypeDescriptor()->GetTypeName()==TypeInfo<IValueInterfaceProxy>::TypeName)
+							if(info->GetParameterCount()==1 && info->GetParameter(0)->GetType()->GetTypeDescriptor()->GetTypeName()==TypeInfo<IValueInterfaceProxy>::content.typeName)
 							{
 								acceptProxy = true;
 								return true;
@@ -1031,7 +1031,7 @@ LogTypeManager
 
 				if(!containsConstructor)
 				{
-					if(typeDescriptor->GetTypeName()==TypeInfo<IDescriptable>::TypeName)
+					if(typeDescriptor->GetTypeName()==TypeInfo<IDescriptable>::content.typeName)
 					{
 						return true;
 					}

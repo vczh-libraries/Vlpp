@@ -14,6 +14,52 @@ namespace vl
 		{
 
 /***********************************************************************
+TypeDescriptorImplBase
+***********************************************************************/
+
+			const WString& TypeDescriptorImplBase::GetFullName()
+			{
+				return cppFullTypeName;
+			}
+
+			TypeDescriptorImplBase::TypeDescriptorImplBase(TypeDescriptorFlags _typeDescriptorFlags, const TypeInfoContent* _typeInfoContent)
+				:typeDescriptorFlags(_typeDescriptorFlags)
+				, typeInfoContent(_typeInfoContent)
+				, typeName(_typeInfoContent->typeName, false)
+			{
+				switch (typeInfoContent->cppName)
+				{
+				case TypeInfoContent::VlppType:
+					break;
+				case TypeInfoContent::CppType:
+					cppFullTypeName = WString(typeInfoContent->typeName, false);
+					break;
+				case TypeInfoContent::Renamed:
+					cppFullTypeName = WString(typeInfoContent->cppFullTypeName, false);
+					break;
+				}
+			}
+
+			TypeDescriptorImplBase::~TypeDescriptorImplBase()
+			{
+			}
+
+			ITypeDescriptor::ICpp* TypeDescriptorImplBase::GetCpp()
+			{
+				return typeInfoContent->cppName == TypeInfoContent::VlppType ? nullptr : this;
+			}
+
+			TypeDescriptorFlags TypeDescriptorImplBase::GetTypeDescriptorFlags()
+			{
+				return typeDescriptorFlags;
+			}
+
+			const WString& TypeDescriptorImplBase::GetTypeName()
+			{
+				return typeName;
+			}
+
+/***********************************************************************
 ValueTypeDescriptorBase
 ***********************************************************************/
 
@@ -30,10 +76,9 @@ ValueTypeDescriptorBase
 				}
 			}
 
-			ValueTypeDescriptorBase::ValueTypeDescriptorBase(TypeDescriptorFlags _typeDescriptorFlags, const WString& _typeName, const WString& _cppFullTypeName)
-				:typeDescriptorFlags(_typeDescriptorFlags)
-				, typeName(_typeName)
-				, cppFullTypeName(_cppFullTypeName)
+			ValueTypeDescriptorBase::ValueTypeDescriptorBase(TypeDescriptorFlags _typeDescriptorFlags, const TypeInfoContent* _typeInfoContent)
+				:TypeDescriptorImplBase(_typeDescriptorFlags, _typeInfoContent)
+				, loaded(false)
 			{
 			}
 
@@ -41,24 +86,9 @@ ValueTypeDescriptorBase
 			{
 			}
 
-			TypeDescriptorFlags ValueTypeDescriptorBase::GetTypeDescriptorFlags()
-			{
-				return typeDescriptorFlags;
-			}
-
 			bool ValueTypeDescriptorBase::IsAggregatable()
 			{
 				return false;
-			}
-
-			const WString& ValueTypeDescriptorBase::GetTypeName()
-			{
-				return typeName;
-			}
-
-			const WString& ValueTypeDescriptorBase::GetCppFullTypeName()
-			{
-				return cppFullTypeName;
 			}
 
 			IValueType* ValueTypeDescriptorBase::GetValueType()
@@ -642,7 +672,7 @@ Collections
 				{
 				public:
 					CustomTypeDescriptorImpl()
-						:TypeDescriptorImpl(TypeDescriptorFlags::Class, TypeInfo<DescriptableObject>::TypeName, TypeInfo<DescriptableObject>::CppFullTypeName)
+						:TypeDescriptorImpl(TypeDescriptorFlags::Class, &TypeInfo<DescriptableObject>::content)
 					{
 						Description<DescriptableObject>::SetAssociatedTypeDescroptor(this);
 					}
@@ -999,12 +1029,12 @@ LoadPredefinedTypes
 				template<typename T>
 				void AddPrimitiveType(ITypeManager* manager)
 				{
-					manager->SetTypeDescriptor(TypeInfo<T>::TypeName, new PrimitiveTypeDescriptor<T>());
+					manager->SetTypeDescriptor(TypeInfo<T>::content.typeName, new PrimitiveTypeDescriptor<T>());
 				}
 
 				void Load(ITypeManager* manager)override
 				{
-					manager->SetTypeDescriptor(TypeInfo<Value>::TypeName, new TypedValueTypeDescriptorBase<Value, TypeDescriptorFlags::Object>);
+					manager->SetTypeDescriptor(TypeInfo<Value>::content.typeName, new TypedValueTypeDescriptorBase<Value, TypeDescriptorFlags::Object>);
 					AddPrimitiveType<vuint8_t>(manager);
 					AddPrimitiveType<vuint16_t>(manager);
 					AddPrimitiveType<vuint32_t>(manager);

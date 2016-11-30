@@ -855,7 +855,7 @@ ITypeDescriptor
 				{
 				public:
 					/*
-						Default:				refer to TypeInfoCppName::VlppType
+						Default:				refer to TypeInfoContent::VlppType
 					*/
 					virtual const WString&		GetFullName() = 0;
 				};

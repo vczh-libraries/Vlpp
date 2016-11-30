@@ -763,10 +763,8 @@ TypeDescriptorImpl
 				}
 			}
 
-			TypeDescriptorImpl::TypeDescriptorImpl(TypeDescriptorFlags _typeDescriptorFlags, const WString& _typeName, const WString& _cppFullTypeName)
-				:typeDescriptorFlags(_typeDescriptorFlags)
-				,typeName(_typeName)
-				,cppFullTypeName(_cppFullTypeName)
+			TypeDescriptorImpl::TypeDescriptorImpl(TypeDescriptorFlags _typeDescriptorFlags, const TypeInfoContent* _typeInfoContent)
+				:TypeDescriptorImplBase(_typeDescriptorFlags, _typeInfoContent)
 				,loaded(false)
 			{
 			}
@@ -775,24 +773,9 @@ TypeDescriptorImpl
 			{
 			}
 
-			TypeDescriptorFlags TypeDescriptorImpl::GetTypeDescriptorFlags()
-			{
-				return typeDescriptorFlags;
-			}
-
 			bool TypeDescriptorImpl::IsAggregatable()
 			{
 				return false;
-			}
-
-			const WString& TypeDescriptorImpl::GetTypeName()
-			{
-				return typeName;
-			}
-
-			const WString& TypeDescriptorImpl::GetCppFullTypeName()
-			{
-				return cppFullTypeName;
 			}
 
 			IValueType* TypeDescriptorImpl::GetValueType()

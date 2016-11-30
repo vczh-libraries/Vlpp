@@ -23,16 +23,23 @@ namespace vl
 TypeInfo
 ***********************************************************************/
 
-#define DECL_TYPE_INFO(TYPENAME) template<>struct TypeInfo<TYPENAME>{static const wchar_t* TypeName; static const wchar_t* CppFullTypeName; static const TypeInfoCppName CppName;};
-#define IMPL_VL_TYPE_INFO(TYPENAME) const wchar_t* TypeInfo<TYPENAME>::TypeName = L ## #TYPENAME; const wchar_t* TypeInfo<TYPENAME>::CppFullTypeName = nullptr; const TypeInfoCppName TypeInfo<TYPENAME>::CppName = TypeInfoCppName::VlppType;
-#define IMPL_CPP_TYPE_INFO(TYPENAME) const wchar_t* TypeInfo<TYPENAME>::TypeName = L ## #TYPENAME; const wchar_t* TypeInfo<TYPENAME>::CppFullTypeName = nullptr; const TypeInfoCppName TypeInfo<TYPENAME>::CppName = TypeInfoCppName::CppType;
-#define IMPL_TYPE_INFO_RENAME(TYPENAME, EXPECTEDNAME) const wchar_t* TypeInfo<TYPENAME>::TypeName = L ## #EXPECTEDNAME; const wchar_t* TypeInfo<TYPENAME>::CppFullTypeName = L ## #TYPENAME; constTypeInfoCppName TypeInfo<TYPENAME>::CppName = TypeInfoCppName::Renamed;
+#define DECL_TYPE_INFO(TYPENAME) template<>struct TypeInfo<TYPENAME>{ static const TypeInfoContent content; };
+#define IMPL_VL_TYPE_INFO(TYPENAME) const TypeInfoContent TypeInfo<TYPENAME>::content = { L ## #TYPENAME, nullptr, TypeInfoContent::VlppType };
+#define IMPL_CPP_TYPE_INFO(TYPENAME) const TypeInfoContent TypeInfo<TYPENAME>::content = { L ## #TYPENAME, nullptr, TypeInfoContent::CppType };
+#define IMPL_TYPE_INFO_RENAME(TYPENAME, EXPECTEDNAME) const TypeInfoContent TypeInfo<TYPENAME>::content = { L ## #EXPECTEDNAME, L ## #TYPENAME, TypeInfoContent::Renamed };
 
-			enum class TypeInfoCppName
+			struct TypeInfoContent
 			{
-				VlppType,			// vl::<type-name>
-				CppType,			// <type-name>
-				Renamed,			// CppFullTypeName
+				enum TypeInfoCppName
+				{
+					VlppType,			// vl::<type-name>
+					CppType,			// <type-name>
+					Renamed,			// CppFullTypeName
+				};
+
+				const wchar_t*		typeName;
+				const wchar_t*		cppFullTypeName;
+				TypeInfoCppName		cppName;
 			};
 
 			template<typename T>
@@ -43,7 +50,7 @@ TypeInfo
 			template<typename T>
 			ITypeDescriptor* GetTypeDescriptor()
 			{
-				return GetTypeDescriptor(TypeInfo<T>::TypeName);
+				return GetTypeDescriptor(TypeInfo<T>::content.typeName);
 			}
 
 /***********************************************************************
@@ -195,27 +202,39 @@ StructType
 SerializableTypeDescriptor
 ***********************************************************************/
 
-			class ValueTypeDescriptorBase : public Object, public ITypeDescriptor
+			class TypeDescriptorImplBase : public Object, public ITypeDescriptor, private ITypeDescriptor::ICpp
+			{
+			private:
+				TypeDescriptorFlags							typeDescriptorFlags;
+				const TypeInfoContent*						typeInfoContent;
+				WString										typeName;
+				WString										cppFullTypeName;
+
+				const WString&								GetFullName()override;
+			public:
+				TypeDescriptorImplBase(TypeDescriptorFlags _typeDescriptorFlags, const TypeInfoContent* _typeInfoContent);
+				~TypeDescriptorImplBase();
+
+				ITypeDescriptor::ICpp*						GetCpp()override;
+				TypeDescriptorFlags							GetTypeDescriptorFlags()override;
+				const WString&								GetTypeName()override;
+			};
+
+			class ValueTypeDescriptorBase : public TypeDescriptorImplBase
 			{
 			protected:
 				bool										loaded;
-				TypeDescriptorFlags							typeDescriptorFlags;
 				Ptr<IValueType>								valueType;
 				Ptr<IEnumType>								enumType;
 				Ptr<ISerializableType>						serializableType;
-				WString										typeName;
-				WString										cppFullTypeName;
 
 				virtual void								LoadInternal();;
 				void										Load();
 			public:
-				ValueTypeDescriptorBase(TypeDescriptorFlags _typeDescriptorFlags, const WString& _typeName, const WString& _cppFullTypeName);
+				ValueTypeDescriptorBase(TypeDescriptorFlags _typeDescriptorFlags, const TypeInfoContent* _typeInfoContent);
 				~ValueTypeDescriptorBase();
 
-				TypeDescriptorFlags							GetTypeDescriptorFlags()override;
 				bool										IsAggregatable()override;
-				const WString&								GetTypeName()override;
-
 				IValueType*									GetValueType()override;
 				IEnumType*									GetEnumType()override;
 				ISerializableType*							GetSerializableType()override;
@@ -243,7 +262,7 @@ SerializableTypeDescriptor
 			{
 			public:
 				TypedValueTypeDescriptorBase()
-					:ValueTypeDescriptorBase(TDFlags, TypeInfo<T>::TypeName, TypeInfo<T>::CppFullTypeName)
+					:ValueTypeDescriptorBase(TDFlags, &TypeInfo<T>::content)
 				{
 				}
 			};

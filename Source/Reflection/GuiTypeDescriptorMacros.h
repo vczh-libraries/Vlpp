@@ -124,7 +124,7 @@ Type
 #define ADD_TYPE_INFO(TYPENAME)\
 			{\
 				Ptr<ITypeDescriptor> type=new CustomTypeDescriptorSelector<TYPENAME>::CustomTypeDescriptorImpl();\
-				manager->SetTypeDescriptor(TypeInfo<TYPENAME>::TypeName, type);\
+				manager->SetTypeDescriptor(TypeInfo<TYPENAME>::content.typeName, type);\
 			}
 
 /***********************************************************************
@@ -294,7 +294,7 @@ Class
 					static const TypeDescriptorFlags		TDFlags = TypeDescriptorFlags::Class;\
 				public:\
 					CustomTypeDescriptorImpl()\
-						:TypeDescriptorImpl(TDFlags, TypeInfo<TYPENAME>::TypeName, TypeInfo<TYPENAME>::CppFullTypeName)\
+						:TypeDescriptorImpl(TDFlags, &TypeInfo<TYPENAME>::content)\
 					{\
 						Description<TYPENAME>::SetAssociatedTypeDescroptor(this);\
 					}\
@@ -335,7 +335,7 @@ Interface
 					MethodPointerBinaryData::MethodMap		methodsForProxy;\
 				public:\
 					CustomTypeDescriptorImpl()\
-						:TypeDescriptorImpl(TDFLAGS, TypeInfo<TYPENAME>::TypeName, TypeInfo<TYPENAME>::CppFullTypeName)\
+						:TypeDescriptorImpl(TDFLAGS, &TypeInfo<TYPENAME>::content)\
 					{\
 						Description<TYPENAME>::SetAssociatedTypeDescroptor(this);\
 					}\

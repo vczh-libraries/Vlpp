@@ -244,13 +244,10 @@ FieldInfoImpl
 TypeDescriptorImpl
 ***********************************************************************/
 
-			class TypeDescriptorImpl : public Object, public ITypeDescriptor
+			class TypeDescriptorImpl : public TypeDescriptorImplBase
 			{
 			private:
 				bool														loaded;
-				TypeDescriptorFlags											typeDescriptorFlags;
-				WString														typeName;
-				WString														cppFullTypeName;
 				collections::List<ITypeDescriptor*>							baseTypeDescriptors;
 				collections::Dictionary<WString, Ptr<IPropertyInfo>>		properties;
 				collections::Dictionary<WString, Ptr<IEventInfo>>			events;
@@ -269,14 +266,10 @@ TypeDescriptorImpl
 				virtual void				LoadInternal()=0;
 				void						Load();
 			public:
-				TypeDescriptorImpl(TypeDescriptorFlags _typeDescriptorFlags, const WString& _typeName, const WString& _cppFullTypeName);
+				TypeDescriptorImpl(TypeDescriptorFlags _typeDescriptorFlags, const TypeInfoContent* _typeInfoContent);
 				~TypeDescriptorImpl();
 
-				TypeDescriptorFlags			GetTypeDescriptorFlags()override;
 				bool						IsAggregatable()override;
-				const WString&				GetTypeName()override;
-				const WString&				GetCppFullTypeName()override;
-
 				IValueType*					GetValueType()override;
 				IEnumType*					GetEnumType()override;
 				ISerializableType*			GetSerializableType()override;
