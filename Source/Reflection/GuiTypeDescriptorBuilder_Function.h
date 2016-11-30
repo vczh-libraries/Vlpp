@@ -564,6 +564,11 @@ CustomEventInfoImpl<void(TArgs...)>
 				~CustomEventInfoImpl()
 				{
 				}
+
+				IEventInfo::ICpp* GetCpp()override
+				{
+					return nullptr;
+				}
 			};
 
 			template<typename T>
