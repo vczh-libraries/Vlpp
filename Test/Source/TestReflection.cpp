@@ -51,7 +51,7 @@ namespace test
 					WString output;
 					TEST_ASSERT(serializer->Serialize(value, output));
 #ifdef VCZH_GCC
-					TEST_PRINT(L"\tPrinting: " + value.GetText());
+					TEST_PRINT(L"\tPrinting: " + output);
 #endif
 					if (testGetText)
 					{
