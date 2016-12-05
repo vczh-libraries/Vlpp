@@ -765,8 +765,8 @@ PrimitiveTypeDescriptor
 			protected:
 				void LoadInternal()override
 				{
-					valueType = new SerializableValueType<T>();
-					serializableType = new SerializableType<T>();
+					this->valueType = new SerializableValueType<T>();
+					this->serializableType = new SerializableType<T>();
 				}
 			};
 
@@ -858,8 +858,8 @@ EnumTypeDescriptor
 
 				void LoadInternal()override
 				{
-					enumType = new TEnumType;
-					valueType = new EnumValueType<T>();
+					this->enumType = new TEnumType;
+					this->valueType = new EnumValueType<T>();
 					TypedValueTypeDescriptorBase<T, TDFlags>::enumType = enumType;
 				}
 			};
@@ -931,18 +931,18 @@ StructTypeDescriptor
 			public:
 				StructTypeDescriptor()
 				{
-					valueType = new StructValueType<T>();
+					this->valueType = new StructValueType<T>();
 				}
 
 				vint GetPropertyCount()override
 				{
-					Load();
+					this->Load();
 					return fields.Count();
 				}
 
 				IPropertyInfo* GetProperty(vint index)override
 				{
-					Load();
+					this->Load();
 					if (index < 0 || index >= fields.Count())
 					{
 						return nullptr;
@@ -952,13 +952,13 @@ StructTypeDescriptor
 
 				bool IsPropertyExists(const WString& name, bool inheritable)override
 				{
-					Load();
+					this->Load();
 					return fields.Keys().Contains(name);
 				}
 
 				IPropertyInfo* GetPropertyByName(const WString& name, bool inheritable)override
 				{
-					Load();
+					this->Load();
 					vint index = fields.Keys().IndexOf(name);
 					if (index == -1) return nullptr;
 					return fields.Values()[index].Obj();
