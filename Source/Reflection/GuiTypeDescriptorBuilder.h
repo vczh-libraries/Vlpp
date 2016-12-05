@@ -722,6 +722,44 @@ PrimitiveTypeDescriptor
 ***********************************************************************/
 
 			template<typename T>
+			class SerializableValueType : public Object, public virtual IValueType
+			{
+			public:
+				Value CreateDefault()override
+				{
+					return BoxValue<T>(TypedValueSerializerProvider<T>::GetDefaultValue());
+				}
+
+				CompareResult Compare(const Value& a, const Value& b)override
+				{
+					auto va = UnboxValue<T>(a);
+					auto vb = UnboxValue<T>(b);
+					return TypedValueSerializerProvider<T>::Compare(va, vb);
+				}
+			};
+
+			template<typename T>
+			class SerializableType : public Object, public virtual ISerializableType
+			{
+			public:
+				bool Serialize(const Value& input, WString& output)override
+				{
+					return TypedValueSerializerProvider<T>::Serialize(UnboxValue<T>(input), output);
+				}
+
+				bool Deserialize(const WString& input, Value& output)override
+				{
+					T value;
+					if (!TypedValueSerializerProvider<T>::Deserialize(input, value))
+					{
+						return false;
+					}
+					output = BoxValue<T>(value);
+					return true;
+				}
+			};
+
+			template<typename T>
 			class PrimitiveTypeDescriptor : public TypedValueTypeDescriptorBase<T, TypeDescriptorFlags::Primitive>
 			{
 			protected:
@@ -735,6 +773,81 @@ PrimitiveTypeDescriptor
 /***********************************************************************
 EnumTypeDescriptor
 ***********************************************************************/
+
+			template<typename T>
+			class EnumValueType : public Object, public virtual IValueType
+			{
+			public:
+				Value CreateDefault()override
+				{
+					return BoxValue<T>(static_cast<T>(0));
+				}
+
+				CompareResult Compare(const Value& a, const Value& b)override
+				{
+					auto ea = static_cast<vuint64_t>(UnboxValue<T>(a));
+					auto eb = static_cast<vuint64_t>(UnboxValue<T>(b));
+					if (ea < eb) return IValueType::Smaller;
+					if (ea > eb)return IValueType::Greater;
+					return IValueType::Equal;
+				}
+			};
+
+			template<typename T, bool Flag>
+			class EnumType : public Object, public virtual IEnumType
+			{
+			protected:
+				collections::Dictionary<WString, T>			candidates;
+
+			public:
+				void AddItem(WString name, T value)
+				{
+					candidates.Add(name, value);
+				}
+
+				bool IsFlagEnum()override
+				{
+					return Flag;
+				}
+
+				vint GetItemCount()override
+				{
+					return candidates.Count();
+				}
+
+				WString GetItemName(vint index)override
+				{
+					if (index < 0 || index >= candidates.Count())
+					{
+						return L"";
+					}
+					return candidates.Keys()[index];
+				}
+
+				vuint64_t GetItemValue(vint index)override
+				{
+					if (index < 0 || index >= candidates.Count())
+					{
+						return 0;
+					}
+					return static_cast<vuint64_t>(candidates.Values()[index]);
+				}
+
+				vint IndexOfItem(WString name)override
+				{
+					return candidates.Keys().IndexOf(name);
+				}
+
+				Value ToEnum(vuint64_t value)override
+				{
+					return BoxValue<T>(static_cast<T>(value));
+				}
+
+				vuint64_t FromEnum(const Value& value)override
+				{
+					return static_cast<vuint64_t>(UnboxValue<T>(value));
+				}
+			};
 
 			template<typename T, TypeDescriptorFlags TDFlags>
 			class EnumTypeDescriptor : public TypedValueTypeDescriptorBase<T, TDFlags>
@@ -754,6 +867,21 @@ EnumTypeDescriptor
 /***********************************************************************
 StructTypeDescriptor
 ***********************************************************************/
+
+			template<typename T>
+			class StructValueType : public Object, public virtual IValueType
+			{
+			public:
+				Value CreateDefault()override
+				{
+					return BoxValue<T>(T{});
+				}
+
+				CompareResult Compare(const Value& a, const Value& b)override
+				{
+					return IValueType::NotComparable;
+				}
+			};
 
 			template<typename T, TypeDescriptorFlags TDFlags>
 			class StructTypeDescriptor : public TypedValueTypeDescriptorBase<T, TDFlags>
