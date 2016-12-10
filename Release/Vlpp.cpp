@@ -16837,8 +16837,9 @@ namespace vl
 TypeDescriptorTypeInfo
 ***********************************************************************/
 
-			TypeDescriptorTypeInfo::TypeDescriptorTypeInfo(ITypeDescriptor* _typeDescriptor)
+			TypeDescriptorTypeInfo::TypeDescriptorTypeInfo(ITypeDescriptor* _typeDescriptor, TypeInfoHint _hint)
 				:typeDescriptor(_typeDescriptor)
+				, hint(_hint)
 			{
 			}
 
@@ -16853,7 +16854,7 @@ TypeDescriptorTypeInfo
 
 			TypeInfoHint TypeDescriptorTypeInfo::GetHint()
 			{
-				return TypeInfoHint::Normal;
+				return hint;
 			}
 
 			ITypeInfo* TypeDescriptorTypeInfo::GetElementType()
