@@ -31,9 +31,9 @@ DetailTypeInfoRetriver<TStruct>
 				typedef T&												ResultReferenceType;
 				typedef T												ResultNonReferenceType;
 
-				static Ptr<ITypeInfo> CreateTypeInfo()
+				static Ptr<ITypeInfo> CreateTypeInfo(TypeInfoHint hint)
 				{
-					return MakePtr<TypeDescriptorTypeInfo>(GetTypeDescriptor<Type>());
+					return MakePtr<TypeDescriptorTypeInfo>(GetTypeDescriptor<Type>(), hint);
 				}
 			};
 
@@ -48,7 +48,7 @@ DetailTypeInfoRetriver<TStruct>
 				typedef const T&												ResultReferenceType;
 				typedef const T													ResultNonReferenceType;
 
-				static Ptr<ITypeInfo> CreateTypeInfo()
+				static Ptr<ITypeInfo> CreateTypeInfo(TypeInfoHint hint)
 				{
 					return TypeInfoRetriver<T>::CreateTypeInfo();
 				}
@@ -65,7 +65,7 @@ DetailTypeInfoRetriver<TStruct>
 				typedef T&														ResultReferenceType;
 				typedef T														ResultNonReferenceType;
 
-				static Ptr<ITypeInfo> CreateTypeInfo()
+				static Ptr<ITypeInfo> CreateTypeInfo(TypeInfoHint hint)
 				{
 					return TypeInfoRetriver<T>::CreateTypeInfo();
 				}
@@ -82,7 +82,7 @@ DetailTypeInfoRetriver<TStruct>
 				typedef T*&														ResultReferenceType;
 				typedef T*														ResultNonReferenceType;
 
-				static Ptr<ITypeInfo> CreateTypeInfo()
+				static Ptr<ITypeInfo> CreateTypeInfo(TypeInfoHint hint)
 				{
 					return MakePtr<RawPtrTypeInfo>(TypeInfoRetriver<T>::CreateTypeInfo());
 				}
@@ -99,7 +99,7 @@ DetailTypeInfoRetriver<TStruct>
 				typedef Ptr<T>&													ResultReferenceType;
 				typedef Ptr<T>													ResultNonReferenceType;
 
-				static Ptr<ITypeInfo> CreateTypeInfo()
+				static Ptr<ITypeInfo> CreateTypeInfo(TypeInfoHint hint)
 				{
 					return MakePtr<SharedPtrTypeInfo>(TypeInfoRetriver<T>::CreateTypeInfo());
 				}
@@ -116,7 +116,7 @@ DetailTypeInfoRetriver<TStruct>
 				typedef Nullable<T>&											ResultReferenceType;
 				typedef Nullable<T>												ResultNonReferenceType;
 
-				static Ptr<ITypeInfo> CreateTypeInfo()
+				static Ptr<ITypeInfo> CreateTypeInfo(TypeInfoHint hint)
 				{
 					return MakePtr<NullableTypeInfo>(TypeInfoRetriver<T>::CreateTypeInfo());
 				}
@@ -133,7 +133,7 @@ DetailTypeInfoRetriver<TStruct>
 				typedef T&														ResultReferenceType;
 				typedef T														ResultNonReferenceType;
 
-				static Ptr<ITypeInfo> CreateTypeInfo()
+				static Ptr<ITypeInfo> CreateTypeInfo(TypeInfoHint hint)
 				{
 					return TypeInfoRetriver<T>::CreateTypeInfo();
 				}

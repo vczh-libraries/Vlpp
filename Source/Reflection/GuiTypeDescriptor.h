@@ -626,10 +626,12 @@ ITypeDescriptor (type)
 			enum class TypeInfoHint
 			{
 				Normal,
+				LazyList,
 				Array,
 				List,
 				SortedList,
 				Dictionary,
+				Unknown,
 			};
 
 			class ITypeInfo : public virtual IDescriptable, public Description<ITypeInfo>

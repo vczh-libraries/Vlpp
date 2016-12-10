@@ -26,9 +26,10 @@ TypeInfoImp
 			{
 			protected:
 				ITypeDescriptor*						typeDescriptor;
+				TypeInfoHint							hint;
 
 			public:
-				TypeDescriptorTypeInfo(ITypeDescriptor* _typeDescriptor);
+				TypeDescriptorTypeInfo(ITypeDescriptor* _typeDescriptor, TypeInfoHint _hint);
 				~TypeDescriptorTypeInfo();
 
 				Decorator								GetDecorator()override;
@@ -471,6 +472,64 @@ TypeFlagTester
 			};
 
 /***********************************************************************
+TypeHintTester
+***********************************************************************/
+
+			template<typename T>
+			struct TypeHintTester
+			{
+				static const TypeInfoHint								Result = TypeInfoHint::Normal;
+			};
+
+			template<typename T>
+			struct TypeHintTester<T*>
+			{
+				static const TypeInfoHint								Result = TypeHintTester<T>::Result;
+			};
+
+			template<typename T>
+			struct TypeHintTester<T&>
+			{
+				static const TypeInfoHint								Result = TypeHintTester<T>::Result;
+			};
+
+			template<typename T>
+			struct TypeHintTester<const T>
+			{
+				static const TypeInfoHint								Result = TypeHintTester<T>::Result;
+			};
+
+			template<typename T>
+			struct TypeHintTester<collections::LazyList<T>>
+			{
+				static const TypeInfoHint								Result = TypeInfoHint::LazyList;
+			};
+
+			template<typename T>
+			struct TypeHintTester<collections::Array<T>>
+			{
+				static const TypeInfoHint								Result = TypeInfoHint::Array;
+			};
+
+			template<typename T>
+			struct TypeHintTester<collections::List<T>>
+			{
+				static const TypeInfoHint								Result = TypeInfoHint::List;
+			};
+
+			template<typename T>
+			struct TypeHintTester<collections::SortedList<T>>
+			{
+				static const TypeInfoHint								Result = TypeInfoHint::SortedList;
+			};
+
+			template<typename K, typename V>
+			struct TypeHintTester<collections::Dictionary<K, V>>
+			{
+				static const TypeInfoHint								Result = TypeInfoHint::Dictionary;
+			};
+
+/***********************************************************************
 TypeFlagSelector
 ***********************************************************************/
 
@@ -556,8 +615,9 @@ TypeInfoRetriver
 			template<typename T>
 			struct TypeInfoRetriver
 			{
-				static const TypeFlags															TypeFlag=TypeFlagSelector<T>::Result;
-				static const ITypeInfo::Decorator												Decorator=DetailTypeInfoRetriver<T, TypeFlag>::Decorator;
+				static const TypeFlags															TypeFlag = TypeFlagSelector<T>::Result;
+				static const TypeInfoHint														Hint = TypeHintTester<T>::Result;
+				static const ITypeInfo::Decorator												Decorator = DetailTypeInfoRetriver<T, TypeFlag>::Decorator;
 
 				typedef typename DetailTypeInfoRetriver<T, TypeFlag>::Type						Type;
 				typedef typename DetailTypeInfoRetriver<T, TypeFlag>::TempValueType				TempValueType;
@@ -566,7 +626,7 @@ TypeInfoRetriver
 
 				static Ptr<ITypeInfo> CreateTypeInfo()
 				{
-					return DetailTypeInfoRetriver<typename RemoveCVR<T>::Type, TypeFlag>::CreateTypeInfo();
+					return DetailTypeInfoRetriver<typename RemoveCVR<T>::Type, TypeFlag>::CreateTypeInfo(Hint);
 				}
 			};
 
