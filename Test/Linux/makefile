@@ -1,6 +1,7 @@
 
 .PHONY: all clean pre-build
 .DEFAULT_GOAL := all
+COVERAGE?=NO
 
 pre-build:
 	if ! [ -d ./Bin ]; then mkdir ./Bin; fi
@@ -15,197 +16,457 @@ clean:
 all:pre-build ./Bin/UnitTest
 
 ./Bin/UnitTest:./Obj/Basic.o ./Obj/Console.o ./Obj/Exception.o ./Obj/FileSystem.o ./Obj/GlobalStorage.o ./Obj/HttpUtility.o ./Obj/Locale.o ./Obj/ParsingJson.o ./Obj/ParsingJson_Parser.o ./Obj/Parsing.o ./Obj/ParsingAnalyzer.o ./Obj/ParsingAutomaton.o ./Obj/ParsingAutomaton_Closure.o ./Obj/ParsingAutomaton_EPDA.o ./Obj/ParsingAutomaton_GenerateTable.o ./Obj/ParsingAutomaton_JPDA.o ./Obj/ParsingAutomaton_MergeStates.o ./Obj/ParsingAutomaton_NPDA.o ./Obj/ParsingDefinitions.o ./Obj/ParsingDefinitions_CreateParserDefinition.o ./Obj/ParsingLogging.o ./Obj/ParsingState.o ./Obj/ParsingTable.o ./Obj/ParsingTree.o ./Obj/ParsingXml.o ./Obj/ParsingXml_Parser.o ./Obj/GuiTypeDescriptor.o ./Obj/GuiTypeDescriptorBuilder.o ./Obj/GuiTypeDescriptorPredefined.o ./Obj/Regex.o ./Obj/RegexAutomaton.o ./Obj/RegexData.o ./Obj/RegexExpression.o ./Obj/RegexParser.o ./Obj/RegexPure.o ./Obj/RegexRich.o ./Obj/RegexWriter.o ./Obj/Accessor.o ./Obj/BroadcastStream.o ./Obj/CacheStream.o ./Obj/CharFormat.o ./Obj/CompressionStream.o ./Obj/FileStream.o ./Obj/MemoryStream.o ./Obj/MemoryWrapperStream.o ./Obj/RecorderStream.o ./Obj/String.o ./Obj/Threading.o ./Obj/ThreadingLinux.o ./Obj/UnitTest.o ./Obj/Parser.Calculator.o ./Obj/TestBasic.o ./Obj/TestFileSystem.o ./Obj/TestFunction.o ./Obj/TestGlobalStorage.o ./Obj/TestList.o ./Obj/TestLocaleString.o ./Obj/TestParsing.o ./Obj/TestReflection.o ./Obj/TestRegex.o ./Obj/TestStream.o ./Obj/TestString.o ./Obj/TestThread.o Main.cpp
+ifeq ($(COVERAGE),NO)
 	clang++ -std=c++14 -pthread -g -o $@ $^
+else
+	g++ -std=c++11 -g -fprofile-arcs -pthread -o $@ $^
+endif
 
 
 ./Obj/Basic.o: ../../Source/Basic.cpp ../../Source/Basic.h
+ifeq ($(COVERAGE),NO)
 	clang++ -std=c++14 -g -o $@ -c $<
+else
+	g++ -std=c++11 -g -fprofile-arcs -ftest-coverage -o $@ -c $<
+endif
 
 ./Obj/Console.o: ../../Source/Console.cpp ../../Source/Console.h ../../Source/String.h ../../Source/Basic.h
+ifeq ($(COVERAGE),NO)
 	clang++ -std=c++14 -g -o $@ -c $<
+else
+	g++ -std=c++11 -g -fprofile-arcs -ftest-coverage -o $@ -c $<
+endif
 
 ./Obj/Exception.o: ../../Source/Exception.cpp ../../Source/Exception.h ../../Source/String.h ../../Source/Basic.h
+ifeq ($(COVERAGE),NO)
 	clang++ -std=c++14 -g -o $@ -c $<
+else
+	g++ -std=c++11 -g -fprofile-arcs -ftest-coverage -o $@ -c $<
+endif
 
 ./Obj/FileSystem.o: ../../Source/FileSystem.cpp ../../Source/FileSystem.h ../../Source/Basic.h ../../Source/String.h ../../Source/Collections/List.h ../../Source/Collections/Interfaces.h ../../Source/Collections/../Pointer.h ../../Source/Collections/Pair.h ../../Source/Stream/CharFormat.h ../../Source/Stream/Interfaces.h ../../Source/Stream/../Collections/Dictionary.h ../../Source/Stream/MemoryStream.h ../../Source/Stream/MemoryWrapperStream.h ../../Source/Locale.h ../../Source/Collections/OperationForEach.h ../../Source/Stream/FileStream.h ../../Source/Stream/Accessor.h ../../Source/Exception.h
+ifeq ($(COVERAGE),NO)
 	clang++ -std=c++14 -g -o $@ -c $<
+else
+	g++ -std=c++11 -g -fprofile-arcs -ftest-coverage -o $@ -c $<
+endif
 
 ./Obj/GlobalStorage.o: ../../Source/GlobalStorage.cpp ../../Source/GlobalStorage.h ../../Source/Pointer.h ../../Source/Basic.h ../../Source/String.h ../../Source/Collections/Dictionary.h ../../Source/Collections/List.h ../../Source/Collections/Interfaces.h ../../Source/Collections/Pair.h
+ifeq ($(COVERAGE),NO)
 	clang++ -std=c++14 -g -o $@ -c $<
+else
+	g++ -std=c++11 -g -fprofile-arcs -ftest-coverage -o $@ -c $<
+endif
 
 ./Obj/HttpUtility.o: ../../Source/HttpUtility.cpp ../../Source/HttpUtility.h ../../Source/String.h ../../Source/Basic.h ../../Source/Collections/Dictionary.h ../../Source/Collections/List.h ../../Source/Collections/Interfaces.h ../../Source/Collections/../Pointer.h ../../Source/Collections/Pair.h ../../Source/Collections/OperationForEach.h
+ifeq ($(COVERAGE),NO)
 	clang++ -std=c++14 -g -o $@ -c $<
+else
+	g++ -std=c++11 -g -fprofile-arcs -ftest-coverage -o $@ -c $<
+endif
 
 ./Obj/Locale.o: ../../Source/Locale.cpp ../../Source/Locale.h ../../Source/String.h ../../Source/Basic.h ../../Source/Collections/List.h ../../Source/Collections/Interfaces.h ../../Source/Collections/../Pointer.h ../../Source/Collections/Pair.h
+ifeq ($(COVERAGE),NO)
 	clang++ -std=c++14 -g -o $@ -c $<
+else
+	g++ -std=c++11 -g -fprofile-arcs -ftest-coverage -o $@ -c $<
+endif
 
 ./Obj/ParsingJson.o: ../../Source/Parsing/Json/ParsingJson.cpp ../../Source/Parsing/Json/ParsingJson.h ../../Source/Parsing/Json/ParsingJson_Parser.h ../../Source/Parsing/Json/../Parsing.h ../../Source/Parsing/Json/../ParsingState.h ../../Source/Parsing/Json/../ParsingTable.h ../../Source/Parsing/Json/../ParsingTree.h ../../Source/Parsing/Json/../../Regex/Regex.h ../../Source/Parsing/Json/../../Regex/../String.h ../../Source/Parsing/Json/../../Regex/../Basic.h ../../Source/Parsing/Json/../../Regex/../Pointer.h ../../Source/Parsing/Json/../../Regex/../Collections/List.h ../../Source/Parsing/Json/../../Regex/../Collections/Interfaces.h ../../Source/Parsing/Json/../../Regex/../Collections/Pair.h ../../Source/Parsing/Json/../../Regex/../Collections/Dictionary.h ../../Source/Parsing/Json/../../Stream/Accessor.h ../../Source/Parsing/Json/../../Stream/Interfaces.h ../../Source/Parsing/Json/../../Stream/CompressionStream.h ../../Source/Parsing/Json/../../Stream/CharFormat.h ../../Source/Parsing/Json/../../Stream/MemoryStream.h ../../Source/Parsing/Json/../../Stream/MemoryWrapperStream.h ../../Source/Parsing/Json/../../Collections/OperationCopyFrom.h ../../Source/Parsing/Json/../../Reflection/GuiTypeDescriptor.h ../../Source/Parsing/Json/../../Reflection/../Locale.h ../../Source/Parsing/Json/../../Reflection/../Exception.h ../../Source/Parsing/Json/../../Reflection/../Function.h ../../Source/Parsing/Json/../../Reflection/../Event.h ../../Source/Parsing/Json/../../Reflection/../Collections/Operation.h ../../Source/Parsing/Json/../../Regex/../Collections/OperationEnumerable.h ../../Source/Parsing/Json/../../Regex/../Collections/OperationSelect.h ../../Source/Parsing/Json/../../Regex/../Collections/OperationWhere.h ../../Source/Parsing/Json/../../Regex/../Collections/OperationConcat.h ../../Source/Parsing/Json/../../Regex/../Collections/OperationSequence.h ../../Source/Parsing/Json/../../Regex/../Collections/OperationSet.h ../../Source/Parsing/Json/../../Regex/../Collections/OperationPair.h ../../Source/Parsing/Json/../../Regex/../Collections/OperationString.h ../../Source/Parsing/Json/../../Regex/../Collections/OperationForEach.h ../../Source/Parsing/Json/../../Reflection/GuiTypeDescriptorMacros.h ../../Source/Parsing/Json/../../Reflection/GuiTypeDescriptorBuilder.h ../../Source/Parsing/Json/../../Reflection/GuiTypeDescriptorPredefined.h ../../Source/Parsing/Json/../../Reflection/GuiTypeDescriptorBuilder_Struct.h ../../Source/Parsing/Json/../../Reflection/GuiTypeDescriptorBuilder_Function.h ../../Source/Parsing/Json/../../Reflection/GuiTypeDescriptorBuilder_Container.h ../../Source/Parsing/Json/../ParsingDefinitions.h ../../Source/Parsing/Json/../ParsingAutomaton.h ../../Source/Parsing/Json/../ParsingAnalyzer.h
+ifeq ($(COVERAGE),NO)
 	clang++ -std=c++14 -g -o $@ -c $<
+else
+	g++ -std=c++11 -g -fprofile-arcs -ftest-coverage -o $@ -c $<
+endif
 
 ./Obj/ParsingJson_Parser.o: ../../Source/Parsing/Json/ParsingJson_Parser.cpp ../../Source/Parsing/Json/ParsingJson_Parser.h ../../Source/Parsing/Json/../Parsing.h ../../Source/Parsing/Json/../ParsingState.h ../../Source/Parsing/Json/../ParsingTable.h ../../Source/Parsing/Json/../ParsingTree.h ../../Source/Parsing/Json/../../Regex/Regex.h ../../Source/Parsing/Json/../../Regex/../String.h ../../Source/Parsing/Json/../../Regex/../Basic.h ../../Source/Parsing/Json/../../Regex/../Pointer.h ../../Source/Parsing/Json/../../Regex/../Collections/List.h ../../Source/Parsing/Json/../../Regex/../Collections/Interfaces.h ../../Source/Parsing/Json/../../Regex/../Collections/Pair.h ../../Source/Parsing/Json/../../Regex/../Collections/Dictionary.h ../../Source/Parsing/Json/../../Stream/Accessor.h ../../Source/Parsing/Json/../../Stream/Interfaces.h ../../Source/Parsing/Json/../../Stream/CompressionStream.h ../../Source/Parsing/Json/../../Stream/CharFormat.h ../../Source/Parsing/Json/../../Stream/MemoryStream.h ../../Source/Parsing/Json/../../Stream/MemoryWrapperStream.h ../../Source/Parsing/Json/../../Collections/OperationCopyFrom.h ../../Source/Parsing/Json/../../Reflection/GuiTypeDescriptor.h ../../Source/Parsing/Json/../../Reflection/../Locale.h ../../Source/Parsing/Json/../../Reflection/../Exception.h ../../Source/Parsing/Json/../../Reflection/../Function.h ../../Source/Parsing/Json/../../Reflection/../Event.h ../../Source/Parsing/Json/../../Reflection/../Collections/Operation.h ../../Source/Parsing/Json/../../Regex/../Collections/OperationEnumerable.h ../../Source/Parsing/Json/../../Regex/../Collections/OperationSelect.h ../../Source/Parsing/Json/../../Regex/../Collections/OperationWhere.h ../../Source/Parsing/Json/../../Regex/../Collections/OperationConcat.h ../../Source/Parsing/Json/../../Regex/../Collections/OperationSequence.h ../../Source/Parsing/Json/../../Regex/../Collections/OperationSet.h ../../Source/Parsing/Json/../../Regex/../Collections/OperationPair.h ../../Source/Parsing/Json/../../Regex/../Collections/OperationString.h ../../Source/Parsing/Json/../../Regex/../Collections/OperationForEach.h ../../Source/Parsing/Json/../../Reflection/GuiTypeDescriptorMacros.h ../../Source/Parsing/Json/../../Reflection/GuiTypeDescriptorBuilder.h ../../Source/Parsing/Json/../../Reflection/GuiTypeDescriptorPredefined.h ../../Source/Parsing/Json/../../Reflection/GuiTypeDescriptorBuilder_Struct.h ../../Source/Parsing/Json/../../Reflection/GuiTypeDescriptorBuilder_Function.h ../../Source/Parsing/Json/../../Reflection/GuiTypeDescriptorBuilder_Container.h ../../Source/Parsing/Json/../ParsingDefinitions.h ../../Source/Parsing/Json/../ParsingAutomaton.h ../../Source/Parsing/Json/../ParsingAnalyzer.h
+ifeq ($(COVERAGE),NO)
 	clang++ -std=c++14 -g -o $@ -c $<
+else
+	g++ -std=c++11 -g -fprofile-arcs -ftest-coverage -o $@ -c $<
+endif
 
 ./Obj/Parsing.o: ../../Source/Parsing/Parsing.cpp ../../Source/Parsing/Parsing.h ../../Source/Parsing/ParsingState.h ../../Source/Parsing/ParsingTable.h ../../Source/Parsing/ParsingTree.h ../../Source/Parsing/../Regex/Regex.h ../../Source/Parsing/../Regex/../String.h ../../Source/Parsing/../Regex/../Basic.h ../../Source/Parsing/../Regex/../Pointer.h ../../Source/Parsing/../Regex/../Collections/List.h ../../Source/Parsing/../Regex/../Collections/Interfaces.h ../../Source/Parsing/../Regex/../Collections/Pair.h ../../Source/Parsing/../Regex/../Collections/Dictionary.h ../../Source/Parsing/../Stream/Accessor.h ../../Source/Parsing/../Stream/Interfaces.h ../../Source/Parsing/../Stream/CompressionStream.h ../../Source/Parsing/../Stream/CharFormat.h ../../Source/Parsing/../Stream/MemoryStream.h ../../Source/Parsing/../Stream/MemoryWrapperStream.h ../../Source/Parsing/../Collections/OperationCopyFrom.h ../../Source/Parsing/../Reflection/GuiTypeDescriptor.h ../../Source/Parsing/../Reflection/../Locale.h ../../Source/Parsing/../Reflection/../Exception.h ../../Source/Parsing/../Reflection/../Function.h ../../Source/Parsing/../Reflection/../Event.h ../../Source/Parsing/../Reflection/../Collections/Operation.h ../../Source/Parsing/../Regex/../Collections/OperationEnumerable.h ../../Source/Parsing/../Regex/../Collections/OperationSelect.h ../../Source/Parsing/../Regex/../Collections/OperationWhere.h ../../Source/Parsing/../Regex/../Collections/OperationConcat.h ../../Source/Parsing/../Regex/../Collections/OperationSequence.h ../../Source/Parsing/../Regex/../Collections/OperationSet.h ../../Source/Parsing/../Regex/../Collections/OperationPair.h ../../Source/Parsing/../Regex/../Collections/OperationString.h ../../Source/Parsing/../Regex/../Collections/OperationForEach.h ../../Source/Parsing/../Reflection/GuiTypeDescriptorMacros.h ../../Source/Parsing/../Reflection/GuiTypeDescriptorBuilder.h ../../Source/Parsing/../Reflection/GuiTypeDescriptorPredefined.h ../../Source/Parsing/../Reflection/GuiTypeDescriptorBuilder_Struct.h ../../Source/Parsing/../Reflection/GuiTypeDescriptorBuilder_Function.h ../../Source/Parsing/../Reflection/GuiTypeDescriptorBuilder_Container.h ../../Source/Parsing/ParsingAutomaton.h ../../Source/Parsing/ParsingAnalyzer.h ../../Source/Parsing/ParsingDefinitions.h
+ifeq ($(COVERAGE),NO)
 	clang++ -std=c++14 -g -o $@ -c $<
+else
+	g++ -std=c++11 -g -fprofile-arcs -ftest-coverage -o $@ -c $<
+endif
 
 ./Obj/ParsingAnalyzer.o: ../../Source/Parsing/ParsingAnalyzer.cpp ../../Source/Parsing/ParsingAnalyzer.h ../../Source/Parsing/ParsingDefinitions.h ../../Source/Parsing/ParsingTree.h ../../Source/Parsing/../Regex/Regex.h ../../Source/Parsing/../Regex/../String.h ../../Source/Parsing/../Regex/../Basic.h ../../Source/Parsing/../Regex/../Pointer.h ../../Source/Parsing/../Regex/../Collections/List.h ../../Source/Parsing/../Regex/../Collections/Interfaces.h ../../Source/Parsing/../Regex/../Collections/Pair.h ../../Source/Parsing/../Regex/../Collections/Dictionary.h ../../Source/Parsing/../Stream/Accessor.h ../../Source/Parsing/../Stream/Interfaces.h ../../Source/Parsing/../Stream/CompressionStream.h ../../Source/Parsing/../Stream/CharFormat.h ../../Source/Parsing/../Stream/MemoryStream.h ../../Source/Parsing/../Stream/MemoryWrapperStream.h ../../Source/Parsing/../Collections/OperationCopyFrom.h ../../Source/Parsing/../Reflection/GuiTypeDescriptor.h ../../Source/Parsing/../Reflection/../Locale.h ../../Source/Parsing/../Reflection/../Exception.h ../../Source/Parsing/../Reflection/../Function.h ../../Source/Parsing/../Reflection/../Event.h ../../Source/Parsing/../Reflection/../Collections/Operation.h ../../Source/Parsing/../Regex/../Collections/OperationEnumerable.h ../../Source/Parsing/../Regex/../Collections/OperationSelect.h ../../Source/Parsing/../Regex/../Collections/OperationWhere.h ../../Source/Parsing/../Regex/../Collections/OperationConcat.h ../../Source/Parsing/../Regex/../Collections/OperationSequence.h ../../Source/Parsing/../Regex/../Collections/OperationSet.h ../../Source/Parsing/../Regex/../Collections/OperationPair.h ../../Source/Parsing/../Regex/../Collections/OperationString.h ../../Source/Parsing/../Regex/../Collections/OperationForEach.h ../../Source/Parsing/../Regex/RegexExpression.h ../../Source/Parsing/../Regex/RegexData.h ../../Source/Parsing/../Regex/RegexAutomaton.h
+ifeq ($(COVERAGE),NO)
 	clang++ -std=c++14 -g -o $@ -c $<
+else
+	g++ -std=c++11 -g -fprofile-arcs -ftest-coverage -o $@ -c $<
+endif
 
 ./Obj/ParsingAutomaton.o: ../../Source/Parsing/ParsingAutomaton.cpp ../../Source/Parsing/ParsingAutomaton.h ../../Source/Parsing/ParsingAnalyzer.h ../../Source/Parsing/ParsingDefinitions.h ../../Source/Parsing/ParsingTree.h ../../Source/Parsing/../Regex/Regex.h ../../Source/Parsing/../Regex/../String.h ../../Source/Parsing/../Regex/../Basic.h ../../Source/Parsing/../Regex/../Pointer.h ../../Source/Parsing/../Regex/../Collections/List.h ../../Source/Parsing/../Regex/../Collections/Interfaces.h ../../Source/Parsing/../Regex/../Collections/Pair.h ../../Source/Parsing/../Regex/../Collections/Dictionary.h ../../Source/Parsing/../Stream/Accessor.h ../../Source/Parsing/../Stream/Interfaces.h ../../Source/Parsing/../Stream/CompressionStream.h ../../Source/Parsing/../Stream/CharFormat.h ../../Source/Parsing/../Stream/MemoryStream.h ../../Source/Parsing/../Stream/MemoryWrapperStream.h ../../Source/Parsing/../Collections/OperationCopyFrom.h ../../Source/Parsing/../Reflection/GuiTypeDescriptor.h ../../Source/Parsing/../Reflection/../Locale.h ../../Source/Parsing/../Reflection/../Exception.h ../../Source/Parsing/../Reflection/../Function.h ../../Source/Parsing/../Reflection/../Event.h ../../Source/Parsing/../Reflection/../Collections/Operation.h ../../Source/Parsing/../Regex/../Collections/OperationEnumerable.h ../../Source/Parsing/../Regex/../Collections/OperationSelect.h ../../Source/Parsing/../Regex/../Collections/OperationWhere.h ../../Source/Parsing/../Regex/../Collections/OperationConcat.h ../../Source/Parsing/../Regex/../Collections/OperationSequence.h ../../Source/Parsing/../Regex/../Collections/OperationSet.h ../../Source/Parsing/../Regex/../Collections/OperationPair.h ../../Source/Parsing/../Regex/../Collections/OperationString.h ../../Source/Parsing/../Regex/../Collections/OperationForEach.h ../../Source/Parsing/ParsingTable.h
+ifeq ($(COVERAGE),NO)
 	clang++ -std=c++14 -g -o $@ -c $<
+else
+	g++ -std=c++11 -g -fprofile-arcs -ftest-coverage -o $@ -c $<
+endif
 
 ./Obj/ParsingAutomaton_Closure.o: ../../Source/Parsing/ParsingAutomaton_Closure.cpp ../../Source/Parsing/ParsingAutomaton.h ../../Source/Parsing/ParsingAnalyzer.h ../../Source/Parsing/ParsingDefinitions.h ../../Source/Parsing/ParsingTree.h ../../Source/Parsing/../Regex/Regex.h ../../Source/Parsing/../Regex/../String.h ../../Source/Parsing/../Regex/../Basic.h ../../Source/Parsing/../Regex/../Pointer.h ../../Source/Parsing/../Regex/../Collections/List.h ../../Source/Parsing/../Regex/../Collections/Interfaces.h ../../Source/Parsing/../Regex/../Collections/Pair.h ../../Source/Parsing/../Regex/../Collections/Dictionary.h ../../Source/Parsing/../Stream/Accessor.h ../../Source/Parsing/../Stream/Interfaces.h ../../Source/Parsing/../Stream/CompressionStream.h ../../Source/Parsing/../Stream/CharFormat.h ../../Source/Parsing/../Stream/MemoryStream.h ../../Source/Parsing/../Stream/MemoryWrapperStream.h ../../Source/Parsing/../Collections/OperationCopyFrom.h ../../Source/Parsing/../Reflection/GuiTypeDescriptor.h ../../Source/Parsing/../Reflection/../Locale.h ../../Source/Parsing/../Reflection/../Exception.h ../../Source/Parsing/../Reflection/../Function.h ../../Source/Parsing/../Reflection/../Event.h ../../Source/Parsing/../Reflection/../Collections/Operation.h ../../Source/Parsing/../Regex/../Collections/OperationEnumerable.h ../../Source/Parsing/../Regex/../Collections/OperationSelect.h ../../Source/Parsing/../Regex/../Collections/OperationWhere.h ../../Source/Parsing/../Regex/../Collections/OperationConcat.h ../../Source/Parsing/../Regex/../Collections/OperationSequence.h ../../Source/Parsing/../Regex/../Collections/OperationSet.h ../../Source/Parsing/../Regex/../Collections/OperationPair.h ../../Source/Parsing/../Regex/../Collections/OperationString.h ../../Source/Parsing/../Regex/../Collections/OperationForEach.h ../../Source/Parsing/ParsingTable.h
+ifeq ($(COVERAGE),NO)
 	clang++ -std=c++14 -g -o $@ -c $<
+else
+	g++ -std=c++11 -g -fprofile-arcs -ftest-coverage -o $@ -c $<
+endif
 
 ./Obj/ParsingAutomaton_EPDA.o: ../../Source/Parsing/ParsingAutomaton_EPDA.cpp ../../Source/Parsing/ParsingAutomaton.h ../../Source/Parsing/ParsingAnalyzer.h ../../Source/Parsing/ParsingDefinitions.h ../../Source/Parsing/ParsingTree.h ../../Source/Parsing/../Regex/Regex.h ../../Source/Parsing/../Regex/../String.h ../../Source/Parsing/../Regex/../Basic.h ../../Source/Parsing/../Regex/../Pointer.h ../../Source/Parsing/../Regex/../Collections/List.h ../../Source/Parsing/../Regex/../Collections/Interfaces.h ../../Source/Parsing/../Regex/../Collections/Pair.h ../../Source/Parsing/../Regex/../Collections/Dictionary.h ../../Source/Parsing/../Stream/Accessor.h ../../Source/Parsing/../Stream/Interfaces.h ../../Source/Parsing/../Stream/CompressionStream.h ../../Source/Parsing/../Stream/CharFormat.h ../../Source/Parsing/../Stream/MemoryStream.h ../../Source/Parsing/../Stream/MemoryWrapperStream.h ../../Source/Parsing/../Collections/OperationCopyFrom.h ../../Source/Parsing/../Reflection/GuiTypeDescriptor.h ../../Source/Parsing/../Reflection/../Locale.h ../../Source/Parsing/../Reflection/../Exception.h ../../Source/Parsing/../Reflection/../Function.h ../../Source/Parsing/../Reflection/../Event.h ../../Source/Parsing/../Reflection/../Collections/Operation.h ../../Source/Parsing/../Regex/../Collections/OperationEnumerable.h ../../Source/Parsing/../Regex/../Collections/OperationSelect.h ../../Source/Parsing/../Regex/../Collections/OperationWhere.h ../../Source/Parsing/../Regex/../Collections/OperationConcat.h ../../Source/Parsing/../Regex/../Collections/OperationSequence.h ../../Source/Parsing/../Regex/../Collections/OperationSet.h ../../Source/Parsing/../Regex/../Collections/OperationPair.h ../../Source/Parsing/../Regex/../Collections/OperationString.h ../../Source/Parsing/../Regex/../Collections/OperationForEach.h ../../Source/Parsing/ParsingTable.h
+ifeq ($(COVERAGE),NO)
 	clang++ -std=c++14 -g -o $@ -c $<
+else
+	g++ -std=c++11 -g -fprofile-arcs -ftest-coverage -o $@ -c $<
+endif
 
 ./Obj/ParsingAutomaton_GenerateTable.o: ../../Source/Parsing/ParsingAutomaton_GenerateTable.cpp ../../Source/Parsing/ParsingAutomaton.h ../../Source/Parsing/ParsingAnalyzer.h ../../Source/Parsing/ParsingDefinitions.h ../../Source/Parsing/ParsingTree.h ../../Source/Parsing/../Regex/Regex.h ../../Source/Parsing/../Regex/../String.h ../../Source/Parsing/../Regex/../Basic.h ../../Source/Parsing/../Regex/../Pointer.h ../../Source/Parsing/../Regex/../Collections/List.h ../../Source/Parsing/../Regex/../Collections/Interfaces.h ../../Source/Parsing/../Regex/../Collections/Pair.h ../../Source/Parsing/../Regex/../Collections/Dictionary.h ../../Source/Parsing/../Stream/Accessor.h ../../Source/Parsing/../Stream/Interfaces.h ../../Source/Parsing/../Stream/CompressionStream.h ../../Source/Parsing/../Stream/CharFormat.h ../../Source/Parsing/../Stream/MemoryStream.h ../../Source/Parsing/../Stream/MemoryWrapperStream.h ../../Source/Parsing/../Collections/OperationCopyFrom.h ../../Source/Parsing/../Reflection/GuiTypeDescriptor.h ../../Source/Parsing/../Reflection/../Locale.h ../../Source/Parsing/../Reflection/../Exception.h ../../Source/Parsing/../Reflection/../Function.h ../../Source/Parsing/../Reflection/../Event.h ../../Source/Parsing/../Reflection/../Collections/Operation.h ../../Source/Parsing/../Regex/../Collections/OperationEnumerable.h ../../Source/Parsing/../Regex/../Collections/OperationSelect.h ../../Source/Parsing/../Regex/../Collections/OperationWhere.h ../../Source/Parsing/../Regex/../Collections/OperationConcat.h ../../Source/Parsing/../Regex/../Collections/OperationSequence.h ../../Source/Parsing/../Regex/../Collections/OperationSet.h ../../Source/Parsing/../Regex/../Collections/OperationPair.h ../../Source/Parsing/../Regex/../Collections/OperationString.h ../../Source/Parsing/../Regex/../Collections/OperationForEach.h ../../Source/Parsing/ParsingTable.h
+ifeq ($(COVERAGE),NO)
 	clang++ -std=c++14 -g -o $@ -c $<
+else
+	g++ -std=c++11 -g -fprofile-arcs -ftest-coverage -o $@ -c $<
+endif
 
 ./Obj/ParsingAutomaton_JPDA.o: ../../Source/Parsing/ParsingAutomaton_JPDA.cpp ../../Source/Parsing/ParsingAutomaton.h ../../Source/Parsing/ParsingAnalyzer.h ../../Source/Parsing/ParsingDefinitions.h ../../Source/Parsing/ParsingTree.h ../../Source/Parsing/../Regex/Regex.h ../../Source/Parsing/../Regex/../String.h ../../Source/Parsing/../Regex/../Basic.h ../../Source/Parsing/../Regex/../Pointer.h ../../Source/Parsing/../Regex/../Collections/List.h ../../Source/Parsing/../Regex/../Collections/Interfaces.h ../../Source/Parsing/../Regex/../Collections/Pair.h ../../Source/Parsing/../Regex/../Collections/Dictionary.h ../../Source/Parsing/../Stream/Accessor.h ../../Source/Parsing/../Stream/Interfaces.h ../../Source/Parsing/../Stream/CompressionStream.h ../../Source/Parsing/../Stream/CharFormat.h ../../Source/Parsing/../Stream/MemoryStream.h ../../Source/Parsing/../Stream/MemoryWrapperStream.h ../../Source/Parsing/../Collections/OperationCopyFrom.h ../../Source/Parsing/../Reflection/GuiTypeDescriptor.h ../../Source/Parsing/../Reflection/../Locale.h ../../Source/Parsing/../Reflection/../Exception.h ../../Source/Parsing/../Reflection/../Function.h ../../Source/Parsing/../Reflection/../Event.h ../../Source/Parsing/../Reflection/../Collections/Operation.h ../../Source/Parsing/../Regex/../Collections/OperationEnumerable.h ../../Source/Parsing/../Regex/../Collections/OperationSelect.h ../../Source/Parsing/../Regex/../Collections/OperationWhere.h ../../Source/Parsing/../Regex/../Collections/OperationConcat.h ../../Source/Parsing/../Regex/../Collections/OperationSequence.h ../../Source/Parsing/../Regex/../Collections/OperationSet.h ../../Source/Parsing/../Regex/../Collections/OperationPair.h ../../Source/Parsing/../Regex/../Collections/OperationString.h ../../Source/Parsing/../Regex/../Collections/OperationForEach.h ../../Source/Parsing/ParsingTable.h
+ifeq ($(COVERAGE),NO)
 	clang++ -std=c++14 -g -o $@ -c $<
+else
+	g++ -std=c++11 -g -fprofile-arcs -ftest-coverage -o $@ -c $<
+endif
 
 ./Obj/ParsingAutomaton_MergeStates.o: ../../Source/Parsing/ParsingAutomaton_MergeStates.cpp ../../Source/Parsing/ParsingAutomaton.h ../../Source/Parsing/ParsingAnalyzer.h ../../Source/Parsing/ParsingDefinitions.h ../../Source/Parsing/ParsingTree.h ../../Source/Parsing/../Regex/Regex.h ../../Source/Parsing/../Regex/../String.h ../../Source/Parsing/../Regex/../Basic.h ../../Source/Parsing/../Regex/../Pointer.h ../../Source/Parsing/../Regex/../Collections/List.h ../../Source/Parsing/../Regex/../Collections/Interfaces.h ../../Source/Parsing/../Regex/../Collections/Pair.h ../../Source/Parsing/../Regex/../Collections/Dictionary.h ../../Source/Parsing/../Stream/Accessor.h ../../Source/Parsing/../Stream/Interfaces.h ../../Source/Parsing/../Stream/CompressionStream.h ../../Source/Parsing/../Stream/CharFormat.h ../../Source/Parsing/../Stream/MemoryStream.h ../../Source/Parsing/../Stream/MemoryWrapperStream.h ../../Source/Parsing/../Collections/OperationCopyFrom.h ../../Source/Parsing/../Reflection/GuiTypeDescriptor.h ../../Source/Parsing/../Reflection/../Locale.h ../../Source/Parsing/../Reflection/../Exception.h ../../Source/Parsing/../Reflection/../Function.h ../../Source/Parsing/../Reflection/../Event.h ../../Source/Parsing/../Reflection/../Collections/Operation.h ../../Source/Parsing/../Regex/../Collections/OperationEnumerable.h ../../Source/Parsing/../Regex/../Collections/OperationSelect.h ../../Source/Parsing/../Regex/../Collections/OperationWhere.h ../../Source/Parsing/../Regex/../Collections/OperationConcat.h ../../Source/Parsing/../Regex/../Collections/OperationSequence.h ../../Source/Parsing/../Regex/../Collections/OperationSet.h ../../Source/Parsing/../Regex/../Collections/OperationPair.h ../../Source/Parsing/../Regex/../Collections/OperationString.h ../../Source/Parsing/../Regex/../Collections/OperationForEach.h ../../Source/Parsing/ParsingTable.h
+ifeq ($(COVERAGE),NO)
 	clang++ -std=c++14 -g -o $@ -c $<
+else
+	g++ -std=c++11 -g -fprofile-arcs -ftest-coverage -o $@ -c $<
+endif
 
 ./Obj/ParsingAutomaton_NPDA.o: ../../Source/Parsing/ParsingAutomaton_NPDA.cpp ../../Source/Parsing/ParsingAutomaton.h ../../Source/Parsing/ParsingAnalyzer.h ../../Source/Parsing/ParsingDefinitions.h ../../Source/Parsing/ParsingTree.h ../../Source/Parsing/../Regex/Regex.h ../../Source/Parsing/../Regex/../String.h ../../Source/Parsing/../Regex/../Basic.h ../../Source/Parsing/../Regex/../Pointer.h ../../Source/Parsing/../Regex/../Collections/List.h ../../Source/Parsing/../Regex/../Collections/Interfaces.h ../../Source/Parsing/../Regex/../Collections/Pair.h ../../Source/Parsing/../Regex/../Collections/Dictionary.h ../../Source/Parsing/../Stream/Accessor.h ../../Source/Parsing/../Stream/Interfaces.h ../../Source/Parsing/../Stream/CompressionStream.h ../../Source/Parsing/../Stream/CharFormat.h ../../Source/Parsing/../Stream/MemoryStream.h ../../Source/Parsing/../Stream/MemoryWrapperStream.h ../../Source/Parsing/../Collections/OperationCopyFrom.h ../../Source/Parsing/../Reflection/GuiTypeDescriptor.h ../../Source/Parsing/../Reflection/../Locale.h ../../Source/Parsing/../Reflection/../Exception.h ../../Source/Parsing/../Reflection/../Function.h ../../Source/Parsing/../Reflection/../Event.h ../../Source/Parsing/../Reflection/../Collections/Operation.h ../../Source/Parsing/../Regex/../Collections/OperationEnumerable.h ../../Source/Parsing/../Regex/../Collections/OperationSelect.h ../../Source/Parsing/../Regex/../Collections/OperationWhere.h ../../Source/Parsing/../Regex/../Collections/OperationConcat.h ../../Source/Parsing/../Regex/../Collections/OperationSequence.h ../../Source/Parsing/../Regex/../Collections/OperationSet.h ../../Source/Parsing/../Regex/../Collections/OperationPair.h ../../Source/Parsing/../Regex/../Collections/OperationString.h ../../Source/Parsing/../Regex/../Collections/OperationForEach.h ../../Source/Parsing/ParsingTable.h
+ifeq ($(COVERAGE),NO)
 	clang++ -std=c++14 -g -o $@ -c $<
+else
+	g++ -std=c++11 -g -fprofile-arcs -ftest-coverage -o $@ -c $<
+endif
 
 ./Obj/ParsingDefinitions.o: ../../Source/Parsing/ParsingDefinitions.cpp ../../Source/Parsing/ParsingDefinitions.h ../../Source/Parsing/ParsingTree.h ../../Source/Parsing/../Regex/Regex.h ../../Source/Parsing/../Regex/../String.h ../../Source/Parsing/../Regex/../Basic.h ../../Source/Parsing/../Regex/../Pointer.h ../../Source/Parsing/../Regex/../Collections/List.h ../../Source/Parsing/../Regex/../Collections/Interfaces.h ../../Source/Parsing/../Regex/../Collections/Pair.h ../../Source/Parsing/../Regex/../Collections/Dictionary.h ../../Source/Parsing/../Stream/Accessor.h ../../Source/Parsing/../Stream/Interfaces.h ../../Source/Parsing/../Stream/CompressionStream.h ../../Source/Parsing/../Stream/CharFormat.h ../../Source/Parsing/../Stream/MemoryStream.h ../../Source/Parsing/../Stream/MemoryWrapperStream.h ../../Source/Parsing/../Collections/OperationCopyFrom.h ../../Source/Parsing/../Reflection/GuiTypeDescriptor.h ../../Source/Parsing/../Reflection/../Locale.h ../../Source/Parsing/../Reflection/../Exception.h ../../Source/Parsing/../Reflection/../Function.h ../../Source/Parsing/../Reflection/../Event.h ../../Source/Parsing/../Reflection/../Collections/Operation.h ../../Source/Parsing/../Regex/../Collections/OperationEnumerable.h ../../Source/Parsing/../Regex/../Collections/OperationSelect.h ../../Source/Parsing/../Regex/../Collections/OperationWhere.h ../../Source/Parsing/../Regex/../Collections/OperationConcat.h ../../Source/Parsing/../Regex/../Collections/OperationSequence.h ../../Source/Parsing/../Regex/../Collections/OperationSet.h ../../Source/Parsing/../Regex/../Collections/OperationPair.h ../../Source/Parsing/../Regex/../Collections/OperationString.h ../../Source/Parsing/../Regex/../Collections/OperationForEach.h
+ifeq ($(COVERAGE),NO)
 	clang++ -std=c++14 -g -o $@ -c $<
+else
+	g++ -std=c++11 -g -fprofile-arcs -ftest-coverage -o $@ -c $<
+endif
 
 ./Obj/ParsingDefinitions_CreateParserDefinition.o: ../../Source/Parsing/ParsingDefinitions_CreateParserDefinition.cpp ../../Source/Parsing/ParsingDefinitions.h ../../Source/Parsing/ParsingTree.h ../../Source/Parsing/../Regex/Regex.h ../../Source/Parsing/../Regex/../String.h ../../Source/Parsing/../Regex/../Basic.h ../../Source/Parsing/../Regex/../Pointer.h ../../Source/Parsing/../Regex/../Collections/List.h ../../Source/Parsing/../Regex/../Collections/Interfaces.h ../../Source/Parsing/../Regex/../Collections/Pair.h ../../Source/Parsing/../Regex/../Collections/Dictionary.h ../../Source/Parsing/../Stream/Accessor.h ../../Source/Parsing/../Stream/Interfaces.h ../../Source/Parsing/../Stream/CompressionStream.h ../../Source/Parsing/../Stream/CharFormat.h ../../Source/Parsing/../Stream/MemoryStream.h ../../Source/Parsing/../Stream/MemoryWrapperStream.h ../../Source/Parsing/../Collections/OperationCopyFrom.h ../../Source/Parsing/../Reflection/GuiTypeDescriptor.h ../../Source/Parsing/../Reflection/../Locale.h ../../Source/Parsing/../Reflection/../Exception.h ../../Source/Parsing/../Reflection/../Function.h ../../Source/Parsing/../Reflection/../Event.h ../../Source/Parsing/../Reflection/../Collections/Operation.h ../../Source/Parsing/../Regex/../Collections/OperationEnumerable.h ../../Source/Parsing/../Regex/../Collections/OperationSelect.h ../../Source/Parsing/../Regex/../Collections/OperationWhere.h ../../Source/Parsing/../Regex/../Collections/OperationConcat.h ../../Source/Parsing/../Regex/../Collections/OperationSequence.h ../../Source/Parsing/../Regex/../Collections/OperationSet.h ../../Source/Parsing/../Regex/../Collections/OperationPair.h ../../Source/Parsing/../Regex/../Collections/OperationString.h ../../Source/Parsing/../Regex/../Collections/OperationForEach.h
+ifeq ($(COVERAGE),NO)
 	clang++ -std=c++14 -g -o $@ -c $<
+else
+	g++ -std=c++11 -g -fprofile-arcs -ftest-coverage -o $@ -c $<
+endif
 
 ./Obj/ParsingLogging.o: ../../Source/Parsing/ParsingLogging.cpp ../../Source/Parsing/ParsingDefinitions.h ../../Source/Parsing/ParsingTree.h ../../Source/Parsing/../Regex/Regex.h ../../Source/Parsing/../Regex/../String.h ../../Source/Parsing/../Regex/../Basic.h ../../Source/Parsing/../Regex/../Pointer.h ../../Source/Parsing/../Regex/../Collections/List.h ../../Source/Parsing/../Regex/../Collections/Interfaces.h ../../Source/Parsing/../Regex/../Collections/Pair.h ../../Source/Parsing/../Regex/../Collections/Dictionary.h ../../Source/Parsing/../Stream/Accessor.h ../../Source/Parsing/../Stream/Interfaces.h ../../Source/Parsing/../Stream/CompressionStream.h ../../Source/Parsing/../Stream/CharFormat.h ../../Source/Parsing/../Stream/MemoryStream.h ../../Source/Parsing/../Stream/MemoryWrapperStream.h ../../Source/Parsing/../Collections/OperationCopyFrom.h ../../Source/Parsing/../Reflection/GuiTypeDescriptor.h ../../Source/Parsing/../Reflection/../Locale.h ../../Source/Parsing/../Reflection/../Exception.h ../../Source/Parsing/../Reflection/../Function.h ../../Source/Parsing/../Reflection/../Event.h ../../Source/Parsing/../Reflection/../Collections/Operation.h ../../Source/Parsing/../Regex/../Collections/OperationEnumerable.h ../../Source/Parsing/../Regex/../Collections/OperationSelect.h ../../Source/Parsing/../Regex/../Collections/OperationWhere.h ../../Source/Parsing/../Regex/../Collections/OperationConcat.h ../../Source/Parsing/../Regex/../Collections/OperationSequence.h ../../Source/Parsing/../Regex/../Collections/OperationSet.h ../../Source/Parsing/../Regex/../Collections/OperationPair.h ../../Source/Parsing/../Regex/../Collections/OperationString.h ../../Source/Parsing/../Regex/../Collections/OperationForEach.h ../../Source/Parsing/ParsingAutomaton.h ../../Source/Parsing/ParsingAnalyzer.h ../../Source/Parsing/ParsingTable.h ../../Source/Parsing/../Regex/RegexExpression.h ../../Source/Parsing/../Regex/RegexData.h ../../Source/Parsing/../Regex/RegexAutomaton.h
+ifeq ($(COVERAGE),NO)
 	clang++ -std=c++14 -g -o $@ -c $<
+else
+	g++ -std=c++11 -g -fprofile-arcs -ftest-coverage -o $@ -c $<
+endif
 
 ./Obj/ParsingState.o: ../../Source/Parsing/ParsingState.cpp ../../Source/Parsing/ParsingState.h ../../Source/Parsing/ParsingTable.h ../../Source/Parsing/ParsingTree.h ../../Source/Parsing/../Regex/Regex.h ../../Source/Parsing/../Regex/../String.h ../../Source/Parsing/../Regex/../Basic.h ../../Source/Parsing/../Regex/../Pointer.h ../../Source/Parsing/../Regex/../Collections/List.h ../../Source/Parsing/../Regex/../Collections/Interfaces.h ../../Source/Parsing/../Regex/../Collections/Pair.h ../../Source/Parsing/../Regex/../Collections/Dictionary.h ../../Source/Parsing/../Stream/Accessor.h ../../Source/Parsing/../Stream/Interfaces.h ../../Source/Parsing/../Stream/CompressionStream.h ../../Source/Parsing/../Stream/CharFormat.h ../../Source/Parsing/../Stream/MemoryStream.h ../../Source/Parsing/../Stream/MemoryWrapperStream.h ../../Source/Parsing/../Collections/OperationCopyFrom.h ../../Source/Parsing/../Reflection/GuiTypeDescriptor.h ../../Source/Parsing/../Reflection/../Locale.h ../../Source/Parsing/../Reflection/../Exception.h ../../Source/Parsing/../Reflection/../Function.h ../../Source/Parsing/../Reflection/../Event.h ../../Source/Parsing/../Reflection/../Collections/Operation.h ../../Source/Parsing/../Regex/../Collections/OperationEnumerable.h ../../Source/Parsing/../Regex/../Collections/OperationSelect.h ../../Source/Parsing/../Regex/../Collections/OperationWhere.h ../../Source/Parsing/../Regex/../Collections/OperationConcat.h ../../Source/Parsing/../Regex/../Collections/OperationSequence.h ../../Source/Parsing/../Regex/../Collections/OperationSet.h ../../Source/Parsing/../Regex/../Collections/OperationPair.h ../../Source/Parsing/../Regex/../Collections/OperationString.h ../../Source/Parsing/../Regex/../Collections/OperationForEach.h
+ifeq ($(COVERAGE),NO)
 	clang++ -std=c++14 -g -o $@ -c $<
+else
+	g++ -std=c++11 -g -fprofile-arcs -ftest-coverage -o $@ -c $<
+endif
 
 ./Obj/ParsingTable.o: ../../Source/Parsing/ParsingTable.cpp ../../Source/Parsing/ParsingTable.h ../../Source/Parsing/ParsingTree.h ../../Source/Parsing/../Regex/Regex.h ../../Source/Parsing/../Regex/../String.h ../../Source/Parsing/../Regex/../Basic.h ../../Source/Parsing/../Regex/../Pointer.h ../../Source/Parsing/../Regex/../Collections/List.h ../../Source/Parsing/../Regex/../Collections/Interfaces.h ../../Source/Parsing/../Regex/../Collections/Pair.h ../../Source/Parsing/../Regex/../Collections/Dictionary.h ../../Source/Parsing/../Stream/Accessor.h ../../Source/Parsing/../Stream/Interfaces.h ../../Source/Parsing/../Stream/CompressionStream.h ../../Source/Parsing/../Stream/CharFormat.h ../../Source/Parsing/../Stream/MemoryStream.h ../../Source/Parsing/../Stream/MemoryWrapperStream.h ../../Source/Parsing/../Collections/OperationCopyFrom.h ../../Source/Parsing/../Reflection/GuiTypeDescriptor.h ../../Source/Parsing/../Reflection/../Locale.h ../../Source/Parsing/../Reflection/../Exception.h ../../Source/Parsing/../Reflection/../Function.h ../../Source/Parsing/../Reflection/../Event.h ../../Source/Parsing/../Reflection/../Collections/Operation.h ../../Source/Parsing/../Regex/../Collections/OperationEnumerable.h ../../Source/Parsing/../Regex/../Collections/OperationSelect.h ../../Source/Parsing/../Regex/../Collections/OperationWhere.h ../../Source/Parsing/../Regex/../Collections/OperationConcat.h ../../Source/Parsing/../Regex/../Collections/OperationSequence.h ../../Source/Parsing/../Regex/../Collections/OperationSet.h ../../Source/Parsing/../Regex/../Collections/OperationPair.h ../../Source/Parsing/../Regex/../Collections/OperationString.h ../../Source/Parsing/../Regex/../Collections/OperationForEach.h
+ifeq ($(COVERAGE),NO)
 	clang++ -std=c++14 -g -o $@ -c $<
+else
+	g++ -std=c++11 -g -fprofile-arcs -ftest-coverage -o $@ -c $<
+endif
 
 ./Obj/ParsingTree.o: ../../Source/Parsing/ParsingTree.cpp ../../Source/Parsing/ParsingTree.h ../../Source/Parsing/../Regex/Regex.h ../../Source/Parsing/../Regex/../String.h ../../Source/Parsing/../Regex/../Basic.h ../../Source/Parsing/../Regex/../Pointer.h ../../Source/Parsing/../Regex/../Collections/List.h ../../Source/Parsing/../Regex/../Collections/Interfaces.h ../../Source/Parsing/../Regex/../Collections/Pair.h ../../Source/Parsing/../Regex/../Collections/Dictionary.h ../../Source/Parsing/../Stream/Accessor.h ../../Source/Parsing/../Stream/Interfaces.h ../../Source/Parsing/../Stream/CompressionStream.h ../../Source/Parsing/../Stream/CharFormat.h ../../Source/Parsing/../Stream/MemoryStream.h ../../Source/Parsing/../Stream/MemoryWrapperStream.h ../../Source/Parsing/../Collections/OperationCopyFrom.h ../../Source/Parsing/../Reflection/GuiTypeDescriptor.h ../../Source/Parsing/../Reflection/../Locale.h ../../Source/Parsing/../Reflection/../Exception.h ../../Source/Parsing/../Reflection/../Function.h ../../Source/Parsing/../Reflection/../Event.h ../../Source/Parsing/../Reflection/../Collections/Operation.h ../../Source/Parsing/../Regex/../Collections/OperationEnumerable.h ../../Source/Parsing/../Regex/../Collections/OperationSelect.h ../../Source/Parsing/../Regex/../Collections/OperationWhere.h ../../Source/Parsing/../Regex/../Collections/OperationConcat.h ../../Source/Parsing/../Regex/../Collections/OperationSequence.h ../../Source/Parsing/../Regex/../Collections/OperationSet.h ../../Source/Parsing/../Regex/../Collections/OperationPair.h ../../Source/Parsing/../Regex/../Collections/OperationString.h ../../Source/Parsing/../Regex/../Collections/OperationForEach.h
+ifeq ($(COVERAGE),NO)
 	clang++ -std=c++14 -g -o $@ -c $<
+else
+	g++ -std=c++11 -g -fprofile-arcs -ftest-coverage -o $@ -c $<
+endif
 
 ./Obj/ParsingXml.o: ../../Source/Parsing/Xml/ParsingXml.cpp ../../Source/Parsing/Xml/ParsingXml.h ../../Source/Parsing/Xml/ParsingXml_Parser.h ../../Source/Parsing/Xml/../Parsing.h ../../Source/Parsing/Xml/../ParsingState.h ../../Source/Parsing/Xml/../ParsingTable.h ../../Source/Parsing/Xml/../ParsingTree.h ../../Source/Parsing/Xml/../../Regex/Regex.h ../../Source/Parsing/Xml/../../Regex/../String.h ../../Source/Parsing/Xml/../../Regex/../Basic.h ../../Source/Parsing/Xml/../../Regex/../Pointer.h ../../Source/Parsing/Xml/../../Regex/../Collections/List.h ../../Source/Parsing/Xml/../../Regex/../Collections/Interfaces.h ../../Source/Parsing/Xml/../../Regex/../Collections/Pair.h ../../Source/Parsing/Xml/../../Regex/../Collections/Dictionary.h ../../Source/Parsing/Xml/../../Stream/Accessor.h ../../Source/Parsing/Xml/../../Stream/Interfaces.h ../../Source/Parsing/Xml/../../Stream/CompressionStream.h ../../Source/Parsing/Xml/../../Stream/CharFormat.h ../../Source/Parsing/Xml/../../Stream/MemoryStream.h ../../Source/Parsing/Xml/../../Stream/MemoryWrapperStream.h ../../Source/Parsing/Xml/../../Collections/OperationCopyFrom.h ../../Source/Parsing/Xml/../../Reflection/GuiTypeDescriptor.h ../../Source/Parsing/Xml/../../Reflection/../Locale.h ../../Source/Parsing/Xml/../../Reflection/../Exception.h ../../Source/Parsing/Xml/../../Reflection/../Function.h ../../Source/Parsing/Xml/../../Reflection/../Event.h ../../Source/Parsing/Xml/../../Reflection/../Collections/Operation.h ../../Source/Parsing/Xml/../../Regex/../Collections/OperationEnumerable.h ../../Source/Parsing/Xml/../../Regex/../Collections/OperationSelect.h ../../Source/Parsing/Xml/../../Regex/../Collections/OperationWhere.h ../../Source/Parsing/Xml/../../Regex/../Collections/OperationConcat.h ../../Source/Parsing/Xml/../../Regex/../Collections/OperationSequence.h ../../Source/Parsing/Xml/../../Regex/../Collections/OperationSet.h ../../Source/Parsing/Xml/../../Regex/../Collections/OperationPair.h ../../Source/Parsing/Xml/../../Regex/../Collections/OperationString.h ../../Source/Parsing/Xml/../../Regex/../Collections/OperationForEach.h ../../Source/Parsing/Xml/../../Reflection/GuiTypeDescriptorMacros.h ../../Source/Parsing/Xml/../../Reflection/GuiTypeDescriptorBuilder.h ../../Source/Parsing/Xml/../../Reflection/GuiTypeDescriptorPredefined.h ../../Source/Parsing/Xml/../../Reflection/GuiTypeDescriptorBuilder_Struct.h ../../Source/Parsing/Xml/../../Reflection/GuiTypeDescriptorBuilder_Function.h ../../Source/Parsing/Xml/../../Reflection/GuiTypeDescriptorBuilder_Container.h ../../Source/Parsing/Xml/../ParsingDefinitions.h ../../Source/Parsing/Xml/../ParsingAutomaton.h ../../Source/Parsing/Xml/../ParsingAnalyzer.h
+ifeq ($(COVERAGE),NO)
 	clang++ -std=c++14 -g -o $@ -c $<
+else
+	g++ -std=c++11 -g -fprofile-arcs -ftest-coverage -o $@ -c $<
+endif
 
 ./Obj/ParsingXml_Parser.o: ../../Source/Parsing/Xml/ParsingXml_Parser.cpp ../../Source/Parsing/Xml/ParsingXml_Parser.h ../../Source/Parsing/Xml/../Parsing.h ../../Source/Parsing/Xml/../ParsingState.h ../../Source/Parsing/Xml/../ParsingTable.h ../../Source/Parsing/Xml/../ParsingTree.h ../../Source/Parsing/Xml/../../Regex/Regex.h ../../Source/Parsing/Xml/../../Regex/../String.h ../../Source/Parsing/Xml/../../Regex/../Basic.h ../../Source/Parsing/Xml/../../Regex/../Pointer.h ../../Source/Parsing/Xml/../../Regex/../Collections/List.h ../../Source/Parsing/Xml/../../Regex/../Collections/Interfaces.h ../../Source/Parsing/Xml/../../Regex/../Collections/Pair.h ../../Source/Parsing/Xml/../../Regex/../Collections/Dictionary.h ../../Source/Parsing/Xml/../../Stream/Accessor.h ../../Source/Parsing/Xml/../../Stream/Interfaces.h ../../Source/Parsing/Xml/../../Stream/CompressionStream.h ../../Source/Parsing/Xml/../../Stream/CharFormat.h ../../Source/Parsing/Xml/../../Stream/MemoryStream.h ../../Source/Parsing/Xml/../../Stream/MemoryWrapperStream.h ../../Source/Parsing/Xml/../../Collections/OperationCopyFrom.h ../../Source/Parsing/Xml/../../Reflection/GuiTypeDescriptor.h ../../Source/Parsing/Xml/../../Reflection/../Locale.h ../../Source/Parsing/Xml/../../Reflection/../Exception.h ../../Source/Parsing/Xml/../../Reflection/../Function.h ../../Source/Parsing/Xml/../../Reflection/../Event.h ../../Source/Parsing/Xml/../../Reflection/../Collections/Operation.h ../../Source/Parsing/Xml/../../Regex/../Collections/OperationEnumerable.h ../../Source/Parsing/Xml/../../Regex/../Collections/OperationSelect.h ../../Source/Parsing/Xml/../../Regex/../Collections/OperationWhere.h ../../Source/Parsing/Xml/../../Regex/../Collections/OperationConcat.h ../../Source/Parsing/Xml/../../Regex/../Collections/OperationSequence.h ../../Source/Parsing/Xml/../../Regex/../Collections/OperationSet.h ../../Source/Parsing/Xml/../../Regex/../Collections/OperationPair.h ../../Source/Parsing/Xml/../../Regex/../Collections/OperationString.h ../../Source/Parsing/Xml/../../Regex/../Collections/OperationForEach.h ../../Source/Parsing/Xml/../../Reflection/GuiTypeDescriptorMacros.h ../../Source/Parsing/Xml/../../Reflection/GuiTypeDescriptorBuilder.h ../../Source/Parsing/Xml/../../Reflection/GuiTypeDescriptorPredefined.h ../../Source/Parsing/Xml/../../Reflection/GuiTypeDescriptorBuilder_Struct.h ../../Source/Parsing/Xml/../../Reflection/GuiTypeDescriptorBuilder_Function.h ../../Source/Parsing/Xml/../../Reflection/GuiTypeDescriptorBuilder_Container.h ../../Source/Parsing/Xml/../ParsingDefinitions.h ../../Source/Parsing/Xml/../ParsingAutomaton.h ../../Source/Parsing/Xml/../ParsingAnalyzer.h
+ifeq ($(COVERAGE),NO)
 	clang++ -std=c++14 -g -o $@ -c $<
+else
+	g++ -std=c++11 -g -fprofile-arcs -ftest-coverage -o $@ -c $<
+endif
 
 ./Obj/GuiTypeDescriptor.o: ../../Source/Reflection/GuiTypeDescriptor.cpp ../../Source/Reflection/GuiTypeDescriptorMacros.h ../../Source/Reflection/GuiTypeDescriptorBuilder.h ../../Source/Reflection/GuiTypeDescriptorPredefined.h ../../Source/Reflection/GuiTypeDescriptor.h ../../Source/Reflection/../Basic.h ../../Source/Reflection/../Pointer.h ../../Source/Reflection/../String.h ../../Source/Reflection/../Locale.h ../../Source/Reflection/../Collections/List.h ../../Source/Reflection/../Collections/Interfaces.h ../../Source/Reflection/../Collections/Pair.h ../../Source/Reflection/../Exception.h ../../Source/Reflection/../Function.h ../../Source/Reflection/../Event.h ../../Source/Reflection/../Collections/Dictionary.h ../../Source/Reflection/../Collections/Operation.h ../../Source/Reflection/../Collections/OperationCopyFrom.h ../../Source/Reflection/../Collections/OperationEnumerable.h ../../Source/Reflection/../Collections/OperationSelect.h ../../Source/Reflection/../Collections/OperationWhere.h ../../Source/Reflection/../Collections/OperationConcat.h ../../Source/Reflection/../Collections/OperationSequence.h ../../Source/Reflection/../Collections/OperationSet.h ../../Source/Reflection/../Collections/OperationPair.h ../../Source/Reflection/../Collections/OperationString.h ../../Source/Reflection/../Collections/OperationForEach.h ../../Source/Reflection/../Stream/Accessor.h ../../Source/Reflection/../Stream/Interfaces.h ../../Source/Reflection/GuiTypeDescriptorBuilder_Struct.h ../../Source/Reflection/GuiTypeDescriptorBuilder_Function.h ../../Source/Reflection/GuiTypeDescriptorBuilder_Container.h
+ifeq ($(COVERAGE),NO)
 	clang++ -std=c++14 -g -o $@ -c $<
+else
+	g++ -std=c++11 -g -fprofile-arcs -ftest-coverage -o $@ -c $<
+endif
 
 ./Obj/GuiTypeDescriptorBuilder.o: ../../Source/Reflection/GuiTypeDescriptorBuilder.cpp ../../Source/Reflection/GuiTypeDescriptorBuilder.h ../../Source/Reflection/GuiTypeDescriptorPredefined.h ../../Source/Reflection/GuiTypeDescriptor.h ../../Source/Reflection/../Basic.h ../../Source/Reflection/../Pointer.h ../../Source/Reflection/../String.h ../../Source/Reflection/../Locale.h ../../Source/Reflection/../Collections/List.h ../../Source/Reflection/../Collections/Interfaces.h ../../Source/Reflection/../Collections/Pair.h ../../Source/Reflection/../Exception.h ../../Source/Reflection/../Function.h ../../Source/Reflection/../Event.h ../../Source/Reflection/../Collections/Dictionary.h ../../Source/Reflection/../Collections/Operation.h ../../Source/Reflection/../Collections/OperationCopyFrom.h ../../Source/Reflection/../Collections/OperationEnumerable.h ../../Source/Reflection/../Collections/OperationSelect.h ../../Source/Reflection/../Collections/OperationWhere.h ../../Source/Reflection/../Collections/OperationConcat.h ../../Source/Reflection/../Collections/OperationSequence.h ../../Source/Reflection/../Collections/OperationSet.h ../../Source/Reflection/../Collections/OperationPair.h ../../Source/Reflection/../Collections/OperationString.h ../../Source/Reflection/../Collections/OperationForEach.h ../../Source/Reflection/../Stream/Accessor.h ../../Source/Reflection/../Stream/Interfaces.h
+ifeq ($(COVERAGE),NO)
 	clang++ -std=c++14 -g -o $@ -c $<
+else
+	g++ -std=c++11 -g -fprofile-arcs -ftest-coverage -o $@ -c $<
+endif
 
 ./Obj/GuiTypeDescriptorPredefined.o: ../../Source/Reflection/GuiTypeDescriptorPredefined.cpp ../../Source/Reflection/GuiTypeDescriptorInterfaceProxies.h ../../Source/Reflection/GuiTypeDescriptorMacros.h ../../Source/Reflection/GuiTypeDescriptorBuilder.h ../../Source/Reflection/GuiTypeDescriptorPredefined.h ../../Source/Reflection/GuiTypeDescriptor.h ../../Source/Reflection/../Basic.h ../../Source/Reflection/../Pointer.h ../../Source/Reflection/../String.h ../../Source/Reflection/../Locale.h ../../Source/Reflection/../Collections/List.h ../../Source/Reflection/../Collections/Interfaces.h ../../Source/Reflection/../Collections/Pair.h ../../Source/Reflection/../Exception.h ../../Source/Reflection/../Function.h ../../Source/Reflection/../Event.h ../../Source/Reflection/../Collections/Dictionary.h ../../Source/Reflection/../Collections/Operation.h ../../Source/Reflection/../Collections/OperationCopyFrom.h ../../Source/Reflection/../Collections/OperationEnumerable.h ../../Source/Reflection/../Collections/OperationSelect.h ../../Source/Reflection/../Collections/OperationWhere.h ../../Source/Reflection/../Collections/OperationConcat.h ../../Source/Reflection/../Collections/OperationSequence.h ../../Source/Reflection/../Collections/OperationSet.h ../../Source/Reflection/../Collections/OperationPair.h ../../Source/Reflection/../Collections/OperationString.h ../../Source/Reflection/../Collections/OperationForEach.h ../../Source/Reflection/../Stream/Accessor.h ../../Source/Reflection/../Stream/Interfaces.h ../../Source/Reflection/GuiTypeDescriptorBuilder_Struct.h ../../Source/Reflection/GuiTypeDescriptorBuilder_Function.h ../../Source/Reflection/GuiTypeDescriptorBuilder_Container.h ../../Source/Reflection/../Regex/Regex.h
+ifeq ($(COVERAGE),NO)
 	clang++ -std=c++14 -g -o $@ -c $<
+else
+	g++ -std=c++11 -g -fprofile-arcs -ftest-coverage -o $@ -c $<
+endif
 
 ./Obj/Regex.o: ../../Source/Regex/Regex.cpp ../../Source/Regex/Regex.h ../../Source/Regex/../String.h ../../Source/Regex/../Basic.h ../../Source/Regex/../Pointer.h ../../Source/Regex/../Collections/List.h ../../Source/Regex/../Collections/Interfaces.h ../../Source/Regex/../Collections/Pair.h ../../Source/Regex/../Collections/Dictionary.h ../../Source/Regex/RegexExpression.h ../../Source/Regex/RegexData.h ../../Source/Regex/../Exception.h ../../Source/Regex/RegexAutomaton.h ../../Source/Regex/RegexPure.h ../../Source/Regex/RegexRich.h ../../Source/Regex/../Collections/OperationCopyFrom.h
+ifeq ($(COVERAGE),NO)
 	clang++ -std=c++14 -g -o $@ -c $<
+else
+	g++ -std=c++11 -g -fprofile-arcs -ftest-coverage -o $@ -c $<
+endif
 
 ./Obj/RegexAutomaton.o: ../../Source/Regex/RegexAutomaton.cpp ../../Source/Regex/RegexAutomaton.h ../../Source/Regex/RegexData.h ../../Source/Regex/../String.h ../../Source/Regex/../Basic.h ../../Source/Regex/../Pointer.h ../../Source/Regex/../Exception.h ../../Source/Regex/../Collections/List.h ../../Source/Regex/../Collections/Interfaces.h ../../Source/Regex/../Collections/Pair.h ../../Source/Regex/../Collections/Dictionary.h ../../Source/Regex/../Collections/OperationCopyFrom.h
+ifeq ($(COVERAGE),NO)
 	clang++ -std=c++14 -g -o $@ -c $<
+else
+	g++ -std=c++11 -g -fprofile-arcs -ftest-coverage -o $@ -c $<
+endif
 
 ./Obj/RegexData.o: ../../Source/Regex/RegexData.cpp ../../Source/Regex/RegexData.h ../../Source/Regex/../String.h ../../Source/Regex/../Basic.h ../../Source/Regex/../Pointer.h ../../Source/Regex/../Exception.h ../../Source/Regex/../Collections/List.h ../../Source/Regex/../Collections/Interfaces.h ../../Source/Regex/../Collections/Pair.h ../../Source/Regex/../Collections/Dictionary.h
+ifeq ($(COVERAGE),NO)
 	clang++ -std=c++14 -g -o $@ -c $<
+else
+	g++ -std=c++11 -g -fprofile-arcs -ftest-coverage -o $@ -c $<
+endif
 
 ./Obj/RegexExpression.o: ../../Source/Regex/RegexExpression.cpp ../../Source/Regex/RegexExpression.h ../../Source/Regex/RegexData.h ../../Source/Regex/../String.h ../../Source/Regex/../Basic.h ../../Source/Regex/../Pointer.h ../../Source/Regex/../Exception.h ../../Source/Regex/../Collections/List.h ../../Source/Regex/../Collections/Interfaces.h ../../Source/Regex/../Collections/Pair.h ../../Source/Regex/../Collections/Dictionary.h ../../Source/Regex/RegexAutomaton.h ../../Source/Regex/../Collections/OperationCopyFrom.h
+ifeq ($(COVERAGE),NO)
 	clang++ -std=c++14 -g -o $@ -c $<
+else
+	g++ -std=c++11 -g -fprofile-arcs -ftest-coverage -o $@ -c $<
+endif
 
 ./Obj/RegexParser.o: ../../Source/Regex/RegexParser.cpp ../../Source/Regex/RegexExpression.h ../../Source/Regex/RegexData.h ../../Source/Regex/../String.h ../../Source/Regex/../Basic.h ../../Source/Regex/../Pointer.h ../../Source/Regex/../Exception.h ../../Source/Regex/../Collections/List.h ../../Source/Regex/../Collections/Interfaces.h ../../Source/Regex/../Collections/Pair.h ../../Source/Regex/../Collections/Dictionary.h ../../Source/Regex/RegexAutomaton.h ../../Source/Regex/../Collections/OperationCopyFrom.h
+ifeq ($(COVERAGE),NO)
 	clang++ -std=c++14 -g -o $@ -c $<
+else
+	g++ -std=c++11 -g -fprofile-arcs -ftest-coverage -o $@ -c $<
+endif
 
 ./Obj/RegexPure.o: ../../Source/Regex/RegexPure.cpp ../../Source/Regex/RegexPure.h ../../Source/Regex/RegexAutomaton.h ../../Source/Regex/RegexData.h ../../Source/Regex/../String.h ../../Source/Regex/../Basic.h ../../Source/Regex/../Pointer.h ../../Source/Regex/../Exception.h ../../Source/Regex/../Collections/List.h ../../Source/Regex/../Collections/Interfaces.h ../../Source/Regex/../Collections/Pair.h ../../Source/Regex/../Collections/Dictionary.h
+ifeq ($(COVERAGE),NO)
 	clang++ -std=c++14 -g -o $@ -c $<
+else
+	g++ -std=c++11 -g -fprofile-arcs -ftest-coverage -o $@ -c $<
+endif
 
 ./Obj/RegexRich.o: ../../Source/Regex/RegexRich.cpp ../../Source/Regex/RegexRich.h ../../Source/Regex/RegexAutomaton.h ../../Source/Regex/RegexData.h ../../Source/Regex/../String.h ../../Source/Regex/../Basic.h ../../Source/Regex/../Pointer.h ../../Source/Regex/../Exception.h ../../Source/Regex/../Collections/List.h ../../Source/Regex/../Collections/Interfaces.h ../../Source/Regex/../Collections/Pair.h ../../Source/Regex/../Collections/Dictionary.h
+ifeq ($(COVERAGE),NO)
 	clang++ -std=c++14 -g -o $@ -c $<
+else
+	g++ -std=c++11 -g -fprofile-arcs -ftest-coverage -o $@ -c $<
+endif
 
 ./Obj/RegexWriter.o: ../../Source/Regex/RegexWriter.cpp ../../Source/Regex/RegexWriter.h ../../Source/Regex/RegexExpression.h ../../Source/Regex/RegexData.h ../../Source/Regex/../String.h ../../Source/Regex/../Basic.h ../../Source/Regex/../Pointer.h ../../Source/Regex/../Exception.h ../../Source/Regex/../Collections/List.h ../../Source/Regex/../Collections/Interfaces.h ../../Source/Regex/../Collections/Pair.h ../../Source/Regex/../Collections/Dictionary.h ../../Source/Regex/RegexAutomaton.h ../../Source/Regex/../Collections/OperationCopyFrom.h
+ifeq ($(COVERAGE),NO)
 	clang++ -std=c++14 -g -o $@ -c $<
+else
+	g++ -std=c++11 -g -fprofile-arcs -ftest-coverage -o $@ -c $<
+endif
 
 ./Obj/Accessor.o: ../../Source/Stream/Accessor.cpp ../../Source/Stream/Accessor.h ../../Source/Stream/Interfaces.h ../../Source/Stream/../Basic.h ../../Source/Stream/../String.h ../../Source/Stream/../Collections/List.h ../../Source/Stream/../Collections/Interfaces.h ../../Source/Stream/../Collections/../Pointer.h ../../Source/Stream/../Collections/Pair.h ../../Source/Stream/../Collections/Dictionary.h
+ifeq ($(COVERAGE),NO)
 	clang++ -std=c++14 -g -o $@ -c $<
+else
+	g++ -std=c++11 -g -fprofile-arcs -ftest-coverage -o $@ -c $<
+endif
 
 ./Obj/BroadcastStream.o: ../../Source/Stream/BroadcastStream.cpp ../../Source/Stream/BroadcastStream.h ../../Source/Stream/Interfaces.h ../../Source/Stream/../Basic.h ../../Source/Stream/../String.h ../../Source/Stream/../Collections/List.h ../../Source/Stream/../Collections/Interfaces.h ../../Source/Stream/../Collections/../Pointer.h ../../Source/Stream/../Collections/Pair.h ../../Source/Stream/../Collections/Dictionary.h
+ifeq ($(COVERAGE),NO)
 	clang++ -std=c++14 -g -o $@ -c $<
+else
+	g++ -std=c++11 -g -fprofile-arcs -ftest-coverage -o $@ -c $<
+endif
 
 ./Obj/CacheStream.o: ../../Source/Stream/CacheStream.cpp ../../Source/Stream/CacheStream.h ../../Source/Stream/Interfaces.h ../../Source/Stream/../Basic.h ../../Source/Stream/../String.h ../../Source/Stream/../Collections/List.h ../../Source/Stream/../Collections/Interfaces.h ../../Source/Stream/../Collections/../Pointer.h ../../Source/Stream/../Collections/Pair.h ../../Source/Stream/../Collections/Dictionary.h
+ifeq ($(COVERAGE),NO)
 	clang++ -std=c++14 -g -o $@ -c $<
+else
+	g++ -std=c++11 -g -fprofile-arcs -ftest-coverage -o $@ -c $<
+endif
 
 ./Obj/CharFormat.o: ../../Source/Stream/CharFormat.cpp ../../Source/Stream/CharFormat.h ../../Source/Stream/Interfaces.h ../../Source/Stream/../Basic.h ../../Source/Stream/../String.h ../../Source/Stream/../Collections/List.h ../../Source/Stream/../Collections/Interfaces.h ../../Source/Stream/../Collections/../Pointer.h ../../Source/Stream/../Collections/Pair.h ../../Source/Stream/../Collections/Dictionary.h ../../Source/Stream/MemoryStream.h ../../Source/Stream/MemoryWrapperStream.h
+ifeq ($(COVERAGE),NO)
 	clang++ -std=c++14 -g -o $@ -c $<
+else
+	g++ -std=c++11 -g -fprofile-arcs -ftest-coverage -o $@ -c $<
+endif
 
 ./Obj/CompressionStream.o: ../../Source/Stream/CompressionStream.cpp ../../Source/Stream/CompressionStream.h ../../Source/Stream/Interfaces.h ../../Source/Stream/../Basic.h ../../Source/Stream/../String.h ../../Source/Stream/../Collections/List.h ../../Source/Stream/../Collections/Interfaces.h ../../Source/Stream/../Collections/../Pointer.h ../../Source/Stream/../Collections/Pair.h ../../Source/Stream/../Collections/Dictionary.h
+ifeq ($(COVERAGE),NO)
 	clang++ -std=c++14 -g -o $@ -c $<
+else
+	g++ -std=c++11 -g -fprofile-arcs -ftest-coverage -o $@ -c $<
+endif
 
 ./Obj/FileStream.o: ../../Source/Stream/FileStream.cpp ../../Source/Stream/FileStream.h ../../Source/Stream/Interfaces.h ../../Source/Stream/../Basic.h ../../Source/Stream/../String.h ../../Source/Stream/../Collections/List.h ../../Source/Stream/../Collections/Interfaces.h ../../Source/Stream/../Collections/../Pointer.h ../../Source/Stream/../Collections/Pair.h ../../Source/Stream/../Collections/Dictionary.h
+ifeq ($(COVERAGE),NO)
 	clang++ -std=c++14 -g -o $@ -c $<
+else
+	g++ -std=c++11 -g -fprofile-arcs -ftest-coverage -o $@ -c $<
+endif
 
 ./Obj/MemoryStream.o: ../../Source/Stream/MemoryStream.cpp ../../Source/Stream/MemoryStream.h ../../Source/Stream/Interfaces.h ../../Source/Stream/../Basic.h ../../Source/Stream/../String.h ../../Source/Stream/../Collections/List.h ../../Source/Stream/../Collections/Interfaces.h ../../Source/Stream/../Collections/../Pointer.h ../../Source/Stream/../Collections/Pair.h ../../Source/Stream/../Collections/Dictionary.h
+ifeq ($(COVERAGE),NO)
 	clang++ -std=c++14 -g -o $@ -c $<
+else
+	g++ -std=c++11 -g -fprofile-arcs -ftest-coverage -o $@ -c $<
+endif
 
 ./Obj/MemoryWrapperStream.o: ../../Source/Stream/MemoryWrapperStream.cpp ../../Source/Stream/MemoryWrapperStream.h ../../Source/Stream/Interfaces.h ../../Source/Stream/../Basic.h ../../Source/Stream/../String.h ../../Source/Stream/../Collections/List.h ../../Source/Stream/../Collections/Interfaces.h ../../Source/Stream/../Collections/../Pointer.h ../../Source/Stream/../Collections/Pair.h ../../Source/Stream/../Collections/Dictionary.h
+ifeq ($(COVERAGE),NO)
 	clang++ -std=c++14 -g -o $@ -c $<
+else
+	g++ -std=c++11 -g -fprofile-arcs -ftest-coverage -o $@ -c $<
+endif
 
 ./Obj/RecorderStream.o: ../../Source/Stream/RecorderStream.cpp ../../Source/Stream/RecorderStream.h ../../Source/Stream/Interfaces.h ../../Source/Stream/../Basic.h ../../Source/Stream/../String.h ../../Source/Stream/../Collections/List.h ../../Source/Stream/../Collections/Interfaces.h ../../Source/Stream/../Collections/../Pointer.h ../../Source/Stream/../Collections/Pair.h ../../Source/Stream/../Collections/Dictionary.h
+ifeq ($(COVERAGE),NO)
 	clang++ -std=c++14 -g -o $@ -c $<
+else
+	g++ -std=c++11 -g -fprofile-arcs -ftest-coverage -o $@ -c $<
+endif
 
 ./Obj/String.o: ../../Source/String.cpp ../../Source/String.h ../../Source/Basic.h
+ifeq ($(COVERAGE),NO)
 	clang++ -std=c++14 -g -o $@ -c $<
+else
+	g++ -std=c++11 -g -fprofile-arcs -ftest-coverage -o $@ -c $<
+endif
 
 ./Obj/Threading.o: ../../Source/Threading.cpp ../../Source/Threading.h ../../Source/Basic.h ../../Source/String.h ../../Source/Function.h ../../Source/Pointer.h ../../Source/Collections/List.h ../../Source/Collections/Interfaces.h ../../Source/Collections/Pair.h
+ifeq ($(COVERAGE),NO)
 	clang++ -std=c++14 -g -o $@ -c $<
+else
+	g++ -std=c++11 -g -fprofile-arcs -ftest-coverage -o $@ -c $<
+endif
 
 ./Obj/ThreadingLinux.o: ../../Source/ThreadingLinux.cpp ../../Source/Threading.h ../../Source/Basic.h ../../Source/String.h ../../Source/Function.h ../../Source/Pointer.h ../../Source/Collections/List.h ../../Source/Collections/Interfaces.h ../../Source/Collections/Pair.h ../../Source/Console.h
+ifeq ($(COVERAGE),NO)
 	clang++ -std=c++14 -g -o $@ -c $<
+else
+	g++ -std=c++11 -g -fprofile-arcs -ftest-coverage -o $@ -c $<
+endif
 
 ./Obj/UnitTest.o: ../../Source/UnitTest/UnitTest.cpp ../../Source/UnitTest/UnitTest.h ../../Source/UnitTest/../String.h ../../Source/UnitTest/../Basic.h ../../Source/UnitTest/../Console.h
+ifeq ($(COVERAGE),NO)
 	clang++ -std=c++14 -g -o $@ -c $<
+else
+	g++ -std=c++11 -g -fprofile-arcs -ftest-coverage -o $@ -c $<
+endif
 
 ./Obj/Parser.Calculator.o: ../Source/Parser.Calculator/Parser.Calculator.cpp ../Source/Parser.Calculator/Parser.Calculator.h ../Source/Parser.Calculator/../../../Source/Parsing/Parsing.h ../Source/Parser.Calculator/../../../Source/Parsing/ParsingState.h ../Source/Parser.Calculator/../../../Source/Parsing/ParsingTable.h ../Source/Parser.Calculator/../../../Source/Parsing/ParsingTree.h ../Source/Parser.Calculator/../../../Source/Parsing/../Regex/Regex.h ../Source/Parser.Calculator/../../../Source/Parsing/../Regex/../String.h ../Source/Parser.Calculator/../../../Source/Parsing/../Regex/../Basic.h ../Source/Parser.Calculator/../../../Source/Parsing/../Regex/../Pointer.h ../Source/Parser.Calculator/../../../Source/Parsing/../Regex/../Collections/List.h ../Source/Parser.Calculator/../../../Source/Parsing/../Regex/../Collections/Interfaces.h ../Source/Parser.Calculator/../../../Source/Parsing/../Regex/../Collections/Pair.h ../Source/Parser.Calculator/../../../Source/Parsing/../Regex/../Collections/Dictionary.h ../Source/Parser.Calculator/../../../Source/Parsing/../Stream/Accessor.h ../Source/Parser.Calculator/../../../Source/Parsing/../Stream/Interfaces.h ../Source/Parser.Calculator/../../../Source/Parsing/../Stream/CompressionStream.h ../Source/Parser.Calculator/../../../Source/Parsing/../Stream/CharFormat.h ../Source/Parser.Calculator/../../../Source/Parsing/../Stream/MemoryStream.h ../Source/Parser.Calculator/../../../Source/Parsing/../Stream/MemoryWrapperStream.h ../Source/Parser.Calculator/../../../Source/Parsing/../Collections/OperationCopyFrom.h ../Source/Parser.Calculator/../../../Source/Parsing/../Reflection/GuiTypeDescriptor.h ../Source/Parser.Calculator/../../../Source/Parsing/../Reflection/../Locale.h ../Source/Parser.Calculator/../../../Source/Parsing/../Reflection/../Exception.h ../Source/Parser.Calculator/../../../Source/Parsing/../Reflection/../Function.h ../Source/Parser.Calculator/../../../Source/Parsing/../Reflection/../Event.h ../Source/Parser.Calculator/../../../Source/Parsing/../Reflection/../Collections/Operation.h ../Source/Parser.Calculator/../../../Source/Parsing/../Regex/../Collections/OperationEnumerable.h ../Source/Parser.Calculator/../../../Source/Parsing/../Regex/../Collections/OperationSelect.h ../Source/Parser.Calculator/../../../Source/Parsing/../Regex/../Collections/OperationWhere.h ../Source/Parser.Calculator/../../../Source/Parsing/../Regex/../Collections/OperationConcat.h ../Source/Parser.Calculator/../../../Source/Parsing/../Regex/../Collections/OperationSequence.h ../Source/Parser.Calculator/../../../Source/Parsing/../Regex/../Collections/OperationSet.h ../Source/Parser.Calculator/../../../Source/Parsing/../Regex/../Collections/OperationPair.h ../Source/Parser.Calculator/../../../Source/Parsing/../Regex/../Collections/OperationString.h ../Source/Parser.Calculator/../../../Source/Parsing/../Regex/../Collections/OperationForEach.h ../Source/Parser.Calculator/../../../Source/Parsing/../Reflection/GuiTypeDescriptorMacros.h ../Source/Parser.Calculator/../../../Source/Parsing/../Reflection/GuiTypeDescriptorBuilder.h ../Source/Parser.Calculator/../../../Source/Parsing/../Reflection/GuiTypeDescriptorPredefined.h ../Source/Parser.Calculator/../../../Source/Parsing/../Reflection/GuiTypeDescriptorBuilder_Struct.h ../Source/Parser.Calculator/../../../Source/Parsing/../Reflection/GuiTypeDescriptorBuilder_Function.h ../Source/Parser.Calculator/../../../Source/Parsing/../Reflection/GuiTypeDescriptorBuilder_Container.h ../Source/Parser.Calculator/../../../Source/Parsing/ParsingDefinitions.h ../Source/Parser.Calculator/../../../Source/Parsing/ParsingAutomaton.h ../Source/Parser.Calculator/../../../Source/Parsing/ParsingAnalyzer.h
+ifeq ($(COVERAGE),NO)
 	clang++ -std=c++14 -g -o $@ -c $<
+else
+	g++ -std=c++11 -g -fprofile-arcs -ftest-coverage -o $@ -c $<
+endif
 
 ./Obj/TestBasic.o: ../Source/TestBasic.cpp ../Source/../../Source/UnitTest/UnitTest.h ../Source/../../Source/UnitTest/../String.h ../Source/../../Source/UnitTest/../Basic.h ../Source/../../Source/Pointer.h ../Source/../../Source/Tuple.h ../Source/../../Source/Lazy.h ../Source/../../Source/UnitTest/../Function.h
+ifeq ($(COVERAGE),NO)
 	clang++ -std=c++14 -g -o $@ -c $<
+else
+	g++ -std=c++11 -g -fprofile-arcs -ftest-coverage -o $@ -c $<
+endif
 
 ./Obj/TestFileSystem.o: ../Source/TestFileSystem.cpp ../Source/../../Source/UnitTest/UnitTest.h ../Source/../../Source/UnitTest/../String.h ../Source/../../Source/UnitTest/../Basic.h ../Source/../../Source/FileSystem.h ../Source/../../Source/UnitTest/../Collections/List.h ../Source/../../Source/UnitTest/../Collections/Interfaces.h ../Source/../../Source/UnitTest/../Collections/../Pointer.h ../Source/../../Source/UnitTest/../Collections/Pair.h ../Source/../../Source/UnitTest/../Stream/CharFormat.h ../Source/../../Source/UnitTest/../Stream/Interfaces.h ../Source/../../Source/UnitTest/../Stream/../Collections/Dictionary.h ../Source/../../Source/UnitTest/../Stream/MemoryStream.h ../Source/../../Source/UnitTest/../Stream/MemoryWrapperStream.h ../Source/../../Source/Locale.h ../Source/../../Source/Exception.h
+ifeq ($(COVERAGE),NO)
 	clang++ -std=c++14 -g -o $@ -c $<
+else
+	g++ -std=c++11 -g -fprofile-arcs -ftest-coverage -o $@ -c $<
+endif
 
 ./Obj/TestFunction.o: ../Source/TestFunction.cpp ../Source/../../Source/UnitTest/UnitTest.h ../Source/../../Source/UnitTest/../String.h ../Source/../../Source/UnitTest/../Basic.h ../Source/../../Source/Function.h ../Source/../../Source/UnitTest/../Pointer.h ../Source/../../Source/Event.h ../Source/../../Source/UnitTest/../Collections/List.h ../Source/../../Source/UnitTest/../Collections/Interfaces.h ../Source/../../Source/UnitTest/../Collections/Pair.h
+ifeq ($(COVERAGE),NO)
 	clang++ -std=c++14 -g -o $@ -c $<
+else
+	g++ -std=c++11 -g -fprofile-arcs -ftest-coverage -o $@ -c $<
+endif
 
 ./Obj/TestGlobalStorage.o: ../Source/TestGlobalStorage.cpp ../Source/../../Source/UnitTest/UnitTest.h ../Source/../../Source/UnitTest/../String.h ../Source/../../Source/UnitTest/../Basic.h ../Source/../../Source/GlobalStorage.h ../Source/../../Source/UnitTest/../Pointer.h
+ifeq ($(COVERAGE),NO)
 	clang++ -std=c++14 -g -o $@ -c $<
+else
+	g++ -std=c++11 -g -fprofile-arcs -ftest-coverage -o $@ -c $<
+endif
 
 ./Obj/TestList.o: ../Source/TestList.cpp ../Source/../../Source/UnitTest/UnitTest.h ../Source/../../Source/UnitTest/../String.h ../Source/../../Source/UnitTest/../Basic.h ../Source/../../Source/Collections/List.h ../Source/../../Source/Collections/Interfaces.h ../Source/../../Source/Collections/../Pointer.h ../Source/../../Source/Collections/Pair.h ../Source/../../Source/Collections/Dictionary.h ../Source/../../Source/Collections/Operation.h ../Source/../../Source/Collections/OperationCopyFrom.h ../Source/../../Source/Collections/OperationEnumerable.h ../Source/../../Source/Collections/OperationSelect.h ../Source/../../Source/Collections/../Function.h ../Source/../../Source/Collections/OperationWhere.h ../Source/../../Source/Collections/OperationConcat.h ../Source/../../Source/Collections/OperationSequence.h ../Source/../../Source/Collections/OperationSet.h ../Source/../../Source/Collections/OperationPair.h ../Source/../../Source/Collections/OperationString.h ../Source/../../Source/Collections/OperationForEach.h
+ifeq ($(COVERAGE),NO)
 	clang++ -std=c++14 -g -o $@ -c $<
+else
+	g++ -std=c++11 -g -fprofile-arcs -ftest-coverage -o $@ -c $<
+endif
 
 ./Obj/TestLocaleString.o: ../Source/TestLocaleString.cpp ../Source/../../Source/UnitTest/UnitTest.h ../Source/../../Source/UnitTest/../String.h ../Source/../../Source/UnitTest/../Basic.h ../Source/../../Source/Locale.h ../Source/../../Source/UnitTest/../Collections/List.h ../Source/../../Source/UnitTest/../Collections/Interfaces.h ../Source/../../Source/UnitTest/../Collections/../Pointer.h ../Source/../../Source/UnitTest/../Collections/Pair.h ../Source/../../Source/Stream/Accessor.h ../Source/../../Source/Stream/Interfaces.h ../Source/../../Source/Stream/../Collections/Dictionary.h ../Source/../../Source/Stream/CharFormat.h ../Source/../../Source/Stream/MemoryStream.h ../Source/../../Source/Stream/MemoryWrapperStream.h ../Source/../../Source/Stream/FileStream.h ../Source/../../Source/Collections/OperationForEach.h
+ifeq ($(COVERAGE),NO)
 	clang++ -std=c++14 -g -o $@ -c $<
+else
+	g++ -std=c++11 -g -fprofile-arcs -ftest-coverage -o $@ -c $<
+endif
 
 ./Obj/TestParsing.o: ../Source/TestParsing.cpp ../Source/../../Source/Exception.h ../Source/../../Source/String.h ../Source/../../Source/Basic.h ../Source/../../Source/UnitTest/UnitTest.h ../Source/../../Source/Stream/FileStream.h ../Source/../../Source/Stream/Interfaces.h ../Source/../../Source/Stream/../Collections/List.h ../Source/../../Source/Stream/../Collections/Interfaces.h ../Source/../../Source/Stream/../Collections/../Pointer.h ../Source/../../Source/Stream/../Collections/Pair.h ../Source/../../Source/Stream/../Collections/Dictionary.h ../Source/../../Source/Stream/MemoryStream.h ../Source/../../Source/Stream/Accessor.h ../Source/../../Source/Stream/CharFormat.h ../Source/../../Source/Stream/MemoryWrapperStream.h ../Source/../../Source/Collections/Operation.h ../Source/../../Source/Stream/../Collections/OperationCopyFrom.h ../Source/../../Source/Stream/../Collections/OperationEnumerable.h ../Source/../../Source/Stream/../Collections/OperationSelect.h ../Source/../../Source/Stream/../Collections/../Function.h ../Source/../../Source/Stream/../Collections/OperationWhere.h ../Source/../../Source/Stream/../Collections/OperationConcat.h ../Source/../../Source/Stream/../Collections/OperationSequence.h ../Source/../../Source/Stream/../Collections/OperationSet.h ../Source/../../Source/Stream/../Collections/OperationPair.h ../Source/../../Source/Stream/../Collections/OperationString.h ../Source/../../Source/Stream/../Collections/OperationForEach.h ../Source/../../Source/Parsing/ParsingAutomaton.h ../Source/../../Source/Parsing/ParsingAnalyzer.h ../Source/../../Source/Parsing/ParsingDefinitions.h ../Source/../../Source/Parsing/ParsingTree.h ../Source/../../Source/Parsing/../Regex/Regex.h ../Source/../../Source/Parsing/../Stream/CompressionStream.h ../Source/../../Source/Parsing/../Reflection/GuiTypeDescriptor.h ../Source/../../Source/Parsing/../Reflection/../Locale.h ../Source/../../Source/Parsing/../Reflection/../Event.h ../Source/../../Source/Parsing/ParsingTable.h ../Source/../../Source/Parsing/Parsing.h ../Source/../../Source/Parsing/ParsingState.h ../Source/../../Source/Parsing/../Reflection/GuiTypeDescriptorMacros.h ../Source/../../Source/Parsing/../Reflection/GuiTypeDescriptorBuilder.h ../Source/../../Source/Parsing/../Reflection/GuiTypeDescriptorPredefined.h ../Source/../../Source/Parsing/../Reflection/GuiTypeDescriptorBuilder_Struct.h ../Source/../../Source/Parsing/../Reflection/GuiTypeDescriptorBuilder_Function.h ../Source/../../Source/Parsing/../Reflection/GuiTypeDescriptorBuilder_Container.h ../Source/../../Source/Parsing/Xml/ParsingXml.h ../Source/../../Source/Parsing/Xml/ParsingXml_Parser.h ../Source/../../Source/Parsing/Json/ParsingJson.h ../Source/../../Source/Parsing/Json/ParsingJson_Parser.h ../Source/Parser.Calculator/Parser.Calculator.h
+ifeq ($(COVERAGE),NO)
 	clang++ -std=c++14 -g -o $@ -c $<
+else
+	g++ -std=c++11 -g -fprofile-arcs -ftest-coverage -o $@ -c $<
+endif
 
 ./Obj/TestReflection.o: ../Source/TestReflection.cpp ../Source/../../Source/UnitTest/UnitTest.h ../Source/../../Source/UnitTest/../String.h ../Source/../../Source/UnitTest/../Basic.h ../Source/../../Source/Reflection/GuiTypeDescriptorMacros.h ../Source/../../Source/Reflection/GuiTypeDescriptorBuilder.h ../Source/../../Source/Reflection/GuiTypeDescriptorPredefined.h ../Source/../../Source/Reflection/GuiTypeDescriptor.h ../Source/../../Source/Reflection/../Pointer.h ../Source/../../Source/Reflection/../Locale.h ../Source/../../Source/UnitTest/../Collections/List.h ../Source/../../Source/UnitTest/../Collections/Interfaces.h ../Source/../../Source/UnitTest/../Collections/Pair.h ../Source/../../Source/Reflection/../Exception.h ../Source/../../Source/Reflection/../Function.h ../Source/../../Source/Reflection/../Event.h ../Source/../../Source/Reflection/../Collections/Dictionary.h ../Source/../../Source/Reflection/../Collections/Operation.h ../Source/../../Source/UnitTest/../Collections/OperationCopyFrom.h ../Source/../../Source/UnitTest/../Collections/OperationEnumerable.h ../Source/../../Source/UnitTest/../Collections/OperationSelect.h ../Source/../../Source/UnitTest/../Collections/OperationWhere.h ../Source/../../Source/UnitTest/../Collections/OperationConcat.h ../Source/../../Source/UnitTest/../Collections/OperationSequence.h ../Source/../../Source/UnitTest/../Collections/OperationSet.h ../Source/../../Source/UnitTest/../Collections/OperationPair.h ../Source/../../Source/UnitTest/../Collections/OperationString.h ../Source/../../Source/UnitTest/../Collections/OperationForEach.h ../Source/../../Source/Reflection/../Stream/Accessor.h ../Source/../../Source/Reflection/../Stream/Interfaces.h ../Source/../../Source/Reflection/GuiTypeDescriptorBuilder_Struct.h ../Source/../../Source/Reflection/GuiTypeDescriptorBuilder_Function.h ../Source/../../Source/Reflection/GuiTypeDescriptorBuilder_Container.h ../Source/../../Source/Reflection/GuiTypeDescriptorInterfaceProxies.h ../Source/../../Source/Stream/FileStream.h ../Source/../../Source/Stream/CharFormat.h ../Source/../../Source/Reflection/../Stream/MemoryStream.h ../Source/../../Source/Reflection/../Stream/MemoryWrapperStream.h ../Source/../../Source/Parsing/Xml/ParsingXml.h ../Source/../../Source/Parsing/Xml/ParsingXml_Parser.h ../Source/../../Source/Parsing/Xml/../Parsing.h ../Source/../../Source/Parsing/Xml/../ParsingState.h ../Source/../../Source/Parsing/Xml/../ParsingTable.h ../Source/../../Source/Parsing/Xml/../ParsingTree.h ../Source/../../Source/Parsing/Xml/../../Regex/Regex.h ../Source/../../Source/Parsing/Xml/../../Stream/CompressionStream.h ../Source/../../Source/Parsing/Xml/../ParsingDefinitions.h ../Source/../../Source/Parsing/Xml/../ParsingAutomaton.h ../Source/../../Source/Parsing/Xml/../ParsingAnalyzer.h ../Source/../../Source/Parsing/Json/ParsingJson.h ../Source/../../Source/Parsing/Json/ParsingJson_Parser.h
+ifeq ($(COVERAGE),NO)
 	clang++ -std=c++14 -g -o $@ -c $<
+else
+	g++ -std=c++11 -g -fprofile-arcs -ftest-coverage -o $@ -c $<
+endif
 
 ./Obj/TestRegex.o: ../Source/TestRegex.cpp ../Source/../../Source/UnitTest/UnitTest.h ../Source/../../Source/UnitTest/../String.h ../Source/../../Source/UnitTest/../Basic.h ../Source/../../Source/Regex/RegexExpression.h ../Source/../../Source/Regex/RegexData.h ../Source/../../Source/Regex/../Pointer.h ../Source/../../Source/Regex/../Exception.h ../Source/../../Source/Regex/../Collections/List.h ../Source/../../Source/Regex/../Collections/Interfaces.h ../Source/../../Source/Regex/../Collections/Pair.h ../Source/../../Source/Regex/../Collections/Dictionary.h ../Source/../../Source/Regex/RegexAutomaton.h ../Source/../../Source/Regex/RegexWriter.h ../Source/../../Source/Regex/RegexPure.h ../Source/../../Source/Regex/RegexRich.h ../Source/../../Source/Regex/Regex.h ../Source/../../Source/Stream/FileStream.h ../Source/../../Source/Stream/Interfaces.h ../Source/../../Source/Stream/CharFormat.h ../Source/../../Source/Stream/MemoryStream.h ../Source/../../Source/Stream/MemoryWrapperStream.h ../Source/../../Source/Stream/Accessor.h ../Source/../../Source/Collections/OperationCopyFrom.h
+ifeq ($(COVERAGE),NO)
 	clang++ -std=c++14 -g -o $@ -c $<
+else
+	g++ -std=c++11 -g -fprofile-arcs -ftest-coverage -o $@ -c $<
+endif
 
 ./Obj/TestStream.o: ../Source/TestStream.cpp ../Source/../../Source/UnitTest/UnitTest.h ../Source/../../Source/UnitTest/../String.h ../Source/../../Source/UnitTest/../Basic.h ../Source/../../Source/Console.h ../Source/../../Source/Stream/Interfaces.h ../Source/../../Source/Stream/../Collections/List.h ../Source/../../Source/Stream/../Collections/Interfaces.h ../Source/../../Source/Stream/../Collections/../Pointer.h ../Source/../../Source/Stream/../Collections/Pair.h ../Source/../../Source/Stream/../Collections/Dictionary.h ../Source/../../Source/Stream/MemoryWrapperStream.h ../Source/../../Source/Stream/MemoryStream.h ../Source/../../Source/Stream/FileStream.h ../Source/../../Source/Stream/RecorderStream.h ../Source/../../Source/Stream/BroadcastStream.h ../Source/../../Source/Stream/CacheStream.h ../Source/../../Source/Stream/Accessor.h ../Source/../../Source/Stream/CharFormat.h ../Source/../../Source/Stream/CompressionStream.h
+ifeq ($(COVERAGE),NO)
 	clang++ -std=c++14 -g -o $@ -c $<
+else
+	g++ -std=c++11 -g -fprofile-arcs -ftest-coverage -o $@ -c $<
+endif
 
 ./Obj/TestString.o: ../Source/TestString.cpp ../Source/../../Source/UnitTest/UnitTest.h ../Source/../../Source/UnitTest/../String.h ../Source/../../Source/UnitTest/../Basic.h
+ifeq ($(COVERAGE),NO)
 	clang++ -std=c++14 -g -o $@ -c $<
+else
+	g++ -std=c++11 -g -fprofile-arcs -ftest-coverage -o $@ -c $<
+endif
 
 ./Obj/TestThread.o: ../Source/TestThread.cpp ../Source/../../Source/UnitTest/UnitTest.h ../Source/../../Source/UnitTest/../String.h ../Source/../../Source/UnitTest/../Basic.h ../Source/../../Source/Threading.h ../Source/../../Source/UnitTest/../Function.h ../Source/../../Source/UnitTest/../Pointer.h ../Source/../../Source/Collections/List.h ../Source/../../Source/Collections/Interfaces.h ../Source/../../Source/Collections/Pair.h ../Source/../../Source/Collections/OperationForEach.h
+ifeq ($(COVERAGE),NO)
 	clang++ -std=c++14 -g -o $@ -c $<
+else
+	g++ -std=c++11 -g -fprofile-arcs -ftest-coverage -o $@ -c $<
+endif
 
 ./Obj/Main.o: Main.cpp ../../Source/String.h ../../Source/Basic.h ../../Source/UnitTest/UnitTest.h
+ifeq ($(COVERAGE),NO)
 	clang++ -std=c++14 -g -o $@ -c $<
+else
+	g++ -std=c++11 -g -fprofile-arcs -ftest-coverage -o $@ -c $<
+endif
