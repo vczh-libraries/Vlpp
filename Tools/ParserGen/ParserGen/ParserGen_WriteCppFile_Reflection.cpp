@@ -146,6 +146,8 @@ void WriteTypeReflectionImplementation(ParsingSymbolManager* manager, const WStr
 				writer.WriteLine(L")");
 			}
 			break;
+		default:
+			break;
 		}
 	}
 

@@ -1,0 +1,7 @@
+<#
+CPP_TARGET=./Bin/ParserGen
+CPP_VCXPROJ=./ParserGen/ParserGen.vcxproj
+CPP_REMOVES=("ParserGen/Test*.cpp")
+TARGETS=("${CPP_TARGET}")
+#>
+<#@ include "${VCPROOT}/vl/vmake-cpp" #>

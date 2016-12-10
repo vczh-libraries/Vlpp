@@ -1,41 +1,157 @@
-# This file is generated from "./makefile.debug.makegen" by Vczh Makefile Generator
 
-# Config
-.PHONY : all clean
+.PHONY: all clean pre-build
+.DEFAULT_GOAL := all
+COVERAGE?=NO
 
-# Targets
-bin_TARGET = ././Bin/
-obj_TARGET = ././Obj/
+pre-build:
+	if ! [ -d ./Bin ]; then mkdir ./Bin; fi
+	if ! [ -d ./Obj ]; then mkdir ./Obj; fi
+	if ! [ -d ./Coverage ]; then mkdir ./Coverage; fi
 
-# Folders
-PARSERGEN_DIR = ././ParserGen/
-PARSERGEN_cpp = $(wildcard $(PARSERGEN_DIR)ParserGen*.cpp) $(PARSERGEN_DIR)Main.cpp
-PARSERGEN_h = $(PARSERGEN_DIR)ParserGen.h
-VLPP_DIR = ./../../Release/
-VLPP_cpp = $(VLPP_DIR)Vlpp.cpp
-VLPP_h = $(VLPP_DIR)Vlpp.h
-
-# Output Categories
-PARSERGEN_o = $(patsubst $(PARSERGEN_DIR)%.cpp, $(obj_TARGET)%.o, $(PARSERGEN_cpp))
-VLPP_o = $(patsubst $(VLPP_DIR)%.cpp, $(obj_TARGET)%.o, $(VLPP_cpp))
-
-# All
-ALL_o = $(PARSERGEN_o) $(VLPP_o)
-all : $(ALL_o)
-	g++ -std=c++11 -g -pthread -o $(bin_TARGET)ParserGen $(ALL_o)
-
-# Dependencies
-# $(PARSERGEN_h) : $(VLPP_h)
-# $(PARSERGEN_cpp) : $(PARSERGEN_h)
-# $(VLPP_cpp) : $(VLPP_h)
-
-# Rules
-$(PARSERGEN_o) : $(obj_TARGET)%.o : $(PARSERGEN_DIR)%.cpp $(PARSERGEN_h) $(VLPP_h)
-	g++ -std=c++11 -g -o $@ -c $<
-$(VLPP_o) : $(obj_TARGET)%.o : $(VLPP_DIR)%.cpp $(VLPP_h)
-	g++ -std=c++11 -g -o $@ -c $<
-
-# Clean
 clean:
-	rm $(bin_TARGET)* -rf
-	rm $(obj_TARGET)* -rf
+	if [ -d ./Bin ]; then rm -r ./Bin; fi
+	if [ -d ./Obj ]; then rm -r ./Obj; fi
+	if [ -d ./Coverage ]; then rm -r ./Coverage; fi
+
+all:pre-build ./Bin/ParserGen
+
+./Bin/ParserGen:./Obj/Vlpp.o ./Obj/Main.o ./Obj/ParserGen.o ./Obj/ParserGen_Codegen.o ./Obj/ParserGen_CreateTable.o ./Obj/ParserGen_PrintType.o ./Obj/ParserGen_WriteCppFile.o ./Obj/ParserGen_WriteCppFile_ParserText.o ./Obj/ParserGen_WriteCppFile_Reflection.o ./Obj/ParserGen_WriteCppFile_TableGen.o ./Obj/ParserGen_WriteCppFile_TreeBuilder.o ./Obj/ParserGen_WriteCppFile_Unescaping.o ./Obj/ParserGen_WriteCppFile_Visitor.o ./Obj/ParserGen_WriteHeaderFile.o ./Obj/ParserGen_WriteHeaderFile_ParserFunctions.o ./Obj/ParserGen_WriteHeaderFile_Reflection.o ./Obj/ParserGen_WriteHeaderFile_TableGen.o ./Obj/ParserGen_WriteHeaderFile_Tokens.o ./Obj/ParserGen_WriteHeaderFile_Types.o
+ifeq ($(COVERAGE),NO)
+	clang++ -std=c++14 -pthread -g -o $@ $^
+else
+	g++ -std=c++11 -g -fprofile-arcs -pthread -o $@ $^
+endif
+
+
+./Obj/Vlpp.o: ../../Release/Vlpp.cpp ../../Release/Vlpp.h
+ifeq ($(COVERAGE),NO)
+	clang++ -std=c++14 -g -o $@ -c $<
+else
+	g++ -std=c++11 -g -fprofile-arcs -ftest-coverage -o $@ -c $<
+endif
+
+./Obj/Main.o: ParserGen/Main.cpp ParserGen/ParserGen.h ParserGen/../../../Release/Vlpp.h
+ifeq ($(COVERAGE),NO)
+	clang++ -std=c++14 -g -o $@ -c $<
+else
+	g++ -std=c++11 -g -fprofile-arcs -ftest-coverage -o $@ -c $<
+endif
+
+./Obj/ParserGen.o: ParserGen/ParserGen.cpp ParserGen/ParserGen.h ParserGen/../../../Release/Vlpp.h
+ifeq ($(COVERAGE),NO)
+	clang++ -std=c++14 -g -o $@ -c $<
+else
+	g++ -std=c++11 -g -fprofile-arcs -ftest-coverage -o $@ -c $<
+endif
+
+./Obj/ParserGen_Codegen.o: ParserGen/ParserGen_Codegen.cpp ParserGen/ParserGen.h ParserGen/../../../Release/Vlpp.h
+ifeq ($(COVERAGE),NO)
+	clang++ -std=c++14 -g -o $@ -c $<
+else
+	g++ -std=c++11 -g -fprofile-arcs -ftest-coverage -o $@ -c $<
+endif
+
+./Obj/ParserGen_CreateTable.o: ParserGen/ParserGen_CreateTable.cpp ParserGen/ParserGen.h ParserGen/../../../Release/Vlpp.h
+ifeq ($(COVERAGE),NO)
+	clang++ -std=c++14 -g -o $@ -c $<
+else
+	g++ -std=c++11 -g -fprofile-arcs -ftest-coverage -o $@ -c $<
+endif
+
+./Obj/ParserGen_PrintType.o: ParserGen/ParserGen_PrintType.cpp ParserGen/ParserGen.h ParserGen/../../../Release/Vlpp.h
+ifeq ($(COVERAGE),NO)
+	clang++ -std=c++14 -g -o $@ -c $<
+else
+	g++ -std=c++11 -g -fprofile-arcs -ftest-coverage -o $@ -c $<
+endif
+
+./Obj/ParserGen_WriteCppFile.o: ParserGen/ParserGen_WriteCppFile.cpp ParserGen/ParserGen.h ParserGen/../../../Release/Vlpp.h
+ifeq ($(COVERAGE),NO)
+	clang++ -std=c++14 -g -o $@ -c $<
+else
+	g++ -std=c++11 -g -fprofile-arcs -ftest-coverage -o $@ -c $<
+endif
+
+./Obj/ParserGen_WriteCppFile_ParserText.o: ParserGen/ParserGen_WriteCppFile_ParserText.cpp ParserGen/ParserGen.h ParserGen/../../../Release/Vlpp.h
+ifeq ($(COVERAGE),NO)
+	clang++ -std=c++14 -g -o $@ -c $<
+else
+	g++ -std=c++11 -g -fprofile-arcs -ftest-coverage -o $@ -c $<
+endif
+
+./Obj/ParserGen_WriteCppFile_Reflection.o: ParserGen/ParserGen_WriteCppFile_Reflection.cpp ParserGen/ParserGen.h ParserGen/../../../Release/Vlpp.h
+ifeq ($(COVERAGE),NO)
+	clang++ -std=c++14 -g -o $@ -c $<
+else
+	g++ -std=c++11 -g -fprofile-arcs -ftest-coverage -o $@ -c $<
+endif
+
+./Obj/ParserGen_WriteCppFile_TableGen.o: ParserGen/ParserGen_WriteCppFile_TableGen.cpp ParserGen/ParserGen.h ParserGen/../../../Release/Vlpp.h
+ifeq ($(COVERAGE),NO)
+	clang++ -std=c++14 -g -o $@ -c $<
+else
+	g++ -std=c++11 -g -fprofile-arcs -ftest-coverage -o $@ -c $<
+endif
+
+./Obj/ParserGen_WriteCppFile_TreeBuilder.o: ParserGen/ParserGen_WriteCppFile_TreeBuilder.cpp ParserGen/ParserGen.h ParserGen/../../../Release/Vlpp.h
+ifeq ($(COVERAGE),NO)
+	clang++ -std=c++14 -g -o $@ -c $<
+else
+	g++ -std=c++11 -g -fprofile-arcs -ftest-coverage -o $@ -c $<
+endif
+
+./Obj/ParserGen_WriteCppFile_Unescaping.o: ParserGen/ParserGen_WriteCppFile_Unescaping.cpp ParserGen/ParserGen.h ParserGen/../../../Release/Vlpp.h
+ifeq ($(COVERAGE),NO)
+	clang++ -std=c++14 -g -o $@ -c $<
+else
+	g++ -std=c++11 -g -fprofile-arcs -ftest-coverage -o $@ -c $<
+endif
+
+./Obj/ParserGen_WriteCppFile_Visitor.o: ParserGen/ParserGen_WriteCppFile_Visitor.cpp ParserGen/ParserGen.h ParserGen/../../../Release/Vlpp.h
+ifeq ($(COVERAGE),NO)
+	clang++ -std=c++14 -g -o $@ -c $<
+else
+	g++ -std=c++11 -g -fprofile-arcs -ftest-coverage -o $@ -c $<
+endif
+
+./Obj/ParserGen_WriteHeaderFile.o: ParserGen/ParserGen_WriteHeaderFile.cpp ParserGen/ParserGen.h ParserGen/../../../Release/Vlpp.h
+ifeq ($(COVERAGE),NO)
+	clang++ -std=c++14 -g -o $@ -c $<
+else
+	g++ -std=c++11 -g -fprofile-arcs -ftest-coverage -o $@ -c $<
+endif
+
+./Obj/ParserGen_WriteHeaderFile_ParserFunctions.o: ParserGen/ParserGen_WriteHeaderFile_ParserFunctions.cpp ParserGen/ParserGen.h ParserGen/../../../Release/Vlpp.h
+ifeq ($(COVERAGE),NO)
+	clang++ -std=c++14 -g -o $@ -c $<
+else
+	g++ -std=c++11 -g -fprofile-arcs -ftest-coverage -o $@ -c $<
+endif
+
+./Obj/ParserGen_WriteHeaderFile_Reflection.o: ParserGen/ParserGen_WriteHeaderFile_Reflection.cpp ParserGen/ParserGen.h ParserGen/../../../Release/Vlpp.h
+ifeq ($(COVERAGE),NO)
+	clang++ -std=c++14 -g -o $@ -c $<
+else
+	g++ -std=c++11 -g -fprofile-arcs -ftest-coverage -o $@ -c $<
+endif
+
+./Obj/ParserGen_WriteHeaderFile_TableGen.o: ParserGen/ParserGen_WriteHeaderFile_TableGen.cpp ParserGen/ParserGen.h ParserGen/../../../Release/Vlpp.h
+ifeq ($(COVERAGE),NO)
+	clang++ -std=c++14 -g -o $@ -c $<
+else
+	g++ -std=c++11 -g -fprofile-arcs -ftest-coverage -o $@ -c $<
+endif
+
+./Obj/ParserGen_WriteHeaderFile_Tokens.o: ParserGen/ParserGen_WriteHeaderFile_Tokens.cpp ParserGen/ParserGen.h ParserGen/../../../Release/Vlpp.h
+ifeq ($(COVERAGE),NO)
+	clang++ -std=c++14 -g -o $@ -c $<
+else
+	g++ -std=c++11 -g -fprofile-arcs -ftest-coverage -o $@ -c $<
+endif
+
+./Obj/ParserGen_WriteHeaderFile_Types.o: ParserGen/ParserGen_WriteHeaderFile_Types.cpp ParserGen/ParserGen.h ParserGen/../../../Release/Vlpp.h
+ifeq ($(COVERAGE),NO)
+	clang++ -std=c++14 -g -o $@ -c $<
+else
+	g++ -std=c++11 -g -fprofile-arcs -ftest-coverage -o $@ -c $<
+endif
