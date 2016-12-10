@@ -21,7 +21,7 @@ done
 printf -v CPP_FILES "%s\n" "${CPP_FILES[@]}"
 CPP_FILES=${CPP_FILES%?}
 
-O_FILES=echo "${CPP_FILES}" | sed -r -e 's%.+?/(.+?).cpp%\1.o%g'
+O_FILES=`echo "${CPP_FILES}" | sed -r -e 's%.+?/(.+?).cpp%\1.o%g'`
 O_FILES=`echo ${O_FILES}`
 #>
 
@@ -43,10 +43,11 @@ clean:
 
 all:<#= ${TARGETS[@]} #>
 
-<#= $CPP_TARGET #>:<#= ${LINES} #>
+<#= $CPP_TARGET #>:<#= ${O_FILES} #>
 	clang++ -std=c++14 -pthread -g -o $@ $^
 
-<#echo "${CPP_FILES}" | while read CPP_FILE; do#>
+<#echo "${CPP_FILES}" | while read -r CPP_FILE; do#>
+
 <#= `vutil_CppDependencies ${CPP_FILE}` #>
 	clang++ -std=c++14 -g -o $@ -c $<
 <#done#>
