@@ -6,4 +6,4 @@ CPP_ADDS=("Main.cpp")
 FOLDERS=("../Output")
 TARGETS=("${CPP_TARGET}")
 #>
-<#@ include "~/Desktop/vl/vmake-cpp" #>
+<#@ include "${VCPROOT}/vl/vmake-cpp" #>
