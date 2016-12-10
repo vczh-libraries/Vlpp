@@ -45,7 +45,7 @@ int main(int argc, char* argv[])
 		wchar_t currentDirectory[MAX_PATH]={0};
 		GetCurrentDirectory(MAX_PATH, currentDirectory);
 		baseDirectory=currentDirectory;
-#elif defined VCZHGCC
+#elif defined VCZH_GCC
 		char currentDirectory[1024]={0};
 		getcwd(currentDirectory, 1024);
 		baseDirectory=atow(currentDirectory);
