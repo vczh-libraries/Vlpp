@@ -486,6 +486,19 @@ namespace test
 			return dynamic_cast<AggParentBase*>(GetAggregationParent(0));
 		}
 	};
+
+	class HintTester :public Description<HintTester>
+	{
+	public:
+		LazyList<int> GetLazyList(LazyList<int> x) { return x; }
+		const Array<int>& GetArray(Array<int>& x) { return x; }
+		const List<int>& GetList(List<int>& x) { return x; }
+		const SortedList<int>& GetSortedList(SortedList<int>& x) { return x; }
+		const Dictionary<int, int>& GetDictionary(Dictionary<int, int>& x) { return x; }
+		Func<int(int)> GetFunc(Func<int(int)> x) { return x; }
+		Ptr<HintTester> GetHintTester(Ptr<HintTester> x) { return x; }
+		int GetInt(int x) { return x; }
+	};
 }
 using namespace test;
 
@@ -508,6 +521,7 @@ using namespace test;
 	F(test::AggParentRaw)\
 	F(test::AggParentBase)\
 	F(test::AggParentDerived)\
+	F(test::HintTester)\
 
 BEGIN_TYPE_INFO_NAMESPACE
 
@@ -627,6 +641,17 @@ BEGIN_TYPE_INFO_NAMESPACE
 
 	BEGIN_CLASS_MEMBER(test::AggParentDerived)
 	END_CLASS_MEMBER(test::AggParentDerived)
+
+	BEGIN_CLASS_MEMBER(test::HintTester)
+		CLASS_MEMBER_METHOD(GetLazyList, {L"x"})
+		CLASS_MEMBER_METHOD(GetArray, { L"x" })
+		CLASS_MEMBER_METHOD(GetList, { L"x" })
+		CLASS_MEMBER_METHOD(GetSortedList, { L"x" })
+		CLASS_MEMBER_METHOD(GetDictionary, { L"x" })
+		CLASS_MEMBER_METHOD(GetFunc, { L"x" })
+		CLASS_MEMBER_METHOD(GetHintTester, { L"x" })
+		CLASS_MEMBER_METHOD(GetInt, { L"x" })
+	END_CLASS_MEMBER(test::HintTester)
 
 	class TestTypeLoader : public Object, public ITypeLoader
 	{
@@ -1499,6 +1524,17 @@ namespace reflection_test
 			TEST_ASSERT(!CppExists(method));
 		}
 	}
+
+	template<typename T, typename TArgument, typename TReturn>
+	void TestHint(const WString& member, TypeInfoHint hint)
+	{
+
+	}
+
+	void TestHint()
+	{
+
+	}
 }
 using namespace reflection_test;
 
@@ -1533,4 +1569,5 @@ TEST_CASE_REFLECTION(TestDescriptableObjectAggregationCast)
 TEST_CASE_REFLECTION(TestDescriptableObjectIsAggregation)
 TEST_CASE_REFLECTION(TestTypeInfoFriendlyName)
 TEST_CASE_REFLECTION(TestCpp)
+TEST_CASE_REFLECTION(TestHint)
 
