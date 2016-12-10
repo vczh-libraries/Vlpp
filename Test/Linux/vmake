@@ -4,6 +4,7 @@ CPP_VCXPROJ=../UnitTest/UnitTest/UnitTest.vcxproj
 CPP_REMOVES=("../Source/TestLocale.cpp" "../UnitTest/UnitTest/Main.cpp")
 CPP_ADDS=("Main.cpp")
 FOLDERS=("../Output")
+TARGETS=("${CPP_TARGET}")
 #>
 
 <#
@@ -40,7 +41,7 @@ clean:
 	rm -r <#= $FOLDER #> fi 2>/dev/null
 <#done#>
 
-all:<#= $CPP_TARGET #>
+all:<#= ${TARGETS[@]} #>
 
 <#= $CPP_TARGET #>:<#= ${LINES} #>
 	clang++ -std=c++14 -pthread -g -o $@ $^
