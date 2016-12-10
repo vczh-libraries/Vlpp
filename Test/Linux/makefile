@@ -6,16 +6,18 @@ COVERAGE?=NO
 pre-build:
 	if ! [ -d ./Bin ]; then mkdir ./Bin; fi
 	if ! [ -d ./Obj ]; then mkdir ./Obj; fi
+	if ! [ -d ./Coverage ]; then mkdir ./Coverage; fi
 	if ! [ -d ../Output ]; then mkdir ../Output; fi
 
 clean:
 	if [ -d ./Bin ]; then rm -r ./Bin; fi
 	if [ -d ./Obj ]; then rm -r ./Obj; fi
+	if [ -d ./Coverage ]; then rm -r ./Coverage; fi
 	if [ -d ./../Output ]; then rm -r ../Output; fi
 
 all:pre-build ./Bin/UnitTest
 
-./Bin/UnitTest:./Obj/Basic.o ./Obj/Console.o ./Obj/Exception.o ./Obj/FileSystem.o ./Obj/GlobalStorage.o ./Obj/HttpUtility.o ./Obj/Locale.o ./Obj/ParsingJson.o ./Obj/ParsingJson_Parser.o ./Obj/Parsing.o ./Obj/ParsingAnalyzer.o ./Obj/ParsingAutomaton.o ./Obj/ParsingAutomaton_Closure.o ./Obj/ParsingAutomaton_EPDA.o ./Obj/ParsingAutomaton_GenerateTable.o ./Obj/ParsingAutomaton_JPDA.o ./Obj/ParsingAutomaton_MergeStates.o ./Obj/ParsingAutomaton_NPDA.o ./Obj/ParsingDefinitions.o ./Obj/ParsingDefinitions_CreateParserDefinition.o ./Obj/ParsingLogging.o ./Obj/ParsingState.o ./Obj/ParsingTable.o ./Obj/ParsingTree.o ./Obj/ParsingXml.o ./Obj/ParsingXml_Parser.o ./Obj/GuiTypeDescriptor.o ./Obj/GuiTypeDescriptorBuilder.o ./Obj/GuiTypeDescriptorPredefined.o ./Obj/Regex.o ./Obj/RegexAutomaton.o ./Obj/RegexData.o ./Obj/RegexExpression.o ./Obj/RegexParser.o ./Obj/RegexPure.o ./Obj/RegexRich.o ./Obj/RegexWriter.o ./Obj/Accessor.o ./Obj/BroadcastStream.o ./Obj/CacheStream.o ./Obj/CharFormat.o ./Obj/CompressionStream.o ./Obj/FileStream.o ./Obj/MemoryStream.o ./Obj/MemoryWrapperStream.o ./Obj/RecorderStream.o ./Obj/String.o ./Obj/Threading.o ./Obj/ThreadingLinux.o ./Obj/UnitTest.o ./Obj/Parser.Calculator.o ./Obj/TestBasic.o ./Obj/TestFileSystem.o ./Obj/TestFunction.o ./Obj/TestGlobalStorage.o ./Obj/TestList.o ./Obj/TestLocaleString.o ./Obj/TestParsing.o ./Obj/TestReflection.o ./Obj/TestRegex.o ./Obj/TestStream.o ./Obj/TestString.o ./Obj/TestThread.o Main.cpp
+./Bin/UnitTest:./Obj/Basic.o ./Obj/Console.o ./Obj/Exception.o ./Obj/FileSystem.o ./Obj/GlobalStorage.o ./Obj/HttpUtility.o ./Obj/Locale.o ./Obj/ParsingJson.o ./Obj/ParsingJson_Parser.o ./Obj/Parsing.o ./Obj/ParsingAnalyzer.o ./Obj/ParsingAutomaton.o ./Obj/ParsingAutomaton_Closure.o ./Obj/ParsingAutomaton_EPDA.o ./Obj/ParsingAutomaton_GenerateTable.o ./Obj/ParsingAutomaton_JPDA.o ./Obj/ParsingAutomaton_MergeStates.o ./Obj/ParsingAutomaton_NPDA.o ./Obj/ParsingDefinitions.o ./Obj/ParsingDefinitions_CreateParserDefinition.o ./Obj/ParsingLogging.o ./Obj/ParsingState.o ./Obj/ParsingTable.o ./Obj/ParsingTree.o ./Obj/ParsingXml.o ./Obj/ParsingXml_Parser.o ./Obj/GuiTypeDescriptor.o ./Obj/GuiTypeDescriptorBuilder.o ./Obj/GuiTypeDescriptorPredefined.o ./Obj/Regex.o ./Obj/RegexAutomaton.o ./Obj/RegexData.o ./Obj/RegexExpression.o ./Obj/RegexParser.o ./Obj/RegexPure.o ./Obj/RegexRich.o ./Obj/RegexWriter.o ./Obj/Accessor.o ./Obj/BroadcastStream.o ./Obj/CacheStream.o ./Obj/CharFormat.o ./Obj/CompressionStream.o ./Obj/FileStream.o ./Obj/MemoryStream.o ./Obj/MemoryWrapperStream.o ./Obj/RecorderStream.o ./Obj/String.o ./Obj/Threading.o ./Obj/ThreadingLinux.o ./Obj/UnitTest.o ./Obj/Parser.Calculator.o ./Obj/TestBasic.o ./Obj/TestFileSystem.o ./Obj/TestFunction.o ./Obj/TestGlobalStorage.o ./Obj/TestList.o ./Obj/TestLocaleString.o ./Obj/TestParsing.o ./Obj/TestReflection.o ./Obj/TestRegex.o ./Obj/TestStream.o ./Obj/TestString.o ./Obj/TestThread.o ./Obj/Main.o
 ifeq ($(COVERAGE),NO)
 	clang++ -std=c++14 -pthread -g -o $@ $^
 else
