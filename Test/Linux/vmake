@@ -1,0 +1,51 @@
+<#
+CPP_TARGET=./Bin/UnitTest
+CPP_VCXPROJ=../UnitTest/UnitTest/UnitTest.vcxproj
+CPP_REMOVES=("../Source/TestLocale.cpp" "../UnitTest/UnitTest/Main.cpp")
+CPP_ADDS=("Main.cpp")
+FOLDERS=("../Output")
+#>
+
+<#
+CPP_FILES=($(vutil_CppFromVcxproj $CPP_VCXPROJ))
+
+for CPP_REMOVE in "${CPP_REMOVES[@]}"; do
+    CPP_FILES=(${CPP_FILES[@]/$CPP_REMOVE})
+done
+
+for CPP_ADD in "${CPP_ADDS[@]}"; do
+    CPP_FILES=(${CPP_FILES[@]} $CPP_ADD)
+done
+
+printf -v CPP_FILES "%s\n" "${CPP_FILES[@]}"
+CPP_FILES=${CPP_FILES%?}
+
+O_FILES=echo "${CPP_FILES}" | sed -r -e 's%.+?/(.+?).cpp%\1.o%g'
+O_FILES=`echo ${O_FILES}`
+#>
+
+.PHONY all clean
+
+pre-build:
+	mkdir ./Bin 2>/dev/null
+	mkdir ./Obj 2>/dev/null
+<#for FOLDER in "${FOLDERS[@]}"; do#>
+	mkdir <#= $FOLDER #> 2>/dev/null
+<#done#>
+
+clean:
+	rm -r ./Bin 2>/dev/null
+	rm -r ./Obj 2>/dev/null
+<#for FOLDER in "${FOLDERS[@]}"; do#>
+	rm -r <#= $FOLDER #> fi 2>/dev/null
+<#done#>
+
+all:<#= $CPP_TARGET #>
+
+<#= $CPP_TARGET #>:<#= ${LINES} #>
+	clang++ -std=c++14 -pthread -g -o $@ $^
+
+<#echo "${CPP_FILES}" | while read CPP_FILE; do#>
+<#= `vutil_CppDependencies ${CPP_FILE}` #>
+	clang++ -std=c++14 -g -o $@ -c $<
+<#done#>
