@@ -497,7 +497,7 @@ namespace test
 		const Dictionary<int, int>& GetDictionary(Dictionary<int, int>& x) { return x; }
 		Func<int(int)> GetFunc(Func<int(int)> x) { return x; }
 		Ptr<HintTester> GetHintTester(Ptr<HintTester> x) { return x; }
-		int GetInt(int x) { return x; }
+		vint GetInt(vint x) { return x; }
 	};
 }
 using namespace test;
@@ -1525,15 +1525,28 @@ namespace reflection_test
 		}
 	}
 
-	template<typename T, typename TArgument, typename TReturn>
+	template<typename TArgument, typename TReturn>
 	void TestHint(const WString& member, TypeInfoHint hint)
 	{
-
+		auto td = GetTypeDescriptor<HintTester>();
+		auto method = td->GetMethodGroupByName(member, false)->GetMethod(0);
+		TEST_ASSERT(method->GetParameterCount() == 1);
+		TEST_ASSERT(method->GetReturn()->GetTypeDescriptor() == GetTypeDescriptor<TArgument>());
+		TEST_ASSERT(method->GetReturn()->GetHint() == hint);
+		TEST_ASSERT(method->GetParameter(0)->GetType()->GetTypeDescriptor() == GetTypeDescriptor<TReturn>());
+		TEST_ASSERT(method->GetParameter(0)->GetType()->GetHint() == hint);
 	}
 
 	void TestHint()
 	{
-
+		TestHint<IValueEnumerable, IValueEnumerable>(L"GetLazyList", TypeInfoHint::LazyList);
+		TestHint<IValueReadonlyList, IValueList>(L"GetArray", TypeInfoHint::Array);
+		TestHint<IValueReadonlyList, IValueList>(L"GetList", TypeInfoHint::List);
+		TestHint<IValueReadonlyList, IValueList>(L"GetSortedList", TypeInfoHint::SortedList);
+		TestHint<IValueReadonlyDictionary, IValueDictionary>(L"GetDictionary", TypeInfoHint::Dictionary);
+		TestHint<IValueFunctionProxy, IValueFunctionProxy>(L"GetFunc", TypeInfoHint::Normal);
+		TestHint<HintTester, HintTester>(L"GetHintTester", TypeInfoHint::Normal);
+		TestHint<vint, vint>(L"GetInt", TypeInfoHint::Normal);
 	}
 }
 using namespace reflection_test;
