@@ -21,33 +21,34 @@ done
 printf -v CPP_FILES "%s\n" "${CPP_FILES[@]}"
 CPP_FILES=${CPP_FILES%?}
 
-O_FILES=`echo "${CPP_FILES}" | sed -r -e 's%.+?/(.+?).cpp%\1.o%g'`
+O_FILES=`echo "${CPP_FILES}" | sed -r -e 's%.+?/(.+?).cpp%./Obj/\1.o%g'`
 O_FILES=`echo ${O_FILES}`
 #>
 
-.PHONY all clean
+.PHONY: all clean pre-build
+.DEFAULT_GOAL := all
 
 pre-build:
-	mkdir ./Bin 2>/dev/null
-	mkdir ./Obj 2>/dev/null
+	if ! [ -d ./Bin ]; then mkdir ./Bin; fi
+	if ! [ -d ./Obj ]; then mkdir ./Obj; fi
 <#for FOLDER in "${FOLDERS[@]}"; do#>
-	mkdir <#= $FOLDER #> 2>/dev/null
+	if ! [ -d <#= $FOLDER #> ]; then mkdir <#= $FOLDER #>; fi
 <#done#>
 
 clean:
-	rm -r ./Bin 2>/dev/null
-	rm -r ./Obj 2>/dev/null
+	if [ -d ./Bin ]; then rm -r ./Bin; fi
+	if [ -d ./Obj ]; then rm -r ./Obj; fi
 <#for FOLDER in "${FOLDERS[@]}"; do#>
-	rm -r <#= $FOLDER #> fi 2>/dev/null
+	if [ -d ./<#= $FOLDER #> ]; then rm -r <#= $FOLDER #>; fi
 <#done#>
 
-all:<#= ${TARGETS[@]} #>
+all:pre-build <#= ${TARGETS[@]} #>
 
 <#= $CPP_TARGET #>:<#= ${O_FILES} #>
 	clang++ -std=c++14 -pthread -g -o $@ $^
 
 <#echo "${CPP_FILES}" | while read -r CPP_FILE; do#>
 
-<#= `vutil_CppDependencies ${CPP_FILE}` #>
+./Obj/<#= `vutil_CppDependencies ${CPP_FILE}` #>
 	clang++ -std=c++14 -g -o $@ -c $<
 <#done#>
