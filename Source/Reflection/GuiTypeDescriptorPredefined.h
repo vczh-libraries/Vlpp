@@ -71,6 +71,10 @@ SerializableTypeDescriptor
 				WString										cppFullTypeName;
 
 				const WString&								GetFullName()override;
+
+			protected:
+				const TypeInfoContent*						GetTypeInfoContentInternal();
+
 			public:
 				TypeDescriptorImplBase(TypeDescriptorFlags _typeDescriptorFlags, const TypeInfoContent* _typeInfoContent);
 				~TypeDescriptorImplBase();

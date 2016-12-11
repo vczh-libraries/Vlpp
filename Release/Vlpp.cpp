@@ -18123,6 +18123,11 @@ TypeDescriptorImplBase
 				return cppFullTypeName;
 			}
 
+			const TypeInfoContent* TypeDescriptorImplBase::GetTypeInfoContentInternal()
+			{
+				return typeInfoContent;
+			}
+
 			TypeDescriptorImplBase::TypeDescriptorImplBase(TypeDescriptorFlags _typeDescriptorFlags, const TypeInfoContent* _typeInfoContent)
 				:typeDescriptorFlags(_typeDescriptorFlags)
 				, typeInfoContent(_typeInfoContent)
