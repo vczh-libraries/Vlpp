@@ -15821,41 +15821,120 @@ description::Value
 
 			vint Value::Compare(const Value& a, const Value& b)const
 			{
-				ValueType va=a.valueType;
-				ValueType vb=b.valueType;
-				if(va==vb)
+				switch (a.GetValueType())
 				{
-					switch(va)
+				case Value::RawPtr:
+				case Value::SharedPtr:
+					switch (b.GetValueType())
 					{
-					case BoxedValue:
+					case Value::RawPtr:
+					case Value::SharedPtr:
 						{
-							if (a.GetTypeDescriptor() != b.GetTypeDescriptor())
+							auto pa = a.GetRawPtr();
+							auto pb = b.GetRawPtr();
+							if (pa < pb) return -1;
+							if (pa > pb) return 1;
+							return 0;
+						}
+					case Value::BoxedValue:
+						return -1;
+					default:
+						return 1;
+					}
+				case Value::BoxedValue:
+					switch (b.GetValueType())
+					{
+					case Value::RawPtr:
+					case Value::SharedPtr:
+						return 1;
+					case Value::BoxedValue:
+						{
+							auto aSt = a.GetTypeDescriptor()->GetSerializableType();
+							auto bSt = b.GetTypeDescriptor()->GetSerializableType();
+							if (aSt)
 							{
-								throw ArgumentTypeMismtatchException(L"b", a.GetTypeDescriptor(), ValueType::BoxedValue, b);
+								if (bSt)
+								{
+									auto aSt = a.GetTypeDescriptor()->GetSerializableType();
+									auto bSt = b.GetTypeDescriptor()->GetSerializableType();
+
+									WString aText;
+									WString bText;
+									aSt->Serialize(a, aText);
+									bSt->Serialize(b, bText);
+									if (aText < bText) return -1;
+									if (aText > bText) return 1;
+									return 0;
+								}
+								else
+								{
+									return 1;
+								}
 							}
-							auto valueType = a.GetTypeDescriptor()->GetValueType();
-							switch (valueType->Compare(a, b))
+							else
 							{
-							case IValueType::Smaller:
-								return -1;
-							case IValueType::Greater:
-								return 1;
-							case IValueType::Equal:
-								return 0;
-							default:
-								throw TypeNotComparableException(a.GetTypeDescriptor());
+								if (bSt)
+								{
+									return -1;
+								}
+								else
+								{
+									if (a.GetTypeDescriptor() != b.GetTypeDescriptor())
+									{
+										auto aText = a.GetTypeDescriptor()->GetTypeName();
+										auto bText = b.GetTypeDescriptor()->GetTypeName();
+										if (aText < bText) return -1;
+										if (aText > bText) return 1;
+										return 0;
+									}
+
+									switch (a.GetTypeDescriptor()->GetTypeDescriptorFlags())
+									{
+									case TypeDescriptorFlags::Struct:
+										{
+											auto td = a.GetTypeDescriptor();
+											vint count = td->GetPropertyCount();
+											for (vint i = 0; i < count; i++)
+											{
+												auto prop = td->GetProperty(i);
+												auto ap = prop->GetValue(a);
+												auto bp = prop->GetValue(b);
+												vint result = Compare(ap, bp);
+												if (result != 0)
+												{
+													return result;
+												}
+											}
+										}
+										return 0;
+									case TypeDescriptorFlags::FlagEnum:
+									case TypeDescriptorFlags::NormalEnum:
+										{
+											auto ai = a.GetTypeDescriptor()->GetEnumType()->FromEnum(a);
+											auto bi = a.GetTypeDescriptor()->GetEnumType()->FromEnum(b);
+											if (ai < bi) return -1;
+											if (ai > bi) return 1;
+											return 0;
+										}
+									default:
+										return 0;
+									}
+								}
 							}
 						}
-					case RawPtr:
-					case SharedPtr:
-						return (vint)a.rawPtr-(vint)b.rawPtr;
+					default:
+						return 1;
+					}
+				default:
+					switch (b.GetValueType())
+					{
+					case Value::RawPtr:
+					case Value::SharedPtr:
+					case Value::BoxedValue:
+						return -1;
 					default:
 						return 0;
 					}
-				}
-				else
-				{
-					return (vint)va-(vint)vb;
 				}
 			}
 

@@ -9238,15 +9238,6 @@ Exceptions
 				}
 			};
 
-			class TypeNotComparableException : public TypeDescriptorException
-			{
-			public:
-				TypeNotComparableException(ITypeDescriptor* type)
-					:TypeDescriptorException(L"Value of type \"" + type->GetTypeName() + L" is not comparable.")
-				{
-				}
-			};
-
 			class ValueNotDisposableException : public TypeDescriptorException
 			{
 			public:
