@@ -848,7 +848,6 @@ ITypeDescriptor
 				ReferenceType		= ClassType | InterfaceType,
 				EnumType			= FlagEnum | NormalEnum,
 				StructType			= Primitive | Struct,
-				SerializableType	= StructType | EnumType,
 			};
 
 			inline TypeDescriptorFlags operator&(TypeDescriptorFlags a, TypeDescriptorFlags b)
