@@ -87,7 +87,7 @@ namespace vl
 		{
 			Ptr<EventHandlerImpl> impl = handler.Cast<EventHandlerImpl>();
 			if (!impl) return false;
-			vint index = handlers.IndexOf(impl);
+			vint index = handlers.IndexOf(impl.Obj());
 			if (index == -1) return false;
 			impl->attached = false;
 			handlers.RemoveAt(index);

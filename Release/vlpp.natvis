@@ -33,7 +33,7 @@
       <Item Name="[size]">count</Item>
       <ArrayItems>
         <Size>count</Size>
-        <ValuePointer>buffer</ValuePointer>
+        <ValuePointer>($T1*)buffer</ValuePointer>
       </ArrayItems>
     </Expand>
   </Type>

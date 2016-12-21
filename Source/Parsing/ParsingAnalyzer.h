@@ -40,7 +40,7 @@ namespace vl
 				{
 				}
 
-				vint Compare(const DefinitionTypeScopePair& pair)
+				vint Compare(const DefinitionTypeScopePair& pair)const
 				{
 					if(type<pair.type) return -1;
 					if(type>pair.type) return 1;
@@ -49,12 +49,12 @@ namespace vl
 					return 0;
 				}
 
-				bool operator==(const DefinitionTypeScopePair& pair){return Compare(pair)==0;}
-				bool operator!=(const DefinitionTypeScopePair& pair){return Compare(pair)!=0;}
-				bool operator>(const DefinitionTypeScopePair& pair){return Compare(pair)>0;}
-				bool operator>=(const DefinitionTypeScopePair& pair){return Compare(pair)>=0;}
-				bool operator<(const DefinitionTypeScopePair& pair){return Compare(pair)<0;}
-				bool operator<=(const DefinitionTypeScopePair& pair){return Compare(pair)<=0;}
+				bool operator==	(const DefinitionTypeScopePair& pair)const	{return Compare(pair)==0;}
+				bool operator!=	(const DefinitionTypeScopePair& pair)const	{return Compare(pair)!=0;}
+				bool operator>	(const DefinitionTypeScopePair& pair)const	{return Compare(pair)>0;}
+				bool operator>=	(const DefinitionTypeScopePair& pair)const	{return Compare(pair)>=0;}
+				bool operator<	(const DefinitionTypeScopePair& pair)const	{return Compare(pair)<0;}
+				bool operator<=	(const DefinitionTypeScopePair& pair)const	{return Compare(pair)<=0;}
 			};
 
 /***********************************************************************
