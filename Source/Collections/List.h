@@ -14,16 +14,14 @@ Classes:
 #ifndef VCZH_COLLECTIONS_LIST
 #define VCZH_COLLECTIONS_LIST
 
+#include <string.h>
+#include "Interfaces.h"
+
 #ifdef VCZH_CHECK_MEMORY_LEAKS_NEW
 #undef new
 #endif
 
-#include <string.h>
-#include "Interfaces.h"
-
-#ifdef VCZH_GCC
 #include <new>
-#endif
 
 namespace vl
 {
