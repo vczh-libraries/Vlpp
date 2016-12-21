@@ -21,6 +21,10 @@ Classes:
 #include <string.h>
 #include "Interfaces.h"
 
+#ifdef VCZH_GCC
+#include <new>
+#endif
+
 namespace vl
 {
 	namespace collections
@@ -408,7 +412,7 @@ ListBase
 					this->buffer = newBuffer;
 					uninitialized = true;
 				}
-				else if (index >= count)
+				else if (index >= this->count)
 				{
 					uninitialized = true;
 				}
