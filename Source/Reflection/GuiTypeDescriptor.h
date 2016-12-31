@@ -555,10 +555,10 @@ Value
 				/// <summary>Get the real type of the stored object.</summary>
 				/// <returns>The real type. Returns null if the value is null.</returns>
 
+				bool							IsNull()const;
 #ifndef VCZH_DEBUG_NO_REFLECTION
 				ITypeDescriptor*				GetTypeDescriptor()const;
 				WString							GetTypeFriendlyName()const;
-				bool							IsNull()const;
 				bool							CanConvertTo(ITypeDescriptor* targetType, ValueType targetValueType)const;
 				bool							CanConvertTo(ITypeInfo* targetType)const;
 #endif

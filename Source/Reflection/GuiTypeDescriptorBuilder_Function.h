@@ -168,7 +168,12 @@ ParameterAccessor<Func<R(TArgs...)>>
 				{
 					typedef R(RawFunctionType)(TArgs...);
 					Ptr<IValueFunctionProxy> result=new ValueFunctionProxyWrapper<RawFunctionType>(object);
-					return BoxValue<Ptr<IValueFunctionProxy>>(result, Description<IValueFunctionProxy>::GetAssociatedTypeDescriptor());
+
+					ITypeDescriptor* td = nullptr;
+#ifndef VCZH_DEBUG_NO_REFLECTION
+					td = Description<IValueFunctionProxy>::GetAssociatedTypeDescriptor();
+#endif
+					return BoxValue<Ptr<IValueFunctionProxy>>(result, td);
 				}
  
 				static void UnboxParameter(const Value& value, Func<R(TArgs...)>& result, ITypeDescriptor* typeDescriptor, const WString& valueName)

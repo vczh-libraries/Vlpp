@@ -709,6 +709,46 @@ TEST_CASE(TestDescriptableObjectReferenceCounterOperator)
 	}
 }
 
+TEST_CASE(TestBoxUnbox)
+{
+	{
+		auto value = BoxValue<vint>(0);
+		TEST_ASSERT(UnboxValue<vint>(value) == 0);
+	}
+	{
+		auto value = BoxValue<WString>(L"abc");
+		TEST_ASSERT(UnboxValue<WString>(value) == L"abc");
+	}
+	{
+		Ptr<Base> base = MakePtr<Base>();
+		{
+			auto value = BoxValue<Base*>(base.Obj());
+			TEST_ASSERT(UnboxValue<Base*>(value) == base.Obj());
+			TEST_ASSERT(UnboxValue<Ptr<Base>>(value) == base);
+		}
+		{
+			auto value = BoxValue<Ptr<Base>>(base);
+			TEST_ASSERT(UnboxValue<Base*>(value) == base.Obj());
+			TEST_ASSERT(UnboxValue<Ptr<Base>>(value) == base);
+		}
+	}
+	{
+		List<vint> numbers;
+		numbers.Add(1);
+		numbers.Add(2);
+		numbers.Add(3);
+
+		auto value = BoxParameter<List<vint>>(numbers);
+		List<vint> numbers2;
+		UnboxParameter(value, numbers2);
+
+		TEST_ASSERT(numbers2.Count() == 3);
+		TEST_ASSERT(numbers2[0] == 1);
+		TEST_ASSERT(numbers2[1] == 2);
+		TEST_ASSERT(numbers2[2] == 3);
+	}
+}
+
 #ifndef VCZH_DEBUG_NO_REFLECTION
 
 namespace reflection_test

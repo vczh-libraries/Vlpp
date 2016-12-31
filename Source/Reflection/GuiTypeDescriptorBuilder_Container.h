@@ -566,7 +566,12 @@ ParameterAccessor<TContainer>
 								return BoxValue<T>(item);
 							})
 						);
-					return BoxValue<Ptr<IValueEnumerable>>(result, Description<IValueEnumerable>::GetAssociatedTypeDescriptor());
+
+					ITypeDescriptor* td = nullptr;
+#ifndef VCZH_DEBUG_NO_REFLECTION
+					td = Description<IValueEnumerable>::GetAssociatedTypeDescriptor();
+#endif
+					return BoxValue<Ptr<IValueEnumerable>>(result, td);
 				}
 
 				static void UnboxParameter(const Value& value, collections::LazyList<T>& result, ITypeDescriptor* typeDescriptor, const WString& valueName)
@@ -583,7 +588,12 @@ ParameterAccessor<TContainer>
 				static Value BoxParameter(T& object, ITypeDescriptor* typeDescriptor)
 				{
 					Ptr<IValueReadonlyList> result=new ValueReadonlyListWrapper<T*>(&object);
-					return BoxValue<Ptr<IValueReadonlyList>>(result, Description<IValueReadonlyList>::GetAssociatedTypeDescriptor());
+
+					ITypeDescriptor* td = nullptr;
+#ifndef VCZH_DEBUG_NO_REFLECTION
+					td = Description<IValueReadonlyList>::GetAssociatedTypeDescriptor();
+#endif
+					return BoxValue<Ptr<IValueReadonlyList>>(result, td);
 				}
 
 				static void UnboxParameter(const Value& value, T& result, ITypeDescriptor* typeDescriptor, const WString& valueName)
@@ -601,7 +611,12 @@ ParameterAccessor<TContainer>
 				static Value BoxParameter(T& object, ITypeDescriptor* typeDescriptor)
 				{
 					Ptr<IValueList> result=new ValueListWrapper<T*>(&object);
-					return BoxValue<Ptr<IValueList>>(result, Description<IValueList>::GetAssociatedTypeDescriptor());
+
+					ITypeDescriptor* td = nullptr;
+#ifndef VCZH_DEBUG_NO_REFLECTION
+					td = Description<IValueList>::GetAssociatedTypeDescriptor();
+#endif
+					return BoxValue<Ptr<IValueList>>(result, td);
 				}
 
 				static void UnboxParameter(const Value& value, T& result, ITypeDescriptor* typeDescriptor, const WString& valueName)
@@ -619,7 +634,12 @@ ParameterAccessor<TContainer>
 				static Value BoxParameter(T& object, ITypeDescriptor* typeDescriptor)
 				{
 					Ptr<IValueReadonlyDictionary> result=new ValueReadonlyDictionaryWrapper<T*>(&object);
-					return BoxValue<Ptr<IValueReadonlyDictionary>>(result, Description<IValueReadonlyList>::GetAssociatedTypeDescriptor());
+
+					ITypeDescriptor* td = nullptr;
+#ifndef VCZH_DEBUG_NO_REFLECTION
+					td = Description<IValueReadonlyDictionary>::GetAssociatedTypeDescriptor();
+#endif
+					return BoxValue<Ptr<IValueReadonlyDictionary>>(result, td);
 				}
 
 				static void UnboxParameter(const Value& value, T& result, ITypeDescriptor* typeDescriptor, const WString& valueName)
@@ -641,7 +661,12 @@ ParameterAccessor<TContainer>
 				static Value BoxParameter(T& object, ITypeDescriptor* typeDescriptor)
 				{
 					Ptr<IValueDictionary> result=new ValueDictionaryWrapper<T*>(&object);
-					return BoxValue<Ptr<IValueDictionary>>(result, Description<IValueList>::GetAssociatedTypeDescriptor());
+
+					ITypeDescriptor* td = nullptr;
+#ifndef VCZH_DEBUG_NO_REFLECTION
+					td = Description<IValueDictionary>::GetAssociatedTypeDescriptor();
+#endif
+					return BoxValue<Ptr<IValueDictionary>>(result, td);
 				}
 
 				static void UnboxParameter(const Value& value, T& result, ITypeDescriptor* typeDescriptor, const WString& valueName)

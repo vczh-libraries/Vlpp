@@ -280,6 +280,8 @@ description::Value
 				{
 					rawPtr = value->SafeGetAggregationRoot();
 				}
+#else
+				rawPtr = value;
 #endif
 			}
 
@@ -296,6 +298,9 @@ description::Value
 					rawPtr = value->SafeGetAggregationRoot();
 					sharedPtr = rawPtr;
 				}
+#else
+				rawPtr = value.Obj();
+				sharedPtr = value;
 #endif
 			}
 
@@ -488,6 +493,11 @@ description::Value
 				return boxedValue;
 			}
 
+			bool Value::IsNull()const
+			{
+				return valueType == Null;
+			}
+
 #ifndef VCZH_DEBUG_NO_REFLECTION
 
 			ITypeDescriptor* Value::GetTypeDescriptor()const
@@ -517,11 +527,6 @@ description::Value
 				default:
 					return L"null";
 				}
-			}
-
-			bool Value::IsNull()const
-			{
-				return valueType==Null;
 			}
 
 			bool Value::CanConvertTo(ITypeDescriptor* targetType, ValueType targetValueType)const

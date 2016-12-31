@@ -15,6 +15,7 @@ Tools/*.dll
 
 # Build results
 
+[Dd]ebugNoReflection/
 [Dd]ebug/
 [Rr]elease/
 x64/
