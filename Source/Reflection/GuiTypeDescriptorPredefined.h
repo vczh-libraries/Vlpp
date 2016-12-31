@@ -19,6 +19,13 @@ namespace vl
 		namespace description
 		{
 
+			template<typename T>
+			struct TypedValueSerializerProvider
+			{
+			};
+
+#ifndef VCZH_DEBUG_NO_REFLECTION
+
 /***********************************************************************
 TypeInfo
 ***********************************************************************/
@@ -52,11 +59,6 @@ TypeInfo
 			{
 				return GetTypeDescriptor(TypeInfo<T>::content.typeName);
 			}
-
-			template<typename T>
-			struct TypedValueSerializerProvider
-			{
-			};
 
 /***********************************************************************
 SerializableTypeDescriptor
@@ -131,6 +133,8 @@ SerializableTypeDescriptor
 				}
 			};
 
+#endif
+
 /***********************************************************************
 Predefined Libraries
 ***********************************************************************/
@@ -198,6 +202,8 @@ Predefined Types
 
 			struct VoidValue{};
 
+#ifndef VCZH_DEBUG_NO_REFLECTION
+
 			DECL_TYPE_INFO(Sys)
 			DECL_TYPE_INFO(Math)
 			
@@ -253,6 +259,7 @@ Predefined Types
 			DECL_TYPE_INFO(TypeDescriptorFlags)
 			DECL_TYPE_INFO(ITypeDescriptor)
 
+#endif
 
 #define DEFINE_TYPED_VALUE_SERIALIZER_PROVIDER(TYPENAME)\
 			template<>\

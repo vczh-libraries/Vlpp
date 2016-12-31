@@ -15,6 +15,8 @@ Classes:
 #include "GuiTypeDescriptorBuilder_Container.h"
 #include "GuiTypeDescriptorPredefined.h"
 
+#ifndef VCZH_DEBUG_NO_REFLECTION
+
 /***********************************************************************
 Macros
 ***********************************************************************/
@@ -573,4 +575,5 @@ Property
 	}
 }
 
+#endif
 #endif

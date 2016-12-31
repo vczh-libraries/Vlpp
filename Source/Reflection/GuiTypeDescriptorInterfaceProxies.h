@@ -11,6 +11,8 @@ XML Representation for Code Generation:
 
 #include "GuiTypeDescriptorMacros.h"
 
+#ifndef VCZH_DEBUG_NO_REFLECTION
+
 namespace vl
 {
 	namespace reflection
@@ -182,4 +184,5 @@ Interface Implementation Proxy (Implement)
 	}
 }
 
+#endif
 #endif

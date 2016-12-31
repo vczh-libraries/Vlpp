@@ -9,6 +9,8 @@ namespace vl
 		namespace description
 		{
 
+#ifndef VCZH_DEBUG_NO_REFLECTION
+
 /***********************************************************************
 TypeDescriptorTypeInfo
 ***********************************************************************/
@@ -1191,6 +1193,7 @@ Function Related
 				{
 				}
 			}
+#endif
 		}
 	}
 }

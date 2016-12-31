@@ -18,6 +18,8 @@ namespace vl
 		namespace description
 		{
 
+#ifndef VCZH_DEBUG_NO_REFLECTION
+
 /***********************************************************************
 TypeInfoImp
 ***********************************************************************/
@@ -372,6 +374,8 @@ TypeDescriptorImpl
 				IMethodGroupInfo*			GetConstructorGroup()override;
 			};
 
+#endif
+
 /***********************************************************************
 TypeFlagTester
 ***********************************************************************/
@@ -624,10 +628,12 @@ TypeInfoRetriver
 				typedef typename DetailTypeInfoRetriver<T, TypeFlag>::ResultReferenceType		ResultReferenceType;
 				typedef typename DetailTypeInfoRetriver<T, TypeFlag>::ResultNonReferenceType	ResultNonReferenceType;
 
+#ifndef VCZH_DEBUG_NO_REFLECTION
 				static Ptr<ITypeInfo> CreateTypeInfo()
 				{
 					return DetailTypeInfoRetriver<typename RemoveCVR<T>::Type, TypeFlag>::CreateTypeInfo(Hint);
 				}
+#endif
 			};
 
 /***********************************************************************
@@ -693,6 +699,8 @@ TypeInfoRetriver Helper Functions (UnboxParameter)
 			{
 				ParameterAccessor<T, TypeInfoRetriver<T>::TypeFlag>::UnboxParameter(value, result, typeDescriptor, valueName);
 			}
+
+#ifndef VCZH_DEBUG_NO_REFLECTION
 
 /***********************************************************************
 Value_xs
@@ -1024,6 +1032,7 @@ StructTypeDescriptor
 					return fields.Values()[index].Obj();
 				}
 			};
+#endif
 		}
 	}
 }

@@ -22,6 +22,7 @@ namespace vl
 DetailTypeInfoRetriver<Func<R(TArgs...)>>
 ***********************************************************************/
 
+#ifndef VCZH_DEBUG_NO_REFLECTION
 			namespace internal_helper
 			{
 				template<typename T>
@@ -42,6 +43,7 @@ DetailTypeInfoRetriver<Func<R(TArgs...)>>
 					}
 				};
 			}
+#endif
 
 			template<typename R, typename ...TArgs>
 			struct DetailTypeInfoRetriver<Func<R(TArgs...)>, TypeFlags::FunctionType>
@@ -54,6 +56,7 @@ DetailTypeInfoRetriver<Func<R(TArgs...)>>
 				typedef typename UpLevelRetriver::ResultReferenceType			ResultReferenceType;
 				typedef typename UpLevelRetriver::ResultNonReferenceType		ResultNonReferenceType;
  
+#ifndef VCZH_DEBUG_NO_REFLECTION
 				static Ptr<ITypeInfo> CreateTypeInfo(TypeInfoHint hint)
 				{
 					auto functionType = MakePtr<TypeDescriptorTypeInfo>(Description<IValueFunctionProxy>::GetAssociatedTypeDescriptor(), hint);
@@ -65,6 +68,7 @@ DetailTypeInfoRetriver<Func<R(TArgs...)>>
 					auto type = MakePtr<SharedPtrTypeInfo>(genericType);
 					return type;
 				}
+#endif
 			};
 
 			template<typename R, typename ...TArgs>
@@ -202,6 +206,8 @@ ParameterAccessor<Func<R(TArgs...)>>
 			struct ParameterAccessor<const Func<R(TArgs...)>, TypeFlags::FunctionType> : ParameterAccessor<Func<R(TArgs...)>, TypeFlags::FunctionType>
 			{
 			};
+
+#ifndef VCZH_DEBUG_NO_REFLECTION
  
 /***********************************************************************
 MethodInfoImpl
@@ -608,8 +614,9 @@ CustomEventInfoImpl<void(TArgs...)>
 			{
 				typedef TEvent								Type;
 			};
+#endif
 		}
 	}
 }
- 
+
 #endif

@@ -13,6 +13,8 @@ namespace vl
 		namespace description
 		{
 
+#ifndef VCZH_DEBUG_NO_REFLECTION
+
 /***********************************************************************
 TypeDescriptorImplBase
 ***********************************************************************/
@@ -194,9 +196,13 @@ ValueTypeDescriptorBase
 				return 0;
 			}
 
+#endif
+
 /***********************************************************************
 TypeName
 ***********************************************************************/
+
+#ifndef VCZH_DEBUG_NO_REFLECTION
 			
 			IMPL_TYPE_INFO_RENAME(vl::reflection::description::Sys,							system::Sys)
 			IMPL_TYPE_INFO_RENAME(vl::reflection::description::Math,						system::Math)
@@ -251,6 +257,8 @@ TypeName
 			IMPL_TYPE_INFO_RENAME(vl::reflection::description::IMethodGroupInfo,			system::reflection::MethodGroupInfo)
 			IMPL_TYPE_INFO_RENAME(vl::reflection::description::TypeDescriptorFlags,			system::reflection::TypeDescriptorFlags)
 			IMPL_TYPE_INFO_RENAME(vl::reflection::description::ITypeDescriptor,				system::reflection::TypeDescriptor)
+
+#endif
 
 /***********************************************************************
 TypedValueSerializerProvider
@@ -643,6 +651,8 @@ DateTimeValueSerializer
 Helper Functions
 ***********************************************************************/
 
+#ifndef VCZH_DEBUG_NO_REFLECTION
+
 			vint ITypeDescriptor_GetTypeDescriptorCount()
 			{
 				return GetGlobalTypeManager()->GetTypeDescriptorCount();
@@ -663,9 +673,35 @@ Helper Functions
 				return value.GetTypeDescriptor();
 			}
 
+#else
+
+			vint ITypeDescriptor_GetTypeDescriptorCount()
+			{
+				return 0;
+			}
+
+			ITypeDescriptor* ITypeDescriptor_GetTypeDescriptor(vint index)
+			{
+				return nullptr;
+			}
+
+			ITypeDescriptor* ITypeDescriptor_GetTypeDescriptor(const WString& name)
+			{
+				return nullptr;
+			}
+
+			ITypeDescriptor* ITypeDescriptor_GetTypeDescriptor(const Value& value)
+			{
+				return nullptr;
+			}
+
+#endif
+
 /***********************************************************************
 LoadPredefinedTypes
 ***********************************************************************/
+
+#ifndef VCZH_DEBUG_NO_REFLECTION
 
 #define _ ,	
 			
@@ -1097,14 +1133,18 @@ LoadPredefinedTypes
 				}
 			};
 
+#endif
+
 			bool LoadPredefinedTypes()
 			{
+#ifndef VCZH_DEBUG_NO_REFLECTION
 				ITypeManager* manager=GetGlobalTypeManager();
 				if(manager)
 				{
 					Ptr<ITypeLoader> loader=new PredefinedTypeLoader;
 					return manager->AddTypeLoader(loader);
 				}
+#endif
 				return false;
 			}
 		}

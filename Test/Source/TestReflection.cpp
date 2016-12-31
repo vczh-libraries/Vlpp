@@ -21,6 +21,8 @@ using namespace vl::parsing::json;
 extern WString GetTestResourcePath();
 extern WString GetTestOutputPath();
 
+#ifndef VCZH_DEBUG_NO_REFLECTION
+
 namespace test
 {
 	template<typename T, typename TValue, vint Count, WString(*ToString)(TValue)>
@@ -251,6 +253,8 @@ TEST_CASE(TestReflectionPredefinedType)
 	TEST_ASSERT(ResetGlobalTypeManager());
 }
 
+#endif
+
 namespace test
 {
 	enum Season
@@ -414,6 +418,8 @@ namespace test
 		}
 	};
 
+#ifndef VCZH_DEBUG_NO_REFLECTION
+
 	class Agg : public Description<Agg>
 	{
 	public:
@@ -499,8 +505,12 @@ namespace test
 		Ptr<HintTester> GetHintTester(Ptr<HintTester> x) { return x; }
 		vint GetInt(vint x) { return x; }
 	};
+
+#endif
 }
 using namespace test;
+
+#ifndef VCZH_DEBUG_NO_REFLECTION
 
 #define _ ,
 
@@ -670,6 +680,8 @@ END_TYPE_INFO_NAMESPACE
 
 #undef TYPE_LIST
 
+#endif
+
 TEST_CASE(TestDescriptableObjectReferenceCounterOperator)
 {
 	TEST_ASSERT((!AcceptValue<typename RequiresConvertable<vint, DescriptableObject>::YesNoType>::Result));
@@ -696,6 +708,8 @@ TEST_CASE(TestDescriptableObjectReferenceCounterOperator)
 		TEST_ASSERT(1==*counter);
 	}
 }
+
+#ifndef VCZH_DEBUG_NO_REFLECTION
 
 namespace reflection_test
 {
@@ -1584,3 +1598,4 @@ TEST_CASE_REFLECTION(TestTypeInfoFriendlyName)
 TEST_CASE_REFLECTION(TestCpp)
 TEST_CASE_REFLECTION(TestHint)
 
+#endif

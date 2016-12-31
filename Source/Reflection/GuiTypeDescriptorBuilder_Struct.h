@@ -31,10 +31,12 @@ DetailTypeInfoRetriver<TStruct>
 				typedef T&												ResultReferenceType;
 				typedef T												ResultNonReferenceType;
 
+#ifndef VCZH_DEBUG_NO_REFLECTION
 				static Ptr<ITypeInfo> CreateTypeInfo(TypeInfoHint hint)
 				{
 					return MakePtr<TypeDescriptorTypeInfo>(GetTypeDescriptor<Type>(), hint);
 				}
+#endif
 			};
 
 			template<typename T>
@@ -48,10 +50,12 @@ DetailTypeInfoRetriver<TStruct>
 				typedef const T&												ResultReferenceType;
 				typedef const T													ResultNonReferenceType;
 
+#ifndef VCZH_DEBUG_NO_REFLECTION
 				static Ptr<ITypeInfo> CreateTypeInfo(TypeInfoHint hint)
 				{
 					return TypeInfoRetriver<T>::CreateTypeInfo();
 				}
+#endif
 			};
 
 			template<typename T>
@@ -65,10 +69,12 @@ DetailTypeInfoRetriver<TStruct>
 				typedef T&														ResultReferenceType;
 				typedef T														ResultNonReferenceType;
 
+#ifndef VCZH_DEBUG_NO_REFLECTION
 				static Ptr<ITypeInfo> CreateTypeInfo(TypeInfoHint hint)
 				{
 					return TypeInfoRetriver<T>::CreateTypeInfo();
 				}
+#endif
 			};
 
 			template<typename T>
@@ -82,10 +88,12 @@ DetailTypeInfoRetriver<TStruct>
 				typedef T*&														ResultReferenceType;
 				typedef T*														ResultNonReferenceType;
 
+#ifndef VCZH_DEBUG_NO_REFLECTION
 				static Ptr<ITypeInfo> CreateTypeInfo(TypeInfoHint hint)
 				{
 					return MakePtr<RawPtrTypeInfo>(TypeInfoRetriver<T>::CreateTypeInfo());
 				}
+#endif
 			};
 
 			template<typename T>
@@ -99,10 +107,12 @@ DetailTypeInfoRetriver<TStruct>
 				typedef Ptr<T>&													ResultReferenceType;
 				typedef Ptr<T>													ResultNonReferenceType;
 
+#ifndef VCZH_DEBUG_NO_REFLECTION
 				static Ptr<ITypeInfo> CreateTypeInfo(TypeInfoHint hint)
 				{
 					return MakePtr<SharedPtrTypeInfo>(TypeInfoRetriver<T>::CreateTypeInfo());
 				}
+#endif
 			};
 
 			template<typename T>
@@ -116,10 +126,12 @@ DetailTypeInfoRetriver<TStruct>
 				typedef Nullable<T>&											ResultReferenceType;
 				typedef Nullable<T>												ResultNonReferenceType;
 
+#ifndef VCZH_DEBUG_NO_REFLECTION
 				static Ptr<ITypeInfo> CreateTypeInfo(TypeInfoHint hint)
 				{
 					return MakePtr<NullableTypeInfo>(TypeInfoRetriver<T>::CreateTypeInfo());
 				}
+#endif
 			};
 
 			template<typename T>
@@ -133,10 +145,12 @@ DetailTypeInfoRetriver<TStruct>
 				typedef T&														ResultReferenceType;
 				typedef T														ResultNonReferenceType;
 
+#ifndef VCZH_DEBUG_NO_REFLECTION
 				static Ptr<ITypeInfo> CreateTypeInfo(TypeInfoHint hint)
 				{
 					return TypeInfoRetriver<T>::CreateTypeInfo();
 				}
+#endif
 			};
 
 			template<>
@@ -180,11 +194,15 @@ ParameterAccessor<TStruct>
 					}
 					if(!result)
 					{
+#ifndef VCZH_DEBUG_NO_REFLECTION
 						if(!typeDescriptor)
 						{
 							typeDescriptor=GetTypeDescriptor<T>();
 						}
 						throw ArgumentTypeMismtatchException(valueName, typeDescriptor, Value::RawPtr, value);
+#else
+						CHECK_FAIL(L"vl::reflection::description::UnboxValue()#Argument type mismatch.");
+#endif
 					}
 					return result;
 				}
@@ -208,11 +226,15 @@ ParameterAccessor<TStruct>
 					}
 					if(!result)
 					{
+#ifndef VCZH_DEBUG_NO_REFLECTION
 						if(!typeDescriptor)
 						{
 							typeDescriptor=GetTypeDescriptor<T>();
 						}
 						throw ArgumentTypeMismtatchException(valueName, typeDescriptor, Value::SharedPtr, value);
+#else
+						CHECK_FAIL(L"vl::reflection::description::UnboxValue()#Argument type mismatch.");
+#endif
 					}
 					return result;
 				}
@@ -244,10 +266,12 @@ ParameterAccessor<TStruct>
 			{
 				static Value BoxValue(const T& object, ITypeDescriptor* typeDescriptor)
 				{
+#ifndef VCZH_DEBUG_NO_REFLECTION
 					if(!typeDescriptor)
 					{
 						typeDescriptor = GetTypeDescriptor<typename TypeInfoRetriver<T>::Type>();
 					}
+#endif
 					using Type = typename vl::RemoveCVR<T>::Type;
 					return Value::From(new IValueType::TypedBox<Type>(object), typeDescriptor);
 				}
@@ -261,11 +285,15 @@ ParameterAccessor<TStruct>
 					}
 					else
 					{
+#ifndef VCZH_DEBUG_NO_REFLECTION
 						if (!typeDescriptor)
 						{
 							typeDescriptor = GetTypeDescriptor<typename TypeInfoRetriver<T>::Type>();
 						}
 						throw ArgumentTypeMismtatchException(valueName, typeDescriptor, Value::BoxedValue, value);
+#else
+						CHECK_FAIL(L"vl::reflection::description::UnboxValue()#Argument type mismatch.");
+#endif
 					}
 				}
 			};

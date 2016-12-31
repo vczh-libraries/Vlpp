@@ -1,0 +1,2 @@
+#TargetFrameworkVersion=v4.0:PlatformToolSet=v140:EnableManagedIncrementalBuild=false:VCToolArchitecture=Native32Bit:WindowsTargetPlatformVersion=8.1
+DebugNoReflection|Win32|C:\Code\VczhLibraries\Vlpp\Test\UnitTest\|

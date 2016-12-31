@@ -413,6 +413,7 @@ DetailTypeInfoRetriver<TContainer>
 				typedef typename UpLevelRetriver::ResultReferenceType			ResultReferenceType;
 				typedef typename UpLevelRetriver::ResultNonReferenceType		ResultNonReferenceType;
 
+#ifndef VCZH_DEBUG_NO_REFLECTION
 				static Ptr<ITypeInfo> CreateTypeInfo(TypeInfoHint hint)
 				{
 					typedef typename DetailTypeInfoRetriver<T, TypeFlags::NonGenericType>::Type		ContainerType;
@@ -426,6 +427,7 @@ DetailTypeInfoRetriver<TContainer>
 					auto type = MakePtr<SharedPtrTypeInfo>(genericType);
 					return type;
 				}
+#endif
 			};
 
 			template<typename T>
@@ -439,6 +441,7 @@ DetailTypeInfoRetriver<TContainer>
 				typedef typename UpLevelRetriver::ResultReferenceType			ResultReferenceType;
 				typedef typename UpLevelRetriver::ResultNonReferenceType		ResultNonReferenceType;
 
+#ifndef VCZH_DEBUG_NO_REFLECTION
 				static Ptr<ITypeInfo> CreateTypeInfo(TypeInfoHint hint)
 				{
 					typedef typename DetailTypeInfoRetriver<T, TypeFlags::NonGenericType>::Type		ContainerType;
@@ -452,6 +455,7 @@ DetailTypeInfoRetriver<TContainer>
 					auto type = MakePtr<SharedPtrTypeInfo>(genericType);
 					return type;
 				}
+#endif
 			};
 
 			template<typename T>
@@ -465,6 +469,7 @@ DetailTypeInfoRetriver<TContainer>
 				typedef typename UpLevelRetriver::ResultReferenceType			ResultReferenceType;
 				typedef typename UpLevelRetriver::ResultNonReferenceType		ResultNonReferenceType;
 
+#ifndef VCZH_DEBUG_NO_REFLECTION
 				static Ptr<ITypeInfo> CreateTypeInfo(TypeInfoHint hint)
 				{
 					typedef typename DetailTypeInfoRetriver<T, TypeFlags::NonGenericType>::Type		ContainerType;
@@ -478,6 +483,7 @@ DetailTypeInfoRetriver<TContainer>
 					auto type = MakePtr<SharedPtrTypeInfo>(genericType);
 					return type;
 				}
+#endif
 			};
 
 			template<typename T>
@@ -491,6 +497,7 @@ DetailTypeInfoRetriver<TContainer>
 				typedef typename UpLevelRetriver::ResultReferenceType			ResultReferenceType;
 				typedef typename UpLevelRetriver::ResultNonReferenceType		ResultNonReferenceType;
 
+#ifndef VCZH_DEBUG_NO_REFLECTION
 				static Ptr<ITypeInfo> CreateTypeInfo(TypeInfoHint hint)
 				{
 					typedef typename DetailTypeInfoRetriver<T, TypeFlags::NonGenericType>::Type		ContainerType;
@@ -508,6 +515,7 @@ DetailTypeInfoRetriver<TContainer>
 					auto type = MakePtr<SharedPtrTypeInfo>(genericType);
 					return type;
 				}
+#endif
 			};
 
 			template<typename T>
@@ -521,6 +529,7 @@ DetailTypeInfoRetriver<TContainer>
 				typedef typename UpLevelRetriver::ResultReferenceType			ResultReferenceType;
 				typedef typename UpLevelRetriver::ResultNonReferenceType		ResultNonReferenceType;
 
+#ifndef VCZH_DEBUG_NO_REFLECTION
 				static Ptr<ITypeInfo> CreateTypeInfo(TypeInfoHint hint)
 				{
 					typedef typename DetailTypeInfoRetriver<T, TypeFlags::NonGenericType>::Type		ContainerType;
@@ -538,6 +547,7 @@ DetailTypeInfoRetriver<TContainer>
 					auto type = MakePtr<SharedPtrTypeInfo>(genericType);
 					return type;
 				}
+#endif
 			};
  
 /***********************************************************************
