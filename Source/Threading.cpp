@@ -329,7 +329,7 @@ Thread
 
 	void Thread::SetCPU(vint index)
 	{
-		SetThreadAffinityMask(internalData->handle, (1<<index));
+		SetThreadAffinityMask(internalData->handle, ((vint)1 << index));
 	}
 
 /***********************************************************************
