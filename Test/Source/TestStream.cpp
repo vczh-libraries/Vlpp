@@ -776,7 +776,7 @@ TEST_CASE(TestLzwSpeed)
 	MemoryStream compressedStream(BufferSize), decompressedStream(BufferSize);
 	unittest::UnitTest::PrintInfo(L"    Reading UnitTest.pdb ...");
 	{
-		FileStream fileStream(GetPath() + L"../Release/UnitTest.pdb", FileStream::ReadOnly);
+		FileStream fileStream(GetTestOutputPath() + L"../UnitTest/Release/UnitTest.pdb", FileStream::ReadOnly);
 		Copy(decompressedStream, fileStream, buffer, (vint)fileStream.Size());
 	}
 
