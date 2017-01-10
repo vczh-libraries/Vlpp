@@ -434,121 +434,8 @@ MethodGroupInfoImpl
 			}
 
 /***********************************************************************
-EventInfoImpl::EventHandlerImpl
-***********************************************************************/
-
-			EventInfoImpl::EventHandlerImpl::EventHandlerImpl(EventInfoImpl* _ownerEvent, DescriptableObject* _ownerObject, Ptr<IValueFunctionProxy> _handler)
-				:ownerEvent(_ownerEvent)
-				, ownerObject(_ownerObject)
-				, handler(_handler)
-				, attached(true)
-			{
-			}
-
-			EventInfoImpl::EventHandlerImpl::~EventHandlerImpl()
-			{
-			}
-
-			IEventInfo* EventInfoImpl::EventHandlerImpl::GetOwnerEvent()
-			{
-				return ownerEvent;
-			}
-
-			Value EventInfoImpl::EventHandlerImpl::GetOwnerObject()
-			{
-				return Value::From(ownerObject);
-			}
-
-			bool EventInfoImpl::EventHandlerImpl::IsAttached()
-			{
-				return attached;
-			}
-
-			bool EventInfoImpl::EventHandlerImpl::Detach()
-			{
-				if(attached)
-				{
-					attached=false;
-					ownerEvent->DetachInternal(ownerObject, this);
-					ownerEvent->RemoveEventHandler(ownerObject, this);
-					return true;
-				}
-				else
-				{
-					return false;
-				}
-			}
-
-			void EventInfoImpl::EventHandlerImpl::Invoke(const Value& thisObject, collections::Array<Value>& arguments)
-			{
-				if(thisObject.IsNull())
-				{
-					throw ArgumentNullException(L"thisObject", this);
-				}
-				Ptr<IValueList> eventArgs = IValueList::Create();
-				FOREACH(Value, argument, arguments)
-				{
-					eventArgs->Add(argument);
-				}
-				handler->Invoke(eventArgs);
-				arguments.Resize(eventArgs->GetCount());
-				for (vint i = 0; i < arguments.Count(); i++)
-				{
-					arguments[i] = eventArgs->Get(i);
-				}
-			}
-			
-			Ptr<DescriptableObject> EventInfoImpl::EventHandlerImpl::GetDescriptableTag()
-			{
-				return descriptableTag;
-			}
-
-			void EventInfoImpl::EventHandlerImpl::SetDescriptableTag(Ptr<DescriptableObject> _tag)
-			{
-				descriptableTag = _tag;
-			}
-
-			Ptr<Object> EventInfoImpl::EventHandlerImpl::GetObjectTag()
-			{
-				return objectTag;
-			}
-
-			void EventInfoImpl::EventHandlerImpl::SetObjectTag(Ptr<Object> _tag)
-			{
-				objectTag = _tag;
-			}
-
-/***********************************************************************
 EventInfoImpl
 ***********************************************************************/
-
-			const wchar_t* EventInfoImpl::EventHandlerListInternalPropertyName = L"List<EventInfoImpl::EventHandlerImpl>";
-
-			void EventInfoImpl::AddEventHandler(DescriptableObject* thisObject, Ptr<IEventHandler> eventHandler)
-			{
-				WString key=EventHandlerListInternalPropertyName;
-				Ptr<EventHandlerList> value=thisObject->GetInternalProperty(key).Cast<EventHandlerList>();
-				if(!value)
-				{
-					value=new EventHandlerList;
-					thisObject->SetInternalProperty(key, value);
-				}
-				value->Add(eventHandler);
-			}
-			
-			void EventInfoImpl::RemoveEventHandler(DescriptableObject* thisObject, IEventHandler* eventHandler)
-			{
-				WString key=EventHandlerListInternalPropertyName;
-				Ptr<EventHandlerList> value=thisObject->GetInternalProperty(key).Cast<EventHandlerList>();
-				if(value)
-				{
-					value->Remove(eventHandler);
-					if(value->Count()==0)
-					{
-						thisObject->SetInternalProperty(key, 0);
-					}
-				}
-			}
 
 			EventInfoImpl::EventInfoImpl(ITypeDescriptor* _ownerTypeDescriptor, const WString& _name)
 				:ownerTypeDescriptor(_ownerTypeDescriptor)
@@ -599,21 +486,41 @@ EventInfoImpl
 				{
 					throw ArgumentTypeMismtatchException(L"thisObject", ownerTypeDescriptor, Value::RawPtr, thisObject);
 				}
+
 				DescriptableObject* rawThisObject=thisObject.GetRawPtr();
 				if(rawThisObject)
 				{
-					Ptr<EventHandlerImpl> eventHandler=new EventHandlerImpl(this, rawThisObject, handler);
-					AddEventHandler(rawThisObject, eventHandler);
-					AttachInternal(rawThisObject, eventHandler.Obj());
-					return eventHandler;
+					return AttachInternal(rawThisObject, handler);
 				}
 				else
 				{
-					return 0;
+					return nullptr;
 				}
 			}
 
-			void EventInfoImpl::Invoke(const Value& thisObject, collections::Array<Value>& arguments)
+			bool EventInfoImpl::Detach(const Value& thisObject, Ptr<IEventHandler> handler)
+			{
+				if (thisObject.IsNull())
+				{
+					throw ArgumentNullException(L"thisObject", this);
+				}
+				else if (!thisObject.CanConvertTo(ownerTypeDescriptor, Value::RawPtr))
+				{
+					throw ArgumentTypeMismtatchException(L"thisObject", ownerTypeDescriptor, Value::RawPtr, thisObject);
+				}
+
+				DescriptableObject* rawThisObject = thisObject.GetRawPtr();
+				if (rawThisObject)
+				{
+					return DetachInternal(rawThisObject, handler);
+				}
+				else
+				{
+					return false;
+				}
+			}
+
+			void EventInfoImpl::Invoke(const Value& thisObject, Ptr<IValueList> arguments)
 			{
 				if(thisObject.IsNull())
 				{
@@ -623,6 +530,7 @@ EventInfoImpl
 				{
 					throw ArgumentTypeMismtatchException(L"thisObject", ownerTypeDescriptor, Value::RawPtr, thisObject);
 				}
+
 				DescriptableObject* rawThisObject=thisObject.GetRawPtr();
 				if(rawThisObject)
 				{
@@ -1181,15 +1089,7 @@ Function Related
 				{
 				}
 
-				void UnboxSpecifiedParameter(collections::Array<Value>& arguments, vint index)
-				{
-				}
-
 				void AddValueToList(Ptr<IValueList> arguments)
-				{
-				}
-
-				void AddValueToArray(collections::Array<Value>& arguments, vint index)
 				{
 				}
 			}

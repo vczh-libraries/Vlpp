@@ -13,6 +13,76 @@ Interfaces:
 
 namespace vl
 {
+
+/***********************************************************************
+Workflow to C++ Codegen Helpers
+***********************************************************************/
+
+	namespace __vwsn
+	{
+		template<typename T>
+		struct EventHelper
+		{
+		};
+
+		template<typename T>
+		Ptr<reflection::description::IEventHandler> EventAttach(T& e, typename EventHelper<T>::Handler handler)
+		{
+			return EventHelper<T>::Attach(e, handler);
+		}
+
+		template<typename T>
+		bool EventDetach(T& e, Ptr<reflection::description::IEventHandler> handler)
+		{
+			return EventHelper<T>::Detach(e, handler);
+		}
+
+		template<typename T>
+		auto EventInvoke(T& e)
+		{
+			return EventHelper<T>::Invoke(e);
+		}
+
+		template<typename ...TArgs>
+		struct EventHelper<Event<void(TArgs...)>>
+		{
+			using Handler = const Func<void(TArgs...)>&;
+
+			class EventHandlerImpl : public Object, public reflection::description::IEventHandler
+			{
+			public:
+				Ptr<EventHandler> handler;
+
+				EventHandlerImpl(Ptr<EventHandler> _handler)
+					:handler(_handler)
+				{
+				}
+
+				bool IsAttached()override
+				{
+					return handler->IsAttached();
+				}
+			};
+
+			static Ptr<reflection::description::IEventHandler> Attach(Event<void(TArgs...)>& e, Handler handler)
+			{
+				return MakePtr<EventHandlerImpl>(e.Add(handler));
+			}
+
+			static bool Detach(Event<void(TArgs...)>& e, Ptr<reflection::description::IEventHandler> handler)
+			{
+				auto impl = handler.Cast<EventHandlerImpl>();
+				if (!impl) return false;
+				return e.Remove(impl->handler);
+			}
+
+			static Event<void(TArgs...)>& Invoke(Event<void(TArgs...)>& e)
+			{
+				return e;
+			}
+		};
+	}
+
 	namespace reflection
 	{
 		namespace description
@@ -189,34 +259,6 @@ EventInfoImpl
 			class EventInfoImpl : public Object, public IEventInfo
 			{
 				friend class PropertyInfoImpl;
-			protected:
-				typedef collections::List<Ptr<IEventHandler>>		EventHandlerList;
-				static const wchar_t*								EventHandlerListInternalPropertyName;
-
-				class EventHandlerImpl : public Object, public IEventHandler
-				{
-				protected:
-					EventInfoImpl*						ownerEvent;
-					DescriptableObject*					ownerObject;
-					Ptr<IValueFunctionProxy>			handler;
-					Ptr<DescriptableObject>				descriptableTag;
-					Ptr<Object>							objectTag;
-					bool								attached;
-				public:
-					EventHandlerImpl(EventInfoImpl* _ownerEvent, DescriptableObject* _ownerObject, Ptr<IValueFunctionProxy> _handler);
-					~EventHandlerImpl();
-
-					IEventInfo*							GetOwnerEvent()override;
-					Value								GetOwnerObject()override;
-					bool								IsAttached()override;
-					bool								Detach()override;
-					void								Invoke(const Value& thisObject, collections::Array<Value>& arguments)override;
-
-					Ptr<DescriptableObject>				GetDescriptableTag();
-					void								SetDescriptableTag(Ptr<DescriptableObject> _tag);
-					Ptr<Object>							GetObjectTag();
-					void								SetObjectTag(Ptr<Object> _tag);
-				};
 
 			protected:
 				ITypeDescriptor*						ownerTypeDescriptor;
@@ -224,13 +266,10 @@ EventInfoImpl
 				WString									name;
 				Ptr<ITypeInfo>							handlerType;
 
-				virtual void							AttachInternal(DescriptableObject* thisObject, IEventHandler* eventHandler)=0;
-				virtual void							DetachInternal(DescriptableObject* thisObject, IEventHandler* eventHandler)=0;
-				virtual void							InvokeInternal(DescriptableObject* thisObject, collections::Array<Value>& arguments)=0;
+				virtual Ptr<IEventHandler>				AttachInternal(DescriptableObject* thisObject, Ptr<IValueFunctionProxy> handler)=0;
+				virtual bool							DetachInternal(DescriptableObject* thisObject, Ptr<IEventHandler> handler)=0;
+				virtual void							InvokeInternal(DescriptableObject* thisObject, Ptr<IValueList> arguments)=0;
 				virtual Ptr<ITypeInfo>					GetHandlerTypeInternal()=0;
-
-				void									AddEventHandler(DescriptableObject* thisObject, Ptr<IEventHandler> eventHandler);
-				void									RemoveEventHandler(DescriptableObject* thisObject, IEventHandler* eventHandler);
 			public:
 				EventInfoImpl(ITypeDescriptor* _ownerTypeDescriptor, const WString& _name);
 				~EventInfoImpl();
@@ -241,7 +280,8 @@ EventInfoImpl
 				vint									GetObservingPropertyCount()override;
 				IPropertyInfo*							GetObservingProperty(vint index)override;
 				Ptr<IEventHandler>						Attach(const Value& thisObject, Ptr<IValueFunctionProxy> handler)override;
-				void									Invoke(const Value& thisObject, collections::Array<Value>& arguments)override;
+				bool									Detach(const Value& thisObject, Ptr<IEventHandler> handler)override;
+				void									Invoke(const Value& thisObject, Ptr<IValueList> arguments)override;
 			};
 
 /***********************************************************************

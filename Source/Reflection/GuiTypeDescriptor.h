@@ -46,6 +46,14 @@ Attribute
 			class IValueListener;
 			class IValueSubscription;
 
+			class IValueEnumerable;
+			class IValueEnumerator;
+			class IValueReadonlyList;
+			class IValueList;
+			class IValueObservableList;
+			class IValueReadonlyDictionary;
+			class IValueDictionary;
+
 			class IValueCallStack;
 			class IValueException;
 		}
@@ -590,6 +598,7 @@ Value
 				Value							Invoke(const WString& name)const;
 				Value							Invoke(const WString& name, collections::Array<Value>& arguments)const;
 				Ptr<IEventHandler>				AttachEvent(const WString& name, const Value& function)const;
+				bool							DetachEvent(const WString& name, Ptr<IEventHandler> handler)const;
 #endif
 
 				/// <summary>Dispose the object is it is stored as a raw pointer.</summary>
@@ -712,11 +721,7 @@ ITypeDescriptor (event)
 			class IEventHandler : public virtual IDescriptable, public Description<IEventHandler>
 			{
 			public:
-				virtual IEventInfo*				GetOwnerEvent()=0;
-				virtual Value					GetOwnerObject()=0;
 				virtual bool					IsAttached()=0;
-				virtual bool					Detach()=0;
-				virtual void					Invoke(const Value& thisObject, collections::Array<Value>& arguments)=0;
 			};
 
 			class IEventInfo : public virtual IMemberInfo, public Description<IEventInfo>
@@ -727,25 +732,18 @@ ITypeDescriptor (event)
 				public:
 					/*
 					Arguments:
-						$Type:					C++ full type name
 						$Name:					Event name
 						$This:					Expression for the "this" argument
-						$Handler:				Event subscription / Event handler
+						$Handler:				Event handler function / Event handler object
 						$Arguments:				Expressions for arguments separated by ", "
 					Default (for Vlpp Event):
-						Handler:				::vl::Ptr<::vl::EventHandler>
-						Attach:					$This->$Name.Add($Handler)
-						Detach:					$This->$Name.Remove($Handler)
-						Invoke:					$This->$Name($Arguments)
-					Example:
-						External constructor:	<full-function-name>($Arguments)
-						External method:		<full-function-name>($This, $Arguments)
-						Renamed method:			$This-><function-name>($Arguments)
+						Attach:					::vl::__vwsn::EventAttach($This->$Name, $Handler)
+						Detach:					::vl::__vwsn::EventDetach($This->$Name, $Handler)
+						Invoke:					::vl::__vwsn::EventInvoke($This->$Name)($Arguments)
 
 					GetInvokeTemplate() == L"*":
 						This event does not exist in C++
 					*/
-					virtual const WString&		GetHandlerType() = 0;
 					virtual const WString&		GetAttachTemplate() = 0;
 					virtual const WString&		GetDetachTemplate() = 0;
 					virtual const WString&		GetInvokeTemplate() = 0;
@@ -761,7 +759,8 @@ ITypeDescriptor (event)
 				virtual vint					GetObservingPropertyCount()=0;
 				virtual IPropertyInfo*			GetObservingProperty(vint index)=0;
 				virtual Ptr<IEventHandler>		Attach(const Value& thisObject, Ptr<IValueFunctionProxy> handler)=0;
-				virtual void					Invoke(const Value& thisObject, collections::Array<Value>& arguments)=0;
+				virtual bool					Detach(const Value& thisObject, Ptr<IEventHandler> handler)=0;
+				virtual void					Invoke(const Value& thisObject, Ptr<IValueList> arguments)=0;
 			};
 
 /***********************************************************************
@@ -835,6 +834,10 @@ ITypeDescriptor (method)
 						Constructor:			new $Type($Arguments)
 						Static:					$Type::$Name($Arguments)
 						Normal:					$This->$Name($Arguments)
+					Example:
+						External constructor:	<full-function-name>($Arguments)
+						External method:		<full-function-name>($This, $Arguments)
+						Renamed method:			$This-><function-name>($Arguments)
 
 					GetInvokeTemplate() == L"*":
 						This method does not exist in C++
@@ -995,7 +998,6 @@ Cpp Helper Functions
 			extern WString						CppGetFullName(ITypeDescriptor* type);
 			extern WString						CppGetReferenceTemplate(IPropertyInfo* prop);
 			extern WString						CppGetInvokeTemplate(IMethodInfo* method);
-			extern WString						CppGetHandlerType(IEventInfo* ev);
 			extern WString						CppGetAttachTemplate(IEventInfo* ev);
 			extern WString						CppGetDetachTemplate(IEventInfo* ev);
 			extern WString						CppGetInvokeTemplate(IEventInfo* ev);
@@ -1264,11 +1266,6 @@ Exceptions
 
 				ArgumentNullException(const WString& name, IEventInfo* target)
 					:TypeDescriptorException(L"Argument \"" + name + L"\" cannot be null when accessing event \"" + target->GetName() + L"\" in type \"" + target->GetOwnerTypeDescriptor()->GetTypeName() + L"\".")
-				{
-				}
-
-				ArgumentNullException(const WString& name, IEventHandler* target)
-					:TypeDescriptorException(L"Argument \"" + name + L"\" cannot be null when invoking event \"" + target->GetOwnerEvent()->GetName() + L"\" in type \"" + target->GetOwnerEvent()->GetOwnerTypeDescriptor()->GetTypeName() + L"\".")
 				{
 				}
 

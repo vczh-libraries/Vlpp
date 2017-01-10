@@ -505,28 +505,10 @@ CustomEventInfoImpl<void(TArgs...)>
 
 			namespace internal_helper
 			{
-				extern void AddValueToArray(collections::Array<Value>& arguments, vint index);
-
-				template<typename T0, typename ...TArgs>
-				void AddValueToArray(collections::Array<Value>& arguments, vint index, T0&& p0, TArgs&& ...args)
-				{
-					arguments[index] = description::BoxParameter<T0>(p0);
-					AddValueToArray(arguments, index + 1, args...);
-				}
-
-				extern void UnboxSpecifiedParameter(collections::Array<Value>& arguments, vint index);
-
-				template<typename T0, typename ...TArgs>
-				void UnboxSpecifiedParameter(collections::Array<Value>& arguments, vint index, T0& p0, TArgs& ...args)
-				{
-					UnboxParameter<typename TypeInfoRetriver<T0>::TempValueType>(arguments[index], p0, 0, itow(index) + L"-th argument");
-					UnboxSpecifiedParameter(arguments, index + 1, args...);
-				}
-
 				template<typename ...TArgs>
 				struct BoxedEventInvoker
 				{
-					static void Invoke(Event<void(TArgs...)>& eventObject, collections::Array<Value>& arguments, typename RemoveCVR<TArgs>::Type&& ...args)
+					static void Invoke(Event<void(TArgs...)>& eventObject, Ptr<IValueList> arguments, typename RemoveCVR<TArgs>::Type&& ...args)
 					{
 						UnboxSpecifiedParameter(arguments, 0, args...);
 						eventObject(args...);
@@ -540,51 +522,31 @@ CustomEventInfoImpl<void(TArgs...)>
 			protected:
 				Event<void(TArgs...)> TClass::*			eventRef;
 
-				void AttachInternal(DescriptableObject* thisObject, IEventHandler* eventHandler)override
+				Ptr<IEventHandler> AttachInternal(DescriptableObject* thisObject, Ptr<IValueFunctionProxy> handler)override
 				{
-					if(thisObject)
-					{
-						if (EventHandlerImpl* handlerImpl = dynamic_cast<EventHandlerImpl*>(eventHandler))
+					TClass* object = UnboxValue<TClass*>(Value::From(thisObject), GetOwnerTypeDescriptor(), L"thisObject");
+					Event<void(TArgs...)>& eventObject = object->*eventRef;
+					auto func = Func<void(TArgs...)>([=](TArgs ...args)
 						{
-							TClass* object = UnboxValue<TClass*>(Value::From(thisObject), GetOwnerTypeDescriptor(), L"thisObject");
-							Event<void(TArgs...)>& eventObject = object->*eventRef;
-							Ptr<EventHandler> handler = eventObject.Add(
-								Func<void(TArgs...)>([=](TArgs ...args)
-								{
-									collections::Array<Value> arguments(sizeof...(TArgs));
-									internal_helper::AddValueToArray(arguments, 0, ForwardValue<TArgs>(args)...);
-									eventHandler->Invoke(Value::From(thisObject), arguments);
-								}));
-							handlerImpl->SetObjectTag(handler);
-						}
-					}
+							auto arguments = IValueList::Create();
+							internal_helper::AddValueToList(arguments, ForwardValue<TArgs>(args)...);
+							handler->Invoke(arguments);
+						});
+					return __vwsn::EventAttach(eventObject, func);
 				}
 
-				void DetachInternal(DescriptableObject* thisObject, IEventHandler* eventHandler)override
+				bool DetachInternal(DescriptableObject* thisObject, Ptr<IEventHandler> handler)override
 				{
-					if(thisObject)
-					{
-						if (EventHandlerImpl* handlerImpl = dynamic_cast<EventHandlerImpl*>(eventHandler))
-						{
-							TClass* object = UnboxValue<TClass*>(Value::From(thisObject), GetOwnerTypeDescriptor(), L"thisObject");
-							Event<void(TArgs...)>& eventObject = object->*eventRef;
-							Ptr<EventHandler> handler=handlerImpl->GetObjectTag().Cast<EventHandler>();
-							if (handler)
-							{
-								eventObject.Remove(handler);
-							}
-						}
-					}
+					TClass* object = UnboxValue<TClass*>(Value::From(thisObject), GetOwnerTypeDescriptor(), L"thisObject");
+					Event<void(TArgs...)>& eventObject = object->*eventRef;
+					return __vwsn::EventDetach(eventObject, handler);
 				}
 
-				void InvokeInternal(DescriptableObject* thisObject, collections::Array<Value>& arguments)override
+				void InvokeInternal(DescriptableObject* thisObject, Ptr<IValueList> arguments)override
 				{
-					if(thisObject)
-					{
-						TClass* object = UnboxValue<TClass*>(Value::From(thisObject), GetOwnerTypeDescriptor(), L"thisObject");
-						Event<void(TArgs...)>& eventObject = object->*eventRef;
-						return internal_helper::BoxedEventInvoker<TArgs...>::Invoke(eventObject, arguments, typename RemoveCVR<TArgs>::Type()...);
-					}
+					TClass* object = UnboxValue<TClass*>(Value::From(thisObject), GetOwnerTypeDescriptor(), L"thisObject");
+					Event<void(TArgs...)>& eventObject = object->*eventRef;
+					internal_helper::BoxedEventInvoker<TArgs...>::Invoke(eventObject, arguments, typename RemoveCVR<TArgs>::Type()...);
 				}
 
 				Ptr<ITypeInfo> GetHandlerTypeInternal()override

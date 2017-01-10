@@ -921,8 +921,7 @@ namespace reflection_test
 				oldValue = _oldValue;
 				newValue = _newValue;
 			})));
-		TEST_ASSERT(eventHandler->GetOwnerObject().GetRawPtr() == eventRaiser.GetRawPtr());
-		TEST_ASSERT(eventHandler->GetOwnerEvent()->GetName() == L"ValueChanged");
+		TEST_ASSERT(eventHandler->IsAttached() == true);
 
 		TEST_ASSERT(UnboxValue<vint>(eventRaiser.GetProperty(L"Value")) == 0);
 		TEST_ASSERT(oldValue == 0);
@@ -938,14 +937,15 @@ namespace reflection_test
 		TEST_ASSERT(oldValue == 100);
 		TEST_ASSERT(newValue == 200);
 
-		TEST_ASSERT(eventHandler->Detach() == true);
+		TEST_ASSERT(eventRaiser.DetachEvent(L"ValueChanged", eventHandler) == true);
+		TEST_ASSERT(eventHandler->IsAttached() == false);
 
 		eventRaiser.SetProperty(L"Value", BoxValue<vint>(300));
 		TEST_ASSERT(UnboxValue<vint>(eventRaiser.GetProperty(L"Value")) == 300);
 		TEST_ASSERT(oldValue == 100);
 		TEST_ASSERT(newValue == 200);
 
-		TEST_ASSERT(eventHandler->Detach() == false);
+		TEST_ASSERT(eventRaiser.DetachEvent(L"ValueChanged", eventHandler) == false);
 	}
 
 	void TestReflectionEnum()

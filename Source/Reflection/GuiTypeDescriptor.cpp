@@ -743,6 +743,17 @@ description::Value
 				return eventInfo->Attach(*this, proxy);
 			}
 
+			bool Value::DetachEvent(const WString& name, Ptr<IEventHandler> handler)const
+			{
+				ITypeDescriptor* type = GetTypeDescriptor();
+				if (!type) throw ArgumentNullException(L"thisObject", name);
+
+				IEventInfo* eventInfo = type->GetEventByName(name, true);
+				if (!eventInfo) throw MemberNotExistsException(name, type);
+
+				return eventInfo->Detach(*this, handler);
+			}
+
 #endif
 
 			bool Value::DeleteRawPtr()
@@ -1299,28 +1310,22 @@ Cpp Helper Functions
 				}
 			}
 
-			WString CppGetHandlerType(IEventInfo* ev)
-			{
-				auto cpp = ev->GetCpp();
-				return cpp == nullptr ? WString(L"::vl::Ptr<::vl::EventHandler>", false) : cpp->GetHandlerType();
-			}
-
 			WString CppGetAttachTemplate(IEventInfo* ev)
 			{
 				auto cpp = ev->GetCpp();
-				return cpp == nullptr ? WString(L"$This->$Name.Add($Handler)", false) : cpp->GetAttachTemplate();
+				return cpp == nullptr ? WString(L"::vl::__vwsn::EventAttach($This->$Name, $Handler)", false) : cpp->GetAttachTemplate();
 			}
 
 			WString CppGetDetachTemplate(IEventInfo* ev)
 			{
 				auto cpp = ev->GetCpp();
-				return cpp == nullptr ? WString(L"$This->$Name.Remove($Handler)", false) : cpp->GetDetachTemplate();
+				return cpp == nullptr ? WString(L"::vl::__vwsn::EventDetach($This->$Name, $Handler)", false) : cpp->GetDetachTemplate();
 			}
 
 			WString CppGetInvokeTemplate(IEventInfo* ev)
 			{
 				auto cpp = ev->GetCpp();
-				return cpp == nullptr ? WString(L"$This->$Name($Arguments)", false) : cpp->GetInvokeTemplate();
+				return cpp == nullptr ? WString(L"::vl::__vwsn::EventInvoke($This->$Name)($Arguments)", false) : cpp->GetInvokeTemplate();
 			}
 
 			bool CppExists(ITypeDescriptor* type)
