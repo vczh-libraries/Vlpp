@@ -251,8 +251,8 @@ Attribute
 		///
 		///				VI) Inject a global function as a constructor
 		///				CLASS_MEMBER_EXTERNALCTOR(Ptr<MyClass>(int, const WString&), {L"numberParameter" _ L"stringParameter"}, mynamespace::CreateMyClass)
-		///				CLASS_MEMBER_EXTERNALCTOR_INVOKETEMPLATE(Ptr<MyClass>(int, const WString&), {L"numberParameter" _ L"stringParameter"}, CreateMyClass, L"mynamespace::GetMyClass($Arguments)")
-		///				CLASS_MEMBER_EXTERNALCTOR_INVOKETEMPLATE(Ptr<MyClass>(), NO_PARAMETER, []()->Ptr<MyClass>{return nullptr;}, L"*")
+		///				CLASS_MEMBER_EXTERNALCTOR_TEMPLATE(Ptr<MyClass>(int, const WString&), {L"numberParameter" _ L"stringParameter"}, CreateMyClass, L"mynamespace::GetMyClass($Arguments)", L"::vl::Func<$Func>(&mynamespace::GetMyClass)")
+		///				CLASS_MEMBER_EXTERNALCTOR_TEMPLATE(Ptr<MyClass>(), NO_PARAMETER, []()->Ptr<MyClass>{return nullptr;}, L"*", L"*")
 		///
 		///				VII) Add unoverloaded functions
 		///				CLASS_MEMBER_METHOD(MyFunction1, NO_PARAMETER)
@@ -274,7 +274,7 @@ Attribute
 		///
 		///				X) Inject global functions as methods:
 		///				CLASS_MEMBER_EXTERNALMETHOD(MyNewName5, {L"parameter"}, int(MyClass::*)(int), mynamespace::AGlobalFunction)
-		///				CLASS_MEMBER_EXTERNALMETHOD_INVOKETEMPLATE(MyNewName5, {L"parameter1" _ L"parameter2"}, int(MyClass::*)(int, const WString&), [](MyClass* a, int b, const WString& c){return 0;}, L"*")
+		///				CLASS_MEMBER_EXTERNALMETHOD_TEMPLATE(MyNewName5, {L"parameter1" _ L"parameter2"}, int(MyClass::*)(int, const WString&), [](MyClass* a, int b, const WString& c){return 0;}, L"*", L"*")
 		///
 		///				XI) Add unoverloaded static functions
 		///				CLASS_MEMBER_STATIC_METHOD(MyFunction4, NO_PARAMETER)
@@ -827,6 +827,7 @@ ITypeDescriptor (method)
 					/*
 					Arguments:
 						$Type:					C++ full type name
+						$Func:					C++ function type (e.g. void(int)), object type not included for method
 						$Name:					Method name
 						$This:					Expression for the "this" argument;
 						$Arguments:				Expressions for arguments separated by ", "
@@ -843,6 +844,7 @@ ITypeDescriptor (method)
 						This method does not exist in C++
 					*/
 					virtual const WString&		GetInvokeTemplate() = 0;
+					virtual const WString&		GetClosureTemplate() = 0;
 				};
 				/*
 				Priority:
@@ -997,6 +999,7 @@ Cpp Helper Functions
 
 			extern WString						CppGetFullName(ITypeDescriptor* type);
 			extern WString						CppGetReferenceTemplate(IPropertyInfo* prop);
+			extern WString						CppGetClosureTemplate(IMethodInfo* method);
 			extern WString						CppGetInvokeTemplate(IMethodInfo* method);
 			extern WString						CppGetAttachTemplate(IEventInfo* ev);
 			extern WString						CppGetDetachTemplate(IEventInfo* ev);

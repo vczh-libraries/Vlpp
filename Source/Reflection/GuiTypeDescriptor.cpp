@@ -1289,6 +1289,23 @@ Cpp Helper Functions
 				}
 			}
 
+			WString CppGetClosureTemplate(IMethodInfo* method)
+			{
+				if (auto cpp = method->GetCpp())
+				{
+					return cpp->GetClosureTemplate();
+				}
+
+				if (method->IsStatic())
+				{
+					return WString(L"::vl::Func<$Func>(&$Type::$Name)", false);
+				}
+				else
+				{
+					return WString(L"::vl::Func<$Func>($This, &$Type::$Name)", false);
+				}
+			}
+
 			WString CppGetInvokeTemplate(IMethodInfo* method)
 			{
 				if (auto cpp = method->GetCpp())

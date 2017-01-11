@@ -370,24 +370,35 @@ CustomStaticMethodInfoImpl<TClass, R(TArgs...)>
 			{
 			private:
 				WString invokeTemplate;
+				WString closureTemplate;
 
 				const WString& GetInvokeTemplate()override
 				{
 					return invokeTemplate;
 				}
+
+				const WString& GetClosureTemplate()override
+				{
+					return closureTemplate;
+				}
 			public:
-				MethodInfoImpl_StaticCpp(IMethodGroupInfo* _ownerMethodGroup, Ptr<ITypeInfo> _return, bool _isStatic, const wchar_t* _invokeTemplate)
+				MethodInfoImpl_StaticCpp(IMethodGroupInfo* _ownerMethodGroup, Ptr<ITypeInfo> _return, bool _isStatic, const wchar_t* _invokeTemplate, const wchar_t* _closureTemplate)
 					:MethodInfoImpl(_ownerMethodGroup, _return, _isStatic)
 				{
+					CHECK_ERROR((_invokeTemplate == nullptr) == (_closureTemplate == nullptr), L"MethodInfoImpl_StaticCpp::MethodInfoImpl_StaticCpp()#Templates should all be set or default at the same time.");
 					if (_invokeTemplate)
 					{
 						invokeTemplate = WString(_invokeTemplate, false);
+					}
+					if (_closureTemplate)
+					{
+						closureTemplate = WString(_closureTemplate, false);
 					}
 				}
 
 				IMethodInfo::ICpp* GetCpp()override
 				{
-					return invokeTemplate.Length() == 0 ? nullptr : this;
+					return invokeTemplate.Length() == 0 || closureTemplate.Length() == 0 ? nullptr : this;
 				}
 			};
 
@@ -410,8 +421,8 @@ CustomStaticMethodInfoImpl<TClass, R(TArgs...)>
 					return BoxParameter<Func<R(TArgs...)>>(proxy);
 				}
 			public:
-				CustomMethodInfoImpl(const wchar_t* parameterNames[], R(__thiscall TClass::* _method)(TArgs...), const wchar_t* _invokeTemplate)
-					:MethodInfoImpl_StaticCpp(0, TypeInfoRetriver<R>::CreateTypeInfo(), false, _invokeTemplate)
+				CustomMethodInfoImpl(const wchar_t* parameterNames[], R(__thiscall TClass::* _method)(TArgs...), const wchar_t* _invokeTemplate, const wchar_t* _closureTemplate)
+					:MethodInfoImpl_StaticCpp(0, TypeInfoRetriver<R>::CreateTypeInfo(), false, _invokeTemplate, _closureTemplate)
 					,method(_method)
 				{
 					internal_helper::ConstructorArgumentAdder<TypeTuple<TArgs...>>::Add(this, parameterNames, 0);
@@ -437,8 +448,8 @@ CustomStaticMethodInfoImpl<TClass, R(TArgs...)>
 					return BoxParameter<Func<R(TArgs...)>>(proxy);
 				}
 			public:
-				CustomExternalMethodInfoImpl(const wchar_t* parameterNames[], R(*_method)(TClass*, TArgs...), const wchar_t* _invokeTemplate)
-					:MethodInfoImpl_StaticCpp(0, TypeInfoRetriver<R>::CreateTypeInfo(), false, _invokeTemplate)
+				CustomExternalMethodInfoImpl(const wchar_t* parameterNames[], R(*_method)(TClass*, TArgs...), const wchar_t* _invokeTemplate, const wchar_t* _closureTemplate)
+					:MethodInfoImpl_StaticCpp(0, TypeInfoRetriver<R>::CreateTypeInfo(), false, _invokeTemplate, _closureTemplate)
 					,method(_method)
 				{
 					internal_helper::ConstructorArgumentAdder<TypeTuple<TArgs...>>::Add(this, parameterNames, 0);
@@ -491,8 +502,8 @@ CustomStaticMethodInfoImpl<R(TArgs...)>
 					return BoxParameter<Func<R(TArgs...)>>(proxy);
 				}
 			public:
-				CustomStaticMethodInfoImpl(const wchar_t* parameterNames[], R(* _method)(TArgs...), const wchar_t* _invokeTemplate)
-					:MethodInfoImpl_StaticCpp(0, TypeInfoRetriver<R>::CreateTypeInfo(), true, _invokeTemplate)
+				CustomStaticMethodInfoImpl(const wchar_t* parameterNames[], R(* _method)(TArgs...), const wchar_t* _invokeTemplate, const wchar_t* _closureTemplate)
+					:MethodInfoImpl_StaticCpp(0, TypeInfoRetriver<R>::CreateTypeInfo(), true, _invokeTemplate, _closureTemplate)
 					,method(_method)
 				{
 					internal_helper::ConstructorArgumentAdder<TypeTuple<TArgs...>>::Add(this, parameterNames, 0);

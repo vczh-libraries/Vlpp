@@ -16,8 +16,8 @@ void WriteTypeReflectionImplementation(ParsingSymbolManager* manager, const WStr
 
 	writer.WriteLine(L"");
 	writer.WriteLine(L"#define PARSING_TOKEN_FIELD(NAME)\\");
-	writer.WriteLine(L"\t\t\tCLASS_MEMBER_EXTERNALMETHOD_INVOKETEMPLATE(get_##NAME, NO_PARAMETER, vl::WString(ClassType::*)(), [](ClassType* node) { return node->NAME.value; }, L\"*\")\\");
-	writer.WriteLine(L"\t\t\tCLASS_MEMBER_EXTERNALMETHOD_INVOKETEMPLATE(set_##NAME, { L\"value\" }, void(ClassType::*)(const vl::WString&), [](ClassType* node, const vl::WString& value) { node->NAME.value = value; }, L\"*\")\\");
+	writer.WriteLine(L"\t\t\tCLASS_MEMBER_EXTERNALMETHOD_TEMPLATE(get_##NAME, NO_PARAMETER, vl::WString(ClassType::*)(), [](ClassType* node) { return node->NAME.value; }, L\"*\", L\"*\")\\");
+	writer.WriteLine(L"\t\t\tCLASS_MEMBER_EXTERNALMETHOD_TEMPLATE(set_##NAME, { L\"value\" }, void(ClassType::*)(const vl::WString&), [](ClassType* node, const vl::WString& value) { node->NAME.value = value; }, L\"*\", L\"*\")\\");
 	writer.WriteLine(L"\t\t\tCLASS_MEMBER_PROPERTY_REFERENCETEMPLATE(NAME, get_##NAME, set_##NAME, L\"$This->$Name.value\")\\");
 
 	List<ParsingSymbol*> types, leafClasses;

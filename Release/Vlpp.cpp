@@ -14381,8 +14381,8 @@ namespace vl
 			using namespace vl::parsing::json;
 
 #define PARSING_TOKEN_FIELD(NAME)\
-			CLASS_MEMBER_EXTERNALMETHOD_INVOKETEMPLATE(get_##NAME, NO_PARAMETER, vl::WString(ClassType::*)(), [](ClassType* node) { return node->NAME.value; }, L"*")\
-			CLASS_MEMBER_EXTERNALMETHOD_INVOKETEMPLATE(set_##NAME, { L"value" }, void(ClassType::*)(const vl::WString&), [](ClassType* node, const vl::WString& value) { node->NAME.value = value; }, L"*")\
+			CLASS_MEMBER_EXTERNALMETHOD_TEMPLATE(get_##NAME, NO_PARAMETER, vl::WString(ClassType::*)(), [](ClassType* node) { return node->NAME.value; }, L"*", L"*")\
+			CLASS_MEMBER_EXTERNALMETHOD_TEMPLATE(set_##NAME, { L"value" }, void(ClassType::*)(const vl::WString&), [](ClassType* node, const vl::WString& value) { node->NAME.value = value; }, L"*", L"*")\
 			CLASS_MEMBER_PROPERTY_REFERENCETEMPLATE(NAME, get_##NAME, set_##NAME, L"$This->$Name.value")\
 
 			IMPL_TYPE_INFO_RENAME(vl::parsing::json::JsonNode, system::JsonNode)
@@ -15407,8 +15407,8 @@ namespace vl
 			using namespace vl::parsing::xml;
 
 #define PARSING_TOKEN_FIELD(NAME)\
-			CLASS_MEMBER_EXTERNALMETHOD_INVOKETEMPLATE(get_##NAME, NO_PARAMETER, vl::WString(ClassType::*)(), [](ClassType* node) { return node->NAME.value; }, L"*")\
-			CLASS_MEMBER_EXTERNALMETHOD_INVOKETEMPLATE(set_##NAME, { L"value" }, void(ClassType::*)(const vl::WString&), [](ClassType* node, const vl::WString& value) { node->NAME.value = value; }, L"*")\
+			CLASS_MEMBER_EXTERNALMETHOD_TEMPLATE(get_##NAME, NO_PARAMETER, vl::WString(ClassType::*)(), [](ClassType* node) { return node->NAME.value; }, L"*", L"*")\
+			CLASS_MEMBER_EXTERNALMETHOD_TEMPLATE(set_##NAME, { L"value" }, void(ClassType::*)(const vl::WString&), [](ClassType* node, const vl::WString& value) { node->NAME.value = value; }, L"*", L"*")\
 			CLASS_MEMBER_PROPERTY_REFERENCETEMPLATE(NAME, get_##NAME, set_##NAME, L"$This->$Name.value")\
 
 			IMPL_TYPE_INFO_RENAME(vl::parsing::xml::XmlNode, system::XmlNode)
@@ -16827,6 +16827,23 @@ Cpp Helper Functions
 				else
 				{
 					return WString(L"$This.$Name", false);
+				}
+			}
+
+			WString CppGetClosureTemplate(IMethodInfo* method)
+			{
+				if (auto cpp = method->GetCpp())
+				{
+					return cpp->GetClosureTemplate();
+				}
+
+				if (method->IsStatic())
+				{
+					return WString(L"::vl::Func<$Func>(&$Type::$Name)", false);
+				}
+				else
+				{
+					return WString(L"::vl::Func<$Func>($This, &$Type::$Name)", false);
 				}
 			}
 
