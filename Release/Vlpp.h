@@ -13486,10 +13486,10 @@ Enumerable Wrappers
 					});
 			}
 
-			template<typename T>
-			collections::LazyList<T> GetLazyList(Ptr<IValueDictionary> value)
+			template<typename K, typename V>
+			collections::LazyList<collections::Pair<K, V>> GetLazyList(Ptr<IValueDictionary> value)
 			{
-				return GetLazyList<T>(Ptr<IValueReadonlyDictionary>(value));
+				return GetLazyList<K, V>(Ptr<IValueReadonlyDictionary>(value));
 			}
 
 /***********************************************************************
