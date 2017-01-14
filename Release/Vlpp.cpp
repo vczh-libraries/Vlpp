@@ -16900,7 +16900,7 @@ Cpp Helper Functions
 				}
 				else if (auto method = prop->GetGetter())
 				{
-					return !CppExists(method);
+					return CppExists(method);
 				}
 				else
 				{

@@ -11360,6 +11360,20 @@ Workflow to C++ Codegen Helpers
 	namespace __vwsn
 	{
 		template<typename T>
+		T* This(T* thisValue)
+		{
+			CHECK_ERROR(thisValue != nullptr, L"The this pointer cannot be null.");
+			return thisValue;
+		}
+
+		template<typename T>
+		Ptr<T> This(Ptr<T> thisValue)
+		{
+			CHECK_ERROR(thisValue != nullptr, L"The this pointer cannot be null.");
+			return MoveValue<Ptr<T>>(thisValue);
+		}
+
+		template<typename T>
 		struct EventHelper
 		{
 		};
