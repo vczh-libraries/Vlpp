@@ -9400,6 +9400,8 @@ Runtime Exception
 #pragma pop_macro("GetMessage")
 				virtual bool							GetFatal() = 0;
 				virtual Ptr<IValueReadonlyList>			GetCallStack() = 0;
+
+				static Ptr<IValueException>				Create(const WString& message);
 			};
 
 /***********************************************************************
