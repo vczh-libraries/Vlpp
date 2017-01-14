@@ -11370,7 +11370,7 @@ Workflow to C++ Codegen Helpers
 		Ptr<T> This(Ptr<T> thisValue)
 		{
 			CHECK_ERROR(thisValue != nullptr, L"The this pointer cannot be null.");
-			return MoveValue<Ptr<T>>(thisValue);
+			return MoveValue(thisValue);
 		}
 
 		template<typename T>
