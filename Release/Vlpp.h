@@ -6561,11 +6561,11 @@ ForEach宏
 ***********************************************************************/
 
 #define FOREACH(TYPE, VARIABLE, COLLECTION)\
-		SCOPE_VARIABLE(const ForEachIterator<TYPE>&, __foreach_iterator__, CreateForEachIterator(COLLECTION))\
+		SCOPE_VARIABLE(const ::vl::collections::ForEachIterator<TYPE>&, __foreach_iterator__, ::vl::collections::CreateForEachIterator(COLLECTION))\
 		for(TYPE VARIABLE;__foreach_iterator__.Next(VARIABLE);)
 
 #define FOREACH_INDEXER(TYPE, VARIABLE, INDEXER, COLLECTION)\
-		SCOPE_VARIABLE(const ForEachIterator<TYPE>&, __foreach_iterator__, CreateForEachIterator(COLLECTION))\
+		SCOPE_VARIABLE(const ::vl::collections::ForEachIterator<TYPE>&, __foreach_iterator__, ::vl::collections::CreateForEachIterator(COLLECTION))\
 		SCOPE_VARIABLE(vint, INDEXER, 0)\
 		for(TYPE VARIABLE;__foreach_iterator__.Next(VARIABLE);INDEXER++)
 	}

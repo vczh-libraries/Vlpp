@@ -1502,7 +1502,7 @@ namespace reflection_test
 		{
 			auto td = GetTypeDescriptor<Derived>();
 			auto prop = td->GetPropertyByName(L"b", false);
-			TEST_ASSERT(!CppExists(prop));
+			TEST_ASSERT(CppExists(prop));
 		}
 		{
 			auto td = GetTypeDescriptor<XmlElement>();
