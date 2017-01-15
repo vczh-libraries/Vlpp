@@ -329,22 +329,22 @@ Collection Wrappers
 				{
 				}
 
-				IValueReadonlyList* GetKeys()override
+				Ptr<IValueReadonlyList> GetKeys()override
 				{
 					if(!keys)
 					{
 						keys=new ValueReadonlyListWrapper<const KeyContainer*>(&wrapperPointer->Keys());
 					}
-					return keys.Obj();
+					return keys;
 				}
 
-				IValueReadonlyList* GetValues()override
+				Ptr<IValueReadonlyList> GetValues()override
 				{
 					if(!values)
 					{
 						values=new ValueReadonlyListWrapper<const ValueContainer*>(&wrapperPointer->Values());
 					}
-					return values.Obj();
+					return values;
 				}
 
 				vint GetCount()override

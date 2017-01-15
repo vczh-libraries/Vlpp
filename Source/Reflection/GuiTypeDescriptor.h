@@ -1066,8 +1066,8 @@ Collections
 			class IValueReadonlyDictionary : public virtual IDescriptable, public Description<IValueReadonlyDictionary>
 			{
 			public:
-				virtual IValueReadonlyList*		GetKeys()=0;
-				virtual IValueReadonlyList*		GetValues()=0;
+				virtual Ptr<IValueReadonlyList>	GetKeys()=0;
+				virtual Ptr<IValueReadonlyList>	GetValues()=0;
 				virtual vint					GetCount()=0;
 				virtual Value					Get(const Value& key)=0;
 			};

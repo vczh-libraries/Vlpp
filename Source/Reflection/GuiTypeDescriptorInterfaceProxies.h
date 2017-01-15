@@ -108,12 +108,12 @@ Interface Implementation Proxy (Implement)
 			END_INTERFACE_PROXY(IValueObservableList)
 				
 			BEGIN_INTERFACE_PROXY_NOPARENT_SHAREDPTR(IValueReadonlyDictionary)
-				IValueReadonlyList* GetKeys()override
+				Ptr<IValueReadonlyList> GetKeys()override
 				{
 					INVOKEGET_INTERFACE_PROXY_NOPARAMS(GetKeys);
 				}
 
-				IValueReadonlyList* GetValues()override
+				Ptr<IValueReadonlyList> GetValues()override
 				{
 					INVOKEGET_INTERFACE_PROXY_NOPARAMS(GetValues);
 				}

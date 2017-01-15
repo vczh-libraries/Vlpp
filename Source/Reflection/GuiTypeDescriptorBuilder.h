@@ -52,7 +52,7 @@ Workflow to C++ Codegen Helpers
 		}
 
 		template<typename T>
-		auto EventInvoke(T& e)
+		decltype(auto) EventInvoke(T& e)
 		{
 			return EventHelper<T>::Invoke(e);
 		}

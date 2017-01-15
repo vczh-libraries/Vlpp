@@ -9283,8 +9283,8 @@ Collections
 			class IValueReadonlyDictionary : public virtual IDescriptable, public Description<IValueReadonlyDictionary>
 			{
 			public:
-				virtual IValueReadonlyList*		GetKeys()=0;
-				virtual IValueReadonlyList*		GetValues()=0;
+				virtual Ptr<IValueReadonlyList>	GetKeys()=0;
+				virtual Ptr<IValueReadonlyList>	GetValues()=0;
 				virtual vint					GetCount()=0;
 				virtual Value					Get(const Value& key)=0;
 			};
@@ -11393,7 +11393,7 @@ Workflow to C++ Codegen Helpers
 		}
 
 		template<typename T>
-		auto EventInvoke(T& e)
+		decltype(auto) EventInvoke(T& e)
 		{
 			return EventHelper<T>::Invoke(e);
 		}
@@ -13705,22 +13705,22 @@ Collection Wrappers
 				{
 				}
 
-				IValueReadonlyList* GetKeys()override
+				Ptr<IValueReadonlyList> GetKeys()override
 				{
 					if(!keys)
 					{
 						keys=new ValueReadonlyListWrapper<const KeyContainer*>(&wrapperPointer->Keys());
 					}
-					return keys.Obj();
+					return keys;
 				}
 
-				IValueReadonlyList* GetValues()override
+				Ptr<IValueReadonlyList> GetValues()override
 				{
 					if(!values)
 					{
 						values=new ValueReadonlyListWrapper<const ValueContainer*>(&wrapperPointer->Values());
 					}
-					return values.Obj();
+					return values;
 				}
 
 				vint GetCount()override
@@ -18131,12 +18131,12 @@ Interface Implementation Proxy (Implement)
 			END_INTERFACE_PROXY(IValueObservableList)
 				
 			BEGIN_INTERFACE_PROXY_NOPARENT_SHAREDPTR(IValueReadonlyDictionary)
-				IValueReadonlyList* GetKeys()override
+				Ptr<IValueReadonlyList> GetKeys()override
 				{
 					INVOKEGET_INTERFACE_PROXY_NOPARAMS(GetKeys);
 				}
 
-				IValueReadonlyList* GetValues()override
+				Ptr<IValueReadonlyList> GetValues()override
 				{
 					INVOKEGET_INTERFACE_PROXY_NOPARAMS(GetValues);
 				}
