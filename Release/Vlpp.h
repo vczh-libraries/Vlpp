@@ -11369,11 +11369,104 @@ Workflow to C++ Codegen Helpers
 		}
 
 		template<typename T>
-		Ptr<T> This(Ptr<T> thisValue)
+		WString ToString(const T& value)
 		{
-			CHECK_ERROR(thisValue != nullptr, L"The this pointer cannot be null.");
-			return MoveValue(thisValue);
+			using Type = typename RemoveCVR<T>::Type;
+			WString str;
+			CHECK_ERROR(reflection::description::TypedValueSerializerProvider<T>::Serialize(value, str), L"Failed to serialize.");
+			return str;
 		}
+
+		template<typename T>
+		T Parse(const WString& str)
+		{
+			using Type = typename RemoveCVR<T>::Type;
+			T value;
+			CHECK_ERROR(reflection::description::TypedValueSerializerProvider<T>::Deserialize(str, value), L"Failed to serialize.");
+			return value;
+		}
+
+		template<typename T>
+		reflection::description::Value Box(const T& value)
+		{
+			using Type = typename RemoveCVR<T>::Type;
+			return reflection::description::BoxParameter<Type>(const_cast<T&>(value));
+		}
+
+		template<typename T>
+		T Unbox(const reflection::description::Value& value)
+		{
+			using Type = typename RemoveCVR<T>::Type;
+			T result;
+			reflection::description::UnboxParameter<Type>(value, result);
+			return result;
+		}
+
+		template<typename T>
+		collections::LazyList<T> Range(T begin, T end)
+		{
+			return collections::Range<T>(begin, end - begin);
+		}
+
+		template<typename T>
+		bool InSet(const T& value, const collections::LazyList<T>& collection)
+		{
+			return collection.Any([&](const T& element) {return element == value; });
+		}
+
+		template<typename T>
+		bool InSet(const T& value, Ptr<reflection::description::IValueReadonlyList> collection)
+		{
+			return InSet<T>(value, reflection::description::GetLazyList<T>(collection));
+		}
+
+		struct CreateList
+		{
+			using IValueList = reflection::description::IValueList;
+
+			Ptr<IValueList>			list;
+
+			CreateList()
+				:list(IValueList::Create())
+			{
+			}
+
+			CreateList(Ptr<IValueList> _list)
+				:list(_list)
+			{
+			}
+
+			template<typename T>
+			CreateList Add(const T& value)
+			{
+				list->Add(Box(value));
+				return{ list };
+			}
+		};
+
+		struct CreateDictionary
+		{
+			using IValueDictionary = reflection::description::IValueDictionary;
+
+			Ptr<IValueDictionary>	dictionary;
+
+			CreateDictionary()
+				:dictionary(IValueDictionary::Create())
+			{
+			}
+
+			CreateDictionary(Ptr<IValueDictionary> _dictionary)
+				:dictionary(_dictionary)
+			{
+			}
+
+			template<typename K, typename V>
+			CreateDictionary Add(const K& key, const V& value)
+			{
+				dictionary->Set(Box(key), Box(value));
+				return{ dictionary };
+			}
+		};
 
 		template<typename T>
 		struct EventHelper
