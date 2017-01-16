@@ -11369,6 +11369,41 @@ Workflow to C++ Codegen Helpers
 		}
 
 		template<typename T>
+		T* Ensure(T* pointer)
+		{
+			CHECK_ERROR(pointer != nullptr, L"The pointer cannot be null.");
+			return pointer;
+		}
+
+		template<typename T>
+		Ptr<T>& Ensure(Ptr<T>& pointer)
+		{
+			CHECK_ERROR(pointer != nullptr, L"The pointer cannot be null.");
+			return pointer;
+		}
+
+		template<typename T>
+		Ptr<T> Ensure(Ptr<T>&& pointer)
+		{
+			CHECK_ERROR(pointer != nullptr, L"The pointer cannot be null.");
+			return MoveValue(pointer);
+		}
+
+		template<typename T>
+		Nullable<T> Ensure(Nullable<T>&& nullable)
+		{
+			CHECK_ERROR(nullable, L"The pointer cannot be null.");
+			return MoveValue(nullable);
+		}
+
+		template<typename T>
+		Nullable<T>& Ensure(Nullable<T>& nullable)
+		{
+			CHECK_ERROR(nullable, L"The pointer cannot be null.");
+			return pointer;
+		}
+
+		template<typename T>
 		WString ToString(const T& value)
 		{
 			using Type = typename RemoveCVR<T>::Type;
@@ -11386,6 +11421,40 @@ Workflow to C++ Codegen Helpers
 			return value;
 		}
 
+		template<typename TTo, typename TFrom>
+		struct NullableCastHelper
+		{
+			static Nullable<TTo> Cast(Nullable<TFrom> nullable)
+			{
+				return Nullable<TTo>(static_cast<TTo>(nullable.Value));
+			}
+		};
+
+		template<typename TFrom>
+		struct NullableCastHelper<WString, TFrom>
+		{
+			static Nullable<WString> Cast(Nullable<TFrom> nullable)
+			{
+				return Nullable<WString>(ToString(nullable.Value));
+			}
+		};
+
+		template<typename TTo>
+		struct NullableCastHelper<TTo, WString>
+		{
+			static Nullable<TTo> Cast(Nullable<WString> nullable)
+			{
+				return Nullable<TTo>(Parse<TTo>(nullable.Value));
+			}
+		};
+
+		template<typename TTo, typename TFrom>
+		Nullable<TTo> NullableCast(Nullable<TFrom> nullable)
+		{
+			if (!nullable) return Nullable<TTo>();
+			return NullableCastHelper<TTo, TFrom>::Cast(nullable);
+		}
+
 		template<typename T>
 		reflection::description::Value Box(const T& value)
 		{
@@ -11400,6 +11469,50 @@ Workflow to C++ Codegen Helpers
 			T result;
 			reflection::description::UnboxParameter<Type>(value, result);
 			return result;
+		}
+
+		template<typename T>
+		struct UnboxWeakHelper
+		{
+		};
+
+		template<typename T>
+		struct UnboxWeakHelper<T*>
+		{
+			static T* Unbox(const reflection::description::Value& value)
+			{
+				if (value.IsNull()) return nullptr;
+				return value.GetRawPtr()->SafeAggregationCast<T>();
+			}
+		};
+
+		template<typename T>
+		struct UnboxWeakHelper<Ptr<T>>
+		{
+			static Ptr<T> Unbox(const reflection::description::Value& value)
+			{
+				if (value.IsNull()) return nullptr;
+				return value.GetRawPtr()->SafeAggregationCast<T>();
+			}
+		};
+
+		template<typename T>
+		struct UnboxWeakHelper<Nullable<T>>
+		{
+			static Nullable<T> Unbox(const reflection::description::Value& value)
+			{
+				if (value.IsNull()) return Nullable<T>();
+				auto boxed = value.GetBoxedValue().Cast<reflection::description::IValueType::TypedBox<T>>();
+				if (!boxed) return Nullable<T>();
+				return Nullable<T>(boxed->value);
+			}
+		};
+
+		template<typename T>
+		T UnboxWeak(const reflection::description::Value& value)
+		{
+			using Type = typename RemoveCVR<T>::Type;
+			return UnboxWeakHelper<Type>::Unbox(value);
 		}
 
 		template<typename T>
