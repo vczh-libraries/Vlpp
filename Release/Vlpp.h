@@ -11362,6 +11362,22 @@ Workflow to C++ Codegen Helpers
 	namespace __vwsn
 	{
 		template<typename T>
+		struct RunOnExit
+		{
+			T* function;
+
+			RunOnExit(T* _function)
+				:function(_function)
+			{
+			}
+
+			~RunOnExit()
+			{
+				function->operator()();
+			}
+		};
+
+		template<typename T>
 		T* This(T* thisValue)
 		{
 			CHECK_ERROR(thisValue != nullptr, L"The this pointer cannot be null.");
