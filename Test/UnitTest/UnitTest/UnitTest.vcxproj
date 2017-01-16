@@ -370,6 +370,7 @@
     <ClInclude Include="..\..\..\Source\Reflection\GuiTypeDescriptorBuilder_Container.h" />
     <ClInclude Include="..\..\..\Source\Reflection\GuiTypeDescriptorBuilder_Function.h" />
     <ClInclude Include="..\..\..\Source\Reflection\GuiTypeDescriptorBuilder_Struct.h" />
+    <ClInclude Include="..\..\..\Source\Reflection\GuiTypeDescriptorCppHelper.h" />
     <ClInclude Include="..\..\..\Source\Reflection\GuiTypeDescriptorInterfaceProxies.h" />
     <ClInclude Include="..\..\..\Source\Reflection\GuiTypeDescriptorMacros.h" />
     <ClInclude Include="..\..\..\Source\Reflection\GuiTypeDescriptorPredefined.h" />

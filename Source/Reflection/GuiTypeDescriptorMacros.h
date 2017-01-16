@@ -10,9 +10,10 @@ Classes:
 #define VCZH_REFLECTION_GUITYPEDESCRIPTORMACROS
 
 #include "GuiTypeDescriptorBuilder.h"
-#include "GuiTypeDescriptorBuilder_Struct.h"
-#include "GuiTypeDescriptorBuilder_Function.h"
+#include "GuiTypeDescriptorCppHelper.h"
 #include "GuiTypeDescriptorBuilder_Container.h"
+#include "GuiTypeDescriptorBuilder_Function.h"
+#include "GuiTypeDescriptorBuilder_Struct.h"
 #include "GuiTypeDescriptorPredefined.h"
 
 #ifndef VCZH_DEBUG_NO_REFLECTION

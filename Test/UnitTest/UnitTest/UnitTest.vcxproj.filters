@@ -460,6 +460,9 @@
     <ClInclude Include="..\..\..\Source\Reflection\GuiTypeDescriptorInterfaceProxies.h">
       <Filter>Common\Reflection</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\Source\Reflection\GuiTypeDescriptorCppHelper.h">
+      <Filter>Common\Reflection</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\..\Source\Parser.Calculator\Parser.Calculator.log">
