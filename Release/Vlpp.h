@@ -13170,6 +13170,20 @@ namespace vl
 			return NullableCastHelper<TTo, TFrom>::Cast(nullable);
 		}
 
+		template<typename TTo, typename TFrom>
+		TTo* RawPtrCast(TTo* pointer)
+		{
+			if (!pointer) return nullptr;
+			return pointer->SafeAggregationCast<TTo>();
+		}
+
+		template<typename TTo, typename TFrom>
+		Ptr<TTo> SharedPtrCast(TTo* pointer)
+		{
+			if (!pointer) return nullptr;
+			return pointer->SafeAggregationCast<TTo>();
+		}
+
 		template<typename T>
 		reflection::description::Value Box(const T& value)
 		{
