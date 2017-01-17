@@ -96,7 +96,7 @@ namespace vl
 		{
 			static Nullable<TTo> Cast(Nullable<TFrom> nullable)
 			{
-				return Nullable<TTo>(static_cast<TTo>(nullable.Value));
+				return Nullable<TTo>(static_cast<TTo>(nullable.Value()));
 			}
 		};
 
@@ -105,7 +105,7 @@ namespace vl
 		{
 			static Nullable<WString> Cast(Nullable<TFrom> nullable)
 			{
-				return Nullable<WString>(ToString(nullable.Value));
+				return Nullable<WString>(ToString(nullable.Value()));
 			}
 		};
 
