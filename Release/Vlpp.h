@@ -13171,14 +13171,14 @@ namespace vl
 		}
 
 		template<typename TTo, typename TFrom>
-		TTo* RawPtrCast(TTo* pointer)
+		TTo* RawPtrCast(TFrom* pointer)
 		{
 			if (!pointer) return nullptr;
 			return pointer->template SafeAggregationCast<TTo>();
 		}
 
 		template<typename TTo, typename TFrom>
-		Ptr<TTo> SharedPtrCast(TTo* pointer)
+		Ptr<TTo> SharedPtrCast(TFrom* pointer)
 		{
 			if (!pointer) return nullptr;
 			return pointer->template SafeAggregationCast<TTo>();
