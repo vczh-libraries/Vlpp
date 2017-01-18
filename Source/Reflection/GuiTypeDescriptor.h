@@ -640,7 +640,19 @@ ValueType
 					template<typename U = T>
 					static CompareResult ComparePrimitiveInternal(const U& a, const U& b, double)
 					{
+#if defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdynamic-class-memaccess"
+#elif defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "--class-memaccess"
+#endif
 						auto result = memcmp(&a, &b, sizeof(U));
+#if defined(__GNUC__)
+#pragma GCC diagnostic pop
+#elif defined(__clang__)
+#pragma clang diagnostic pop
+#endif
 						if (result < 0) return IBoxedValue::Smaller;
 						if (result > 0) return IBoxedValue::Greater;
 						return IBoxedValue::Equal;
