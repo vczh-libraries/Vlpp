@@ -56,6 +56,11 @@ Attribute
 
 			class IValueCallStack;
 			class IValueException;
+
+			template<typename T>
+			struct TypedValueSerializerProvider
+			{
+			};
 		}
 
 		/// <summary>Base class of all reflectable object. You can use pointer or smart pointer to DescriptableObject to define variables, but if you want to create a reflectable class, you should inherit from [T:vl.reflection.Description`1].</summary>
@@ -629,7 +634,7 @@ ValueType
 					template<typename U = T>
 					static CompareResult ComparePrimitiveInternal(const U& a, const U& b, typename AcceptAlways<vint, decltype(&TypedValueSerializerProvider<U>::Compare)>::Type)
 					{
-						return TypedValueSerializerProvider<T>::Compare(a, b);
+						return TypedValueSerializerProvider<U>::Compare(a, b);
 					}
 
 					template<typename U = T>

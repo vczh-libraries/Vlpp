@@ -19,11 +19,6 @@ namespace vl
 		namespace description
 		{
 
-			template<typename T>
-			struct TypedValueSerializerProvider
-			{
-			};
-
 #ifndef VCZH_DEBUG_NO_REFLECTION
 
 /***********************************************************************
