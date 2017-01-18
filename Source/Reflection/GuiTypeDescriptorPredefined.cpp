@@ -242,7 +242,7 @@ TypeName
 			IMPL_TYPE_INFO_RENAME(vl::reflection::description::IValueException,				system::Exception)
 
 			IMPL_TYPE_INFO_RENAME(vl::reflection::description::IBoxedValue,					system::reflection::BoxedValue)
-			IMPL_TYPE_INFO_RENAME(vl::reflection::description::IValueType::CompareResult,	system::reflection::ValueType::CompareResult)
+			IMPL_TYPE_INFO_RENAME(vl::reflection::description::IBoxedValue::CompareResult,	system::reflection::ValueType::CompareResult)
 			IMPL_TYPE_INFO_RENAME(vl::reflection::description::IValueType,					system::reflection::ValueType)
 			IMPL_TYPE_INFO_RENAME(vl::reflection::description::IEnumType,					system::reflection::EnumType)
 			IMPL_TYPE_INFO_RENAME(vl::reflection::description::ISerializableType,			system::reflection::SerializableType)
@@ -265,11 +265,11 @@ TypedValueSerializerProvider
 ***********************************************************************/
 
 #define DEFINE_COMPARE(TYPENAME)\
-			IValueType::CompareResult TypedValueSerializerProvider<TYPENAME>::Compare(const TYPENAME& a, const TYPENAME& b)\
+			IBoxedValue::CompareResult TypedValueSerializerProvider<TYPENAME>::Compare(const TYPENAME& a, const TYPENAME& b)\
 			{\
-				if (a < b) return IValueType::Smaller;\
-				if (a > b) return IValueType::Greater;\
-				return IValueType::Equal;\
+				if (a < b) return IBoxedValue::Smaller;\
+				if (a > b) return IBoxedValue::Greater;\
+				return IBoxedValue::Equal;\
 			}\
 
 			DEFINE_COMPARE(vuint8_t)
@@ -900,8 +900,8 @@ LoadPredefinedTypes
 				CLASS_MEMBER_METHOD(Copy, NO_PARAMETER)
 			END_INTERFACE_MEMBER(IBoxedValue)
 
-			BEGIN_ENUM_ITEM(IValueType::CompareResult)
-				ENUM_ITEM_NAMESPACE(IValueType)
+			BEGIN_ENUM_ITEM(IBoxedValue::CompareResult)
+				ENUM_ITEM_NAMESPACE(IBoxedValue)
 
 				ENUM_NAMESPACE_ITEM(Smaller)
 				ENUM_NAMESPACE_ITEM(Greater)
@@ -1106,7 +1106,7 @@ LoadPredefinedTypes
 					ADD_TYPE_INFO(IValueException)
 
 					ADD_TYPE_INFO(IBoxedValue)
-					ADD_TYPE_INFO(IValueType::CompareResult)
+					ADD_TYPE_INFO(IBoxedValue::CompareResult)
 					ADD_TYPE_INFO(IValueType)
 					ADD_TYPE_INFO(IEnumType)
 					ADD_TYPE_INFO(ISerializableType)

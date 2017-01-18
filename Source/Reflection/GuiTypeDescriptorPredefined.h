@@ -243,7 +243,7 @@ Predefined Types
 			DECL_TYPE_INFO(IValueException)
 
 			DECL_TYPE_INFO(IBoxedValue)
-			DECL_TYPE_INFO(IValueType::CompareResult)
+			DECL_TYPE_INFO(IBoxedValue::CompareResult)
 			DECL_TYPE_INFO(IValueType)
 			DECL_TYPE_INFO(IEnumType)
 			DECL_TYPE_INFO(ISerializableType)
@@ -268,7 +268,7 @@ Predefined Types
 				static TYPENAME GetDefaultValue();\
 				static bool Serialize(const TYPENAME& input, WString& output);\
 				static bool Deserialize(const WString& input, TYPENAME& output);\
-				static IValueType::CompareResult Compare(const TYPENAME& a, const TYPENAME& b);\
+				static IBoxedValue::CompareResult Compare(const TYPENAME& a, const TYPENAME& b);\
 			};\
 
 			DEFINE_TYPED_VALUE_SERIALIZER_PROVIDER(vuint8_t)

@@ -726,6 +726,12 @@ namespace vl
 		
 		typedef decltype(Test((TFrom*)0)) YesNoType;
 	};
+
+	template<typename T, typename U>
+	struct AcceptAlways
+	{
+		typedef T Type;
+	};
 }
 
 #endif
@@ -8721,7 +8727,16 @@ Value
 			class IBoxedValue : public virtual IDescriptable, public Description<IBoxedValue>
 			{
 			public:
+				enum CompareResult
+				{
+					Smaller,
+					Greater,
+					Equal,
+					NotComparable,
+				};
+
 				virtual Ptr<IBoxedValue>		Copy() = 0;
+				virtual CompareResult			ComparePrimitive(Ptr<IBoxedValue> boxedValue) = 0;
 			};
 
 			/// <summary>A type to store all values of reflectable types.</summary>
@@ -8833,6 +8848,21 @@ ValueType
 				template<typename T>
 				class TypedBox : public IBoxedValue
 				{
+				private:
+					template<typename U = T>
+					static CompareResult ComparePrimitiveInternal(const U& a, const U& b, typename AcceptAlways<vint, decltype(&TypedValueSerializerProvider<U>::Compare)>::Type)
+					{
+						return TypedValueSerializerProvider<T>::Compare(a, b);
+					}
+
+					template<typename U = T>
+					static CompareResult ComparePrimitiveInternal(const U& a, const U& b, double)
+					{
+						auto result = memcmp(&a, &b, sizeof(U));
+						if (result < 0) return IBoxedValue::Smaller;
+						if (result > 0) return IBoxedValue::Greater;
+						return IBoxedValue::Equal;
+					}
 				public:
 					T							value;
 
@@ -8850,18 +8880,22 @@ ValueType
 					{
 						return new TypedBox<T>(value);
 					}
+
+					CompareResult ComparePrimitive(Ptr<IBoxedValue> boxedValue)override
+					{
+						if (auto typedBox = boxedValue.Cast<TypedBox<T>>())
+						{
+							return ComparePrimitiveInternal(value, typedBox->value, 0);
+						}
+						else
+						{
+							return IBoxedValue::NotComparable;
+						}
+					}
 				};
 
-				enum CompareResult
-				{
-					Smaller,
-					Greater,
-					Equal,
-					NotComparable,
-				};
-
-				virtual Value					CreateDefault() = 0;
-				virtual CompareResult			Compare(const Value& a, const Value& b) = 0;
+				virtual Value						CreateDefault() = 0;
+				virtual IBoxedValue::CompareResult	Compare(const Value& a, const Value& b) = 0;
 			};
 
 			class IEnumType : public virtual IDescriptable, public Description<IEnumType>
@@ -11272,7 +11306,7 @@ Predefined Types
 			DECL_TYPE_INFO(IValueException)
 
 			DECL_TYPE_INFO(IBoxedValue)
-			DECL_TYPE_INFO(IValueType::CompareResult)
+			DECL_TYPE_INFO(IBoxedValue::CompareResult)
 			DECL_TYPE_INFO(IValueType)
 			DECL_TYPE_INFO(IEnumType)
 			DECL_TYPE_INFO(ISerializableType)
@@ -11297,7 +11331,7 @@ Predefined Types
 				static TYPENAME GetDefaultValue();\
 				static bool Serialize(const TYPENAME& input, WString& output);\
 				static bool Deserialize(const WString& input, TYPENAME& output);\
-				static IValueType::CompareResult Compare(const TYPENAME& a, const TYPENAME& b);\
+				static IBoxedValue::CompareResult Compare(const TYPENAME& a, const TYPENAME& b);\
 			};\
 
 			DEFINE_TYPED_VALUE_SERIALIZER_PROVIDER(vuint8_t)
@@ -12109,7 +12143,7 @@ PrimitiveTypeDescriptor
 					return BoxValue<T>(TypedValueSerializerProvider<T>::GetDefaultValue());
 				}
 
-				CompareResult Compare(const Value& a, const Value& b)override
+				IBoxedValue::CompareResult Compare(const Value& a, const Value& b)override
 				{
 					auto va = UnboxValue<T>(a);
 					auto vb = UnboxValue<T>(b);
@@ -12162,13 +12196,13 @@ EnumTypeDescriptor
 					return BoxValue<T>(static_cast<T>(0));
 				}
 
-				CompareResult Compare(const Value& a, const Value& b)override
+				IBoxedValue::CompareResult Compare(const Value& a, const Value& b)override
 				{
 					auto ea = static_cast<vuint64_t>(UnboxValue<T>(a));
 					auto eb = static_cast<vuint64_t>(UnboxValue<T>(b));
-					if (ea < eb) return IValueType::Smaller;
-					if (ea > eb)return IValueType::Greater;
-					return IValueType::Equal;
+					if (ea < eb) return IBoxedValue::Smaller;
+					if (ea > eb)return IBoxedValue::Greater;
+					return IBoxedValue::Equal;
 				}
 			};
 
@@ -12256,9 +12290,9 @@ StructTypeDescriptor
 					return BoxValue<T>(T{});
 				}
 
-				CompareResult Compare(const Value& a, const Value& b)override
+				IBoxedValue::CompareResult Compare(const Value& a, const Value& b)override
 				{
-					return IValueType::NotComparable;
+					return IBoxedValue::NotComparable;
 				}
 			};
 

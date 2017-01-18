@@ -504,7 +504,16 @@ Value
 			class IBoxedValue : public virtual IDescriptable, public Description<IBoxedValue>
 			{
 			public:
+				enum CompareResult
+				{
+					Smaller,
+					Greater,
+					Equal,
+					NotComparable,
+				};
+
 				virtual Ptr<IBoxedValue>		Copy() = 0;
+				virtual CompareResult			ComparePrimitive(Ptr<IBoxedValue> boxedValue) = 0;
 			};
 
 			/// <summary>A type to store all values of reflectable types.</summary>
@@ -616,6 +625,21 @@ ValueType
 				template<typename T>
 				class TypedBox : public IBoxedValue
 				{
+				private:
+					template<typename U = T>
+					static CompareResult ComparePrimitiveInternal(const U& a, const U& b, typename AcceptAlways<vint, decltype(&TypedValueSerializerProvider<U>::Compare)>::Type)
+					{
+						return TypedValueSerializerProvider<T>::Compare(a, b);
+					}
+
+					template<typename U = T>
+					static CompareResult ComparePrimitiveInternal(const U& a, const U& b, double)
+					{
+						auto result = memcmp(&a, &b, sizeof(U));
+						if (result < 0) return IBoxedValue::Smaller;
+						if (result > 0) return IBoxedValue::Greater;
+						return IBoxedValue::Equal;
+					}
 				public:
 					T							value;
 
@@ -633,18 +657,22 @@ ValueType
 					{
 						return new TypedBox<T>(value);
 					}
+
+					CompareResult ComparePrimitive(Ptr<IBoxedValue> boxedValue)override
+					{
+						if (auto typedBox = boxedValue.Cast<TypedBox<T>>())
+						{
+							return ComparePrimitiveInternal(value, typedBox->value, 0);
+						}
+						else
+						{
+							return IBoxedValue::NotComparable;
+						}
+					}
 				};
 
-				enum CompareResult
-				{
-					Smaller,
-					Greater,
-					Equal,
-					NotComparable,
-				};
-
-				virtual Value					CreateDefault() = 0;
-				virtual CompareResult			Compare(const Value& a, const Value& b) = 0;
+				virtual Value						CreateDefault() = 0;
+				virtual IBoxedValue::CompareResult	Compare(const Value& a, const Value& b) = 0;
 			};
 
 			class IEnumType : public virtual IDescriptable, public Description<IEnumType>

@@ -718,6 +718,12 @@ namespace vl
 		
 		typedef decltype(Test((TFrom*)0)) YesNoType;
 	};
+
+	template<typename T, typename U>
+	struct AcceptAlways
+	{
+		typedef T Type;
+	};
 }
 
 #endif

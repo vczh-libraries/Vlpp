@@ -418,10 +418,17 @@ description::Value
 								}
 							}
 #else
-								auto pa = a.GetBoxedValue().Obj();
-								auto pb = b.GetBoxedValue().Obj();
-								if (pa < pb) return -1;
-								if (pa > pb) return 1;
+								auto pa = a.GetBoxedValue();
+								auto pb = b.GetBoxedValue();
+								switch (pa->ComparePrimitive(pb))
+								{
+								case IBoxedValue::Smaller: return -1;
+								case IBoxedValue::Greater: return 1;
+								case IBoxedValue::Equal: return 0;
+								default:;
+								}
+								if (pa.Obj() < pb.Obj()) return -1;
+								if (pa.Obj() > pb.Obj()) return 1;
 								return 0;
 #endif
 						}
