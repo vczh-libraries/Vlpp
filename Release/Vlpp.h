@@ -13520,7 +13520,14 @@ ValueFunctionProxyWrapper<Func<R(TArgs...)>>
  
 				Value Invoke(Ptr<IValueList> arguments)override
 				{
-					if(!arguments || arguments->GetCount()!=sizeof...(TArgs)) throw ArgumentCountMismtatchException();
+					if (!arguments || arguments->GetCount() != sizeof...(TArgs))
+					{
+#ifndef VCZH_DEBUG_NO_REFLECTION
+						throw ArgumentCountMismtatchException();
+#else
+						CHECK_FAIL(L"Argument count mismatch.");
+#endif
+					}
 					return internal_helper::BoxedFunctionInvoker<R, TArgs...>::Invoke(function, arguments, typename RemoveCVR<TArgs>::Type()...);
 				}
 			};

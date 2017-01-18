@@ -1074,6 +1074,7 @@ TypeDescriptorImpl
 				Load();
 				return constructorGroup.Obj();
 			}
+#endif
 
 /***********************************************************************
 Function Related
@@ -1085,15 +1086,16 @@ Function Related
 				{
 				}
 
+#ifndef VCZH_DEBUG_NO_REFLECTION
 				void UnboxSpecifiedParameter(MethodInfoImpl* methodInfo, collections::Array<Value>& arguments, vint index)
 				{
 				}
+#endif
 
 				void AddValueToList(Ptr<IValueList> arguments)
 				{
 				}
 			}
-#endif
 		}
 	}
 }
