@@ -164,7 +164,7 @@ Interface Implementation Proxy (Implement)
 			END_INTERFACE_PROXY(IValueListener)
 			
 			BEGIN_INTERFACE_PROXY_NOPARENT_SHAREDPTR(IValueSubscription)
-				Ptr<IValueListener> Subscribe(const Func<void(Value)>& callback)override
+				Ptr<IValueListener> Subscribe(const Func<void(const Value&)>& callback)override
 				{
 					INVOKEGET_INTERFACE_PROXY(Subscribe, callback);
 				}

@@ -623,7 +623,8 @@ TypeInfoRetriver Helper Functions (BoxValue, UnboxValue)
 			template<typename T>
 			Value BoxValue(const T& object, ITypeDescriptor* typeDescriptor=0)
 			{
-				return ValueAccessor<T, TypeInfoRetriver<T>::Decorator>::BoxValue(object, typeDescriptor);
+				using Type = RemoveCVR<T>::Type;
+				return ValueAccessor<Type, TypeInfoRetriver<Type>::Decorator>::BoxValue(object, typeDescriptor);
 			}
 			
 			/// <summary>Unbox an reflectable object. Its type cannot be generic.</summary>
@@ -635,7 +636,8 @@ TypeInfoRetriver Helper Functions (BoxValue, UnboxValue)
 			template<typename T>
 			T UnboxValue(const Value& value, ITypeDescriptor* typeDescriptor=0, const WString& valueName=L"value")
 			{
-				return ValueAccessor<T, TypeInfoRetriver<T>::Decorator>::UnboxValue(value, typeDescriptor, valueName);
+				using Type = RemoveCVR<T>::Type;
+				return ValueAccessor<Type, TypeInfoRetriver<Type>::Decorator>::UnboxValue(value, typeDescriptor, valueName);
 			}
 
 /***********************************************************************
