@@ -13331,12 +13331,12 @@ namespace vl
 			return InSet<T>(value, reflection::description::GetLazyList<T>(collection));
 		}
 
-		template<typename T>
-		Ptr<T> UnboxCollection(T& value)
+		template<typename T, typename U>
+		Ptr<T> UnboxCollection(U& value)
 		{
-			auto value = reflection::description::BoxParameter<T>(value);
+			auto boxedValue = reflection::description::BoxParameter<U>(value);
 			Ptr<T> result;
-			reflection::description::UnboxParameter<T>(value, result);
+			reflection::description::UnboxParameter<Ptr<T>>(boxedValue, result);
 			return result;
 		}
 
