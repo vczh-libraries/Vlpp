@@ -724,7 +724,7 @@ ITypeDescriptor (type)
 				List,
 				SortedList,
 				Dictionary,
-				Unknown,
+				NativeCollectionReference,
 			};
 
 			class ITypeInfo : public virtual IDescriptable, public Description<ITypeInfo>

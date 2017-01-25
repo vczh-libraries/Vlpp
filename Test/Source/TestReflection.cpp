@@ -493,6 +493,10 @@ namespace test
 		}
 	};
 
+	class MyList : public List<int>
+	{
+	};
+
 	class HintTester :public Description<HintTester>
 	{
 	public:
@@ -501,6 +505,7 @@ namespace test
 		const List<int>& GetList(List<int>& x) { return x; }
 		const SortedList<int>& GetSortedList(SortedList<int>& x) { return x; }
 		const Dictionary<int, int>& GetDictionary(Dictionary<int, int>& x) { return x; }
+		const MyList& GetMyList(MyList& x) { return x; }
 		Func<int(int)> GetFunc(Func<int(int)> x) { return x; }
 		Ptr<HintTester> GetHintTester(Ptr<HintTester> x) { return x; }
 		vint GetInt(vint x) { return x; }
@@ -658,6 +663,7 @@ BEGIN_TYPE_INFO_NAMESPACE
 		CLASS_MEMBER_METHOD(GetList, { L"x" })
 		CLASS_MEMBER_METHOD(GetSortedList, { L"x" })
 		CLASS_MEMBER_METHOD(GetDictionary, { L"x" })
+		CLASS_MEMBER_METHOD(GetMyList, { L"x" })
 		CLASS_MEMBER_METHOD(GetFunc, { L"x" })
 		CLASS_MEMBER_METHOD(GetHintTester, { L"x" })
 		CLASS_MEMBER_METHOD(GetInt, { L"x" })
@@ -1598,6 +1604,7 @@ namespace reflection_test
 		TestHint<IValueReadonlyList, IValueList>(L"GetList", TypeInfoHint::List);
 		TestHint<IValueReadonlyList, IValueList>(L"GetSortedList", TypeInfoHint::SortedList);
 		TestHint<IValueReadonlyDictionary, IValueDictionary>(L"GetDictionary", TypeInfoHint::Dictionary);
+		TestHint<IValueReadonlyList, IValueList>(L"GetMyList", TypeInfoHint::NativeCollectionReference);
 		TestHint<IValueFunctionProxy, IValueFunctionProxy>(L"GetFunc", TypeInfoHint::Normal);
 		TestHint<HintTester, HintTester>(L"GetHintTester", TypeInfoHint::Normal);
 		TestHint<vint, vint>(L"GetInt", TypeInfoHint::Normal);

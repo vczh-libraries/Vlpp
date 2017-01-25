@@ -217,6 +217,15 @@ namespace vl
 			return InSet<T>(value, reflection::description::GetLazyList<T>(collection));
 		}
 
+		template<typename T>
+		Ptr<T> UnboxCollection(T& value)
+		{
+			auto value = reflection::description::BoxParameter<T>(value);
+			Ptr<T> result;
+			reflection::description::UnboxParameter<T>(value, result);
+			return result;
+		}
+
 		struct CreateList
 		{
 			using IValueList = reflection::description::IValueList;
