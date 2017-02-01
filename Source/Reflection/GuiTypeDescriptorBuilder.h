@@ -644,7 +644,7 @@ TypeInfoRetriver Helper Functions (BoxValue, UnboxValue)
 			template<typename T>
 			Value BoxValue(const T& object, ITypeDescriptor* typeDescriptor=0)
 			{
-				using Type = RemoveCVR<T>::Type;
+				using Type = typename RemoveCVR<T>::Type;
 				return ValueAccessor<Type, TypeInfoRetriver<Type>::Decorator>::BoxValue(object, typeDescriptor);
 			}
 			
@@ -657,7 +657,7 @@ TypeInfoRetriver Helper Functions (BoxValue, UnboxValue)
 			template<typename T>
 			T UnboxValue(const Value& value, ITypeDescriptor* typeDescriptor=0, const WString& valueName=L"value")
 			{
-				using Type = RemoveCVR<T>::Type;
+				using Type = typename RemoveCVR<T>::Type;
 				return ValueAccessor<Type, TypeInfoRetriver<Type>::Decorator>::UnboxValue(value, typeDescriptor, valueName);
 			}
 
