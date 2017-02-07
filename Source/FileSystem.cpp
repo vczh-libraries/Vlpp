@@ -51,28 +51,31 @@ FilePath
 			}
 
 #if defined VCZH_MSVC
-			if (fullPath.Length() < 2 || fullPath[1] != L':')
+			if (fullPath != L"")
 			{
-				wchar_t buffer[MAX_PATH + 1] = { 0 };
-				auto result = GetCurrentDirectory(sizeof(buffer) / sizeof(*buffer), buffer);
-				if (result > MAX_PATH + 1 || result == 0)
+				if (fullPath.Length() < 2 || fullPath[1] != L':')
 				{
-					throw ArgumentException(L"Failed to call GetCurrentDirectory.", L"vl::filesystem::FilePath::Initialize", L"");
+					wchar_t buffer[MAX_PATH + 1] = { 0 };
+					auto result = GetCurrentDirectory(sizeof(buffer) / sizeof(*buffer), buffer);
+					if (result > MAX_PATH + 1 || result == 0)
+					{
+						throw ArgumentException(L"Failed to call GetCurrentDirectory.", L"vl::filesystem::FilePath::Initialize", L"");
+					}
+					fullPath = WString(buffer) + L"\\" + fullPath;
 				}
-				fullPath = WString(buffer) + L"\\" + fullPath;
-			}
-			{
-				wchar_t buffer[MAX_PATH + 1] = { 0 };
-				if (fullPath.Length() == 2 && fullPath[1] == L':')
 				{
-					fullPath += L"\\";
+					wchar_t buffer[MAX_PATH + 1] = { 0 };
+					if (fullPath.Length() == 2 && fullPath[1] == L':')
+					{
+						fullPath += L"\\";
+					}
+					auto result = GetFullPathName(fullPath.Buffer(), sizeof(buffer) / sizeof(*buffer), buffer, NULL);
+					if (result > MAX_PATH + 1 || result == 0)
+					{
+						throw ArgumentException(L"The path is illegal.", L"vl::filesystem::FilePath::FilePath", L"_filePath");
+					}
+					fullPath = buffer;
 				}
-				auto result = GetFullPathName(fullPath.Buffer(), sizeof(buffer) / sizeof(*buffer), buffer, NULL);
-				if (result > MAX_PATH + 1 || result == 0)
-				{
-					throw ArgumentException(L"The path is illegal.", L"vl::filesystem::FilePath::FilePath", L"_filePath");
-				}
-				fullPath = buffer;
 			}
 #elif defined VCZH_GCC
 			if (fullPath.Length() == 0)
@@ -113,7 +116,7 @@ FilePath
 				fullPath = ComponentsToPath(components);
 			}
 #endif
-			if (fullPath != L"/" && fullPath[fullPath.Length() - 1] == Delimiter)
+			if (fullPath != L"/" && fullPath.Length() > 0 && fullPath[fullPath.Length() - 1] == Delimiter)
 			{
 				fullPath = fullPath.Left(fullPath.Length() - 1);
 			}
@@ -525,40 +528,64 @@ Folder
 		bool Folder::GetFolders(collections::List<Folder>& folders)const
 		{
 #if defined VCZH_MSVC
-			if (!Exists()) return false;
-			WIN32_FIND_DATA findData;
-			HANDLE findHandle = INVALID_HANDLE_VALUE;
-
-			while (true)
+			if (filePath.IsRoot())
 			{
-				if (findHandle == INVALID_HANDLE_VALUE)
+				auto bufferSize = GetLogicalDriveStrings(0, nullptr);
+				if (bufferSize > 0)
 				{
-					WString searchPath = (filePath / L"*").GetFullPath();
-					findHandle = FindFirstFile(searchPath.Buffer(), &findData);
+					Array<wchar_t> buffer(bufferSize);
+					if (GetLogicalDriveStrings((DWORD)buffer.Count(), &buffer[0]) > 0)
+					{
+						auto begin = &buffer[0];
+						auto end = begin + buffer.Count();
+						while (begin < end && *begin)
+						{
+							WString driveString = begin;
+							begin += driveString.Length() + 1;
+							folders.Add(Folder(FilePath(driveString)));
+						}
+						return true;
+					}
+				}
+				return false;
+			}
+			else
+			{
+				if (!Exists()) return false;
+				WIN32_FIND_DATA findData;
+				HANDLE findHandle = INVALID_HANDLE_VALUE;
+
+				while (true)
+				{
 					if (findHandle == INVALID_HANDLE_VALUE)
 					{
-						break;
+						WString searchPath = (filePath / L"*").GetFullPath();
+						findHandle = FindFirstFile(searchPath.Buffer(), &findData);
+						if (findHandle == INVALID_HANDLE_VALUE)
+						{
+							break;
+						}
 					}
-				}
-				else
-				{
-					BOOL result = FindNextFile(findHandle, &findData);
-					if (result == 0)
+					else
 					{
-						FindClose(findHandle);
-						break;
+						BOOL result = FindNextFile(findHandle, &findData);
+						if (result == 0)
+						{
+							FindClose(findHandle);
+							break;
+						}
 					}
-				}
 
-				if (findData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
-				{
-					if (wcscmp(findData.cFileName, L".") != 0 && wcscmp(findData.cFileName, L"..") != 0)
+					if (findData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
 					{
-						folders.Add(Folder(filePath / findData.cFileName));
+						if (wcscmp(findData.cFileName, L".") != 0 && wcscmp(findData.cFileName, L"..") != 0)
+						{
+							folders.Add(Folder(filePath / findData.cFileName));
+						}
 					}
 				}
+				return true;
 			}
-			return true;
 #elif defined VCZH_GCC
 			if (!Exists()) return false;
 
@@ -593,6 +620,10 @@ Folder
 		bool Folder::GetFiles(collections::List<File>& files)const
 		{
 #if defined VCZH_MSVC
+			if (filePath.IsRoot())
+			{
+				return true;
+			}
 			if (!Exists()) return false;
 			WIN32_FIND_DATA findData;
 			HANDLE findHandle = INVALID_HANDLE_VALUE;

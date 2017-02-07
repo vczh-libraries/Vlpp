@@ -148,7 +148,7 @@ namespace vl
 			FilePath					filePath;
 
 		public:
-			/// <summary>Create an empty reference.</summary>
+			/// <summary>Create a root reference.</summary>
 			Folder();
 			/// <summary>Create a reference to a specified folder.</summary>
 			/// <param name="_filePath">The specified folder.</param>

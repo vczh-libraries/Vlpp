@@ -182,6 +182,26 @@ TEST_CASE(TestFilePath)
 #endif
 }
 
+#ifdef VCZH_MSVC
+TEST_CASE(EnumerateDrives)
+{
+	Folder folder;
+	List<Folder> folders;
+	List<File> files;
+	TEST_ASSERT(folder.GetFilePath().IsRoot());
+	TEST_ASSERT(folder.GetFolders(folders));
+	TEST_ASSERT(folder.GetFiles(files));
+	TEST_ASSERT(folders.Count() > 0);
+	TEST_ASSERT(files.Count() == 0);
+
+	TEST_ASSERT(folders[0].Exists());
+	TEST_ASSERT(folders[0].GetFilePath().IsFolder());
+	auto drive = folders[0].GetFilePath().GetFullPath();
+	TEST_ASSERT(drive.Length() == 2);
+	TEST_ASSERT(drive[1] == L':');
+}
+#endif
+
 TEST_CASE(CreateDeleteFolders)
 {
 	ClearTestFolders();
