@@ -12,11 +12,15 @@ void WriteFileComment(const WString& name, StreamWriter& writer)
 	writer.WriteLine(L"");
 }
 
-WString WriteFileBegin(const CodegenConfig& config, StreamWriter& writer)
+WString WriteFileBegin(const CodegenConfig& config, const WString& includeFile, StreamWriter& writer)
 {
 	FOREACH(WString, include, config.includes)
 	{
 		writer.WriteLine(L"#include "+include);
+	}
+	if (includeFile != L"")
+	{
+		writer.WriteLine(L"#include \"" + config.filePrefix + config.files[includeFile] + L".h\"");
 	}
 	writer.WriteLine(L"");
 	WString prefix;

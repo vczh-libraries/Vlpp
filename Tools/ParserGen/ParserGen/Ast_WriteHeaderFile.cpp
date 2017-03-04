@@ -1,17 +1,17 @@
 #include "ParserGen.h"
 
-void WriteHeaderFile(const WString& name, Ptr<ParsingDefinition> definition, Ptr<ParsingTable> table, const CodegenConfig& config, StreamWriter& writer)
+void WriteAstHeaderFile(const WString& name, Ptr<ParsingDefinition> definition, Ptr<ParsingTable> table, const CodegenConfig& config, StreamWriter& writer)
 {
 	WriteFileComment(name, writer);
-	if(config.guard!=L"")
+	if (config.guard != L"")
 	{
 		writer.WriteString(L"#ifndef ");
-		writer.WriteLine(config.guard);
+		writer.WriteLine(config.guard + L"_AST");
 		writer.WriteString(L"#define ");
-		writer.WriteLine(config.guard);
+		writer.WriteLine(config.guard + L"_AST");
 		writer.WriteLine(L"");
 	}
-	WString prefix=WriteFileBegin(config, writer);
+	WString prefix = WriteFileBegin(config, L"", writer);
 
 	ParsingSymbolManager manager;
 	{
@@ -22,8 +22,6 @@ void WriteHeaderFile(const WString& name, Ptr<ParsingDefinition> definition, Ptr
 	WriteTokenDefinition(table, prefix, config.classPrefix, writer);
 	WriteTypeForwardDefinitions(definition->types, prefix, 0, &manager, config.classPrefix, writer);
 	WriteTypeDefinitions(definition->types, prefix, 0, &manager, config.classPrefix, writer);
-	WriteMetaDefinition(prefix, config.classPrefix, writer);
-	WriteParserFunctions(&manager, config.parsers, prefix, config.classPrefix, writer);
 
 	WriteFileEnd(config, writer);
 
@@ -38,7 +36,7 @@ void WriteHeaderFile(const WString& name, Ptr<ParsingDefinition> definition, Ptr
 	writer.WriteLine(L"\t}");
 	writer.WriteLine(L"}");
 
-	if(config.guard!=L"")
+	if (config.guard != L"")
 	{
 		writer.WriteString(L"#endif");
 	}

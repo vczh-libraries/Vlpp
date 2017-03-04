@@ -13,72 +13,90 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Codegen">
+      <UniqueIdentifier>{479ce694-41ed-4ab7-b5d7-b58a247334ee}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Import">
+      <UniqueIdentifier>{3b188b5e-e349-4f56-81fc-40d30ad3966f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Codegen\Ast">
+      <UniqueIdentifier>{8fadaa90-9c31-4bae-80fb-04e1cf4b113c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Codegen\Parser">
+      <UniqueIdentifier>{e6795d35-69f8-4f74-87ac-0de3edd3d100}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ParserGen_CreateTable.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ParserGen.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="..\..\..\Release\Vlpp.cpp">
+      <Filter>Import</Filter>
     </ClCompile>
     <ClCompile Include="ParserGen_Codegen.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Codegen</Filter>
+    </ClCompile>
+    <ClCompile Include="ParserGen.cpp">
+      <Filter>Codegen</Filter>
+    </ClCompile>
+    <ClCompile Include="Ast_WriteCppFile.cpp">
+      <Filter>Codegen\Ast</Filter>
+    </ClCompile>
+    <ClCompile Include="Ast_WriteHeaderFile.cpp">
+      <Filter>Codegen\Ast</Filter>
+    </ClCompile>
+    <ClCompile Include="Ast_WriteCppFile_Reflection.cpp">
+      <Filter>Codegen\Ast</Filter>
+    </ClCompile>
+    <ClCompile Include="Ast_WriteCppFile_Visitor.cpp">
+      <Filter>Codegen\Ast</Filter>
+    </ClCompile>
+    <ClCompile Include="Ast_WriteHeaderFile_Reflection.cpp">
+      <Filter>Codegen\Ast</Filter>
+    </ClCompile>
+    <ClCompile Include="Ast_WriteHeaderFile_TableGen.cpp">
+      <Filter>Codegen\Ast</Filter>
+    </ClCompile>
+    <ClCompile Include="Ast_WriteHeaderFile_Tokens.cpp">
+      <Filter>Codegen\Ast</Filter>
+    </ClCompile>
+    <ClCompile Include="Ast_WriteHeaderFile_Types.cpp">
+      <Filter>Codegen\Ast</Filter>
+    </ClCompile>
+    <ClCompile Include="ParserGen_CreateTable.cpp">
+      <Filter>Codegen</Filter>
     </ClCompile>
     <ClCompile Include="ParserGen_PrintType.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Codegen</Filter>
     </ClCompile>
-    <ClCompile Include="ParserGen_WriteHeaderFile.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="Parser_WriteCppFile.cpp">
+      <Filter>Codegen\Parser</Filter>
     </ClCompile>
-    <ClCompile Include="ParserGen_WriteCppFile_TreeBuilder.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="Parser_WriteCppFile_ParserText.cpp">
+      <Filter>Codegen\Parser</Filter>
     </ClCompile>
-    <ClCompile Include="ParserGen_WriteCppFile_TableGen.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="Parser_WriteCppFile_TableGen.cpp">
+      <Filter>Codegen\Parser</Filter>
     </ClCompile>
-    <ClCompile Include="ParserGen_WriteCppFile_ParserText.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="Parser_WriteCppFile_TreeBuilder.cpp">
+      <Filter>Codegen\Parser</Filter>
     </ClCompile>
-    <ClCompile Include="ParserGen_WriteCppFile_Unescaping.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="Parser_WriteCppFile_Unescaping.cpp">
+      <Filter>Codegen\Parser</Filter>
     </ClCompile>
-    <ClCompile Include="ParserGen_WriteCppFile_Visitor.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="Parser_WriteHeaderFile.cpp">
+      <Filter>Codegen\Parser</Filter>
     </ClCompile>
-    <ClCompile Include="ParserGen_WriteCppFile.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ParserGen_WriteHeaderFile_Tokens.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ParserGen_WriteHeaderFile_TableGen.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ParserGen_WriteHeaderFile_ParserFunctions.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ParserGen_WriteHeaderFile_Types.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ParserGen_WriteHeaderFile_Reflection.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ParserGen_WriteCppFile_Reflection.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\Release\Vlpp.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="Parser_WriteHeaderFile_ParserFunctions.cpp">
+      <Filter>Codegen\Parser</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ParserGen.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\Release\Vlpp.h">
-      <Filter>Header Files</Filter>
+      <Filter>Import</Filter>
+    </ClInclude>
+    <ClInclude Include="ParserGen.h">
+      <Filter>Codegen</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
