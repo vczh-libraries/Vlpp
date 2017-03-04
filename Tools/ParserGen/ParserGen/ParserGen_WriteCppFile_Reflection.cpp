@@ -39,16 +39,21 @@ void WriteTypeReflectionImplementation(ParsingSymbolManager* manager, const WStr
 
 	FOREACH(ParsingSymbol*, type, types)
 	{
-		if (type->GetType() == ParsingSymbol::ClassType && !type->GetDescriptorSymbol() && !leafClasses.Contains(type))
+		if (type->GetType() == ParsingSymbol::ClassType)
 		{
-			writer.WriteString(prefix);
-			writer.WriteString(L"IMPL_TYPE_INFO_RENAME(");
-			PrintNamespaces(config.codeNamespaces, writer);
-			PrintType(type, config.classPrefix, writer);
-			writer.WriteString(L"::IVisitor, ");
-			PrintNamespaces(config.reflectionNamespaces, writer);
-			PrintType(type, config.classPrefix, writer);
-			writer.WriteLine(L"::IVisitor)");
+			List<ParsingSymbol*> children;
+			SearchChildClasses(type, manager->GetGlobal(), manager, children);
+			if (children.Count() > 0)
+			{
+				writer.WriteString(prefix);
+				writer.WriteString(L"IMPL_TYPE_INFO_RENAME(");
+				PrintNamespaces(config.codeNamespaces, writer);
+				PrintType(type, config.classPrefix, writer);
+				writer.WriteString(L"::IVisitor, ");
+				PrintNamespaces(config.reflectionNamespaces, writer);
+				PrintType(type, config.classPrefix, writer);
+				writer.WriteLine(L"::IVisitor)");
+			}
 		}
 	}
 
@@ -100,10 +105,18 @@ void WriteTypeReflectionImplementation(ParsingSymbolManager* manager, const WStr
 					writer.WriteLine(L")");
 					writer.WriteLine(L"");
 				}
-				else if (!leafClasses.Contains(type))
 				{
-					writer.WriteString(prefix);
-					writer.WriteLine(L"\tCLASS_MEMBER_METHOD(Accept, {L\"visitor\"})");
+					List<ParsingSymbol*> children;
+					SearchChildClasses(type, manager->GetGlobal(), manager, children);
+					if (children.Count() > 0)
+					{
+						writer.WriteString(prefix);
+						writer.WriteString(L"\tCLASS_MEMBER_METHOD_OVERLOAD(Accept, {L\"visitor\"}, void(");
+						PrintType(type, config.classPrefix, writer);
+						writer.WriteString(L"::*)(");
+						PrintType(type, config.classPrefix, writer);
+						writer.WriteLine(L"::IVisitor* visitor))");
+					}
 				}
 				
 				if (leafClasses.Contains(type))
@@ -153,30 +166,33 @@ void WriteTypeReflectionImplementation(ParsingSymbolManager* manager, const WStr
 
 	FOREACH(ParsingSymbol*, type, types)
 	{
-		if (type->GetType() == ParsingSymbol::ClassType && !type->GetDescriptorSymbol() && !leafClasses.Contains(type))
+		if (type->GetType() == ParsingSymbol::ClassType)
 		{
-			writer.WriteLine(L"");
-			writer.WriteString(prefix);
-			writer.WriteString(L"BEGIN_INTERFACE_MEMBER(");
-			PrintType(type, config.classPrefix, writer);
-			writer.WriteLine(L"::IVisitor)");
-
-			List<ParsingSymbol*> visitableTypes;
-			SearchLeafDescendantClasses(type, manager, visitableTypes);
-			FOREACH(ParsingSymbol*, child, visitableTypes)
+			List<ParsingSymbol*> children;
+			SearchChildClasses(type, manager->GetGlobal(), manager, children);
+			if (children.Count() > 0)
 			{
+				writer.WriteLine(L"");
 				writer.WriteString(prefix);
-				writer.WriteString(L"\tCLASS_MEMBER_METHOD_OVERLOAD(Visit, {L\"node\"}, void(");
+				writer.WriteString(L"BEGIN_INTERFACE_MEMBER(");
 				PrintType(type, config.classPrefix, writer);
-				writer.WriteString(L"::IVisitor::*)(");
-				PrintType(child, config.classPrefix, writer);
-				writer.WriteLine(L"* node))");
-			}
+				writer.WriteLine(L"::IVisitor)");
 
-			writer.WriteString(prefix);
-			writer.WriteString(L"END_INTERFACE_MEMBER(");
-			PrintType(type, config.classPrefix, writer);
-			writer.WriteLine(L")");
+				FOREACH(ParsingSymbol*, child, children)
+				{
+					writer.WriteString(prefix);
+					writer.WriteString(L"\tCLASS_MEMBER_METHOD_OVERLOAD(Visit, {L\"node\"}, void(");
+					PrintType(type, config.classPrefix, writer);
+					writer.WriteString(L"::IVisitor::*)(");
+					PrintType(child, config.classPrefix, writer);
+					writer.WriteLine(L"* node))");
+				}
+
+				writer.WriteString(prefix);
+				writer.WriteString(L"END_INTERFACE_MEMBER(");
+				PrintType(type, config.classPrefix, writer);
+				writer.WriteLine(L")");
+			}
 		}
 	}
 
@@ -209,13 +225,18 @@ void WriteTypeReflectionImplementation(ParsingSymbolManager* manager, const WStr
 
 	FOREACH(ParsingSymbol*, type, types)
 	{
-		if (type->GetType() == ParsingSymbol::ClassType && !type->GetDescriptorSymbol() && !leafClasses.Contains(type))
+		if (type->GetType() == ParsingSymbol::ClassType)
 		{
-			writer.WriteString(prefix);
-			writer.WriteString(L"\t\tADD_TYPE_INFO(");
-			PrintNamespaces(config.codeNamespaces, writer);
-			PrintType(type, config.classPrefix, writer);
-			writer.WriteLine(L"::IVisitor)");
+			List<ParsingSymbol*> children;
+			SearchChildClasses(type, manager->GetGlobal(), manager, children);
+			if (children.Count() > 0)
+			{
+				writer.WriteString(prefix);
+				writer.WriteString(L"\t\tADD_TYPE_INFO(");
+				PrintNamespaces(config.codeNamespaces, writer);
+				PrintType(type, config.classPrefix, writer);
+				writer.WriteLine(L"::IVisitor)");
+			}
 		}
 	}
 

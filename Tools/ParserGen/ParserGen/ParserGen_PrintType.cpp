@@ -74,23 +74,6 @@ void SearchDescendantClasses(ParsingSymbol* parent, ParsingSymbolManager* manage
 	}
 }
 
-void SearchLeafDescendantClasses(ParsingSymbol* parent, ParsingSymbolManager* manager, List<ParsingSymbol*>& children)
-{
-	List<ParsingSymbol*> classes;
-	SearchDescendantClasses(parent, manager, classes);
-	SearchLeafClasses(classes, children);
-}
-
-ParsingSymbol* GetRootAncestor(ParsingSymbol* type)
-{
-	if (type->GetType() == ParsingSymbol::ClassType)
-	{
-		ParsingSymbol* parent = type->GetDescriptorSymbol();
-		return parent ? GetRootAncestor(parent) : type;
-	}
-	return 0;
-}
-
 /***********************************************************************
 PrintTypeVisitor
 ***********************************************************************/

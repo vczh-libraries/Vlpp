@@ -51,10 +51,9 @@ public:
 
 	void Visit(ParsingDefinitionClassDefinition* node)override
 	{
-		List<ParsingSymbol*> children, leadChildren;
+		List<ParsingSymbol*> children;
 		ParsingSymbol* thisType = (scope ? scope : manager->GetGlobal())->GetSubSymbolByName(node->name);
 		SearchChildClasses(thisType, manager->GetGlobal(), manager, children);
-		SearchLeafDescendantClasses(thisType, manager, leadChildren);
 
 		writer.WriteString(prefix);
 		writer.WriteString(L"class ");
@@ -83,7 +82,7 @@ public:
 		writer.WriteString(prefix);
 		writer.WriteLine(L"public:");
 
-		if (children.Count() > 0 && !thisType->GetDescriptorSymbol())
+		if (children.Count() > 0)
 		{
 			writer.WriteString(prefix);
 			writer.WriteLine(L"\tclass IVisitor : public vl::reflection::IDescriptable, vl::reflection::Description<IVisitor>");
@@ -92,7 +91,7 @@ public:
 			writer.WriteString(prefix);
 			writer.WriteLine(L"\tpublic:");
 
-			FOREACH(ParsingSymbol*, child, leadChildren)
+			FOREACH(ParsingSymbol*, child, children)
 			{
 				writer.WriteString(prefix);
 				writer.WriteString(L"\t\tvirtual void Visit(");
@@ -118,18 +117,15 @@ public:
 			LogInternal(node, node->members[i].Obj(), prefix+L"\t");
 		}
 
-		if (children.Count() == 0)
+		if (auto baseType = thisType->GetDescriptorSymbol())
 		{
-			ParsingSymbol* rootAncestor = GetRootAncestor(thisType);
-			if(rootAncestor!=thisType)
-			{
-				writer.WriteLine(L"");
-				writer.WriteString(prefix);
-				writer.WriteString(L"\tvoid Accept(");
-				PrintType(thisType->GetDescriptorSymbol(), codeClassPrefix, writer);
-				writer.WriteLine(L"::IVisitor* visitor)override;");
-			}
+			writer.WriteLine(L"");
+			writer.WriteString(prefix);
+			writer.WriteString(L"\tvoid Accept(");
+			PrintType(baseType, codeClassPrefix, writer);
+			writer.WriteLine(L"::IVisitor* visitor)override;");
 		}
+
 		if(leafClasses.Contains(thisType))
 		{
 			writer.WriteLine(L"");

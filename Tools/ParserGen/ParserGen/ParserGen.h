@@ -65,8 +65,6 @@ extern void							EnumerateAllClass(ParsingSymbolManager* manager, ParsingSymbol
 extern void							EnumerateAllLeafClass(ParsingSymbolManager* manager, ParsingSymbol* scope, List<ParsingSymbol*>& types);
 extern void							SearchChildClasses(ParsingSymbol* parent, ParsingSymbol* scope, ParsingSymbolManager* manager, List<ParsingSymbol*>& children);
 extern void							SearchDescendantClasses(ParsingSymbol* parent, ParsingSymbolManager* manager, List<ParsingSymbol*>& children);
-extern void							SearchLeafDescendantClasses(ParsingSymbol* parent, ParsingSymbolManager* manager, List<ParsingSymbol*>& children);
-extern ParsingSymbol*				GetRootAncestor(ParsingSymbol* type);
 
 extern void							WriteTokenDefinition(Ptr<ParsingTable> table, const WString& prefix, const WString& codeClassPrefix, TextWriter& writer);
 extern void							WriteTypeForwardDefinitions(List<Ptr<ParsingDefinitionTypeDefinition>>& types, const WString& prefix, ParsingSymbol* scope, ParsingSymbolManager* manager, const WString& codeClassPrefix, TextWriter& writer);

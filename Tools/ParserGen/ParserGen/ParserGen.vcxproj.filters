@@ -13,19 +13,10 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="GeneratedParser">
-      <UniqueIdentifier>{76accc90-b524-4dc9-a1e6-d95bc5702155}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Test.cpp">
-      <Filter>GeneratedParser</Filter>
-    </ClCompile>
-    <ClCompile Include="Test_Unescaping.cpp">
-      <Filter>GeneratedParser</Filter>
     </ClCompile>
     <ClCompile Include="ParserGen_CreateTable.cpp">
       <Filter>Source Files</Filter>
@@ -83,19 +74,11 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Test.h">
-      <Filter>GeneratedParser</Filter>
-    </ClInclude>
     <ClInclude Include="ParserGen.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Release\Vlpp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="Test.parser.txt">
-      <Filter>GeneratedParser</Filter>
-    </Text>
   </ItemGroup>
 </Project>
