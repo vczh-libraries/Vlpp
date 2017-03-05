@@ -2,43 +2,55 @@
 
 void WriteCopyDependenciesDecl(const WString& prefix, const CodegenConfig& config, VisitorDependency& dependency, bool abstractFunction, StreamWriter& writer)
 {
-	writer.WriteLine(L"");
-	writer.WriteLine(prefix + L"\t// CopyFields ----------------------------------------");
-	FOREACH(ParsingSymbol*, targetType, dependency.fillDependencies)
+	if (dependency.fillDependencies.Count() > 0)
 	{
-		writer.WriteString(prefix + L"\tvoid CopyFields(");
-		PrintType(targetType, config.classPrefix, writer);
-		writer.WriteString(L"* from, ");
-		PrintType(targetType, config.classPrefix, writer);
-		writer.WriteLine(L"* to);");
+		writer.WriteLine(L"");
+		writer.WriteLine(prefix + L"\t// CopyFields ----------------------------------------");
+		FOREACH(ParsingSymbol*, targetType, dependency.fillDependencies)
+		{
+			writer.WriteString(prefix + L"\tvoid CopyFields(");
+			PrintType(targetType, config.classPrefix, writer);
+			writer.WriteString(L"* from, ");
+			PrintType(targetType, config.classPrefix, writer);
+			writer.WriteLine(L"* to);");
+		}
 	}
-	writer.WriteLine(L"");
-	writer.WriteLine(prefix + L"\t// CreateField ---------------------------------------");
-	FOREACH(ParsingSymbol*, targetType, dependency.createDependencies)
+	if (dependency.createDependencies.Count() > 0)
 	{
-		writer.WriteString(prefix + L"\tvl::Ptr<");
-		PrintType(targetType, config.classPrefix, writer);
-		writer.WriteString(L"> CreateField(vl::Ptr<");
-		PrintType(targetType, config.classPrefix, writer);
-		writer.WriteLine(L"> from);");
+		writer.WriteLine(L"");
+		writer.WriteLine(prefix + L"\t// CreateField ---------------------------------------");
+		FOREACH(ParsingSymbol*, targetType, dependency.createDependencies)
+		{
+			writer.WriteString(prefix + L"\tvl::Ptr<");
+			PrintType(targetType, config.classPrefix, writer);
+			writer.WriteString(L"> CreateField(vl::Ptr<");
+			PrintType(targetType, config.classPrefix, writer);
+			writer.WriteLine(L"> from);");
+		}
 	}
-	writer.WriteLine(L"");
-	writer.WriteLine(prefix + L"\t// CreateField (virtual) -----------------------------");
-	FOREACH(ParsingSymbol*, targetType, dependency.virtualDependencies)
+	if (dependency.virtualDependencies.Count() > 0)
 	{
-		writer.WriteString(prefix + (abstractFunction ? L"\tvirtual vl::Ptr<" : L"\tvl::Ptr<"));
-		PrintType(targetType, config.classPrefix, writer);
-		writer.WriteString(L"> CreateField(vl::Ptr<");
-		PrintType(targetType, config.classPrefix, writer);
-		writer.WriteLine(abstractFunction ? L"> from) = 0;" : L"> from);");
+		writer.WriteLine(L"");
+		writer.WriteLine(prefix + L"\t// CreateField (virtual) -----------------------------");
+		FOREACH(ParsingSymbol*, targetType, dependency.virtualDependencies)
+		{
+			writer.WriteString(prefix + (abstractFunction ? L"\tvirtual vl::Ptr<" : L"\tvl::Ptr<"));
+			PrintType(targetType, config.classPrefix, writer);
+			writer.WriteString(L"> CreateField(vl::Ptr<");
+			PrintType(targetType, config.classPrefix, writer);
+			writer.WriteLine(abstractFunction ? L"> from) = 0;" : L"> from);");
+		}
 	}
-	writer.WriteLine(L"");
-	writer.WriteLine(prefix + L"\t// Dispatch (virtual) --------------------------------");
-	FOREACH(ParsingSymbol*, targetType, dependency.subVisitorDependencies)
+	if (dependency.subVisitorDependencies.Count() > 0)
 	{
-		writer.WriteString(prefix + (abstractFunction ? L"\tvirtual " : L"") + L"\tvl::Ptr<vl::parsing::ParsingTreeCustomBase> Dispatch(");
-		PrintType(targetType, config.classPrefix, writer);
-		writer.WriteLine(abstractFunction ? L"* node) = 0;" : L"* node);");
+		writer.WriteLine(L"");
+		writer.WriteLine(prefix + L"\t// Dispatch (virtual) --------------------------------");
+		FOREACH(ParsingSymbol*, targetType, dependency.subVisitorDependencies)
+		{
+			writer.WriteString(prefix + (abstractFunction ? L"\tvirtual " : L"\t") + L"vl::Ptr<vl::parsing::ParsingTreeCustomBase> Dispatch(");
+			PrintType(targetType, config.classPrefix, writer);
+			writer.WriteLine(abstractFunction ? L"* node) = 0;" : L"* node);");
+		}
 	}
 }
 

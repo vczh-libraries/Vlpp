@@ -116,6 +116,9 @@ extern void							WriteParserCppFile(const WString& name, const WString& parserC
 File(Empty)
 ***********************************************************************/
 
+extern void							WriteEmptyHeaderFile(const WString& name, Ptr<ParsingDefinition> definition, Ptr<ParsingTable> table, ParsingSymbolManager& manager, const CodegenConfig& config, StreamWriter& writer);
+extern void							WriteEmptyCppFile(const WString& name, const WString& parserCode, Ptr<ParsingDefinition> definition, Ptr<ParsingTable> table, ParsingSymbolManager& manager, const CodegenConfig& config, StreamWriter& writer);
+
 /***********************************************************************
 File(Traverse)
 ***********************************************************************/

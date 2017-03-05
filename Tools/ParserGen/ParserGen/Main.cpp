@@ -154,6 +154,7 @@ int main(int argc, char* argv[])
 			GENERATE_FILE(Ast);
 			GENERATE_FILE(Parser);
 			GENERATE_FILE(Copy);
+			GENERATE_FILE(Empty);
 
 #undef GENERATE_FILE
 #undef PREPARE_FILE

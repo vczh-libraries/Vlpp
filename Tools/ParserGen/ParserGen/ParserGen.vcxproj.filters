@@ -28,6 +28,9 @@
     <Filter Include="Codegen\Copy">
       <UniqueIdentifier>{f64e99b3-d8bf-413e-81a1-deca12e03110}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Codegen\Default">
+      <UniqueIdentifier>{c15eef4a-5673-465a-adc9-f28bc87e27b0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -101,6 +104,12 @@
     </ClCompile>
     <ClCompile Include="ParserGen_VisitorDependency.cpp">
       <Filter>Codegen</Filter>
+    </ClCompile>
+    <ClCompile Include="Empty_WriteCppFile.cpp">
+      <Filter>Codegen\Default</Filter>
+    </ClCompile>
+    <ClCompile Include="Empty_WriteHeaderFile.cpp">
+      <Filter>Codegen\Default</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

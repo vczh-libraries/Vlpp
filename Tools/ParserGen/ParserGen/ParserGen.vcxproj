@@ -90,6 +90,8 @@
     <ClCompile Include="Ast_WriteHeaderFile.cpp" />
     <ClCompile Include="Copy_WriteCppFile.cpp" />
     <ClCompile Include="Copy_WriteHeaderFile.cpp" />
+    <ClCompile Include="Empty_WriteCppFile.cpp" />
+    <ClCompile Include="Empty_WriteHeaderFile.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="ParserGen.cpp" />
     <ClCompile Include="ParserGen_Codegen.cpp" />
