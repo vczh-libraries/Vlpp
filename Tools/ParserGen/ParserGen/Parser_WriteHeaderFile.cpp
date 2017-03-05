@@ -1,6 +1,6 @@
 #include "ParserGen.h"
 
-void WriteParserHeaderFile(const WString& name, Ptr<ParsingDefinition> definition, Ptr<ParsingTable> table, const CodegenConfig& config, StreamWriter& writer)
+void WriteParserHeaderFile(const WString& name, Ptr<ParsingDefinition> definition, Ptr<ParsingTable> table, ParsingSymbolManager& manager, const CodegenConfig& config, StreamWriter& writer)
 {
 	WriteFileComment(name, writer);
 	if (config.guard != L"")
@@ -12,12 +12,6 @@ void WriteParserHeaderFile(const WString& name, Ptr<ParsingDefinition> definitio
 		writer.WriteLine(L"");
 	}
 	WString prefix = WriteFileBegin(config, L"Ast", writer);
-
-	ParsingSymbolManager manager;
-	{
-		List<Ptr<ParsingError>> errors;
-		ValidateDefinition(definition, &manager, errors);
-	}
 
 	WriteMetaDefinition(prefix, config.classPrefix, writer);
 	WriteParserFunctions(&manager, config.parsers, prefix, config.classPrefix, writer);

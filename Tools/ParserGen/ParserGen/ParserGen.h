@@ -18,7 +18,7 @@ using namespace vl::parsing::tabling;
 using namespace vl::filesystem;
 
 extern Ptr<ParsingDefinition>		CreateDefinition(Ptr<ParsingGeneralParser> parser, const WString& grammar, StreamWriter& writer);
-extern Ptr<ParsingTable>			CreateTable(Ptr<ParsingDefinition> definition, StreamWriter& writer, bool ambiguity);
+extern Ptr<ParsingTable>			CreateTable(Ptr<ParsingDefinition> definition, ParsingSymbolManager& manager, StreamWriter& writer, bool ambiguity);
 
 /***********************************************************************
 Configuration
@@ -80,8 +80,8 @@ extern void							WriteTypeReflectionDeclaration(ParsingSymbolManager* manager, 
 extern void							WriteVisitorImpl(ParsingSymbolManager* manager, const WString& prefix, const WString& codeClassPrefix, TextWriter& writer);
 extern void							WriteTypeReflectionImplementation(ParsingSymbolManager* manager, const WString& prefix, const CodegenConfig& config, TextWriter& writer);
 
-extern void							WriteAstHeaderFile(const WString& name, Ptr<ParsingDefinition> definition, Ptr<ParsingTable> table, const CodegenConfig& config, StreamWriter& writer);
-extern void							WriteAstCppFile(const WString& name, const WString& parserCode, Ptr<ParsingDefinition> definition, Ptr<ParsingTable> table, const CodegenConfig& config, StreamWriter& writer);
+extern void							WriteAstHeaderFile(const WString& name, Ptr<ParsingDefinition> definition, Ptr<ParsingTable> table, ParsingSymbolManager& manager, const CodegenConfig& config, StreamWriter& writer);
+extern void							WriteAstCppFile(const WString& name, const WString& parserCode, Ptr<ParsingDefinition> definition, Ptr<ParsingTable> table, ParsingSymbolManager& manager, const CodegenConfig& config, StreamWriter& writer);
 
 /***********************************************************************
 File(Parser)
@@ -99,8 +99,8 @@ extern void							WriteConvertImpl(ParsingSymbolManager* manager, const WString&
 extern void							WriteParserFunctions(ParsingSymbolManager* manager, const WString& prefix, const CodegenConfig& config, TextWriter& writer);
 extern void							WriteTable(const WString& parserCode, bool enableAmbiguity, bool enableSerialization, const WString& prefix, const WString& codeClassPrefix, TextWriter& writer);
 
-extern void							WriteParserHeaderFile(const WString& name, Ptr<ParsingDefinition> definition, Ptr<ParsingTable> table, const CodegenConfig& config, StreamWriter& writer);
-extern void							WriteParserCppFile(const WString& name, const WString& parserCode, Ptr<ParsingDefinition> definition, Ptr<ParsingTable> table, const CodegenConfig& config, StreamWriter& writer);
+extern void							WriteParserHeaderFile(const WString& name, Ptr<ParsingDefinition> definition, Ptr<ParsingTable> table, ParsingSymbolManager& manager, const CodegenConfig& config, StreamWriter& writer);
+extern void							WriteParserCppFile(const WString& name, const WString& parserCode, Ptr<ParsingDefinition> definition, Ptr<ParsingTable> table, ParsingSymbolManager& manager, const CodegenConfig& config, StreamWriter& writer);
 
 /***********************************************************************
 File(Empty)
@@ -113,5 +113,8 @@ File(Traverse)
 /***********************************************************************
 File(Copy)
 ***********************************************************************/
+
+extern void							WriteCopyHeaderFile(const WString& name, Ptr<ParsingDefinition> definition, Ptr<ParsingTable> table, ParsingSymbolManager& manager, const CodegenConfig& config, StreamWriter& writer);
+extern void							WriteCopyCppFile(const WString& name, const WString& parserCode, Ptr<ParsingDefinition> definition, Ptr<ParsingTable> table, ParsingSymbolManager& manager, const CodegenConfig& config, StreamWriter& writer);
 
 #endif

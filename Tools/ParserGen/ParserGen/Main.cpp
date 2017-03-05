@@ -70,6 +70,7 @@ int main(int argc, char* argv[])
 
 			Ptr<ParsingDefinition> definition;
 			Ptr<ParsingTable> table;
+			ParsingSymbolManager manager;
 			{
 				FileStream fileStream(logPath.GetFullPath(), FileStream::WriteOnly);
 				if (!fileStream.IsAvailable())
@@ -108,7 +109,7 @@ int main(int argc, char* argv[])
 					goto STOP_PARSING;
 				}
 
-				table = CreateTable(definition, writer, config.ambiguity == L"enabled");
+				table = CreateTable(definition, manager, writer, config.ambiguity == L"enabled");
 				if (!table)
 				{
 					Console::SetColor(true, false, false, true);
@@ -141,17 +142,18 @@ int main(int argc, char* argv[])
 			{\
 				{\
 					PREPARE_FILE(workingDirectory / (config.filePrefix + config.files[L ## #NAME] + L".h"));\
-					Write##NAME##HeaderFile(name, definition, table, config, writer);\
+					Write##NAME##HeaderFile(name, definition, table, manager, config, writer);\
 				}\
 				{\
 					PREPARE_FILE(workingDirectory / (config.filePrefix + config.files[L ## #NAME] + L".cpp"));\
-					Write##NAME##CppFile(name, codeGrammar, definition, table, config, writer);\
+					Write##NAME##CppFile(name, codeGrammar, definition, table, manager, config, writer);\
 				}\
 			}\
 
 			WString name = inputPath.GetName();
 			GENERATE_FILE(Ast);
 			GENERATE_FILE(Parser);
+			GENERATE_FILE(Copy);
 
 #undef GENERATE_FILE
 #undef PREPARE_FILE

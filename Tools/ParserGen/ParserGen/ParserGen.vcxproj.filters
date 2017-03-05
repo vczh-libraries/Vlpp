@@ -25,6 +25,9 @@
     <Filter Include="Codegen\Parser">
       <UniqueIdentifier>{e6795d35-69f8-4f74-87ac-0de3edd3d100}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Codegen\Copy">
+      <UniqueIdentifier>{f64e99b3-d8bf-413e-81a1-deca12e03110}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -89,6 +92,12 @@
     </ClCompile>
     <ClCompile Include="Parser_WriteHeaderFile_ParserFunctions.cpp">
       <Filter>Codegen\Parser</Filter>
+    </ClCompile>
+    <ClCompile Include="Copy_WriteCppFile.cpp">
+      <Filter>Codegen\Copy</Filter>
+    </ClCompile>
+    <ClCompile Include="Copy_WriteHeaderFile.cpp">
+      <Filter>Codegen\Copy</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

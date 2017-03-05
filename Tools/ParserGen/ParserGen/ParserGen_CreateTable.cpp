@@ -35,15 +35,14 @@ Ptr<ParsingDefinition> CreateDefinition(Ptr<ParsingGeneralParser> parser, const 
 	return definition;
 }
 
-Ptr<ParsingTable> CreateTable(Ptr<ParsingDefinition> definition, StreamWriter& writer, bool ambiguity)
+Ptr<ParsingTable> CreateTable(Ptr<ParsingDefinition> definition, ParsingSymbolManager& manager, StreamWriter& writer, bool ambiguity)
 {
-	ParsingSymbolManager symbolManager;
 	List<Ptr<ParsingError>> errors;
-	ValidateDefinition(definition, &symbolManager, errors);
+	ValidateDefinition(definition, &manager, errors);
 	LogParsingData(definition, L"Grammar Definition", writer);
 	CheckError;
 
-	Ptr<Automaton> epsilonPDA=CreateEpsilonPDA(definition, &symbolManager);
+	Ptr<Automaton> epsilonPDA=CreateEpsilonPDA(definition, &manager);
 	Ptr<Automaton> nondeterministicPDA=CreateNondeterministicPDAFromEpsilonPDA(epsilonPDA);
 	Ptr<Automaton> jointPDA=CreateJointPDAFromNondeterministicPDA(nondeterministicPDA);
 		
@@ -58,7 +57,7 @@ Ptr<ParsingTable> CreateTable(Ptr<ParsingDefinition> definition, StreamWriter& w
 	LogParsingData(jointPDA, L"Marked Joint PDA", writer);
 	CheckError;
 
-	Ptr<ParsingTable> table=GenerateTableFromPDA(definition, &symbolManager, jointPDA, ambiguity, errors);
+	Ptr<ParsingTable> table=GenerateTableFromPDA(definition, &manager, jointPDA, ambiguity, errors);
 	LogParsingData(table, L"Table", writer);
 	if(!ambiguity)
 	{

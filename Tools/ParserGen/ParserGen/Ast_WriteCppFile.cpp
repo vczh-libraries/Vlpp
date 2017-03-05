@@ -1,15 +1,9 @@
 #include "ParserGen.h"
 
-void WriteAstCppFile(const WString& name, const WString& parserCode, Ptr<ParsingDefinition> definition, Ptr<ParsingTable> table, const CodegenConfig& config, StreamWriter& writer)
+void WriteAstCppFile(const WString& name, const WString& parserCode, Ptr<ParsingDefinition> definition, Ptr<ParsingTable> table, ParsingSymbolManager& manager, const CodegenConfig& config, StreamWriter& writer)
 {
 	WriteFileComment(name, writer);
 	WString prefix = WriteFileBegin(config, L"Ast", writer);
-
-	ParsingSymbolManager manager;
-	{
-		List<Ptr<ParsingError>> errors;
-		ValidateDefinition(definition, &manager, errors);
-	}
 
 	writer.WriteLine(L"/***********************************************************************");
 	writer.WriteLine(L"Visitor Pattern Implementation");
