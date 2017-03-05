@@ -1,5 +1,20 @@
 #include "ParserGen.h"
 
+extern void SearchCreateDependencies(ParsingSymbol* type, ParsingSymbolManager* manager, SortedList<ParsingSymbol*>& visitedTypes, VisitorDependency& dependency);
+
+void AddFillDependency(ParsingSymbol* type, VisitorDependency& dependency)
+{
+	auto current = type;
+	while (current)
+	{
+		if (!dependency.fillDependencies.Contains(current))
+		{
+			dependency.fillDependencies.Add(current);
+		}
+		current = current->GetDescriptorSymbol();
+	}
+}
+
 void AddCreateDependency(ParsingSymbol* type, ParsingSymbolManager* manager, SortedList<ParsingSymbol*>& visitedTypes, VisitorDependency& dependency)
 {
 	List<ParsingSymbol*> children;
@@ -20,6 +35,8 @@ void AddCreateDependency(ParsingSymbol* type, ParsingSymbolManager* manager, Sor
 		if (!dependency.createDependencies.Contains(type))
 		{
 			dependency.createDependencies.Add(type);
+			AddFillDependency(type, dependency);
+			SearchCreateDependencies(type, manager, visitedTypes, dependency);
 		}
 	}
 }
@@ -67,15 +84,7 @@ void SearchDependencies(ParsingSymbol* type, ParsingSymbolManager* manager, Sort
 		}
 		else
 		{
-			auto current = type;
-			while (current)
-			{
-				if (!dependency.fillDependencies.Contains(current))
-				{
-					dependency.fillDependencies.Add(current);
-				}
-				current = current->GetDescriptorSymbol();
-			}
+			AddFillDependency(type, dependency);
 		}
 	}
 	SearchCreateDependencies(type, manager, visitedTypes, dependency);
