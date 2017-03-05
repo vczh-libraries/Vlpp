@@ -136,31 +136,24 @@ int main(int argc, char* argv[])
 				EncoderStream encoderStream(fileStream, encoder);\
 				StreamWriter writer(encoderStream);\
 
+#define GENERATE_FILE(NAME)\
+			if (config.files.Keys().Contains(L ## #NAME))\
+			{\
+				{\
+					PREPARE_FILE(workingDirectory / (config.filePrefix + config.files[L ## #NAME] + L".h"));\
+					Write##NAME##HeaderFile(name, definition, table, config, writer);\
+				}\
+				{\
+					PREPARE_FILE(workingDirectory / (config.filePrefix + config.files[L ## #NAME] + L".cpp"));\
+					Write##NAME##CppFile(name, codeGrammar, definition, table, config, writer);\
+				}\
+			}\
+
 			WString name = inputPath.GetName();
+			GENERATE_FILE(Ast);
+			GENERATE_FILE(Parser);
 
-			if(config.files.Keys().Contains(L"Ast"))
-			{
-				{
-					PREPARE_FILE(workingDirectory / (config.filePrefix + config.files[L"Ast"] + L".h"));
-					WriteAstHeaderFile(name, definition, table, config, writer);
-				}
-				{
-					PREPARE_FILE(workingDirectory / (config.filePrefix + config.files[L"Ast"] + L".cpp"));
-					WriteAstCppFile(name, codeGrammar, definition, table, config, writer);
-				}
-			}
-
-			if (config.files.Keys().Contains(L"Parser"))
-			{
-				{
-					PREPARE_FILE(workingDirectory / (config.filePrefix + config.files[L"Parser"] + L".h"));
-					WriteParserHeaderFile(name, definition, table, config, writer);
-				}
-				{
-					PREPARE_FILE(workingDirectory / (config.filePrefix + config.files[L"Parser"] + L".cpp"));
-					WriteParserCppFile(name, codeGrammar, definition, table, config, writer);
-				}
-			}
+#undef GENERATE_FILE
 #undef PREPARE_FILE
 		}
 	STOP_PARSING:;
