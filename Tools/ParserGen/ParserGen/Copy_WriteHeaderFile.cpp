@@ -2,8 +2,6 @@
 
 void WriteCopyDependenciesDecl(const WString& prefix, const CodegenConfig& config, VisitorDependency& dependency, StreamWriter& writer)
 {
-	writer.WriteLine(prefix + L"\tvl::Ptr<vl::parsing::ParsingTreeCustomBase> result;");
-
 	writer.WriteLine(L"");
 	writer.WriteLine(prefix + L"\t// CopyFields ----------------------------------------");
 	FOREACH(ParsingSymbol*, targetType, dependency.fillDependencies)
@@ -63,6 +61,13 @@ void WriteCopyHeaderFile(const WString& name, Ptr<ParsingDefinition> definition,
 	List<ParsingSymbol*> types;
 	EnumerateAllTypes(&manager, manager.GetGlobal(), types);
 
+	writer.WriteLine(prefix + L"class VisitorBase : public Object");
+	writer.WriteLine(prefix + L"{");
+	writer.WriteLine(prefix + L"public:");
+	writer.WriteLine(prefix + L"\tvl::Ptr<vl::parsing::ParsingTreeCustomBase> result;");
+	writer.WriteLine(prefix + L"};");
+	writer.WriteLine(L"");
+
 	FOREACH(ParsingSymbol*, type, types)
 	{
 		if (type->GetType() == ParsingSymbol::ClassType)
@@ -79,7 +84,7 @@ void WriteCopyHeaderFile(const WString& name, Ptr<ParsingDefinition> definition,
 					SearchDependencies(subType, &manager, visitedTypes, dependency);
 				}
 
-				writer.WriteString(prefix + L"class " + type->GetName() + L"Visitor : public Object, public ");
+				writer.WriteString(prefix + L"class " + type->GetName() + L"Visitor : public virtual VisitorBase, public ");
 				PrintType(type, config.classPrefix, writer);
 				writer.WriteLine(L"::IVisitor");
 				writer.WriteLine(prefix + L"{");
