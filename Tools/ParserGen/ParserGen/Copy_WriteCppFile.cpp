@@ -1,6 +1,6 @@
 #include "ParserGen.h"
 
-void WriteCopyDependenciesImpl(const WString& prefix, ParsingSymbol* visitorType, const CodegenConfig& config, VisitorDependency& dependency, StreamWriter& writer)
+void WriteCopyDependenciesImpl(const WString& prefix, ParsingSymbol* visitorType, const CodegenConfig& config, VisitorDependency& dependency, bool abstractFunction, StreamWriter& writer)
 {
 	writer.WriteLine(L"");
 	writer.WriteLine(prefix + L"// CopyFields ----------------------------------------");
@@ -71,10 +71,44 @@ void WriteCopyDependenciesImpl(const WString& prefix, ParsingSymbol* visitorType
 		PrintType(targetType, config.classPrefix, writer);
 		writer.WriteLine(L"> from)");
 		writer.WriteLine(prefix + L"{");
+		writer.WriteLine(prefix + L"\tif (!from) return nullptr;");
 		writer.WriteLine(prefix + L"\tauto to = vl::MakePtr<" + config.classPrefix + targetType->GetName() + L">();");
 		writer.WriteLine(prefix + L"\tCopyFields(from.Obj(), to.Obj());");
 		writer.WriteLine(prefix + L"\treturn to;");
 		writer.WriteLine(prefix + L"}");
+	}
+
+	if (!abstractFunction)
+	{
+		writer.WriteLine(L"");
+		writer.WriteLine(prefix + L"// CreateField (virtual) -----------------------------");
+		FOREACH(ParsingSymbol*, targetType, dependency.virtualDependencies)
+		{
+			writer.WriteLine(L"");
+			writer.WriteString(prefix + L"vl::Ptr<");
+			PrintType(targetType, config.classPrefix, writer);
+			writer.WriteString(L"> " + visitorType->GetName() + L"Visitor::CreateField(vl::Ptr<");
+			PrintType(targetType, config.classPrefix, writer);
+			writer.WriteLine(L"> from)");
+			writer.WriteLine(prefix + L"{");
+			writer.WriteLine(prefix + L"\tif (!from) return nullptr;");
+			writer.WriteLine(prefix + L"\tfrom->Accept(static_cast<" + targetType->GetName() + L"Visitor*>(this));");
+			writer.WriteLine(prefix + L"\treturn this->result.Cast<" + config.classPrefix + targetType->GetName() + L">();");
+			writer.WriteLine(prefix + L"}");
+		}
+		writer.WriteLine(L"");
+		writer.WriteLine(prefix + L"// Dispatch (virtual) --------------------------------");
+		FOREACH(ParsingSymbol*, targetType, dependency.subVisitorDependencies)
+		{
+			writer.WriteLine(L"");
+			writer.WriteString(prefix + L"vl::Ptr<vl::parsing::ParsingTreeCustomBase> " + visitorType->GetName() + L"Visitor::Dispatch(");
+			PrintType(targetType, config.classPrefix, writer);
+			writer.WriteLine(L"* node)");
+			writer.WriteLine(prefix + L"{");
+			writer.WriteLine(prefix + L"\tnode->Accept(static_cast<" + targetType->GetName() + L"Visitor*>(this));");
+			writer.WriteLine(prefix + L"\treturn this->result;");
+			writer.WriteLine(prefix + L"}");
+		}
 	}
 }
 
@@ -88,6 +122,9 @@ void WriteCopyCppFile(const WString& name, const WString& parserCode, Ptr<Parsin
 
 	List<ParsingSymbol*> types;
 	EnumerateAllTypes(&manager, manager.GetGlobal(), types);
+
+	VisitorDependency fullDependency;
+	List<ParsingSymbol*> visitorTypes;
 
 	FOREACH(ParsingSymbol*, type, types)
 	{
@@ -104,12 +141,13 @@ void WriteCopyCppFile(const WString& name, const WString& parserCode, Ptr<Parsin
 				{
 					SearchDependencies(subType, &manager, visitedTypes, dependency);
 				}
+				MergeToFullDependency(fullDependency, visitorTypes, type, dependency);
 
 				writer.WriteLine(L"");
 				writer.WriteLine(L"/***********************************************************************");
 				writer.WriteLine(type->GetName() + L"Visitor");
 				writer.WriteLine(L"***********************************************************************/");
-				WriteCopyDependenciesImpl(prefix, type, config, dependency, writer);
+				WriteCopyDependenciesImpl(prefix, type, config, dependency, true, writer);
 
 				writer.WriteLine(L"");
 				writer.WriteLine(prefix + L"// Visitor Members -----------------------------------");
@@ -135,6 +173,36 @@ void WriteCopyCppFile(const WString& name, const WString& parserCode, Ptr<Parsin
 					writer.WriteLine(prefix + L"}");
 				}
 			}
+		}
+	}
+
+
+	if (auto rootType = manager.GetGlobal()->GetSubSymbolByName(config.classRoot))
+	{
+		if (rootType->GetType() == ParsingSymbol::ClassType && !visitorTypes.Contains(rootType))
+		{
+			SortedList<ParsingSymbol*> visitedTypes;
+			SearchDependencies(rootType, &manager, visitedTypes, fullDependency);
+
+			writer.WriteLine(L"");
+			writer.WriteLine(L"/***********************************************************************");
+			writer.WriteLine(rootType->GetName() + L"Visitor");
+			writer.WriteLine(L"***********************************************************************/");
+			if (!fullDependency.createDependencies.Contains(rootType))
+			{
+				writer.WriteLine(L"");
+				writer.WriteString(prefix + L"vl::Ptr<");
+				PrintType(rootType, config.classPrefix, writer);
+				writer.WriteString(L"> " + rootType->GetName() + L"Visitor::CreateField(vl::Ptr<");
+				PrintType(rootType, config.classPrefix, writer);
+				writer.WriteLine(L"> from)");
+				writer.WriteLine(prefix + L"{");
+				writer.WriteLine(prefix + L"\tauto to = vl::MakePtr<" + config.classPrefix + rootType->GetName() + L">();");
+				writer.WriteLine(prefix + L"\tCopyFields(from.Obj(), to.Obj());");
+				writer.WriteLine(prefix + L"\treturn to;");
+				writer.WriteLine(prefix + L"}");
+			}
+			WriteCopyDependenciesImpl(prefix, rootType, config, fullDependency, false, writer);
 		}
 	}
 

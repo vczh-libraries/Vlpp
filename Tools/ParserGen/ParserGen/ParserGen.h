@@ -76,6 +76,7 @@ struct VisitorDependency
 	List<ParsingSymbol*>			subVisitorDependencies;
 };
 extern void							SearchDependencies(ParsingSymbol* type, ParsingSymbolManager* manager, SortedList<ParsingSymbol*>& visitedTypes, VisitorDependency& dependency);
+extern void							MergeToFullDependency(VisitorDependency& fullDependency, List<ParsingSymbol*>& visitorTypes, ParsingSymbol* visitorType, VisitorDependency& dependency);
 
 /***********************************************************************
 File(Ast)

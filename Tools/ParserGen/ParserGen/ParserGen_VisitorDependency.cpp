@@ -89,3 +89,22 @@ void SearchDependencies(ParsingSymbol* type, ParsingSymbolManager* manager, Sort
 	}
 	SearchCreateDependencies(type, manager, visitedTypes, dependency);
 }
+
+void MergeToFullDependency(VisitorDependency& fullDependency, List<ParsingSymbol*>& visitorTypes, ParsingSymbol* visitorType, VisitorDependency& dependency)
+{
+	visitorTypes.Add(visitorType);
+	FOREACH(ParsingSymbol*, subType, dependency.virtualDependencies)
+	{
+		if (!fullDependency.virtualDependencies.Contains(subType))
+		{
+			fullDependency.virtualDependencies.Add(subType);
+		}
+	}
+	FOREACH(ParsingSymbol*, subType, dependency.subVisitorDependencies)
+	{
+		if (!fullDependency.subVisitorDependencies.Contains(subType))
+		{
+			fullDependency.subVisitorDependencies.Add(subType);
+		}
+	}
+}

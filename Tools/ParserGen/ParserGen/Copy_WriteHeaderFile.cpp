@@ -1,6 +1,6 @@
 #include "ParserGen.h"
 
-void WriteCopyDependenciesDecl(const WString& prefix, const CodegenConfig& config, VisitorDependency& dependency, StreamWriter& writer)
+void WriteCopyDependenciesDecl(const WString& prefix, const CodegenConfig& config, VisitorDependency& dependency, bool abstractFunction, StreamWriter& writer)
 {
 	writer.WriteLine(L"");
 	writer.WriteLine(prefix + L"\t// CopyFields ----------------------------------------");
@@ -26,19 +26,19 @@ void WriteCopyDependenciesDecl(const WString& prefix, const CodegenConfig& confi
 	writer.WriteLine(prefix + L"\t// CreateField (virtual) -----------------------------");
 	FOREACH(ParsingSymbol*, targetType, dependency.virtualDependencies)
 	{
-		writer.WriteString(prefix + L"\tvirtual vl::Ptr<");
+		writer.WriteString(prefix + (abstractFunction ? L"\tvirtual vl::Ptr<" : L"\tvl::Ptr<"));
 		PrintType(targetType, config.classPrefix, writer);
 		writer.WriteString(L"> CreateField(vl::Ptr<");
 		PrintType(targetType, config.classPrefix, writer);
-		writer.WriteLine(L"> from) = 0;");
+		writer.WriteLine(abstractFunction ? L"> from) = 0;" : L"> from);");
 	}
 	writer.WriteLine(L"");
 	writer.WriteLine(prefix + L"\t// Dispatch (virtual) --------------------------------");
 	FOREACH(ParsingSymbol*, targetType, dependency.subVisitorDependencies)
 	{
-		writer.WriteString(prefix + L"\tvirtual vl::Ptr<vl::parsing::ParsingTreeCustomBase> Dispatch(");
+		writer.WriteString(prefix + (abstractFunction ? L"\tvirtual " : L"") + L"\tvl::Ptr<vl::parsing::ParsingTreeCustomBase> Dispatch(");
 		PrintType(targetType, config.classPrefix, writer);
-		writer.WriteLine(L"* node) = 0;");
+		writer.WriteLine(abstractFunction ? L"* node) = 0;" : L"* node);");
 	}
 }
 
@@ -68,6 +68,9 @@ void WriteCopyHeaderFile(const WString& name, Ptr<ParsingDefinition> definition,
 	writer.WriteLine(prefix + L"};");
 	writer.WriteLine(L"");
 
+	VisitorDependency fullDependency;
+	List<ParsingSymbol*> visitorTypes;
+
 	FOREACH(ParsingSymbol*, type, types)
 	{
 		if (type->GetType() == ParsingSymbol::ClassType)
@@ -83,13 +86,14 @@ void WriteCopyHeaderFile(const WString& name, Ptr<ParsingDefinition> definition,
 				{
 					SearchDependencies(subType, &manager, visitedTypes, dependency);
 				}
+				MergeToFullDependency(fullDependency, visitorTypes, type, dependency);
 
 				writer.WriteString(prefix + L"class " + type->GetName() + L"Visitor : public virtual VisitorBase, public ");
 				PrintType(type, config.classPrefix, writer);
 				writer.WriteLine(L"::IVisitor");
 				writer.WriteLine(prefix + L"{");
 				writer.WriteLine(prefix + L"public:");
-				WriteCopyDependenciesDecl(prefix, config, dependency, writer);
+				WriteCopyDependenciesDecl(prefix, config, dependency, true, writer);
 
 				writer.WriteLine(L"");
 				writer.WriteLine(prefix + L"\t// Visitor Members -----------------------------------");
@@ -101,6 +105,33 @@ void WriteCopyHeaderFile(const WString& name, Ptr<ParsingDefinition> definition,
 				writer.WriteLine(prefix + L"};");
 				writer.WriteLine(L"");
 			}
+		}
+	}
+
+	if (auto rootType = manager.GetGlobal()->GetSubSymbolByName(config.classRoot))
+	{
+		if (rootType->GetType() == ParsingSymbol::ClassType && !visitorTypes.Contains(rootType))
+		{
+			SortedList<ParsingSymbol*> visitedTypes;
+			SearchDependencies(rootType, &manager, visitedTypes, fullDependency);
+
+			writer.WriteLine(prefix + L"class " + rootType->GetName() + L"Visitor");
+			FOREACH_INDEXER(ParsingSymbol*, visitorType, index, visitorTypes)
+			{
+				writer.WriteLine(prefix + L"\t" + (index == 0 ? L": " : L", ") + L"public " + visitorType->GetName() + L"Visitor");
+			}
+			writer.WriteLine(prefix + L"{");
+			writer.WriteLine(prefix + L"public:");
+			if (!fullDependency.createDependencies.Contains(rootType))
+			{
+				writer.WriteString(prefix + L"\tvl::Ptr<");
+				PrintType(rootType, config.classPrefix, writer);
+				writer.WriteString(L"> CreateField(vl::Ptr<");
+				PrintType(rootType, config.classPrefix, writer);
+				writer.WriteLine(L"> from);");
+			}
+			WriteCopyDependenciesDecl(prefix, config, fullDependency, false, writer);
+			writer.WriteLine(prefix + L"};");
 		}
 	}
 
