@@ -95,6 +95,7 @@
     <ClCompile Include="ParserGen_Codegen.cpp" />
     <ClCompile Include="ParserGen_CreateTable.cpp" />
     <ClCompile Include="ParserGen_PrintType.cpp" />
+    <ClCompile Include="ParserGen_VisitorDependency.cpp" />
     <ClCompile Include="Parser_WriteCppFile.cpp" />
     <ClCompile Include="Parser_WriteCppFile_ParserText.cpp" />
     <ClCompile Include="Ast_WriteCppFile_Reflection.cpp" />

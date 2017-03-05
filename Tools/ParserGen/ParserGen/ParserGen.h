@@ -68,6 +68,15 @@ extern void							EnumerateAllLeafClass(ParsingSymbolManager* manager, ParsingSy
 extern void							SearchChildClasses(ParsingSymbol* parent, ParsingSymbol* scope, ParsingSymbolManager* manager, List<ParsingSymbol*>& children);
 extern void							SearchDescendantClasses(ParsingSymbol* parent, ParsingSymbolManager* manager, List<ParsingSymbol*>& children);
 
+struct VisitorDependency
+{
+	List<ParsingSymbol*>			fillDependencies;
+	List<ParsingSymbol*>			createDependencies;
+	List<ParsingSymbol*>			virtualDependencies;
+	List<ParsingSymbol*>			subVisitorDependencies;
+};
+extern void							SearchDependencies(ParsingSymbol* type, ParsingSymbolManager* manager, SortedList<ParsingSymbol*>& visitedTypes, VisitorDependency& dependency);
+
 /***********************************************************************
 File(Ast)
 ***********************************************************************/

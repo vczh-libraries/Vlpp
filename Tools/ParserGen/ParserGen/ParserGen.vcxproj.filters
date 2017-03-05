@@ -99,6 +99,9 @@
     <ClCompile Include="Copy_WriteHeaderFile.cpp">
       <Filter>Codegen\Copy</Filter>
     </ClCompile>
+    <ClCompile Include="ParserGen_VisitorDependency.cpp">
+      <Filter>Codegen</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\Release\Vlpp.h">
