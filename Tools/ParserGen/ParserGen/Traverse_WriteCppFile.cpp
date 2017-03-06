@@ -87,6 +87,7 @@ void WriteTraverseDependenciesImpl(const WString& prefix, ParsingSymbol* visitor
 			PrintType(targetType, config.classPrefix, writer);
 			writer.WriteLine(L"* node)");
 			writer.WriteLine(prefix + L"{");
+			writer.WriteLine(prefix + L"\tif (!node) return;");
 			WriteVisitField(prefix, visitorType, targetType, config, writer);
 			writer.WriteLine(prefix + L"}");
 		}
@@ -104,7 +105,7 @@ void WriteTraverseDependenciesImpl(const WString& prefix, ParsingSymbol* visitor
 				PrintType(targetType, config.classPrefix, writer);
 				writer.WriteLine(L"* node)");
 				writer.WriteLine(prefix + L"{");
-				writer.WriteLine(prefix + L"\tif (!node) return");
+				writer.WriteLine(prefix + L"\tif (!node) return;");
 				writer.WriteLine(prefix + L"\tnode->Accept(static_cast<" + targetType->GetName() + L"Visitor*>(this));");
 				writer.WriteLine(prefix + L"}");
 			}
