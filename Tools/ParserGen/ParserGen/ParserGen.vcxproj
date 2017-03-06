@@ -111,6 +111,8 @@
     <ClCompile Include="Ast_WriteHeaderFile_TableGen.cpp" />
     <ClCompile Include="Ast_WriteHeaderFile_Tokens.cpp" />
     <ClCompile Include="Ast_WriteHeaderFile_Types.cpp" />
+    <ClCompile Include="Traverse_WriteCppFile.cpp" />
+    <ClCompile Include="Traverse_WriteHeaderFile.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\Release\Vlpp.h" />

@@ -31,6 +31,9 @@
     <Filter Include="Codegen\Default">
       <UniqueIdentifier>{c15eef4a-5673-465a-adc9-f28bc87e27b0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Codegen\Traverse">
+      <UniqueIdentifier>{12ff183e-185b-47ac-8267-6d24c6dec332}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -110,6 +113,12 @@
     </ClCompile>
     <ClCompile Include="Empty_WriteHeaderFile.cpp">
       <Filter>Codegen\Default</Filter>
+    </ClCompile>
+    <ClCompile Include="Traverse_WriteCppFile.cpp">
+      <Filter>Codegen\Traverse</Filter>
+    </ClCompile>
+    <ClCompile Include="Traverse_WriteHeaderFile.cpp">
+      <Filter>Codegen\Traverse</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
