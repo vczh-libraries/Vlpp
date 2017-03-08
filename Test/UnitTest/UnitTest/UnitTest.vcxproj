@@ -211,6 +211,7 @@
     <ClCompile Include="..\..\..\Source\HttpUtility.cpp" />
     <ClCompile Include="..\..\..\Source\Locale.cpp" />
     <ClCompile Include="..\..\..\Source\Parsing\Json\ParsingJson.cpp" />
+    <ClCompile Include="..\..\..\Source\Parsing\Json\ParsingJson_Ast.cpp" />
     <ClCompile Include="..\..\..\Source\Parsing\Json\ParsingJson_Parser.cpp" />
     <ClCompile Include="..\..\..\Source\Parsing\Parsing.cpp" />
     <ClCompile Include="..\..\..\Source\Parsing\ParsingAnalyzer.cpp" />
@@ -228,6 +229,7 @@
     <ClCompile Include="..\..\..\Source\Parsing\ParsingTable.cpp" />
     <ClCompile Include="..\..\..\Source\Parsing\ParsingTree.cpp" />
     <ClCompile Include="..\..\..\Source\Parsing\Xml\ParsingXml.cpp" />
+    <ClCompile Include="..\..\..\Source\Parsing\Xml\ParsingXml_Ast.cpp" />
     <ClCompile Include="..\..\..\Source\Parsing\Xml\ParsingXml_Parser.cpp" />
     <ClCompile Include="..\..\..\Source\Reflection\GuiTypeDescriptor.cpp" />
     <ClCompile Include="..\..\..\Source\Reflection\GuiTypeDescriptorBuilder.cpp" />
@@ -354,6 +356,7 @@
     <ClInclude Include="..\..\..\Source\Lazy.h" />
     <ClInclude Include="..\..\..\Source\Locale.h" />
     <ClInclude Include="..\..\..\Source\Parsing\Json\ParsingJson.h" />
+    <ClInclude Include="..\..\..\Source\Parsing\Json\ParsingJson_Ast.h" />
     <ClInclude Include="..\..\..\Source\Parsing\Json\ParsingJson_Parser.h" />
     <ClInclude Include="..\..\..\Source\Parsing\Parsing.h" />
     <ClInclude Include="..\..\..\Source\Parsing\ParsingAnalyzer.h" />
@@ -363,6 +366,7 @@
     <ClInclude Include="..\..\..\Source\Parsing\ParsingTable.h" />
     <ClInclude Include="..\..\..\Source\Parsing\ParsingTree.h" />
     <ClInclude Include="..\..\..\Source\Parsing\Xml\ParsingXml.h" />
+    <ClInclude Include="..\..\..\Source\Parsing\Xml\ParsingXml_Ast.h" />
     <ClInclude Include="..\..\..\Source\Parsing\Xml\ParsingXml_Parser.h" />
     <ClInclude Include="..\..\..\Source\Pointer.h" />
     <ClInclude Include="..\..\..\Source\Reflection\GuiTypeDescriptor.h" />
@@ -398,8 +402,8 @@
     <ClInclude Include="..\..\Source\Parser.Calculator\Parser.Calculator.h" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="..\..\..\Source\Parsing\Json\ParsingJson_Parser.parser.txt" />
-    <Text Include="..\..\..\Source\Parsing\Xml\ParsingXml_Parser.parser.txt" />
+    <Text Include="..\..\..\Source\Parsing\Json\ParsingJson.parser.txt" />
+    <Text Include="..\..\..\Source\Parsing\Xml\ParsingXml.parser.txt" />
     <Text Include="..\..\Source\Parser.Calculator\Parser.Calculator.log" />
     <Text Include="..\..\Source\Parser.Calculator\Parser.Calculator.parser.txt" />
   </ItemGroup>

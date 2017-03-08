@@ -243,6 +243,12 @@
     <ClCompile Include="Main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\Source\Parsing\Json\ParsingJson_Ast.cpp">
+      <Filter>Common\Parsing\Json</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Parsing\Xml\ParsingXml_Ast.cpp">
+      <Filter>Common\Parsing\Xml</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\Source\Parser.Calculator\Codegen.bat">
@@ -463,6 +469,12 @@
     <ClInclude Include="..\..\..\Source\Reflection\GuiTypeDescriptorCppHelper.h">
       <Filter>Common\Reflection</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\Source\Parsing\Json\ParsingJson_Ast.h">
+      <Filter>Common\Parsing\Json</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\Parsing\Xml\ParsingXml_Ast.h">
+      <Filter>Common\Parsing\Xml</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\..\Source\Parser.Calculator\Parser.Calculator.log">
@@ -471,10 +483,10 @@
     <Text Include="..\..\Source\Parser.Calculator\Parser.Calculator.parser.txt">
       <Filter>Parser.Calculator</Filter>
     </Text>
-    <Text Include="..\..\..\Source\Parsing\Json\ParsingJson_Parser.parser.txt">
+    <Text Include="..\..\..\Source\Parsing\Json\ParsingJson.parser.txt">
       <Filter>Common\Parsing\Json</Filter>
     </Text>
-    <Text Include="..\..\..\Source\Parsing\Xml\ParsingXml_Parser.parser.txt">
+    <Text Include="..\..\..\Source\Parsing\Xml\ParsingXml.parser.txt">
       <Filter>Common\Parsing\Xml</Filter>
     </Text>
   </ItemGroup>

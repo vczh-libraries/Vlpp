@@ -4,11 +4,20 @@ include:"../ParsingAutomaton.h"
 namespace:vl.parsing.xml
 reflection:system
 classPrefix:Xml
+classRoot:Document
 guard:VCZH_PARSING_XML_PARSINGXML_PARSER
-serialization:enabled
 parser:ParseDocument(XDocument)
 parser:ParseElement(XElement)
+filePrefix:ParsingXml
+file:Ast(_Ast)
+file:Parser(_Parser)
+ambiguity:disabled
+serialization:enabled
 grammar:
+
+//////////////////////////////////////////////////////////////////
+// AST
+//////////////////////////////////////////////////////////////////
 
 class Node
 {
@@ -55,6 +64,10 @@ class Document : Node
 	Element rootElement;
 }
 
+//////////////////////////////////////////////////////////////////
+// Lexer
+//////////////////////////////////////////////////////////////////
+
 token INSTRUCTION_OPEN = "/</?"			@Color("Boundary");
 token INSTRUCTION_CLOSE = "/?/>"		@Color("Boundary");
 token COMPLEX_ELEMENT_OPEN = "/<//"		@Color("Boundary");
@@ -70,6 +83,10 @@ token CDATA = "/</!/[CDATA/[([^/]]|/][^/]]|/]/][^>])*/]/]/>";
 token TEXT = "([^<>=""' /r/n/ta-zA-Z0-9:._/-])+|""|'";
 
 discardtoken SPACE = "/s+";
+
+//////////////////////////////////////////////////////////////////
+// Rules
+//////////////////////////////////////////////////////////////////
 
 rule Attribute XAttribute = NAME:name "=" ATTVALUE:value as Attribute;
 rule Text XText = (NAME:content | EQUAL:content | ATTVALUE:content | TEXT:content) as Text;

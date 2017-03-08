@@ -4,10 +4,19 @@ include:"../ParsingAutomaton.h"
 namespace:vl.parsing.json
 reflection:system
 classPrefix:Json
+classRoot:Object
 guard:VCZH_PARSING_JSON_PARSINGJSON_PARSER
-serialization:enabled
 parser:Parse(JRoot)
+filePrefix:ParsingJson
+file:Ast(_Ast)
+file:Parser(_Parser)
+ambiguity:disabled
+serialization:enabled
 grammar:
+
+//////////////////////////////////////////////////////////////////
+// AST
+//////////////////////////////////////////////////////////////////
 
 class Node
 {
@@ -51,6 +60,10 @@ class Object:Node
 	ObjectField[] fields;
 }
 
+//////////////////////////////////////////////////////////////////
+// Lexer
+//////////////////////////////////////////////////////////////////
+
 token TRUEVALUE = "true"							@Color("Keyword");
 token FALSEVALUE = "false"							@Color("Keyword");
 token NULLVALUE = "null"							@Color("Keyword");
@@ -64,6 +77,10 @@ token NUMBER = "[\-]?\d+(.\d+)?([eE][+\-]?\d+)?"	@Color("Number");
 token STRING = """([^\\""]|\\[^u]|\\u\d{4})*"""		@ContextColor();
 
 discardtoken SPACE = "\s+";
+
+//////////////////////////////////////////////////////////////////
+// Rules
+//////////////////////////////////////////////////////////////////
 
 rule Node JLiteral
 	= STRING:content as String
