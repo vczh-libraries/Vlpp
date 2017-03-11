@@ -306,7 +306,7 @@ Console
 				char* codePageBuffer = new char[charCount];
 				WideCharToMultiByte(codePage, 0, string, -1, codePageBuffer, charCount, 0, 0);
 				WriteFile(outHandle, codePageBuffer, charCount-1, &written, 0);
-				delete codePageBuffer;
+				delete[] codePageBuffer;
 			}
 #elif defined VCZH_GCC
 			wstring s(string, string+length);

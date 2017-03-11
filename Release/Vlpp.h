@@ -19028,10 +19028,10 @@ namespace vl
 			/// <summary>Run all test cases.</summary>
 			static void RunAndDisposeTests();
 		};
-#if defined VCZH_MSVC	
+//#if defined VCZH_MSVC	
 #define TEST_CHECK_ERROR(CONDITION,DESCRIPTION) do{if(!(CONDITION))throw Error(DESCRIPTION);}while(0)
-#elif defined VCZH_GCC
-#define TEST_CHECK_ERROR(CONDITION,DESCRIPTION)\
+//#elif defined VCZH_GCC
+//#define TEST_CHECK_ERROR(CONDITION,DESCRIPTION)\
 	do\
 	{\
 		vl::unittest::UnitTest::PrintInfo(L"\t" L_(#CONDITION));\
@@ -19040,7 +19040,7 @@ namespace vl
 			throw Error(DESCRIPTION);\
 		}\
 	}while(0)
-#endif
+//#endif
 #define TEST_ASSERT(CONDITION) do{TEST_CHECK_ERROR(CONDITION,L"");}while(0)
 #define TEST_ERROR(CONDITION) do{try{CONDITION;throw UnitTestError();}catch(const Error&){}catch(const UnitTestError&){TEST_CHECK_ERROR(false,L"");}}while(0)
 #define TEST_CASE(NAME)\
