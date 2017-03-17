@@ -107,6 +107,125 @@ IValueException
 			{
 				return new DefaultValueException(message);
 			}
+
+/***********************************************************************
+EnumerableCoroutine
+***********************************************************************/
+
+			class CoroutineEnumerator : public Object, public virtual EnumerableCoroutine::IImpl, public Description<CoroutineEnumerator>
+			{
+			protected:
+				EnumerableCoroutine::Creator		creator;
+				Ptr<ICoroutine>						coroutine;
+				Value								current;
+				vint								index = -1;
+				Ptr<IValueEnumerator>				joining;
+
+			public:
+				CoroutineEnumerator(const EnumerableCoroutine::Creator& _creator)
+					:creator(_creator)
+				{
+				}
+
+				Value GetCurrent()override
+				{
+					return current;
+				}
+
+				vint GetIndex()override
+				{
+					return index;
+				}
+
+				bool Next()override
+				{
+					if (!coroutine)
+					{
+						coroutine = creator(this);
+					}
+
+					while (coroutine->GetStatus() == CoroutineStatus::Waiting)
+					{
+						if (joining)
+						{
+							if (joining->Next())
+							{
+								current = joining->GetCurrent();
+								index++;
+								return true;
+							}
+							else
+							{
+								joining = nullptr;
+							}
+						}
+
+						coroutine->Resume(true);
+						if (coroutine->GetStatus() != CoroutineStatus::Waiting)
+						{
+							break;
+						}
+
+						if (!joining)
+						{
+							index++;
+							return true;
+						}
+					}
+					return false;
+				}
+
+				void OnYield(const Value& value)override
+				{
+					current = value;
+					joining = nullptr;
+				}
+
+				void OnJoin(Ptr<IValueEnumerable> value)override
+				{
+					if (!value)
+					{
+						throw Exception(L"Cannot join a null collection.");
+					}
+					current = Value();
+					joining = value->CreateEnumerator();
+				}
+			};
+
+			class CoroutineEnumerable : public Object, public virtual IValueEnumerable, public Description<CoroutineEnumerable>
+			{
+			protected:
+				EnumerableCoroutine::Creator		creator;
+			public:
+				CoroutineEnumerable(const EnumerableCoroutine::Creator& _creator)
+					:creator(_creator)
+				{
+				}
+
+				Ptr<IValueEnumerator> CreateEnumerator()override
+				{
+					return new CoroutineEnumerator(creator);
+				}
+			};
+
+			void EnumerableCoroutine::YieldAndPause(IImpl* impl, const Value& value)
+			{
+				impl->OnYield(value);
+			}
+
+			void EnumerableCoroutine::JoinAndPause(IImpl* impl, Ptr<IValueEnumerable> value)
+			{
+				impl->OnJoin(value);
+			}
+
+			void EnumerableCoroutine::ReturnAndExit(IImpl* impl)
+			{
+			}
+
+			Ptr<IValueEnumerable> EnumerableCoroutine::Create(const Creator& creator)
+			{
+				return new CoroutineEnumerable(creator);
+			}
 		}
 	}
 }

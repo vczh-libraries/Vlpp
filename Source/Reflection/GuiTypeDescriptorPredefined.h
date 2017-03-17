@@ -220,13 +220,16 @@ Coroutine
 				class IImpl : public virtual IValueEnumerator, public Description<IImpl>
 				{
 				public:
-					virtual void						OnNext(const Value& value) = 0;
+					virtual void						OnYield(const Value& value) = 0;
+					virtual void						OnJoin(Ptr<IValueEnumerable> value) = 0;
 				};
+
+				typedef Func<Ptr<ICoroutine>(IImpl*)>	Creator;
 
 				static void								YieldAndPause(IImpl* impl, const Value& value);
 				static void								JoinAndPause(IImpl* impl, Ptr<IValueEnumerable> value);
 				static void								ReturnAndExit(IImpl* impl);
-				static Ptr<IValueEnumerable>			Create(const Func<Ptr<ICoroutine>(IImpl*)>& creator);
+				static Ptr<IValueEnumerable>			Create(const Creator& creator);
 			};
 
 /***********************************************************************

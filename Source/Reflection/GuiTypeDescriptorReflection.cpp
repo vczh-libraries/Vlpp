@@ -727,12 +727,13 @@ LoadPredefinedTypes
 			END_INTERFACE_MEMBER(ICoroutine)
 
 			BEGIN_INTERFACE_MEMBER_NOPROXY(EnumerableCoroutine::IImpl)
-				CLASS_MEMBER_METHOD(OnNext, { L"value" })
+				CLASS_MEMBER_METHOD(OnYield, { L"value" })
+				CLASS_MEMBER_METHOD(OnJoin, { L"value" })
 			END_INTERFACE_MEMBER(EnumerableCoroutine::IImpl)
 
 			BEGIN_CLASS_MEMBER(EnumerableCoroutine)
 				CLASS_MEMBER_STATIC_METHOD(YieldAndPause, { L"impl" _ L"value" })
-				CLASS_MEMBER_STATIC_METHOD(JoinAndPause, { L"impl" })
+				CLASS_MEMBER_STATIC_METHOD(JoinAndPause, { L"impl" _ L"value" })
 				CLASS_MEMBER_STATIC_METHOD(ReturnAndExit, { L"impl" })
 				CLASS_MEMBER_STATIC_METHOD(Create, { L"creator" })
 			END_CLASS_MEMBER(EnumerableCoroutine)
