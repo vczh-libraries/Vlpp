@@ -3,7 +3,7 @@ Vczh Library++ 3.0
 Developer: Zihan Chen(vczh)
 Framework::Reflection
 
-XML Representation for Code Generation:
+Interfaces:
 ***********************************************************************/
 
 #ifndef VCZH_REFLECTION_GUITYPEDESCRIPTORPREDEFINED
@@ -18,120 +18,185 @@ namespace vl
 	{
 		namespace description
 		{
-
-#ifndef VCZH_DEBUG_NO_REFLECTION
-
-/***********************************************************************
-TypeInfo
-***********************************************************************/
-
-#define DECL_TYPE_INFO(TYPENAME) template<>struct TypeInfo<TYPENAME>{ static const TypeInfoContent content; };
-#define IMPL_VL_TYPE_INFO(TYPENAME) const TypeInfoContent TypeInfo<TYPENAME>::content = { L ## #TYPENAME, nullptr, TypeInfoContent::VlppType };
-#define IMPL_CPP_TYPE_INFO(TYPENAME) const TypeInfoContent TypeInfo<TYPENAME>::content = { L ## #TYPENAME, nullptr, TypeInfoContent::CppType };
-#define IMPL_TYPE_INFO_RENAME(TYPENAME, EXPECTEDNAME) const TypeInfoContent TypeInfo<TYPENAME>::content = { L ## #EXPECTEDNAME, L ## #TYPENAME, TypeInfoContent::Renamed };
-
-			struct TypeInfoContent
-			{
-				enum TypeInfoCppName
-				{
-					VlppType,			// vl::<type-name>
-					CppType,			// <type-name>
-					Renamed,			// CppFullTypeName
-				};
-
-				const wchar_t*		typeName;
-				const wchar_t*		cppFullTypeName;
-				TypeInfoCppName		cppName;
-			};
-
-			template<typename T>
-			struct TypeInfo
-			{
-			};
-
-			template<typename T>
-			ITypeDescriptor* GetTypeDescriptor()
-			{
-				return GetTypeDescriptor(TypeInfo<T>::content.typeName);
-			}
+			struct VoidValue {};
 
 /***********************************************************************
-SerializableTypeDescriptor
+Collections
 ***********************************************************************/
 
-			class TypeDescriptorImplBase : public Object, public ITypeDescriptor, private ITypeDescriptor::ICpp
+			class IValueEnumerator : public virtual IDescriptable, public Description<IValueEnumerator>
 			{
-			private:
-				TypeDescriptorFlags							typeDescriptorFlags;
-				const TypeInfoContent*						typeInfoContent;
-				WString										typeName;
-				WString										cppFullTypeName;
-
-				const WString&								GetFullName()override;
-
-			protected:
-				const TypeInfoContent*						GetTypeInfoContentInternal();
-
 			public:
-				TypeDescriptorImplBase(TypeDescriptorFlags _typeDescriptorFlags, const TypeInfoContent* _typeInfoContent);
-				~TypeDescriptorImplBase();
-
-				ITypeDescriptor::ICpp*						GetCpp()override;
-				TypeDescriptorFlags							GetTypeDescriptorFlags()override;
-				const WString&								GetTypeName()override;
+				virtual Value					GetCurrent() = 0;
+				virtual vint					GetIndex() = 0;
+				virtual bool					Next() = 0;
 			};
 
-			class ValueTypeDescriptorBase : public TypeDescriptorImplBase
+			class IValueEnumerable : public virtual IDescriptable, public Description<IValueEnumerable>
 			{
-			protected:
-				bool										loaded;
-				Ptr<IValueType>								valueType;
-				Ptr<IEnumType>								enumType;
-				Ptr<ISerializableType>						serializableType;
-
-				virtual void								LoadInternal();;
-				void										Load();
 			public:
-				ValueTypeDescriptorBase(TypeDescriptorFlags _typeDescriptorFlags, const TypeInfoContent* _typeInfoContent);
-				~ValueTypeDescriptorBase();
+				virtual Ptr<IValueEnumerator>	CreateEnumerator() = 0;
 
-				bool										IsAggregatable()override;
-				IValueType*									GetValueType()override;
-				IEnumType*									GetEnumType()override;
-				ISerializableType*							GetSerializableType()override;
-
-				vint										GetBaseTypeDescriptorCount()override;
-				ITypeDescriptor*							GetBaseTypeDescriptor(vint index)override;
-				bool										CanConvertTo(ITypeDescriptor* targetType)override;
-				vint										GetPropertyCount()override;
-				IPropertyInfo*								GetProperty(vint index)override;
-				bool										IsPropertyExists(const WString& name, bool inheritable)override;
-				IPropertyInfo*								GetPropertyByName(const WString& name, bool inheritable)override;
-				vint										GetEventCount()override;
-				IEventInfo*									GetEvent(vint index)override;
-				bool										IsEventExists(const WString& name, bool inheritable)override;
-				IEventInfo*									GetEventByName(const WString& name, bool inheritable)override;
-				vint										GetMethodGroupCount()override;
-				IMethodGroupInfo*							GetMethodGroup(vint index)override;
-				bool										IsMethodGroupExists(const WString& name, bool inheritable)override;
-				IMethodGroupInfo*							GetMethodGroupByName(const WString& name, bool inheritable)override;
-				IMethodGroupInfo*							GetConstructorGroup()override;
+				static Ptr<IValueEnumerable>	Create(collections::LazyList<Value> values);
 			};
 
-			template<typename T, TypeDescriptorFlags TDFlags>
-			class TypedValueTypeDescriptorBase : public ValueTypeDescriptorBase
+			class IValueReadonlyList : public virtual IValueEnumerable, public Description<IValueReadonlyList>
 			{
 			public:
-				TypedValueTypeDescriptorBase()
-					:ValueTypeDescriptorBase(TDFlags, &TypeInfo<T>::content)
+				virtual vint					GetCount() = 0;
+				virtual Value					Get(vint index) = 0;
+				virtual bool					Contains(const Value& value) = 0;
+				virtual vint					IndexOf(const Value& value) = 0;
+			};
+
+			class IValueList : public virtual IValueReadonlyList, public Description<IValueList>
+			{
+			public:
+				virtual void					Set(vint index, const Value& value) = 0;
+				virtual vint					Add(const Value& value) = 0;
+				virtual vint					Insert(vint index, const Value& value) = 0;
+				virtual bool					Remove(const Value& value) = 0;
+				virtual bool					RemoveAt(vint index) = 0;
+				virtual void					Clear() = 0;
+
+				static Ptr<IValueList>			Create();
+				static Ptr<IValueList>			Create(Ptr<IValueReadonlyList> values);
+				static Ptr<IValueList>			Create(collections::LazyList<Value> values);
+			};
+
+			class IValueObservableList : public virtual IValueReadonlyList, public Description<IValueObservableList>
+			{
+				typedef void ItemChangedProc(vint index, vint oldCount, vint newCount);
+			public:
+				Event<ItemChangedProc>			ItemChanged;
+			};
+
+			class IValueReadonlyDictionary : public virtual IDescriptable, public Description<IValueReadonlyDictionary>
+			{
+			public:
+				virtual Ptr<IValueReadonlyList>	GetKeys() = 0;
+				virtual Ptr<IValueReadonlyList>	GetValues() = 0;
+				virtual vint					GetCount() = 0;
+				virtual Value					Get(const Value& key) = 0;
+			};
+
+			class IValueDictionary : public virtual IValueReadonlyDictionary, public Description<IValueDictionary>
+			{
+			public:
+				virtual void					Set(const Value& key, const Value& value) = 0;
+				virtual bool					Remove(const Value& key) = 0;
+				virtual void					Clear() = 0;
+
+				static Ptr<IValueDictionary>	Create();
+				static Ptr<IValueDictionary>	Create(Ptr<IValueReadonlyDictionary> values);
+				static Ptr<IValueDictionary>	Create(collections::LazyList<collections::Pair<Value, Value>> values);
+			};
+
+/***********************************************************************
+Interface Implementation Proxy
+***********************************************************************/
+
+			class IValueInterfaceProxy : public virtual IDescriptable, public Description<IValueInterfaceProxy>
+			{
+			public:
+				virtual Value					Invoke(IMethodInfo* methodInfo, Ptr<IValueList> arguments) = 0;
+			};
+
+			class IValueFunctionProxy : public virtual IDescriptable, public Description<IValueFunctionProxy>
+			{
+			public:
+				virtual Value					Invoke(Ptr<IValueList> arguments) = 0;
+			};
+
+			class IValueListener : public virtual IDescriptable, public Description<IValueListener>
+			{
+			public:
+				virtual IValueSubscription*		GetSubscription() = 0;
+				virtual bool					GetStopped() = 0;
+				virtual bool					StopListening() = 0;
+			};
+
+			class IValueSubscription : public virtual IDescriptable, public Description<IValueSubscription>
+			{
+			public:
+				virtual Ptr<IValueListener>		Subscribe(const Func<void(const Value&)>& callback) = 0;
+				virtual bool					Update() = 0;
+				virtual bool					Close() = 0;
+			};
+
+/***********************************************************************
+Interface Implementation Proxy (Implement)
+***********************************************************************/
+
+			class ValueInterfaceRoot : public virtual IDescriptable
+			{
+			protected:
+				Ptr<IValueInterfaceProxy>		proxy;
+
+				void SetProxy(Ptr<IValueInterfaceProxy> value)
 				{
+					proxy = value;
+				}
+			public:
+				Ptr<IValueInterfaceProxy> GetProxy()
+				{
+					return proxy;
 				}
 			};
 
-#endif
+			template<typename T>
+			class ValueInterfaceProxy
+			{
+			};
+
+#pragma warning(push)
+#pragma warning(disable:4250)
+			template<typename TInterface, typename ...TBaseInterfaces>
+			class ValueInterfaceImpl : public virtual ValueInterfaceRoot, public virtual TInterface, public ValueInterfaceProxy<TBaseInterfaces>...
+			{
+			public:
+				~ValueInterfaceImpl()
+				{
+					FinalizeAggregation();
+				}
+			};
+#pragma warning(pop)
 
 /***********************************************************************
-Predefined Libraries
+Runtime Exception
+***********************************************************************/
+
+			class IValueCallStack : public virtual IDescriptable, public Description<IValueCallStack>
+			{
+			public:
+				virtual Ptr<IValueReadonlyDictionary>	GetLocalVariables() = 0;
+				virtual Ptr<IValueReadonlyDictionary>	GetLocalArguments() = 0;
+				virtual Ptr<IValueReadonlyDictionary>	GetCapturedVariables() = 0;
+				virtual Ptr<IValueReadonlyDictionary>	GetGlobalVariables() = 0;
+				virtual WString							GetFunctionName() = 0;
+				virtual WString							GetSourceCodeBeforeCodegen() = 0;
+				virtual WString							GetSourceCodeAfterCodegen() = 0;
+				virtual vint							GetRowBeforeCodegen() = 0;
+				virtual vint							GetRowAfterCodegen() = 0;
+			};
+
+			class IValueException : public virtual IDescriptable, public Description<IValueException>
+			{
+			public:
+#pragma push_macro("GetMessage")
+#if defined GetMessage
+#undef GetMessage
+#endif
+				virtual WString							GetMessage() = 0;
+#pragma pop_macro("GetMessage")
+				virtual bool							GetFatal() = 0;
+				virtual Ptr<IValueReadonlyList>			GetCallStack() = 0;
+
+				static Ptr<IValueException>				Create(const WString& message);
+			};
+
+/***********************************************************************
+Libraries
 ***********************************************************************/
 
 			class Sys : public Description<Sys>
@@ -190,113 +255,6 @@ Predefined Libraries
 				static vint64_t		RoundI(double value)			{ return (vint64_t)round(value); }
 				static vint64_t		TruncI(double value)			{ return (vint64_t)trunc(value); }
 			};
-
-/***********************************************************************
-Predefined Types
-***********************************************************************/
-
-			struct VoidValue{};
-
-#ifndef VCZH_DEBUG_NO_REFLECTION
-
-			DECL_TYPE_INFO(Sys)
-			DECL_TYPE_INFO(Math)
-			
-			DECL_TYPE_INFO(void)
-			DECL_TYPE_INFO(VoidValue)
-			DECL_TYPE_INFO(IDescriptable)
-			DECL_TYPE_INFO(DescriptableObject)
-			DECL_TYPE_INFO(Value)
-			DECL_TYPE_INFO(vuint8_t)
-			DECL_TYPE_INFO(vuint16_t)
-			DECL_TYPE_INFO(vuint32_t)
-			DECL_TYPE_INFO(vuint64_t)
-			DECL_TYPE_INFO(vint8_t)
-			DECL_TYPE_INFO(vint16_t)
-			DECL_TYPE_INFO(vint32_t)
-			DECL_TYPE_INFO(vint64_t)
-			DECL_TYPE_INFO(float)
-			DECL_TYPE_INFO(double)
-			DECL_TYPE_INFO(bool)
-			DECL_TYPE_INFO(wchar_t)
-			DECL_TYPE_INFO(WString)
-			DECL_TYPE_INFO(Locale)
-			DECL_TYPE_INFO(DateTime)
-
-			DECL_TYPE_INFO(IValueEnumerator)
-			DECL_TYPE_INFO(IValueEnumerable)
-			DECL_TYPE_INFO(IValueReadonlyList)
-			DECL_TYPE_INFO(IValueList)
-			DECL_TYPE_INFO(IValueObservableList)
-			DECL_TYPE_INFO(IValueReadonlyDictionary)
-			DECL_TYPE_INFO(IValueDictionary)
-			DECL_TYPE_INFO(IValueInterfaceProxy)
-			DECL_TYPE_INFO(IValueFunctionProxy)
-			DECL_TYPE_INFO(IValueListener)
-			DECL_TYPE_INFO(IValueSubscription)
-			DECL_TYPE_INFO(IValueCallStack)
-			DECL_TYPE_INFO(IValueException)
-
-			DECL_TYPE_INFO(IBoxedValue)
-			DECL_TYPE_INFO(IBoxedValue::CompareResult)
-			DECL_TYPE_INFO(IValueType)
-			DECL_TYPE_INFO(IEnumType)
-			DECL_TYPE_INFO(ISerializableType)
-			DECL_TYPE_INFO(ITypeInfo)
-			DECL_TYPE_INFO(ITypeInfo::Decorator)
-			DECL_TYPE_INFO(IMemberInfo)
-			DECL_TYPE_INFO(IEventHandler)
-			DECL_TYPE_INFO(IEventInfo)
-			DECL_TYPE_INFO(IPropertyInfo)
-			DECL_TYPE_INFO(IParameterInfo)
-			DECL_TYPE_INFO(IMethodInfo)
-			DECL_TYPE_INFO(IMethodGroupInfo)
-			DECL_TYPE_INFO(TypeDescriptorFlags)
-			DECL_TYPE_INFO(ITypeDescriptor)
-
-#endif
-
-#define DEFINE_TYPED_VALUE_SERIALIZER_PROVIDER(TYPENAME)\
-			template<>\
-			struct TypedValueSerializerProvider<TYPENAME>\
-			{\
-				static TYPENAME GetDefaultValue();\
-				static bool Serialize(const TYPENAME& input, WString& output);\
-				static bool Deserialize(const WString& input, TYPENAME& output);\
-				static IBoxedValue::CompareResult Compare(const TYPENAME& a, const TYPENAME& b);\
-			};\
-
-			DEFINE_TYPED_VALUE_SERIALIZER_PROVIDER(vuint8_t)
-			DEFINE_TYPED_VALUE_SERIALIZER_PROVIDER(vuint16_t)
-			DEFINE_TYPED_VALUE_SERIALIZER_PROVIDER(vuint32_t)
-			DEFINE_TYPED_VALUE_SERIALIZER_PROVIDER(vuint64_t)
-			DEFINE_TYPED_VALUE_SERIALIZER_PROVIDER(vint8_t)
-			DEFINE_TYPED_VALUE_SERIALIZER_PROVIDER(vint16_t)
-			DEFINE_TYPED_VALUE_SERIALIZER_PROVIDER(vint32_t)
-			DEFINE_TYPED_VALUE_SERIALIZER_PROVIDER(vint64_t)
-			DEFINE_TYPED_VALUE_SERIALIZER_PROVIDER(float)
-			DEFINE_TYPED_VALUE_SERIALIZER_PROVIDER(double)
-			DEFINE_TYPED_VALUE_SERIALIZER_PROVIDER(bool)
-			DEFINE_TYPED_VALUE_SERIALIZER_PROVIDER(wchar_t)
-			DEFINE_TYPED_VALUE_SERIALIZER_PROVIDER(WString)
-			DEFINE_TYPED_VALUE_SERIALIZER_PROVIDER(Locale)
-
-#undef DEFINE_TYPED_VALUE_SERIALIZER_PROVIDER
-
-/***********************************************************************
-Helper Functions
-***********************************************************************/
-
-			extern vint										ITypeDescriptor_GetTypeDescriptorCount();
-			extern ITypeDescriptor*							ITypeDescriptor_GetTypeDescriptor(vint index);
-			extern ITypeDescriptor*							ITypeDescriptor_GetTypeDescriptor(const WString& name);
-			extern ITypeDescriptor*							ITypeDescriptor_GetTypeDescriptor(const Value& value);
-
-/***********************************************************************
-LoadPredefinedTypes
-***********************************************************************/
-
-			extern bool										LoadPredefinedTypes();
 		}
 	}
 }

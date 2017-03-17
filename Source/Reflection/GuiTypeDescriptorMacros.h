@@ -3,7 +3,7 @@ Vczh Library++ 3.0
 Developer: Zihan Chen(vczh)
 Framework::Reflection
 
-Classes:
+Interfaces:
 ***********************************************************************/
 
 #ifndef VCZH_REFLECTION_GUITYPEDESCRIPTORMACROS
@@ -14,7 +14,6 @@ Classes:
 #include "GuiTypeDescriptorBuilder_Container.h"
 #include "GuiTypeDescriptorBuilder_Function.h"
 #include "GuiTypeDescriptorBuilder_Struct.h"
-#include "GuiTypeDescriptorPredefined.h"
 
 #ifndef VCZH_DEBUG_NO_REFLECTION
 

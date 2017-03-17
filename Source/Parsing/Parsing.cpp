@@ -924,8 +924,6 @@ Reflection
 
 #ifndef VCZH_DEBUG_NO_REFLECTION
 
-#include "../Reflection/GuiTypeDescriptorMacros.h"
-
 namespace vl
 {
 	namespace reflection

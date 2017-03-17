@@ -182,7 +182,7 @@ namespace vl
 
 #ifndef VCZH_DEBUG_NO_REFLECTION
 
-#include "../Reflection/GuiTypeDescriptorMacros.h"
+#include "../Reflection/GuiTypeDescriptorReflection.h"
 
 namespace vl
 {

@@ -249,6 +249,12 @@
     <ClCompile Include="..\..\..\Source\Parsing\Xml\ParsingXml_Ast.cpp">
       <Filter>Common\Parsing\Xml</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\Source\Reflection\GuiTypeDescriptorReflection.cpp">
+      <Filter>Common\Reflection</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Reflection\GuiTypeDescriptor_Log.cpp">
+      <Filter>Common\Reflection</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\Source\Parser.Calculator\Codegen.bat">
@@ -463,9 +469,6 @@
     <ClInclude Include="..\..\..\Source\UnitTest\UnitTest.h">
       <Filter>Common\UnitTest</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Source\Reflection\GuiTypeDescriptorInterfaceProxies.h">
-      <Filter>Common\Reflection</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\Source\Reflection\GuiTypeDescriptorCppHelper.h">
       <Filter>Common\Reflection</Filter>
     </ClInclude>
@@ -474,6 +477,9 @@
     </ClInclude>
     <ClInclude Include="..\..\..\Source\Parsing\Xml\ParsingXml_Ast.h">
       <Filter>Common\Parsing\Xml</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\Reflection\GuiTypeDescriptorReflection.h">
+      <Filter>Common\Reflection</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

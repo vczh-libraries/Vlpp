@@ -1,6 +1,4 @@
 #include "../../Source/UnitTest/UnitTest.h"
-#include "../../Source/Reflection/GuiTypeDescriptorMacros.h"
-#include "../../Source/Reflection/GuiTypeDescriptorInterfaceProxies.h"
 #include "../../Source/Stream/FileStream.h"
 #include "../../Source/Stream/Accessor.h"
 #include "../../Source/Stream/CharFormat.h"

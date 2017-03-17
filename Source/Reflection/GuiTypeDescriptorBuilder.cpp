@@ -12,6 +12,187 @@ namespace vl
 #ifndef VCZH_DEBUG_NO_REFLECTION
 
 /***********************************************************************
+TypeDescriptorImplBase
+***********************************************************************/
+
+			const WString& TypeDescriptorImplBase::GetFullName()
+			{
+				return cppFullTypeName;
+			}
+
+			const TypeInfoContent* TypeDescriptorImplBase::GetTypeInfoContentInternal()
+			{
+				return typeInfoContent;
+			}
+
+			TypeDescriptorImplBase::TypeDescriptorImplBase(TypeDescriptorFlags _typeDescriptorFlags, const TypeInfoContent* _typeInfoContent)
+				:typeDescriptorFlags(_typeDescriptorFlags)
+				, typeInfoContent(_typeInfoContent)
+				, typeName(_typeInfoContent->typeName, false)
+			{
+				switch (typeInfoContent->cppName)
+				{
+				case TypeInfoContent::VlppType:
+					break;
+				case TypeInfoContent::CppType:
+					cppFullTypeName = WString(typeInfoContent->typeName, false);
+					break;
+				case TypeInfoContent::Renamed:
+					cppFullTypeName = WString(typeInfoContent->cppFullTypeName, false);
+					break;
+				}
+			}
+
+			TypeDescriptorImplBase::~TypeDescriptorImplBase()
+			{
+			}
+
+			ITypeDescriptor::ICpp* TypeDescriptorImplBase::GetCpp()
+			{
+				return typeInfoContent->cppName == TypeInfoContent::VlppType ? nullptr : this;
+			}
+
+			TypeDescriptorFlags TypeDescriptorImplBase::GetTypeDescriptorFlags()
+			{
+				return typeDescriptorFlags;
+			}
+
+			const WString& TypeDescriptorImplBase::GetTypeName()
+			{
+				return typeName;
+			}
+
+/***********************************************************************
+ValueTypeDescriptorBase
+***********************************************************************/
+
+			void ValueTypeDescriptorBase::LoadInternal()
+			{
+			}
+
+			void ValueTypeDescriptorBase::Load()
+			{
+				if (!loaded)
+				{
+					loaded = true;
+					LoadInternal();
+				}
+			}
+
+			ValueTypeDescriptorBase::ValueTypeDescriptorBase(TypeDescriptorFlags _typeDescriptorFlags, const TypeInfoContent* _typeInfoContent)
+				:TypeDescriptorImplBase(_typeDescriptorFlags, _typeInfoContent)
+				, loaded(false)
+			{
+			}
+
+			ValueTypeDescriptorBase::~ValueTypeDescriptorBase()
+			{
+			}
+
+			bool ValueTypeDescriptorBase::IsAggregatable()
+			{
+				return false;
+			}
+
+			IValueType* ValueTypeDescriptorBase::GetValueType()
+			{
+				Load();
+				return valueType.Obj();
+			}
+
+			IEnumType* ValueTypeDescriptorBase::GetEnumType()
+			{
+				Load();
+				return enumType.Obj();
+			}
+
+			ISerializableType* ValueTypeDescriptorBase::GetSerializableType()
+			{
+				Load();
+				return serializableType.Obj();
+			}
+
+			vint ValueTypeDescriptorBase::GetBaseTypeDescriptorCount()
+			{
+				return 0;
+			}
+
+			ITypeDescriptor* ValueTypeDescriptorBase::GetBaseTypeDescriptor(vint index)
+			{
+				return 0;
+			}
+
+			bool ValueTypeDescriptorBase::CanConvertTo(ITypeDescriptor* targetType)
+			{
+				return this == targetType;
+			}
+
+			vint ValueTypeDescriptorBase::GetPropertyCount()
+			{
+				return 0;
+			}
+
+			IPropertyInfo* ValueTypeDescriptorBase::GetProperty(vint index)
+			{
+				return 0;
+			}
+
+			bool ValueTypeDescriptorBase::IsPropertyExists(const WString& name, bool inheritable)
+			{
+				return false;
+			}
+
+			IPropertyInfo* ValueTypeDescriptorBase::GetPropertyByName(const WString& name, bool inheritable)
+			{
+				return 0;
+			}
+
+			vint ValueTypeDescriptorBase::GetEventCount()
+			{
+				return 0;
+			}
+
+			IEventInfo* ValueTypeDescriptorBase::GetEvent(vint index)
+			{
+				return 0;
+			}
+
+			bool ValueTypeDescriptorBase::IsEventExists(const WString& name, bool inheritable)
+			{
+				return false;
+			}
+
+			IEventInfo* ValueTypeDescriptorBase::GetEventByName(const WString& name, bool inheritable)
+			{
+				return 0;
+			}
+
+			vint ValueTypeDescriptorBase::GetMethodGroupCount()
+			{
+				return 0;
+			}
+
+			IMethodGroupInfo* ValueTypeDescriptorBase::GetMethodGroup(vint index)
+			{
+				return 0;
+			}
+
+			bool ValueTypeDescriptorBase::IsMethodGroupExists(const WString& name, bool inheritable)
+			{
+				return false;
+			}
+
+			IMethodGroupInfo* ValueTypeDescriptorBase::GetMethodGroupByName(const WString& name, bool inheritable)
+			{
+				return 0;
+			}
+
+			IMethodGroupInfo* ValueTypeDescriptorBase::GetConstructorGroup()
+			{
+				return 0;
+			}
+
+/***********************************************************************
 TypeDescriptorTypeInfo
 ***********************************************************************/
 

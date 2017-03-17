@@ -21,6 +21,113 @@ namespace vl
 #ifndef VCZH_DEBUG_NO_REFLECTION
 
 /***********************************************************************
+TypeInfo
+***********************************************************************/
+
+#define DECL_TYPE_INFO(TYPENAME) template<>struct TypeInfo<TYPENAME>{ static const TypeInfoContent content; };
+#define IMPL_VL_TYPE_INFO(TYPENAME) const TypeInfoContent TypeInfo<TYPENAME>::content = { L ## #TYPENAME, nullptr, TypeInfoContent::VlppType };
+#define IMPL_CPP_TYPE_INFO(TYPENAME) const TypeInfoContent TypeInfo<TYPENAME>::content = { L ## #TYPENAME, nullptr, TypeInfoContent::CppType };
+#define IMPL_TYPE_INFO_RENAME(TYPENAME, EXPECTEDNAME) const TypeInfoContent TypeInfo<TYPENAME>::content = { L ## #EXPECTEDNAME, L ## #TYPENAME, TypeInfoContent::Renamed };
+
+			struct TypeInfoContent
+			{
+				enum TypeInfoCppName
+				{
+					VlppType,			// vl::<type-name>
+					CppType,			// <type-name>
+					Renamed,			// CppFullTypeName
+				};
+
+				const wchar_t*		typeName;
+				const wchar_t*		cppFullTypeName;
+				TypeInfoCppName		cppName;
+			};
+
+			template<typename T>
+			struct TypeInfo
+			{
+			};
+
+			template<typename T>
+			ITypeDescriptor* GetTypeDescriptor()
+			{
+				return GetTypeDescriptor(TypeInfo<T>::content.typeName);
+			}
+
+/***********************************************************************
+SerializableTypeDescriptor
+***********************************************************************/
+
+			class TypeDescriptorImplBase : public Object, public ITypeDescriptor, private ITypeDescriptor::ICpp
+			{
+			private:
+				TypeDescriptorFlags							typeDescriptorFlags;
+				const TypeInfoContent*						typeInfoContent;
+				WString										typeName;
+				WString										cppFullTypeName;
+
+				const WString&								GetFullName()override;
+
+			protected:
+				const TypeInfoContent*						GetTypeInfoContentInternal();
+
+			public:
+				TypeDescriptorImplBase(TypeDescriptorFlags _typeDescriptorFlags, const TypeInfoContent* _typeInfoContent);
+				~TypeDescriptorImplBase();
+
+				ITypeDescriptor::ICpp*						GetCpp()override;
+				TypeDescriptorFlags							GetTypeDescriptorFlags()override;
+				const WString&								GetTypeName()override;
+			};
+
+			class ValueTypeDescriptorBase : public TypeDescriptorImplBase
+			{
+			protected:
+				bool										loaded;
+				Ptr<IValueType>								valueType;
+				Ptr<IEnumType>								enumType;
+				Ptr<ISerializableType>						serializableType;
+
+				virtual void								LoadInternal();;
+				void										Load();
+			public:
+				ValueTypeDescriptorBase(TypeDescriptorFlags _typeDescriptorFlags, const TypeInfoContent* _typeInfoContent);
+				~ValueTypeDescriptorBase();
+
+				bool										IsAggregatable()override;
+				IValueType*									GetValueType()override;
+				IEnumType*									GetEnumType()override;
+				ISerializableType*							GetSerializableType()override;
+
+				vint										GetBaseTypeDescriptorCount()override;
+				ITypeDescriptor*							GetBaseTypeDescriptor(vint index)override;
+				bool										CanConvertTo(ITypeDescriptor* targetType)override;
+				vint										GetPropertyCount()override;
+				IPropertyInfo*								GetProperty(vint index)override;
+				bool										IsPropertyExists(const WString& name, bool inheritable)override;
+				IPropertyInfo*								GetPropertyByName(const WString& name, bool inheritable)override;
+				vint										GetEventCount()override;
+				IEventInfo*									GetEvent(vint index)override;
+				bool										IsEventExists(const WString& name, bool inheritable)override;
+				IEventInfo*									GetEventByName(const WString& name, bool inheritable)override;
+				vint										GetMethodGroupCount()override;
+				IMethodGroupInfo*							GetMethodGroup(vint index)override;
+				bool										IsMethodGroupExists(const WString& name, bool inheritable)override;
+				IMethodGroupInfo*							GetMethodGroupByName(const WString& name, bool inheritable)override;
+				IMethodGroupInfo*							GetConstructorGroup()override;
+			};
+
+			template<typename T, TypeDescriptorFlags TDFlags>
+			class TypedValueTypeDescriptorBase : public ValueTypeDescriptorBase
+			{
+			public:
+				TypedValueTypeDescriptorBase()
+					:ValueTypeDescriptorBase(TDFlags, &TypeInfo<T>::content)
+				{
+				}
+			};
+
+/***********************************************************************
 TypeInfoImp
 ***********************************************************************/
 

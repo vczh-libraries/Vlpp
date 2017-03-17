@@ -234,6 +234,8 @@
     <ClCompile Include="..\..\..\Source\Reflection\GuiTypeDescriptor.cpp" />
     <ClCompile Include="..\..\..\Source\Reflection\GuiTypeDescriptorBuilder.cpp" />
     <ClCompile Include="..\..\..\Source\Reflection\GuiTypeDescriptorPredefined.cpp" />
+    <ClCompile Include="..\..\..\Source\Reflection\GuiTypeDescriptorReflection.cpp" />
+    <ClCompile Include="..\..\..\Source\Reflection\GuiTypeDescriptor_Log.cpp" />
     <ClCompile Include="..\..\..\Source\Regex\Regex.cpp" />
     <ClCompile Include="..\..\..\Source\Regex\RegexAutomaton.cpp" />
     <ClCompile Include="..\..\..\Source\Regex\RegexData.cpp" />
@@ -375,9 +377,9 @@
     <ClInclude Include="..\..\..\Source\Reflection\GuiTypeDescriptorBuilder_Function.h" />
     <ClInclude Include="..\..\..\Source\Reflection\GuiTypeDescriptorBuilder_Struct.h" />
     <ClInclude Include="..\..\..\Source\Reflection\GuiTypeDescriptorCppHelper.h" />
-    <ClInclude Include="..\..\..\Source\Reflection\GuiTypeDescriptorInterfaceProxies.h" />
     <ClInclude Include="..\..\..\Source\Reflection\GuiTypeDescriptorMacros.h" />
     <ClInclude Include="..\..\..\Source\Reflection\GuiTypeDescriptorPredefined.h" />
+    <ClInclude Include="..\..\..\Source\Reflection\GuiTypeDescriptorReflection.h" />
     <ClInclude Include="..\..\..\Source\Regex\Regex.h" />
     <ClInclude Include="..\..\..\Source\Regex\RegexAutomaton.h" />
     <ClInclude Include="..\..\..\Source\Regex\RegexData.h" />
