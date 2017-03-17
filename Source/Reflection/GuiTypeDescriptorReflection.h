@@ -61,6 +61,8 @@ Predefined Types
 			DECL_TYPE_INFO(IValueSubscription)
 			DECL_TYPE_INFO(IValueCallStack)
 			DECL_TYPE_INFO(IValueException)
+			DECL_TYPE_INFO(CoroutineStatus)
+			DECL_TYPE_INFO(ICoroutine)
 
 			DECL_TYPE_INFO(IBoxedValue)
 			DECL_TYPE_INFO(IBoxedValue::CompareResult)
@@ -118,80 +120,80 @@ Interface Implementation Proxy (Implement)
 #pragma warning(disable:4250)
 			BEGIN_INTERFACE_PROXY_NOPARENT_SHAREDPTR(IValueEnumerator)
 				Value GetCurrent()override
-			{
-				INVOKEGET_INTERFACE_PROXY_NOPARAMS(GetCurrent);
-			}
+				{
+					INVOKEGET_INTERFACE_PROXY_NOPARAMS(GetCurrent);
+				}
 
-			vint GetIndex()override
-			{
-				INVOKEGET_INTERFACE_PROXY_NOPARAMS(GetIndex);
-			}
+				vint GetIndex()override
+				{
+					INVOKEGET_INTERFACE_PROXY_NOPARAMS(GetIndex);
+				}
 
-			bool Next()override
-			{
-				INVOKEGET_INTERFACE_PROXY_NOPARAMS(Next);
-			}
+				bool Next()override
+				{
+					INVOKEGET_INTERFACE_PROXY_NOPARAMS(Next);
+				}
 			END_INTERFACE_PROXY(IValueEnumerator)
 
 			BEGIN_INTERFACE_PROXY_NOPARENT_SHAREDPTR(IValueEnumerable)
 				Ptr<IValueEnumerator> CreateEnumerator()override
-			{
-				INVOKEGET_INTERFACE_PROXY_NOPARAMS(CreateEnumerator);
-			}
+				{
+					INVOKEGET_INTERFACE_PROXY_NOPARAMS(CreateEnumerator);
+				}
 			END_INTERFACE_PROXY(IValueEnumerable)
 
 			BEGIN_INTERFACE_PROXY_SHAREDPTR(IValueReadonlyList, IValueEnumerable)
 				vint GetCount()override
-			{
-				INVOKEGET_INTERFACE_PROXY_NOPARAMS(GetCount);
-			}
+				{
+					INVOKEGET_INTERFACE_PROXY_NOPARAMS(GetCount);
+				}
 
-			Value Get(vint index)override
-			{
-				INVOKEGET_INTERFACE_PROXY(Get, index);
-			}
+				Value Get(vint index)override
+				{
+					INVOKEGET_INTERFACE_PROXY(Get, index);
+				}
 
-			bool Contains(const Value& value)override
-			{
-				INVOKEGET_INTERFACE_PROXY(Contains, value);
-			}
+				bool Contains(const Value& value)override
+				{
+					INVOKEGET_INTERFACE_PROXY(Contains, value);
+				}
 
-			vint IndexOf(const Value& value)override
-			{
-				INVOKEGET_INTERFACE_PROXY(IndexOf, value);
-			}
+				vint IndexOf(const Value& value)override
+				{
+					INVOKEGET_INTERFACE_PROXY(IndexOf, value);
+				}
 			END_INTERFACE_PROXY(IValueReadonlyList)
 
 			BEGIN_INTERFACE_PROXY_SHAREDPTR(IValueList, IValueReadonlyList)
 				void Set(vint index, const Value& value)override
-			{
-				INVOKE_INTERFACE_PROXY(Set, index, value);
-			}
+				{
+					INVOKE_INTERFACE_PROXY(Set, index, value);
+				}
 
-			vint Add(const Value& value)override
-			{
-				INVOKEGET_INTERFACE_PROXY(Add, value);
-			}
+				vint Add(const Value& value)override
+				{
+					INVOKEGET_INTERFACE_PROXY(Add, value);
+				}
 
-			vint Insert(vint index, const Value& value)override
-			{
-				INVOKEGET_INTERFACE_PROXY(Insert, index, value);
-			}
+				vint Insert(vint index, const Value& value)override
+				{
+					INVOKEGET_INTERFACE_PROXY(Insert, index, value);
+				}
 
-			bool Remove(const Value& value)override
-			{
-				INVOKEGET_INTERFACE_PROXY(Remove, value);
-			}
+				bool Remove(const Value& value)override
+				{
+					INVOKEGET_INTERFACE_PROXY(Remove, value);
+				}
 
-			bool RemoveAt(vint index)override
-			{
-				INVOKEGET_INTERFACE_PROXY(RemoveAt, index);
-			}
+				bool RemoveAt(vint index)override
+				{
+					INVOKEGET_INTERFACE_PROXY(RemoveAt, index);
+				}
 
-			void Clear()override
-			{
-				INVOKE_INTERFACE_PROXY_NOPARAMS(Clear);
-			}
+				void Clear()override
+				{
+					INVOKE_INTERFACE_PROXY_NOPARAMS(Clear);
+				}
 			END_INTERFACE_PROXY(IValueList)
 
 			BEGIN_INTERFACE_PROXY_SHAREDPTR(IValueObservableList, IValueReadonlyList)
@@ -199,76 +201,94 @@ Interface Implementation Proxy (Implement)
 
 			BEGIN_INTERFACE_PROXY_NOPARENT_SHAREDPTR(IValueReadonlyDictionary)
 				Ptr<IValueReadonlyList> GetKeys()override
-			{
-				INVOKEGET_INTERFACE_PROXY_NOPARAMS(GetKeys);
-			}
+				{
+					INVOKEGET_INTERFACE_PROXY_NOPARAMS(GetKeys);
+				}
 
-			Ptr<IValueReadonlyList> GetValues()override
-			{
-				INVOKEGET_INTERFACE_PROXY_NOPARAMS(GetValues);
-			}
+				Ptr<IValueReadonlyList> GetValues()override
+				{
+					INVOKEGET_INTERFACE_PROXY_NOPARAMS(GetValues);
+				}
 
-			vint GetCount()override
-			{
-				INVOKEGET_INTERFACE_PROXY_NOPARAMS(GetCount);
-			}
+				vint GetCount()override
+				{
+					INVOKEGET_INTERFACE_PROXY_NOPARAMS(GetCount);
+				}
 
-			Value Get(const Value& key)override
-			{
-				INVOKEGET_INTERFACE_PROXY(Get, key);
-			}
+				Value Get(const Value& key)override
+				{
+					INVOKEGET_INTERFACE_PROXY(Get, key);
+				}
 			END_INTERFACE_PROXY(IValueReadonlyDictionary)
 
 			BEGIN_INTERFACE_PROXY_SHAREDPTR(IValueDictionary, IValueReadonlyDictionary)
 				void Set(const Value& key, const Value& value)override
-			{
-				INVOKE_INTERFACE_PROXY(Set, key, value);
-			}
+				{
+					INVOKE_INTERFACE_PROXY(Set, key, value);
+				}
 
-			bool Remove(const Value& key)override
-			{
-				INVOKEGET_INTERFACE_PROXY(Remove, key);
-			}
+				bool Remove(const Value& key)override
+				{
+					INVOKEGET_INTERFACE_PROXY(Remove, key);
+				}
 
-			void Clear()override
-			{
-				INVOKE_INTERFACE_PROXY_NOPARAMS(Clear);
-			}
+				void Clear()override
+				{
+					INVOKE_INTERFACE_PROXY_NOPARAMS(Clear);
+				}
 			END_INTERFACE_PROXY(IValueDictionary)
 
 			BEGIN_INTERFACE_PROXY_NOPARENT_SHAREDPTR(IValueListener)
 				IValueSubscription* GetSubscription()override
-			{
-				INVOKEGET_INTERFACE_PROXY_NOPARAMS(GetSubscription);
-			}
+				{
+					INVOKEGET_INTERFACE_PROXY_NOPARAMS(GetSubscription);
+				}
 
-			bool GetStopped()override
-			{
-				INVOKEGET_INTERFACE_PROXY_NOPARAMS(GetStopped);
-			}
+				bool GetStopped()override
+				{
+					INVOKEGET_INTERFACE_PROXY_NOPARAMS(GetStopped);
+				}
 
-			bool StopListening()override
-			{
-				INVOKEGET_INTERFACE_PROXY_NOPARAMS(StopListening);
-			}
+				bool StopListening()override
+				{
+					INVOKEGET_INTERFACE_PROXY_NOPARAMS(StopListening);
+				}
 			END_INTERFACE_PROXY(IValueListener)
 
 			BEGIN_INTERFACE_PROXY_NOPARENT_SHAREDPTR(IValueSubscription)
 				Ptr<IValueListener> Subscribe(const Func<void(const Value&)>& callback)override
-			{
-				INVOKEGET_INTERFACE_PROXY(Subscribe, callback);
-			}
+				{
+					INVOKEGET_INTERFACE_PROXY(Subscribe, callback);
+				}
 
-			bool Update()override
-			{
-				INVOKEGET_INTERFACE_PROXY_NOPARAMS(Update);
-			}
+				bool Update()override
+				{
+					INVOKEGET_INTERFACE_PROXY_NOPARAMS(Update);
+				}
 
-			bool Close()override
-			{
-				INVOKEGET_INTERFACE_PROXY_NOPARAMS(Close);
-			}
+				bool Close()override
+				{
+					INVOKEGET_INTERFACE_PROXY_NOPARAMS(Close);
+				}
 			END_INTERFACE_PROXY(IValueSubscription)
+
+			BEGIN_INTERFACE_PROXY_NOPARENT_SHAREDPTR(ICoroutine)
+
+				void Resume(bool raiseException)override
+				{
+					INVOKE_INTERFACE_PROXY(Resume, raiseException);
+				}
+
+				Ptr<IValueException> GetFailure()override
+				{
+					INVOKEGET_INTERFACE_PROXY_NOPARAMS(GetFailure);
+				}
+
+				CoroutineStatus GetStatus()override
+				{
+					INVOKEGET_INTERFACE_PROXY_NOPARAMS(GetStatus);
+				}
+			END_INTERFACE_PROXY(ICoroutine)
 #pragma warning(pop)
 
 #endif

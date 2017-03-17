@@ -55,6 +55,8 @@ TypeName
 			IMPL_TYPE_INFO_RENAME(vl::reflection::description::IValueSubscription, system::Subscription)
 			IMPL_TYPE_INFO_RENAME(vl::reflection::description::IValueCallStack, system::CallStack)
 			IMPL_TYPE_INFO_RENAME(vl::reflection::description::IValueException, system::Exception)
+			IMPL_TYPE_INFO_RENAME(vl::reflection::description::CoroutineStatus, system::CoroutineStatus)
+			IMPL_TYPE_INFO_RENAME(vl::reflection::description::ICoroutine, system::Coroutine)
 
 			IMPL_TYPE_INFO_RENAME(vl::reflection::description::IBoxedValue, system::reflection::BoxedValue)
 			IMPL_TYPE_INFO_RENAME(vl::reflection::description::IBoxedValue::CompareResult, system::reflection::ValueType::CompareResult)
@@ -686,7 +688,7 @@ LoadPredefinedTypes
 				CLASS_MEMBER_METHOD(Subscribe, { L"callback" })
 				CLASS_MEMBER_METHOD(Update, NO_PARAMETER)
 				CLASS_MEMBER_METHOD(Close, NO_PARAMETER)
-				END_CLASS_MEMBER(IValueSubscription)
+			END_CLASS_MEMBER(IValueSubscription)
 
 			BEGIN_INTERFACE_MEMBER_NOPROXY(IValueCallStack)
 				CLASS_MEMBER_PROPERTY_READONLY_FAST(LocalVariables)
@@ -710,6 +712,17 @@ LoadPredefinedTypes
 				CLASS_MEMBER_PROPERTY_READONLY_FAST(Fatal)
 				CLASS_MEMBER_PROPERTY_READONLY_FAST(CallStack)
 			END_INTERFACE_MEMBER(IValueException)
+
+			BEGIN_ENUM_ITEM(CoroutineStatus)
+				ENUM_CLASS_ITEM(Waiting)
+				ENUM_CLASS_ITEM(Executing)
+				ENUM_CLASS_ITEM(Stopped)
+			END_ENUM_ITEM(CoroutineStatus)
+
+			BEGIN_INTERFACE_MEMBER(ICoroutine)
+				CLASS_MEMBER_PROPERTY_READONLY_FAST(Failure)
+				CLASS_MEMBER_PROPERTY_READONLY_FAST(Status)
+			END_INTERFACE_MEMBER(ICoroutine)
 
 			BEGIN_INTERFACE_MEMBER_NOPROXY(IBoxedValue)
 				CLASS_MEMBER_METHOD(Copy, NO_PARAMETER)
@@ -919,6 +932,9 @@ LoadPredefinedTypes
 					ADD_TYPE_INFO(IValueSubscription)
 					ADD_TYPE_INFO(IValueCallStack)
 					ADD_TYPE_INFO(IValueException)
+
+					ADD_TYPE_INFO(CoroutineStatus)
+					ADD_TYPE_INFO(ICoroutine)
 
 					ADD_TYPE_INFO(IBoxedValue)
 					ADD_TYPE_INFO(IBoxedValue::CompareResult)

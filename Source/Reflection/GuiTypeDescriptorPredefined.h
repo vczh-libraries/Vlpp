@@ -196,6 +196,25 @@ Runtime Exception
 			};
 
 /***********************************************************************
+Coroutine
+***********************************************************************/
+
+			enum class CoroutineStatus
+			{
+				Waiting,
+				Executing,
+				Stopped,
+			};
+
+			class ICoroutine : public virtual IDescriptable, public Description<ICoroutine>
+			{
+			public:
+				virtual void							Resume(bool raiseException) = 0;
+				virtual Ptr<IValueException>			GetFailure() = 0;
+				virtual CoroutineStatus					GetStatus() = 0;
+			};
+
+/***********************************************************************
 Libraries
 ***********************************************************************/
 
