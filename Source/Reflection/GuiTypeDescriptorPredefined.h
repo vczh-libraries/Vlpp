@@ -214,6 +214,21 @@ Coroutine
 				virtual CoroutineStatus					GetStatus() = 0;
 			};
 
+			class EnumerableCoroutine : public Object, public Description<EnumerableCoroutine>
+			{
+			public:
+				class IImpl : public virtual IValueEnumerator, public Description<IImpl>
+				{
+				public:
+					virtual void						OnNext(const Value& value) = 0;
+				};
+
+				static void								YieldAndPause(IImpl* impl, const Value& value);
+				static void								JoinAndPause(IImpl* impl, Ptr<IValueEnumerable> value);
+				static void								ReturnAndExit(IImpl* impl);
+				static Ptr<IValueEnumerable>			Create(const Func<Ptr<ICoroutine>(IImpl*)>& creator);
+			};
+
 /***********************************************************************
 Libraries
 ***********************************************************************/

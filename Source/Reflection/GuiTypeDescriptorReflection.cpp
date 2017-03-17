@@ -57,6 +57,8 @@ TypeName
 			IMPL_TYPE_INFO_RENAME(vl::reflection::description::IValueException, system::Exception)
 			IMPL_TYPE_INFO_RENAME(vl::reflection::description::CoroutineStatus, system::CoroutineStatus)
 			IMPL_TYPE_INFO_RENAME(vl::reflection::description::ICoroutine, system::Coroutine)
+			IMPL_TYPE_INFO_RENAME(vl::reflection::description::EnumerableCoroutine::IImpl, system::EnumerableCoroutine::Impl)
+			IMPL_TYPE_INFO_RENAME(vl::reflection::description::EnumerableCoroutine, system::EnumerableCoroutine)
 
 			IMPL_TYPE_INFO_RENAME(vl::reflection::description::IBoxedValue, system::reflection::BoxedValue)
 			IMPL_TYPE_INFO_RENAME(vl::reflection::description::IBoxedValue::CompareResult, system::reflection::ValueType::CompareResult)
@@ -724,6 +726,17 @@ LoadPredefinedTypes
 				CLASS_MEMBER_PROPERTY_READONLY_FAST(Status)
 			END_INTERFACE_MEMBER(ICoroutine)
 
+			BEGIN_INTERFACE_MEMBER_NOPROXY(EnumerableCoroutine::IImpl)
+				CLASS_MEMBER_METHOD(OnNext, { L"value" })
+			END_INTERFACE_MEMBER(EnumerableCoroutine::IImpl)
+
+			BEGIN_CLASS_MEMBER(EnumerableCoroutine)
+				CLASS_MEMBER_STATIC_METHOD(YieldAndPause, { L"impl" _ L"value" })
+				CLASS_MEMBER_STATIC_METHOD(JoinAndPause, { L"impl" })
+				CLASS_MEMBER_STATIC_METHOD(ReturnAndExit, { L"impl" })
+				CLASS_MEMBER_STATIC_METHOD(Create, { L"creator" })
+			END_CLASS_MEMBER(EnumerableCoroutine)
+
 			BEGIN_INTERFACE_MEMBER_NOPROXY(IBoxedValue)
 				CLASS_MEMBER_METHOD(Copy, NO_PARAMETER)
 			END_INTERFACE_MEMBER(IBoxedValue)
@@ -935,6 +948,8 @@ LoadPredefinedTypes
 
 					ADD_TYPE_INFO(CoroutineStatus)
 					ADD_TYPE_INFO(ICoroutine)
+					ADD_TYPE_INFO(EnumerableCoroutine::IImpl)
+					ADD_TYPE_INFO(EnumerableCoroutine)
 
 					ADD_TYPE_INFO(IBoxedValue)
 					ADD_TYPE_INFO(IBoxedValue::CompareResult)

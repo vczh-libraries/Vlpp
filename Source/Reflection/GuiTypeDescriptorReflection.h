@@ -57,12 +57,16 @@ Predefined Types
 			DECL_TYPE_INFO(IValueDictionary)
 			DECL_TYPE_INFO(IValueInterfaceProxy)
 			DECL_TYPE_INFO(IValueFunctionProxy)
+
 			DECL_TYPE_INFO(IValueListener)
 			DECL_TYPE_INFO(IValueSubscription)
 			DECL_TYPE_INFO(IValueCallStack)
 			DECL_TYPE_INFO(IValueException)
+
 			DECL_TYPE_INFO(CoroutineStatus)
 			DECL_TYPE_INFO(ICoroutine)
+			DECL_TYPE_INFO(EnumerableCoroutine::IImpl)
+			DECL_TYPE_INFO(EnumerableCoroutine)
 
 			DECL_TYPE_INFO(IBoxedValue)
 			DECL_TYPE_INFO(IBoxedValue::CompareResult)
