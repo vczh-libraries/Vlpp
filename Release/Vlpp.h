@@ -13269,6 +13269,15 @@ namespace vl
 			return result;
 		}
 
+		template<typename T, typename U>
+		Ptr<T> UnboxCollection(const collections::LazyList<U>& value)
+		{
+			auto boxedValue = reflection::description::BoxParameter<collections::LazyList<U>>(const_cast<collections::LazyList<U>&>(value));
+			Ptr<T> result;
+			reflection::description::UnboxParameter<Ptr<T>>(boxedValue, result);
+			return result;
+		}
+
 		struct CreateList
 		{
 			using IValueList = reflection::description::IValueList;
