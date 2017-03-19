@@ -11149,6 +11149,8 @@ Libraries
 				static WString		Right(const WString& value, vint length)			{ return value.Right(length); }
 				static WString		Mid(const WString& value, vint start, vint length)	{ return value.Sub(start, length); }
 				static vint			Find(const WString& value, const WString& substr)	{ return INVLOC.FindFirst(value, substr, Locale::Normalization::None).key; }
+
+				static Ptr<IValueEnumerable>		ReverseEnumerable(Ptr<IValueEnumerable> value);
 			};
 
 			class Math : public Description<Math>

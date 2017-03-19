@@ -553,6 +553,7 @@ LoadPredefinedTypes
 				CLASS_MEMBER_STATIC_METHOD(Right, { L"value" _ L"length" })
 				CLASS_MEMBER_STATIC_METHOD(Mid, { L"value" _ L"start" _ L"length" })
 				CLASS_MEMBER_STATIC_METHOD(Find, { L"value" _ L"substr" })
+				CLASS_MEMBER_STATIC_METHOD(ReverseEnumerable, { L"value" })
 			END_CLASS_MEMBER(Sys)
 
 			BEGIN_CLASS_MEMBER(Math)

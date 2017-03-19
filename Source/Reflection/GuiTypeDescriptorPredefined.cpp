@@ -226,6 +226,70 @@ EnumerableCoroutine
 			{
 				return new CoroutineEnumerable(creator);
 			}
+
+/***********************************************************************
+Libraries
+***********************************************************************/
+
+			namespace system_sys
+			{
+				class ReverseEnumerable : public Object, public IValueEnumerable
+				{
+				protected:
+					Ptr<IValueReadonlyList>					list;
+
+					class Enumerator : public Object, public IValueEnumerator
+					{
+					protected:
+						Ptr<IValueReadonlyList>				list;
+						vint								index;
+
+					public:
+						Enumerator(Ptr<IValueReadonlyList> _list)
+							:list(_list), index(_list->GetCount())
+						{
+						}
+
+						Value GetCurrent()
+						{
+							return list->Get(index);
+						}
+
+						vint GetIndex()
+						{
+							return list->GetCount() - 1 - index;
+						}
+
+						bool Next()
+						{
+							if (index <= 0) return false;
+							index--;
+							return true;
+						}
+					};
+
+				public:
+					ReverseEnumerable(Ptr<IValueReadonlyList> _list)
+						:list(_list)
+					{
+					}
+
+					Ptr<IValueEnumerator> CreateEnumerator()override
+					{
+						return MakePtr<Enumerator>(list);
+					}
+				};
+			}
+
+			Ptr<IValueEnumerable> Sys::ReverseEnumerable(Ptr<IValueEnumerable> value)
+			{
+				auto list = value.Cast<IValueReadonlyList>();
+				if (!list)
+				{
+					list = IValueList::Create(GetLazyList<Value>(value));
+				}
+				return new system_sys::ReverseEnumerable(list);
+			}
 		}
 	}
 }
