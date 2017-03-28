@@ -7,6 +7,10 @@ using namespace vl::collections;
 using namespace vl::reflection;
 using namespace vl::reflection::description;
 
+/***********************************************************************
+EnumerableCoroutine
+***********************************************************************/
+
 using EC = EnumerableCoroutine;
 
 namespace test_coroutine
@@ -168,3 +172,7 @@ TEST_CASE(TestYieldJoinAndPause)
 	int ys[] = { 0,1,2,3,2,3,4,5,4 };
 	TEST_ASSERT(CompareEnumerable(xs, From(ys)) == 0);
 }
+
+/***********************************************************************
+AsyncCoroutine
+***********************************************************************/
