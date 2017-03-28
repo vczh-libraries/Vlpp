@@ -255,6 +255,9 @@
     <ClCompile Include="..\..\..\Source\Reflection\GuiTypeDescriptor_Log.cpp">
       <Filter>Common\Reflection</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\TestCoroutine.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\Source\Parser.Calculator\Codegen.bat">
