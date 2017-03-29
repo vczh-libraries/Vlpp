@@ -214,6 +214,12 @@ Coroutine
 				virtual CoroutineStatus					GetStatus() = 0;
 			};
 
+			class ICoroutineResult : public virtual IDescriptable, public Description<ICoroutineResult>
+			{
+			public:
+				virtual Value							GetResult() = 0;
+			};
+
 /***********************************************************************
 Coroutine (Enumerable)
 ***********************************************************************/
@@ -251,8 +257,7 @@ Coroutine (Async)
 			{
 			public:
 				virtual AsyncStatus						GetStatus() = 0;
-				virtual Value							GetResult() = 0;
-				virtual Ptr<IValueException>			GetFailure() = 0;
+				virtual Ptr<ICoroutineResult>			GetResult() = 0;
 				virtual void							Execute(const Func<void()>& callback) = 0;
 
 				static Ptr<IAsync>						Delay();
@@ -284,7 +289,7 @@ Coroutine (Async)
 
 				typedef Func<Ptr<IAsync>(IImpl*)>		Creator;
 
-				static void								AwaitAndPause_Result(IImpl* impl, Ptr<IAsync> value);
+				static Ptr<ICoroutineResult>			AwaitAndPause(IImpl* impl, Ptr<IAsync> value);
 				static void								ReturnAndExit(IImpl* impl, const Value& value);
 				static Ptr<IAsync>						Create(const Creator& creator);
 			};

@@ -277,12 +277,7 @@ AsyncCoroutine
 					throw 0;
 				}
 
-				Value GetResult()override
-				{
-					throw 0;
-				}
-
-				Ptr<IValueException> GetFailure()override
+				Ptr<ICoroutineResult> GetResult()override
 				{
 					throw 0;
 				}
@@ -308,7 +303,7 @@ AsyncCoroutine
 				}
 			};
 			
-			void AsyncCoroutine::AwaitAndPause_Result(IImpl* impl, Ptr<IAsync> value)
+			Ptr<ICoroutineResult> AsyncCoroutine::AwaitAndPause(IImpl* impl, Ptr<IAsync> value)
 			{
 				throw 0;
 			}

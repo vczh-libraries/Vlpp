@@ -65,6 +65,7 @@ Predefined Types
 
 			DECL_TYPE_INFO(CoroutineStatus)
 			DECL_TYPE_INFO(ICoroutine)
+			DECL_TYPE_INFO(ICoroutineResult)
 			DECL_TYPE_INFO(EnumerableCoroutine::IImpl)
 			DECL_TYPE_INFO(EnumerableCoroutine)
 			DECL_TYPE_INFO(AsyncStatus)
@@ -297,6 +298,14 @@ Interface Implementation Proxy (Implement)
 					INVOKEGET_INTERFACE_PROXY_NOPARAMS(GetStatus);
 				}
 			END_INTERFACE_PROXY(ICoroutine)
+
+			BEGIN_INTERFACE_PROXY_NOPARENT_SHAREDPTR(ICoroutineResult)
+
+				Value GetResult()override
+				{
+					INVOKEGET_INTERFACE_PROXY(GetResult);
+				}
+			END_INTERFACE_PROXY(ICoroutineResult)
 #pragma warning(pop)
 
 #endif
