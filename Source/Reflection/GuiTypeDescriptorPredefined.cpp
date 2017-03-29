@@ -347,11 +347,18 @@ IAsyncScheduler
 				{
 					CHECK_ERROR(asyncSchedulerMap != nullptr, L"IAsyncScheduler::GetSchedulerForCurrentThread()#There is no scheduler registered for the current thread.");
 					vint index = asyncSchedulerMap->schedulers.Keys().IndexOf(Thread::GetCurrentThreadId());
-					CHECK_ERROR(index != -1 && !asyncSchedulerMap->defaultScheduler, L"IAsyncScheduler::GetSchedulerForCurrentThread()#There is no scheduler registered for the current thread.");
-					scheduler = index == -1
-						? asyncSchedulerMap->defaultScheduler
-						: asyncSchedulerMap->schedulers.Values()[index]
-						;
+					if (index != -1)
+					{
+						scheduler = asyncSchedulerMap->schedulers.Values()[index];
+					}
+					else if (asyncSchedulerMap->defaultScheduler)
+					{
+						scheduler = asyncSchedulerMap->defaultScheduler;
+					}
+					else
+					{
+						CHECK_FAIL(L"IAsyncScheduler::GetSchedulerForCurrentThread()#There is no scheduler registered for the current thread.");
+					}
 				}
 				return scheduler;
 			}
