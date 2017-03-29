@@ -67,6 +67,10 @@ Predefined Types
 			DECL_TYPE_INFO(ICoroutine)
 			DECL_TYPE_INFO(EnumerableCoroutine::IImpl)
 			DECL_TYPE_INFO(EnumerableCoroutine)
+			DECL_TYPE_INFO(AsyncStatus)
+			DECL_TYPE_INFO(IAsync)
+			DECL_TYPE_INFO(AsyncCoroutine::IImpl)
+			DECL_TYPE_INFO(AsyncCoroutine)
 
 			DECL_TYPE_INFO(IBoxedValue)
 			DECL_TYPE_INFO(IBoxedValue::CompareResult)

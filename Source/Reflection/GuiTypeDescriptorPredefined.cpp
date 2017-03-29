@@ -268,6 +268,45 @@ IAsyncScheduler
 /***********************************************************************
 AsyncCoroutine
 ***********************************************************************/
+
+			class CoroutineAsync : public Object, public virtual AsyncCoroutine::IImpl, public Description<CoroutineAsync>
+			{
+			public:
+				AsyncStatus GetStatus()override
+				{
+					throw 0;
+				}
+
+				Value GetResult()override
+				{
+					throw 0;
+				}
+
+				Ptr<IValueException> GetFailure()override
+				{
+					throw 0;
+				}
+
+				void Execute(const Func<void()>& callback)override
+				{
+					throw 0;
+				}
+
+				Ptr<IAsyncScheduler> GetScheduler()override
+				{
+					throw 0;
+				}
+
+				void OnContinue()override
+				{
+					throw 0;
+				}
+
+				void OnReturn(const Value& value)override
+				{
+					throw 0;
+				}
+			};
 			
 			void AsyncCoroutine::AwaitAndPause_Result(IImpl* impl, Ptr<IAsync> value)
 			{
