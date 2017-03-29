@@ -1,4 +1,5 @@
 #include "GuiTypeDescriptorMacros.h"
+#include "../Threading.h"
 
 namespace vl
 {
@@ -262,29 +263,97 @@ IAsync
 IAsyncScheduler
 ***********************************************************************/
 
+			class AsyncSchedulerMap
+			{
+			public:
+				Dictionary<vint, Ptr<IAsyncScheduler>>		schedulers;
+				Ptr<IAsyncScheduler>						defaultScheduler;
+			};
+
+			AsyncSchedulerMap* asyncSchedulerMap = nullptr;
+			SpinLock asyncSchedulerLock;
+
+#define ENSURE_ASYNC_SCHEDULER_MAP\
+			if (!asyncSchedulerMap) asyncSchedulerMap = new AsyncSchedulerMap;
+
+#define DISPOSE_ASYNC_SCHEDULER_MAP_IF_NECESSARY\
+			if (asyncSchedulerMap->schedulers.Count() == 0 && !asyncSchedulerMap->defaultScheduler)\
+			{\
+				delete asyncSchedulerMap;\
+				asyncSchedulerMap = nullptr;\
+			}\
+
 			void IAsyncScheduler::RegisterDefaultScheduler(Ptr<IAsyncScheduler> scheduler)
 			{
-				throw 0;
+				SPIN_LOCK(asyncSchedulerLock)
+				{
+					ENSURE_ASYNC_SCHEDULER_MAP
+					CHECK_ERROR(!asyncSchedulerMap->defaultScheduler, L"IAsyncScheduler::RegisterDefaultScheduler()#A default scheduler has already been registered.");
+					asyncSchedulerMap->defaultScheduler = scheduler;
+				}
 			}
 
 			void IAsyncScheduler::RegisterSchedulerForCurrentThread(Ptr<IAsyncScheduler> scheduler)
 			{
-				throw 0;
+				SPIN_LOCK(asyncSchedulerLock)
+				{
+					ENSURE_ASYNC_SCHEDULER_MAP
+					CHECK_ERROR(!asyncSchedulerMap->schedulers.Keys().Contains(Thread::GetCurrentThreadId()), L"IAsyncScheduler::RegisterDefaultScheduler()#A scheduler for this thread has already been registered.");
+					asyncSchedulerMap->schedulers.Add(Thread::GetCurrentThreadId(), scheduler);
+				}
 			}
 
 			Ptr<IAsyncScheduler> IAsyncScheduler::UnregisterDefaultScheduler()
 			{
-				throw 0;
+				Ptr<IAsyncScheduler> scheduler;
+				SPIN_LOCK(asyncSchedulerLock)
+				{
+					if (asyncSchedulerMap)
+					{
+						scheduler = asyncSchedulerMap->defaultScheduler;
+						asyncSchedulerMap->defaultScheduler = nullptr;
+						DISPOSE_ASYNC_SCHEDULER_MAP_IF_NECESSARY
+					}
+				}
+				return scheduler;
 			}
 
 			Ptr<IAsyncScheduler> IAsyncScheduler::UnregisterSchedulerForCurrentThread()
 			{
-				throw 0;
+				Ptr<IAsyncScheduler> scheduler;
+				SPIN_LOCK(asyncSchedulerLock)
+				{
+					if (asyncSchedulerMap)
+					{
+						vint index = asyncSchedulerMap->schedulers.Keys().IndexOf(Thread::GetCurrentThreadId());
+						if (index != -1)
+						{
+							scheduler = asyncSchedulerMap->schedulers.Values()[index];
+							asyncSchedulerMap->schedulers.Remove(Thread::GetCurrentThreadId());
+						}
+						DISPOSE_ASYNC_SCHEDULER_MAP_IF_NECESSARY
+					}
+				}
+				return scheduler;
 			}
+
+#undef ENSURE_ASYNC_SCHEDULER_MAP
+#undef DISPOSE_ASYNC_SCHEDULER_MAP_IF_NECESSARY
 
 			Ptr<IAsyncScheduler> IAsyncScheduler::GetSchedulerForCurrentThread()
 			{
-				throw 0;
+				Ptr<IAsyncScheduler> scheduler;
+				SPIN_LOCK(asyncSchedulerLock)
+				{
+					CHECK_ERROR(asyncSchedulerMap != nullptr, L"IAsyncScheduler::GetSchedulerForCurrentThread()#There is no scheduler registered for the current thread.");
+					vint index = asyncSchedulerMap->schedulers.Keys().IndexOf(Thread::GetCurrentThreadId());
+					CHECK_ERROR(index != -1 && !asyncSchedulerMap->defaultScheduler, L"IAsyncScheduler::GetSchedulerForCurrentThread()#There is no scheduler registered for the current thread.");
+					scheduler = index == -1
+						? asyncSchedulerMap->defaultScheduler
+						: asyncSchedulerMap->schedulers.Values()[index]
+						;
+				}
+				return scheduler;
 			}
 
 /***********************************************************************
