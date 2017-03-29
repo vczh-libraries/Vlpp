@@ -228,6 +228,63 @@ EnumerableCoroutine
 			}
 
 /***********************************************************************
+IAsync
+***********************************************************************/
+
+			Ptr<IAsync> IAsync::Delay()
+			{
+				throw 0;
+			}
+
+/***********************************************************************
+IAsyncScheduler
+***********************************************************************/
+
+			void IAsyncScheduler::RegisterDefaultScheduler(Ptr<IAsyncScheduler> scheduler)
+			{
+				throw 0;
+			}
+
+			void IAsyncScheduler::RegisterSchedulerForCurrentThread(Ptr<IAsyncScheduler> scheduler)
+			{
+				throw 0;
+			}
+
+			Ptr<IAsyncScheduler> IAsyncScheduler::UnregisterDefaultScheduler()
+			{
+				throw 0;
+			}
+
+			Ptr<IAsyncScheduler> IAsyncScheduler::UnregisterSchedulerForCurrentThread()
+			{
+				throw 0;
+			}
+
+			Ptr<IAsyncScheduler> IAsyncScheduler::GetSchedulerForCurrentThread()
+			{
+				throw 0;
+			}
+
+/***********************************************************************
+AsyncCoroutine
+***********************************************************************/
+			
+			void AsyncCoroutine::AwaitAndPause_Result(IImpl* impl, Ptr<IAsync> value)
+			{
+				throw 0;
+			}
+
+			void AsyncCoroutine::ReturnAndExit(IImpl* impl, const Value& value)
+			{
+				throw 0;
+			}
+
+			Ptr<IAsync> AsyncCoroutine::Create(const Creator& creator)
+			{
+				throw 0;
+			}
+
+/***********************************************************************
 Libraries
 ***********************************************************************/
 

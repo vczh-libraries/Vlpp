@@ -214,6 +214,10 @@ Coroutine
 				virtual CoroutineStatus					GetStatus() = 0;
 			};
 
+/***********************************************************************
+Coroutine (Enumerable)
+***********************************************************************/
+
 			class EnumerableCoroutine : public Object, public Description<EnumerableCoroutine>
 			{
 			public:
@@ -230,6 +234,59 @@ Coroutine
 				static void								JoinAndPause(IImpl* impl, Ptr<IValueEnumerable> value);
 				static void								ReturnAndExit(IImpl* impl);
 				static Ptr<IValueEnumerable>			Create(const Creator& creator);
+			};
+
+/***********************************************************************
+Coroutine (Async)
+***********************************************************************/
+
+			enum class AsyncStatus
+			{
+				Ready,
+				Executing,
+				Stopped,
+			};
+
+			class IAsync : public IDescriptable, public Description<IAsync>
+			{
+			public:
+				virtual AsyncStatus						GetStatus() = 0;
+				virtual Value							GetResult() = 0;
+				virtual Ptr<IValueException>			GetFailure() = 0;
+				virtual void							Execute(const Func<void()>& callback) = 0;
+
+				static Ptr<IAsync>						Delay();
+			};
+
+			class IAsyncScheduler : public IDescriptable, public Description<IAsyncScheduler>
+			{
+			public:
+				virtual void							Execute(const Func<void()>& callback) = 0;
+				virtual void							DelayExecute(const Func<void()>& callback, vint milliseconds) = 0;
+
+				static void								RegisterDefaultScheduler(Ptr<IAsyncScheduler> scheduler);
+				static void								RegisterSchedulerForCurrentThread(Ptr<IAsyncScheduler> scheduler);
+				static Ptr<IAsyncScheduler>				UnregisterDefaultScheduler();
+				static Ptr<IAsyncScheduler>				UnregisterSchedulerForCurrentThread();
+				static Ptr<IAsyncScheduler>				GetSchedulerForCurrentThread();
+			};
+
+			class AsyncCoroutine : public Object, public Description<AsyncCoroutine>
+			{
+			public:
+				class IImpl : public virtual IAsync, public Description<IImpl>
+				{
+				public:
+					virtual Ptr<IAsyncScheduler>		GetScheduler() = 0;
+					virtual void						OnContinue() = 0;
+					virtual void						OnReturn(const Value& value) = 0;
+				};
+
+				typedef Func<Ptr<IAsync>(IImpl*)>		Creator;
+
+				static void								AwaitAndPause_Result(IImpl* impl, Ptr<IAsync> value);
+				static void								ReturnAndExit(IImpl* impl, const Value& value);
+				static Ptr<IAsync>						Create(const Creator& creator);
 			};
 
 /***********************************************************************

@@ -8,7 +8,7 @@ using namespace vl::reflection;
 using namespace vl::reflection::description;
 
 /***********************************************************************
-EnumerableCoroutine
+Coroutine (Enumerable)
 ***********************************************************************/
 
 using EC = EnumerableCoroutine;
@@ -174,5 +174,5 @@ TEST_CASE(TestYieldJoinAndPause)
 }
 
 /***********************************************************************
-AsyncCoroutine
+Coroutine (Async)
 ***********************************************************************/
