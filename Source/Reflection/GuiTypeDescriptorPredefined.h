@@ -258,7 +258,7 @@ Coroutine (Async)
 			public:
 				virtual AsyncStatus						GetStatus() = 0;
 				virtual Ptr<ICoroutineResult>			GetResult() = 0;
-				virtual void							Execute(const Func<void()>& callback) = 0;
+				virtual bool							Execute(const Func<void()>& callback) = 0;
 
 				static Ptr<IAsync>						Delay();
 			};
@@ -287,7 +287,7 @@ Coroutine (Async)
 					virtual void						OnReturn(const Value& value) = 0;
 				};
 
-				typedef Func<Ptr<IAsync>(IImpl*)>		Creator;
+				typedef Func<Ptr<ICoroutine>(IImpl*)>	Creator;
 
 				static Ptr<ICoroutineResult>			AwaitAndPause(IImpl* impl, Ptr<IAsync> value);
 				static void								ReturnAndExit(IImpl* impl, const Value& value);
