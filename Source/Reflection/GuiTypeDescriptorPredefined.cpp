@@ -110,25 +110,28 @@ IValueException
 			}
 
 /***********************************************************************
-DefaultCoroutineResult
+CoroutineResult
 ***********************************************************************/
 
-			class DefaultCoroutineResult : public Object, public virtual ICoroutineResult, public Description<DefaultCoroutineResult>
+			Value CoroutineResult::GetResult()
 			{
-			protected:
-				Value								result;
+				return result;
+			}
 
-			public:
-				Value GetResult()override
-				{
-					return result;
-				}
+			void CoroutineResult::SetResult(const Value& value)
+			{
+				result = value;
+			}
 
-				void SetResult(const Value& value)
-				{
-					result = value;
-				}
-			};
+			Ptr<IValueException> CoroutineResult::GetFailure()
+			{
+				return failure;
+			}
+
+			void CoroutineResult::SetFailure(Ptr<IValueException> value)
+			{
+				failure = value;
+			}
 
 /***********************************************************************
 EnumerableCoroutine
@@ -372,16 +375,15 @@ AsyncCoroutine
 			protected:
 				Ptr<ICoroutine>						coroutine;
 				AsyncCoroutine::Creator				creator;
-				Ptr<DefaultCoroutineResult>			result;
 				Ptr<IAsyncScheduler>				scheduler;
 				Func<void()>						callback;
+				Ptr<CoroutineResult>				result;
 
 			public:
 				CoroutineAsync(AsyncCoroutine::Creator _creator, Ptr<IAsyncScheduler> _scheduler)
 					:creator(_creator)
 					, scheduler(_scheduler)
 				{
-					result = MakePtr<DefaultCoroutineResult>();
 				}
 
 				AsyncStatus GetStatus()override
@@ -400,15 +402,11 @@ AsyncCoroutine
 					}
 				}
 
-				Ptr<ICoroutineResult> GetResult()override
-				{
-					return result;
-				}
-
-				bool Execute(const Func<void()>& _callback)override
+				bool Execute(const Func<void()>& _callback, Ptr<CoroutineResult> _result)override
 				{
 					if (coroutine) return false;
 					callback = _callback;
+					result = _result;
 					coroutine = creator(this);
 					OnContinue();
 					return true;
@@ -423,9 +421,13 @@ AsyncCoroutine
 				{
 					scheduler->Execute([async = Ptr<CoroutineAsync>(this)]()
 					{
-						async->coroutine->Resume(true);
+						async->coroutine->Resume(false);
 						if (async->coroutine->GetStatus() == CoroutineStatus::Stopped && async->callback)
 						{
+							if (async->coroutine->GetFailure())
+							{
+								async->result->SetFailure(async->coroutine->GetFailure());
+							}
 							async->callback();
 						}
 					});
@@ -437,13 +439,12 @@ AsyncCoroutine
 				}
 			};
 			
-			Ptr<ICoroutineResult> AsyncCoroutine::AwaitAndPause(IImpl* impl, Ptr<IAsync> value)
+			void AsyncCoroutine::AwaitAndPause(IImpl* impl, Ptr<CoroutineResult> result, Ptr<IAsync> value)
 			{
 				value->Execute([async = Ptr<IImpl>(impl)]()
 				{
 					async->OnContinue();
-				});
-				return value->GetResult();
+				}, result);
 			}
 
 			void AsyncCoroutine::ReturnAndExit(IImpl* impl, const Value& value)

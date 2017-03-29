@@ -206,18 +206,25 @@ Coroutine
 				Stopped,
 			};
 
+			class CoroutineResult : public virtual IDescriptable, public Description<CoroutineResult>
+			{
+			protected:
+				Value									result;
+				Ptr<IValueException>					failure;
+
+			public:
+				Value									GetResult();
+				void									SetResult(const Value& value);
+				Ptr<IValueException>					GetFailure();
+				void									SetFailure(Ptr<IValueException> value);
+			};
+
 			class ICoroutine : public virtual IDescriptable, public Description<ICoroutine>
 			{
 			public:
 				virtual void							Resume(bool raiseException) = 0;
 				virtual Ptr<IValueException>			GetFailure() = 0;
 				virtual CoroutineStatus					GetStatus() = 0;
-			};
-
-			class ICoroutineResult : public virtual IDescriptable, public Description<ICoroutineResult>
-			{
-			public:
-				virtual Value							GetResult() = 0;
 			};
 
 /***********************************************************************
@@ -257,8 +264,7 @@ Coroutine (Async)
 			{
 			public:
 				virtual AsyncStatus						GetStatus() = 0;
-				virtual Ptr<ICoroutineResult>			GetResult() = 0;
-				virtual bool							Execute(const Func<void()>& callback) = 0;
+				virtual bool							Execute(const Func<void()>& callback, Ptr<CoroutineResult> result) = 0;
 
 				static Ptr<IAsync>						Delay();
 			};
@@ -289,7 +295,7 @@ Coroutine (Async)
 
 				typedef Func<Ptr<ICoroutine>(IImpl*)>	Creator;
 
-				static Ptr<ICoroutineResult>			AwaitAndPause(IImpl* impl, Ptr<IAsync> value);
+				static void								AwaitAndPause(IImpl* impl, Ptr<CoroutineResult> result, Ptr<IAsync> value);
 				static void								ReturnAndExit(IImpl* impl, const Value& value);
 				static Ptr<IAsync>						Create(const Creator& creator);
 			};

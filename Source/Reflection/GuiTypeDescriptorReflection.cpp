@@ -56,8 +56,8 @@ TypeName
 			IMPL_TYPE_INFO_RENAME(vl::reflection::description::IValueCallStack, system::CallStack)
 			IMPL_TYPE_INFO_RENAME(vl::reflection::description::IValueException, system::Exception)
 			IMPL_TYPE_INFO_RENAME(vl::reflection::description::CoroutineStatus, system::CoroutineStatus)
+			IMPL_TYPE_INFO_RENAME(vl::reflection::description::CoroutineResult, system::CoroutineResult)
 			IMPL_TYPE_INFO_RENAME(vl::reflection::description::ICoroutine, system::Coroutine)
-			IMPL_TYPE_INFO_RENAME(vl::reflection::description::ICoroutineResult, system::CoroutineResult)
 			IMPL_TYPE_INFO_RENAME(vl::reflection::description::EnumerableCoroutine::IImpl, system::EnumerableCoroutine::IImpl)
 			IMPL_TYPE_INFO_RENAME(vl::reflection::description::EnumerableCoroutine, system::EnumerableCoroutine)
 			IMPL_TYPE_INFO_RENAME(vl::reflection::description::AsyncStatus, system::AsyncStatus)
@@ -733,9 +733,11 @@ LoadPredefinedTypes
 				CLASS_MEMBER_PROPERTY_READONLY_FAST(Status)
 			END_INTERFACE_MEMBER(ICoroutine)
 
-			BEGIN_INTERFACE_MEMBER(ICoroutineResult)
-				CLASS_MEMBER_PROPERTY_READONLY_FAST(Result)
-			END_INTERFACE_MEMBER(ICoroutineResult)
+			BEGIN_CLASS_MEMBER(CoroutineResult)
+				CLASS_MEMBER_CONSTRUCTOR(Ptr<CoroutineResult>(), NO_PARAMETER)
+				CLASS_MEMBER_PROPERTY_FAST(Result)
+				CLASS_MEMBER_PROPERTY_FAST(Failure)
+			END_CLASS_MEMBER(CoroutineResult)
 
 			BEGIN_INTERFACE_MEMBER_NOPROXY(EnumerableCoroutine::IImpl)
 			END_INTERFACE_MEMBER(EnumerableCoroutine::IImpl)
@@ -755,8 +757,7 @@ LoadPredefinedTypes
 
 			BEGIN_INTERFACE_MEMBER_NOPROXY(IAsync)
 				CLASS_MEMBER_PROPERTY_READONLY_FAST(Status)
-				CLASS_MEMBER_PROPERTY_READONLY_FAST(Result)
-				CLASS_MEMBER_METHOD(Execute, { L"callback" })
+				CLASS_MEMBER_METHOD(Execute, { L"callback" _ L"result" })
 				CLASS_MEMBER_STATIC_METHOD(Delay, NO_PARAMETER)
 			END_INTERFACE_MEMBER(IAsync)
 
@@ -764,8 +765,8 @@ LoadPredefinedTypes
 			END_INTERFACE_MEMBER(AsyncCoroutine::IImpl)
 
 			BEGIN_CLASS_MEMBER(AsyncCoroutine)
-				CLASS_MEMBER_STATIC_METHOD(AwaitAndPause, { L"impl" _ L"value" })
-				CLASS_MEMBER_STATIC_METHOD(ReturnAndExit, { L"impl" })
+				CLASS_MEMBER_STATIC_METHOD(AwaitAndPause, { L"impl" _ L"result" _ L"value" })
+				CLASS_MEMBER_STATIC_METHOD(ReturnAndExit, { L"impl" _ L"value"})
 				CLASS_MEMBER_STATIC_METHOD(Create, { L"creator" })
 			END_CLASS_MEMBER(AsyncCoroutine)
 
@@ -979,8 +980,8 @@ LoadPredefinedTypes
 					ADD_TYPE_INFO(IValueException)
 
 					ADD_TYPE_INFO(CoroutineStatus)
+					ADD_TYPE_INFO(CoroutineResult)
 					ADD_TYPE_INFO(ICoroutine)
-					ADD_TYPE_INFO(ICoroutineResult)
 					ADD_TYPE_INFO(EnumerableCoroutine::IImpl)
 					ADD_TYPE_INFO(EnumerableCoroutine)
 					ADD_TYPE_INFO(AsyncStatus)
