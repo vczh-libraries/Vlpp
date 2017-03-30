@@ -30,14 +30,8 @@ namespace test
 		auto serializer = type->GetSerializableType();
 		TEST_ASSERT(type);
 		TEST_ASSERT(serializer);
-#ifdef VCZH_GCC
-		TEST_PRINT(L"\tValidate Serializer of: " + type->GetTypeName());
-#endif
 		for(auto i:values)
 		{
-#ifdef VCZH_GCC
-			TEST_PRINT(L"\tParsing: " + ToString(i) + L" using " + type->GetTypeName());
-#endif
 			if(min<=i && i<=max)
 			{
 				Value value;
@@ -50,9 +44,6 @@ namespace test
 
 					WString output;
 					TEST_ASSERT(serializer->Serialize(value, output));
-#ifdef VCZH_GCC
-					TEST_PRINT(L"\tPrinting: " + output);
-#endif
 					if (testGetText)
 					{
 						TEST_ASSERT(output == ToString(i));
@@ -90,9 +81,6 @@ namespace test
 		for(vint x=0;x<LegalCount;x++)
 		{
 			WString i=legalsText[x];
-#ifdef VCZH_GCC
-			TEST_PRINT(L"\tParsing: " + i + L" using " + type->GetTypeName());
-#endif
 			T j=legals[x];
 			Value value;
 			{
@@ -106,9 +94,6 @@ namespace test
 				WString output;
 				TEST_ASSERT(serializer->Serialize(value, output));
 				TEST_ASSERT(i == output);
-#ifdef VCZH_GCC
-				TEST_PRINT(L"\tPrinting: " + output);
-#endif
 			}
 			{
 				T n = UnboxValue<T>(value);
@@ -119,9 +104,6 @@ namespace test
 		for(vint x=0;x<IllegalCount;x++)
 		{
 			WString i=illegalsText[x];
-#ifdef VCZH_GCC
-			TEST_PRINT(L"\tParsing: " + i + L" using " + type->GetTypeName());
-#endif
 			Value value;
 			{
 				TEST_ASSERT(serializer->Deserialize(i, value) == false);
