@@ -27,7 +27,7 @@ namespace test_coroutine
 		{
 		}
 
-		void Resume(bool raiseException)override
+		void Resume(bool raiseException, Ptr<CoroutineResult> output)override
 		{
 			if (current < 5)
 			{
@@ -78,7 +78,7 @@ namespace test_coroutine
 		{
 		}
 
-		void Resume(bool raiseException)override
+		void Resume(bool raiseException, Ptr<CoroutineResult> output)override
 		{
 			if (current < 5)
 			{
@@ -129,7 +129,7 @@ namespace test_coroutine
 		{
 		}
 
-		void Resume(bool raiseException)override
+		void Resume(bool raiseException, Ptr<CoroutineResult> output)override
 		{
 			if (current < 5)
 			{

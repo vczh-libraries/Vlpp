@@ -222,7 +222,7 @@ Coroutine
 			class ICoroutine : public virtual IDescriptable, public Description<ICoroutine>
 			{
 			public:
-				virtual void							Resume(bool raiseException) = 0;
+				virtual void							Resume(bool raiseException, Ptr<CoroutineResult> output) = 0;
 				virtual Ptr<IValueException>			GetFailure() = 0;
 				virtual CoroutineStatus					GetStatus() = 0;
 			};
@@ -264,7 +264,7 @@ Coroutine (Async)
 			{
 			public:
 				virtual AsyncStatus						GetStatus() = 0;
-				virtual bool							Execute(const Func<void()>& callback, Ptr<CoroutineResult> result) = 0;
+				virtual bool							Execute(const Func<void(Ptr<CoroutineResult>)>& callback) = 0;
 
 				static Ptr<IAsync>						Delay();
 			};
@@ -289,13 +289,13 @@ Coroutine (Async)
 				{
 				public:
 					virtual Ptr<IAsyncScheduler>		GetScheduler() = 0;
-					virtual void						OnContinue() = 0;
+					virtual void						OnContinue(Ptr<CoroutineResult> output) = 0;
 					virtual void						OnReturn(const Value& value) = 0;
 				};
 
 				typedef Func<Ptr<ICoroutine>(IImpl*)>	Creator;
 
-				static void								AwaitAndPause(IImpl* impl, Ptr<CoroutineResult> result, Ptr<IAsync> value);
+				static void								AwaitAndRead(IImpl* impl, Ptr<IAsync> value);
 				static void								ReturnAndExit(IImpl* impl, const Value& value);
 				static Ptr<IAsync>						Create(const Creator& creator);
 			};

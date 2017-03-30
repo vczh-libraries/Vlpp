@@ -728,7 +728,7 @@ LoadPredefinedTypes
 			END_ENUM_ITEM(CoroutineStatus)
 
 			BEGIN_INTERFACE_MEMBER(ICoroutine)
-				CLASS_MEMBER_METHOD(Resume, { L"raiseException" })
+				CLASS_MEMBER_METHOD(Resume, { L"raiseException" _ L"output" })
 				CLASS_MEMBER_PROPERTY_READONLY_FAST(Failure)
 				CLASS_MEMBER_PROPERTY_READONLY_FAST(Status)
 			END_INTERFACE_MEMBER(ICoroutine)
@@ -757,7 +757,7 @@ LoadPredefinedTypes
 
 			BEGIN_INTERFACE_MEMBER_NOPROXY(IAsync)
 				CLASS_MEMBER_PROPERTY_READONLY_FAST(Status)
-				CLASS_MEMBER_METHOD(Execute, { L"callback" _ L"result" })
+				CLASS_MEMBER_METHOD(Execute, { L"callback" })
 				CLASS_MEMBER_STATIC_METHOD(Delay, NO_PARAMETER)
 			END_INTERFACE_MEMBER(IAsync)
 
@@ -765,7 +765,7 @@ LoadPredefinedTypes
 			END_INTERFACE_MEMBER(AsyncCoroutine::IImpl)
 
 			BEGIN_CLASS_MEMBER(AsyncCoroutine)
-				CLASS_MEMBER_STATIC_METHOD(AwaitAndPause, { L"impl" _ L"result" _ L"value" })
+				CLASS_MEMBER_STATIC_METHOD(AwaitAndRead, { L"impl" _ L"value" })
 				CLASS_MEMBER_STATIC_METHOD(ReturnAndExit, { L"impl" _ L"value"})
 				CLASS_MEMBER_STATIC_METHOD(Create, { L"creator" })
 			END_CLASS_MEMBER(AsyncCoroutine)

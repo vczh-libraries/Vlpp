@@ -283,9 +283,9 @@ Interface Implementation Proxy (Implement)
 
 			BEGIN_INTERFACE_PROXY_NOPARENT_SHAREDPTR(ICoroutine)
 
-				void Resume(bool raiseException)override
+				void Resume(bool raiseException, Ptr<CoroutineResult> output)override
 				{
-					INVOKE_INTERFACE_PROXY(Resume, raiseException);
+					INVOKE_INTERFACE_PROXY(Resume, raiseException, output);
 				}
 
 				Ptr<IValueException> GetFailure()override

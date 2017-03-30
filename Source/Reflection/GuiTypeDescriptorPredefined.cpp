@@ -185,7 +185,7 @@ EnumerableCoroutine
 							}
 						}
 
-						coroutine->Resume(true);
+						coroutine->Resume(true, nullptr);
 						if (coroutine->GetStatus() != CoroutineStatus::Waiting)
 						{
 							break;
@@ -376,8 +376,8 @@ AsyncCoroutine
 				Ptr<ICoroutine>						coroutine;
 				AsyncCoroutine::Creator				creator;
 				Ptr<IAsyncScheduler>				scheduler;
-				Func<void()>						callback;
-				Ptr<CoroutineResult>				result;
+				Func<void(Ptr<CoroutineResult>)>	callback;
+				Value								result;
 
 			public:
 				CoroutineAsync(AsyncCoroutine::Creator _creator, Ptr<IAsyncScheduler> _scheduler)
@@ -402,13 +402,12 @@ AsyncCoroutine
 					}
 				}
 
-				bool Execute(const Func<void()>& _callback, Ptr<CoroutineResult> _result)override
+				bool Execute(const Func<void(Ptr<CoroutineResult>)>& _callback)override
 				{
 					if (coroutine) return false;
 					callback = _callback;
-					result = _result;
 					coroutine = creator(this);
-					OnContinue();
+					OnContinue(nullptr);
 					return true;
 				}
 
@@ -417,34 +416,39 @@ AsyncCoroutine
 					return scheduler;
 				}
 
-				void OnContinue()override
+				void OnContinue(Ptr<CoroutineResult> output)override
 				{
-					scheduler->Execute([async = Ptr<CoroutineAsync>(this)]()
+					scheduler->Execute([async = Ptr<CoroutineAsync>(this), output]()
 					{
-						async->coroutine->Resume(false);
+						async->coroutine->Resume(false, output);
 						if (async->coroutine->GetStatus() == CoroutineStatus::Stopped && async->callback)
 						{
+							auto result = MakePtr<CoroutineResult>();
 							if (async->coroutine->GetFailure())
 							{
-								async->result->SetFailure(async->coroutine->GetFailure());
+								result->SetFailure(async->coroutine->GetFailure());
 							}
-							async->callback();
+							else
+							{
+								result->SetResult(async->result);
+							}
+							async->callback(result);
 						}
 					});
 				}
 
 				void OnReturn(const Value& value)override
 				{
-					result->SetResult(value);
+					result = value;
 				}
 			};
 			
-			void AsyncCoroutine::AwaitAndPause(IImpl* impl, Ptr<CoroutineResult> result, Ptr<IAsync> value)
+			void AsyncCoroutine::AwaitAndRead(IImpl* impl, Ptr<IAsync> value)
 			{
-				value->Execute([async = Ptr<IImpl>(impl)]()
+				value->Execute([async = Ptr<IImpl>(impl)](Ptr<CoroutineResult> output)
 				{
-					async->OnContinue();
-				}, result);
+					async->OnContinue(output);
+				});
 			}
 
 			void AsyncCoroutine::ReturnAndExit(IImpl* impl, const Value& value)
