@@ -99,11 +99,11 @@ Console
 			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE),attribute);
 			SetConsoleTextAttribute(GetStdHandle(STD_INPUT_HANDLE),attribute);
 #elif defined VCZH_GCC
-			//vint color = (blue?1:0)*4 + (green?1:0)*2 + (red?1:0);
-			//if(light)
-			//	wprintf(L"\e[3%dm;", (int)color);
-			//else
-			//	wprintf(L"\e[9%dm;", (int)color);
+			int color = (blue?1:0)*4 + (green?1:0)*2 + (red?1:0);
+			if(light)
+				wprintf(L"\x1B[00;3%dm", color);
+			else
+				wprintf(L"\x1B[01;3%dm", color);
 #endif
 		}
 
