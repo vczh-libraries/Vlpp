@@ -380,3 +380,64 @@ TEST_CASE(TestNestedAsync)
 	TEST_ASSERT(cr->GetFailure()->GetMessage() == L"Fail!");
 	IAsyncScheduler::UnregisterSchedulerForCurrentThread();
 }
+
+namespace test_coroutine
+{
+	class DelayAsync : public Object, public ICoroutine
+	{
+	public:
+		AC::IImpl*				impl;
+		CoroutineStatus			status = CoroutineStatus::Waiting;
+		vint					state = 0;
+
+		DelayAsync(AC::IImpl* _impl)
+			:impl(_impl)
+		{
+		}
+
+		void Resume(bool raiseException, Ptr<CoroutineResult> output)override
+		{
+			switch (state++)
+			{
+			case 0:
+				AC::AwaitAndRead(impl, IAsync::Delay(0));
+				break;
+			case 1:
+				AC::ReturnAndExit(impl, BoxValue<WString>(L"Delay!"));
+				status = CoroutineStatus::Stopped;
+				break;
+			}
+		}
+
+		Ptr<IValueException> GetFailure()override
+		{
+			return nullptr;
+		}
+
+		CoroutineStatus GetStatus()override
+		{
+			return status;
+		}
+	};
+
+	Ptr<IAsync> CreateDelayAsync()
+	{
+		return AC::Create([](auto impl) { return MakePtr<DelayAsync>(impl); });
+	}
+}
+
+TEST_CASE(TestDelayAsync)
+{
+	auto scheduler = MakePtr<SyncScheduler>();
+	Ptr<CoroutineResult> cr;
+	IAsyncScheduler::RegisterSchedulerForCurrentThread(scheduler);
+	{
+		CreateDelayAsync()->Execute([&](auto output)
+		{
+			cr = output;
+		});
+	}
+	scheduler->Run();
+	TEST_ASSERT(UnboxValue<WString>(cr->GetResult()) == L"Delay!");
+	IAsyncScheduler::UnregisterSchedulerForCurrentThread();
+}

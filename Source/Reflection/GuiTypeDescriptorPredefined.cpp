@@ -257,9 +257,38 @@ EnumerableCoroutine
 IAsync
 ***********************************************************************/
 
-			Ptr<IAsync> IAsync::Delay()
+			class DelayAsync : public Object, public virtual IAsync, public Description<DelayAsync>
 			{
-				throw 0;
+			protected:
+				vint								milliseconds;
+				AsyncStatus							status = AsyncStatus::Ready;
+
+			public:
+				DelayAsync(vint _milliseconds)
+					:milliseconds(_milliseconds)
+				{
+				}
+
+				AsyncStatus GetStatus()override
+				{
+					return status;
+				}
+
+				bool Execute(const Func<void(Ptr<CoroutineResult>)>& _callback)override
+				{
+					if (status != AsyncStatus::Ready) return false;
+					status = AsyncStatus::Executing;
+					IAsyncScheduler::GetSchedulerForCurrentThread()->DelayExecute([async = Ptr<DelayAsync>(this), callback = _callback]()
+					{
+						callback(nullptr);
+					}, milliseconds);
+					return true;
+				}
+			};
+
+			Ptr<IAsync> IAsync::Delay(vint milliseconds)
+			{
+				return new DelayAsync(milliseconds);
 			}
 
 /***********************************************************************
@@ -380,9 +409,8 @@ AsyncCoroutine
 				Value								result;
 
 			public:
-				CoroutineAsync(AsyncCoroutine::Creator _creator, Ptr<IAsyncScheduler> _scheduler)
+				CoroutineAsync(AsyncCoroutine::Creator _creator)
 					:creator(_creator)
-					, scheduler(_scheduler)
 				{
 				}
 
@@ -405,6 +433,7 @@ AsyncCoroutine
 				bool Execute(const Func<void(Ptr<CoroutineResult>)>& _callback)override
 				{
 					if (coroutine) return false;
+					scheduler = IAsyncScheduler::GetSchedulerForCurrentThread();
 					callback = _callback;
 					coroutine = creator(this);
 					OnContinue(nullptr);
@@ -458,8 +487,7 @@ AsyncCoroutine
 
 			Ptr<IAsync> AsyncCoroutine::Create(const Creator& creator)
 			{
-				auto scheduler = IAsyncScheduler::GetSchedulerForCurrentThread();
-				return new CoroutineAsync(creator, scheduler);
+				return new CoroutineAsync(creator);
 			}
 
 /***********************************************************************

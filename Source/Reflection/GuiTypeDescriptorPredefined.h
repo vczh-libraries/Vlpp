@@ -266,7 +266,7 @@ Coroutine (Async)
 				virtual AsyncStatus						GetStatus() = 0;
 				virtual bool							Execute(const Func<void(Ptr<CoroutineResult>)>& callback) = 0;
 
-				static Ptr<IAsync>						Delay();
+				static Ptr<IAsync>						Delay(vint milliseconds);
 			};
 
 			class IAsyncScheduler : public IDescriptable, public Description<IAsyncScheduler>
