@@ -57,7 +57,7 @@ using namespace test_coroutine;
 
 TEST_CASE(TestYieldAndPause)
 {
-	auto ec = EC::Create([](EC::IImpl* impl) {return MakePtr<YieldAndPauseEnum>(impl); });
+	auto ec = EC::Create([](auto* impl) {return MakePtr<YieldAndPauseEnum>(impl); });
 	List<vint> xs;
 	CopyFrom(xs, GetLazyList<vint>(ec));
 	int ys[] = { 0,1,2,3,4 };
@@ -108,7 +108,7 @@ using namespace test_coroutine;
 
 TEST_CASE(TestJoinAndPause)
 {
-	auto ec = EC::Create([](EC::IImpl* impl) {return MakePtr<JoinAndPauseEnum>(impl); });
+	auto ec = EC::Create([](auto* impl) {return MakePtr<JoinAndPauseEnum>(impl); });
 	List<vint> xs;
 	CopyFrom(xs, GetLazyList<vint>(ec));
 	int ys[] = { 0,1,2,1,2,3,2,3,4,3,4,5,4,5,6 };
@@ -166,7 +166,7 @@ using namespace test_coroutine;
 
 TEST_CASE(TestYieldJoinAndPause)
 {
-	auto ec = EC::Create([](EC::IImpl* impl) {return MakePtr<MixEnum>(impl); });
+	auto ec = EC::Create([](auto* impl) {return MakePtr<MixEnum>(impl); });
 	List<vint> xs;
 	CopyFrom(xs, GetLazyList<vint>(ec));
 	int ys[] = { 0,1,2,3,2,3,4,5,4 };
@@ -176,3 +176,82 @@ TEST_CASE(TestYieldJoinAndPause)
 /***********************************************************************
 Coroutine (Async)
 ***********************************************************************/
+
+using AC = AsyncCoroutine;
+
+namespace test_coroutine
+{
+	class SyncScheduler : public Object, public IAsyncScheduler, public Description<SyncScheduler>
+	{
+	public:
+		List<Func<void()>>		tasks;
+
+		void Run()
+		{
+			while (tasks.Count() > 0)
+			{
+				auto firstTask = tasks[0];
+				tasks.RemoveAt(0);
+				firstTask();
+			}
+		}
+
+		void Execute(const Func<void()>& callback)override
+		{
+			tasks.Add(callback);
+		}
+
+		void DelayExecute(const Func<void()>& callback, vint milliseconds)override
+		{
+			tasks.Add(callback);
+		}
+	};
+}
+using namespace test_coroutine;
+
+namespace test_coroutine
+{
+	class EmptyAsync : public Object, public ICoroutine
+	{
+	public:
+		AC::IImpl*				impl;
+		CoroutineStatus			status = CoroutineStatus::Waiting;
+
+		EmptyAsync(AC::IImpl* _impl)
+			:impl(_impl)
+		{
+		}
+
+		void Resume(bool raiseException, Ptr<CoroutineResult> output)override
+		{
+			AC::ReturnAndExit(impl, BoxValue<WString>(L"Empty!"));
+			status = CoroutineStatus::Stopped;
+		}
+
+		Ptr<IValueException> GetFailure()override
+		{
+			return nullptr;
+		}
+
+		CoroutineStatus GetStatus()override
+		{
+			return status;
+		}
+	};
+}
+using namespace test_coroutine;
+
+TEST_CASE(TestEmptyAsync)
+{
+	auto scheduler = MakePtr<SyncScheduler>();
+	IAsyncScheduler::RegisterDefaultScheduler(scheduler);
+	{
+		auto async = AC::Create([](auto impl) { return MakePtr<EmptyAsync>(impl); });
+		async->Execute([](auto output)
+		{
+			TEST_ASSERT(UnboxValue<WString>(output->GetResult()) == L"Empty!");
+		});
+	}
+	scheduler->Run();
+	IAsyncScheduler::UnregisterDefaultScheduler();
+}

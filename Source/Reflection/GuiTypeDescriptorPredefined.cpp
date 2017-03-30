@@ -445,7 +445,7 @@ AsyncCoroutine
 			
 			void AsyncCoroutine::AwaitAndRead(IImpl* impl, Ptr<IAsync> value)
 			{
-				value->Execute([async = Ptr<IImpl>(impl)](Ptr<CoroutineResult> output)
+				value->Execute([async = Ptr<IImpl>(impl)](auto output)
 				{
 					async->OnContinue(output);
 				});
