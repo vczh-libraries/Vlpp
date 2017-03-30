@@ -490,6 +490,11 @@ AsyncCoroutine
 				return new CoroutineAsync(creator);
 			}
 
+			void AsyncCoroutine::CreateAndRun(const Creator& creator)
+			{
+				MakePtr<CoroutineAsync>(creator)->Execute({});
+			}
+
 /***********************************************************************
 Libraries
 ***********************************************************************/
