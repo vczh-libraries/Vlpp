@@ -238,6 +238,43 @@ namespace test_coroutine
 			return status;
 		}
 	};
+
+	Ptr<IAsync> CreateEmptyAsync()
+	{
+		return AC::Create([](auto impl) { return MakePtr<EmptyAsync>(impl); });
+	}
+
+	class FailAsync : public Object, public ICoroutine
+	{
+	public:
+		AC::IImpl*				impl;
+		CoroutineStatus			status = CoroutineStatus::Waiting;
+
+		FailAsync(AC::IImpl* _impl)
+			:impl(_impl)
+		{
+		}
+
+		void Resume(bool raiseException, Ptr<CoroutineResult> output)override
+		{
+			status = CoroutineStatus::Stopped;
+		}
+
+		Ptr<IValueException> GetFailure()override
+		{
+			return IValueException::Create(L"Fail!");
+		}
+
+		CoroutineStatus GetStatus()override
+		{
+			return status;
+		}
+	};
+
+	Ptr<IAsync> CreateFailAsync()
+	{
+		return AC::Create([](auto impl) { return MakePtr<FailAsync>(impl); });
+	}
 }
 using namespace test_coroutine;
 
@@ -246,10 +283,23 @@ TEST_CASE(TestEmptyAsync)
 	auto scheduler = MakePtr<SyncScheduler>();
 	IAsyncScheduler::RegisterDefaultScheduler(scheduler);
 	{
-		auto async = AC::Create([](auto impl) { return MakePtr<EmptyAsync>(impl); });
-		async->Execute([](auto output)
+		CreateEmptyAsync()->Execute([](auto output)
 		{
 			TEST_ASSERT(UnboxValue<WString>(output->GetResult()) == L"Empty!");
+		});
+	}
+	scheduler->Run();
+	IAsyncScheduler::UnregisterDefaultScheduler();
+}
+
+TEST_CASE(TestFailAsync)
+{
+	auto scheduler = MakePtr<SyncScheduler>();
+	IAsyncScheduler::RegisterDefaultScheduler(scheduler);
+	{
+		CreateFailAsync()->Execute([](auto output)
+		{
+			TEST_ASSERT(output->GetFailure()->GetMessage() == L"Fail!");
 		});
 	}
 	scheduler->Run();
