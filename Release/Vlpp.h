@@ -11111,13 +11111,30 @@ Coroutine
 				Stopped,
 			};
 
+			class CoroutineResult : public virtual IDescriptable, public Description<CoroutineResult>
+			{
+			protected:
+				Value									result;
+				Ptr<IValueException>					failure;
+
+			public:
+				Value									GetResult();
+				void									SetResult(const Value& value);
+				Ptr<IValueException>					GetFailure();
+				void									SetFailure(Ptr<IValueException> value);
+			};
+
 			class ICoroutine : public virtual IDescriptable, public Description<ICoroutine>
 			{
 			public:
-				virtual void							Resume(bool raiseException) = 0;
+				virtual void							Resume(bool raiseException, Ptr<CoroutineResult> output) = 0;
 				virtual Ptr<IValueException>			GetFailure() = 0;
 				virtual CoroutineStatus					GetStatus() = 0;
 			};
+
+/***********************************************************************
+Coroutine (Enumerable)
+***********************************************************************/
 
 			class EnumerableCoroutine : public Object, public Description<EnumerableCoroutine>
 			{
@@ -11135,6 +11152,57 @@ Coroutine
 				static void								JoinAndPause(IImpl* impl, Ptr<IValueEnumerable> value);
 				static void								ReturnAndExit(IImpl* impl);
 				static Ptr<IValueEnumerable>			Create(const Creator& creator);
+			};
+
+/***********************************************************************
+Coroutine (Async)
+***********************************************************************/
+
+			enum class AsyncStatus
+			{
+				Ready,
+				Executing,
+				Stopped,
+			};
+
+			class IAsync : public IDescriptable, public Description<IAsync>
+			{
+			public:
+				virtual AsyncStatus						GetStatus() = 0;
+				virtual bool							Execute(const Func<void(Ptr<CoroutineResult>)>& callback) = 0;
+
+				static Ptr<IAsync>						Delay(vint milliseconds);
+			};
+
+			class IAsyncScheduler : public IDescriptable, public Description<IAsyncScheduler>
+			{
+			public:
+				virtual void							Execute(const Func<void()>& callback) = 0;
+				virtual void							DelayExecute(const Func<void()>& callback, vint milliseconds) = 0;
+
+				static void								RegisterDefaultScheduler(Ptr<IAsyncScheduler> scheduler);
+				static void								RegisterSchedulerForCurrentThread(Ptr<IAsyncScheduler> scheduler);
+				static Ptr<IAsyncScheduler>				UnregisterDefaultScheduler();
+				static Ptr<IAsyncScheduler>				UnregisterSchedulerForCurrentThread();
+				static Ptr<IAsyncScheduler>				GetSchedulerForCurrentThread();
+			};
+
+			class AsyncCoroutine : public Object, public Description<AsyncCoroutine>
+			{
+			public:
+				class IImpl : public virtual IAsync, public Description<IImpl>
+				{
+				public:
+					virtual Ptr<IAsyncScheduler>		GetScheduler() = 0;
+					virtual void						OnContinue(Ptr<CoroutineResult> output) = 0;
+					virtual void						OnReturn(const Value& value) = 0;
+				};
+
+				typedef Func<Ptr<ICoroutine>(IImpl*)>	Creator;
+
+				static void								AwaitAndRead(IImpl* impl, Ptr<IAsync> value);
+				static void								ReturnAndExit(IImpl* impl, const Value& value);
+				static Ptr<IAsync>						Create(const Creator& creator);
 			};
 
 /***********************************************************************
@@ -14983,9 +15051,14 @@ Predefined Types
 			DECL_TYPE_INFO(IValueException)
 
 			DECL_TYPE_INFO(CoroutineStatus)
+			DECL_TYPE_INFO(CoroutineResult)
 			DECL_TYPE_INFO(ICoroutine)
 			DECL_TYPE_INFO(EnumerableCoroutine::IImpl)
 			DECL_TYPE_INFO(EnumerableCoroutine)
+			DECL_TYPE_INFO(AsyncStatus)
+			DECL_TYPE_INFO(IAsync)
+			DECL_TYPE_INFO(AsyncCoroutine::IImpl)
+			DECL_TYPE_INFO(AsyncCoroutine)
 
 			DECL_TYPE_INFO(IBoxedValue)
 			DECL_TYPE_INFO(IBoxedValue::CompareResult)
@@ -15197,9 +15270,9 @@ Interface Implementation Proxy (Implement)
 
 			BEGIN_INTERFACE_PROXY_NOPARENT_SHAREDPTR(ICoroutine)
 
-				void Resume(bool raiseException)override
+				void Resume(bool raiseException, Ptr<CoroutineResult> output)override
 				{
-					INVOKE_INTERFACE_PROXY(Resume, raiseException);
+					INVOKE_INTERFACE_PROXY(Resume, raiseException, output);
 				}
 
 				Ptr<IValueException> GetFailure()override
@@ -15212,6 +15285,7 @@ Interface Implementation Proxy (Implement)
 					INVOKEGET_INTERFACE_PROXY_NOPARAMS(GetStatus);
 				}
 			END_INTERFACE_PROXY(ICoroutine)
+
 #pragma warning(pop)
 
 #endif

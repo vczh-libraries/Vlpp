@@ -18188,6 +18188,30 @@ IValueException
 			}
 
 /***********************************************************************
+CoroutineResult
+***********************************************************************/
+
+			Value CoroutineResult::GetResult()
+			{
+				return result;
+			}
+
+			void CoroutineResult::SetResult(const Value& value)
+			{
+				result = value;
+			}
+
+			Ptr<IValueException> CoroutineResult::GetFailure()
+			{
+				return failure;
+			}
+
+			void CoroutineResult::SetFailure(Ptr<IValueException> value)
+			{
+				failure = value;
+			}
+
+/***********************************************************************
 EnumerableCoroutine
 ***********************************************************************/
 
@@ -18239,7 +18263,7 @@ EnumerableCoroutine
 							}
 						}
 
-						coroutine->Resume(true);
+						coroutine->Resume(true, nullptr);
 						if (coroutine->GetStatus() != CoroutineStatus::Waiting)
 						{
 							break;
@@ -18275,6 +18299,7 @@ EnumerableCoroutine
 			{
 			protected:
 				EnumerableCoroutine::Creator		creator;
+
 			public:
 				CoroutineEnumerable(const EnumerableCoroutine::Creator& _creator)
 					:creator(_creator)
@@ -18304,6 +18329,243 @@ EnumerableCoroutine
 			Ptr<IValueEnumerable> EnumerableCoroutine::Create(const Creator& creator)
 			{
 				return new CoroutineEnumerable(creator);
+			}
+
+/***********************************************************************
+IAsync
+***********************************************************************/
+
+			class DelayAsync : public Object, public virtual IAsync, public Description<DelayAsync>
+			{
+			protected:
+				vint								milliseconds;
+				AsyncStatus							status = AsyncStatus::Ready;
+
+			public:
+				DelayAsync(vint _milliseconds)
+					:milliseconds(_milliseconds)
+				{
+				}
+
+				AsyncStatus GetStatus()override
+				{
+					return status;
+				}
+
+				bool Execute(const Func<void(Ptr<CoroutineResult>)>& _callback)override
+				{
+					if (status != AsyncStatus::Ready) return false;
+					status = AsyncStatus::Executing;
+					IAsyncScheduler::GetSchedulerForCurrentThread()->DelayExecute([async = Ptr<DelayAsync>(this), callback = _callback]()
+					{
+						callback(nullptr);
+					}, milliseconds);
+					return true;
+				}
+			};
+
+			Ptr<IAsync> IAsync::Delay(vint milliseconds)
+			{
+				return new DelayAsync(milliseconds);
+			}
+
+/***********************************************************************
+IAsyncScheduler
+***********************************************************************/
+
+			class AsyncSchedulerMap
+			{
+			public:
+				Dictionary<vint, Ptr<IAsyncScheduler>>		schedulers;
+				Ptr<IAsyncScheduler>						defaultScheduler;
+			};
+
+			AsyncSchedulerMap* asyncSchedulerMap = nullptr;
+			SpinLock asyncSchedulerLock;
+
+#define ENSURE_ASYNC_SCHEDULER_MAP\
+			if (!asyncSchedulerMap) asyncSchedulerMap = new AsyncSchedulerMap;
+
+#define DISPOSE_ASYNC_SCHEDULER_MAP_IF_NECESSARY\
+			if (asyncSchedulerMap->schedulers.Count() == 0 && !asyncSchedulerMap->defaultScheduler)\
+			{\
+				delete asyncSchedulerMap;\
+				asyncSchedulerMap = nullptr;\
+			}\
+
+			void IAsyncScheduler::RegisterDefaultScheduler(Ptr<IAsyncScheduler> scheduler)
+			{
+				SPIN_LOCK(asyncSchedulerLock)
+				{
+					ENSURE_ASYNC_SCHEDULER_MAP
+					CHECK_ERROR(!asyncSchedulerMap->defaultScheduler, L"IAsyncScheduler::RegisterDefaultScheduler()#A default scheduler has already been registered.");
+					asyncSchedulerMap->defaultScheduler = scheduler;
+				}
+			}
+
+			void IAsyncScheduler::RegisterSchedulerForCurrentThread(Ptr<IAsyncScheduler> scheduler)
+			{
+				SPIN_LOCK(asyncSchedulerLock)
+				{
+					ENSURE_ASYNC_SCHEDULER_MAP
+					CHECK_ERROR(!asyncSchedulerMap->schedulers.Keys().Contains(Thread::GetCurrentThreadId()), L"IAsyncScheduler::RegisterDefaultScheduler()#A scheduler for this thread has already been registered.");
+					asyncSchedulerMap->schedulers.Add(Thread::GetCurrentThreadId(), scheduler);
+				}
+			}
+
+			Ptr<IAsyncScheduler> IAsyncScheduler::UnregisterDefaultScheduler()
+			{
+				Ptr<IAsyncScheduler> scheduler;
+				SPIN_LOCK(asyncSchedulerLock)
+				{
+					if (asyncSchedulerMap)
+					{
+						scheduler = asyncSchedulerMap->defaultScheduler;
+						asyncSchedulerMap->defaultScheduler = nullptr;
+						DISPOSE_ASYNC_SCHEDULER_MAP_IF_NECESSARY
+					}
+				}
+				return scheduler;
+			}
+
+			Ptr<IAsyncScheduler> IAsyncScheduler::UnregisterSchedulerForCurrentThread()
+			{
+				Ptr<IAsyncScheduler> scheduler;
+				SPIN_LOCK(asyncSchedulerLock)
+				{
+					if (asyncSchedulerMap)
+					{
+						vint index = asyncSchedulerMap->schedulers.Keys().IndexOf(Thread::GetCurrentThreadId());
+						if (index != -1)
+						{
+							scheduler = asyncSchedulerMap->schedulers.Values()[index];
+							asyncSchedulerMap->schedulers.Remove(Thread::GetCurrentThreadId());
+						}
+						DISPOSE_ASYNC_SCHEDULER_MAP_IF_NECESSARY
+					}
+				}
+				return scheduler;
+			}
+
+#undef ENSURE_ASYNC_SCHEDULER_MAP
+#undef DISPOSE_ASYNC_SCHEDULER_MAP_IF_NECESSARY
+
+			Ptr<IAsyncScheduler> IAsyncScheduler::GetSchedulerForCurrentThread()
+			{
+				Ptr<IAsyncScheduler> scheduler;
+				SPIN_LOCK(asyncSchedulerLock)
+				{
+					CHECK_ERROR(asyncSchedulerMap != nullptr, L"IAsyncScheduler::GetSchedulerForCurrentThread()#There is no scheduler registered for the current thread.");
+					vint index = asyncSchedulerMap->schedulers.Keys().IndexOf(Thread::GetCurrentThreadId());
+					if (index != -1)
+					{
+						scheduler = asyncSchedulerMap->schedulers.Values()[index];
+					}
+					else if (asyncSchedulerMap->defaultScheduler)
+					{
+						scheduler = asyncSchedulerMap->defaultScheduler;
+					}
+					else
+					{
+						CHECK_FAIL(L"IAsyncScheduler::GetSchedulerForCurrentThread()#There is no scheduler registered for the current thread.");
+					}
+				}
+				return scheduler;
+			}
+
+/***********************************************************************
+AsyncCoroutine
+***********************************************************************/
+
+			class CoroutineAsync : public Object, public virtual AsyncCoroutine::IImpl, public Description<CoroutineAsync>
+			{
+			protected:
+				Ptr<ICoroutine>						coroutine;
+				AsyncCoroutine::Creator				creator;
+				Ptr<IAsyncScheduler>				scheduler;
+				Func<void(Ptr<CoroutineResult>)>	callback;
+				Value								result;
+
+			public:
+				CoroutineAsync(AsyncCoroutine::Creator _creator)
+					:creator(_creator)
+				{
+				}
+
+				AsyncStatus GetStatus()override
+				{
+					if (!coroutine)
+					{
+						return AsyncStatus::Ready;
+					}
+					else if (coroutine->GetStatus() != CoroutineStatus::Stopped)
+					{
+						return AsyncStatus::Executing;
+					}
+					else
+					{
+						return AsyncStatus::Stopped;
+					}
+				}
+
+				bool Execute(const Func<void(Ptr<CoroutineResult>)>& _callback)override
+				{
+					if (coroutine) return false;
+					scheduler = IAsyncScheduler::GetSchedulerForCurrentThread();
+					callback = _callback;
+					coroutine = creator(this);
+					OnContinue(nullptr);
+					return true;
+				}
+
+				Ptr<IAsyncScheduler> GetScheduler()override
+				{
+					return scheduler;
+				}
+
+				void OnContinue(Ptr<CoroutineResult> output)override
+				{
+					scheduler->Execute([async = Ptr<CoroutineAsync>(this), output]()
+					{
+						async->coroutine->Resume(false, output);
+						if (async->coroutine->GetStatus() == CoroutineStatus::Stopped && async->callback)
+						{
+							auto result = MakePtr<CoroutineResult>();
+							if (async->coroutine->GetFailure())
+							{
+								result->SetFailure(async->coroutine->GetFailure());
+							}
+							else
+							{
+								result->SetResult(async->result);
+							}
+							async->callback(result);
+						}
+					});
+				}
+
+				void OnReturn(const Value& value)override
+				{
+					result = value;
+				}
+			};
+			
+			void AsyncCoroutine::AwaitAndRead(IImpl* impl, Ptr<IAsync> value)
+			{
+				value->Execute([async = Ptr<IImpl>(impl)](auto output)
+				{
+					async->OnContinue(output);
+				});
+			}
+
+			void AsyncCoroutine::ReturnAndExit(IImpl* impl, const Value& value)
+			{
+				impl->OnReturn(value);
+			}
+
+			Ptr<IAsync> AsyncCoroutine::Create(const Creator& creator)
+			{
+				return new CoroutineAsync(creator);
 			}
 
 /***********************************************************************
@@ -18432,9 +18694,14 @@ TypeName
 			IMPL_TYPE_INFO_RENAME(vl::reflection::description::IValueCallStack, system::CallStack)
 			IMPL_TYPE_INFO_RENAME(vl::reflection::description::IValueException, system::Exception)
 			IMPL_TYPE_INFO_RENAME(vl::reflection::description::CoroutineStatus, system::CoroutineStatus)
+			IMPL_TYPE_INFO_RENAME(vl::reflection::description::CoroutineResult, system::CoroutineResult)
 			IMPL_TYPE_INFO_RENAME(vl::reflection::description::ICoroutine, system::Coroutine)
-			IMPL_TYPE_INFO_RENAME(vl::reflection::description::EnumerableCoroutine::IImpl, system::EnumerableCoroutine::Impl)
+			IMPL_TYPE_INFO_RENAME(vl::reflection::description::EnumerableCoroutine::IImpl, system::EnumerableCoroutine::IImpl)
 			IMPL_TYPE_INFO_RENAME(vl::reflection::description::EnumerableCoroutine, system::EnumerableCoroutine)
+			IMPL_TYPE_INFO_RENAME(vl::reflection::description::AsyncStatus, system::AsyncStatus)
+			IMPL_TYPE_INFO_RENAME(vl::reflection::description::IAsync, system::Async)
+			IMPL_TYPE_INFO_RENAME(vl::reflection::description::AsyncCoroutine::IImpl, system::AsyncCoroutine::IImpl)
+			IMPL_TYPE_INFO_RENAME(vl::reflection::description::AsyncCoroutine, system::AsyncCoroutine)
 
 			IMPL_TYPE_INFO_RENAME(vl::reflection::description::IBoxedValue, system::reflection::BoxedValue)
 			IMPL_TYPE_INFO_RENAME(vl::reflection::description::IBoxedValue::CompareResult, system::reflection::ValueType::CompareResult)
@@ -19099,14 +19366,18 @@ LoadPredefinedTypes
 			END_ENUM_ITEM(CoroutineStatus)
 
 			BEGIN_INTERFACE_MEMBER(ICoroutine)
-				CLASS_MEMBER_METHOD(Resume, { L"raiseException" })
+				CLASS_MEMBER_METHOD(Resume, { L"raiseException" _ L"output" })
 				CLASS_MEMBER_PROPERTY_READONLY_FAST(Failure)
 				CLASS_MEMBER_PROPERTY_READONLY_FAST(Status)
 			END_INTERFACE_MEMBER(ICoroutine)
 
+			BEGIN_CLASS_MEMBER(CoroutineResult)
+				CLASS_MEMBER_CONSTRUCTOR(Ptr<CoroutineResult>(), NO_PARAMETER)
+				CLASS_MEMBER_PROPERTY_FAST(Result)
+				CLASS_MEMBER_PROPERTY_FAST(Failure)
+			END_CLASS_MEMBER(CoroutineResult)
+
 			BEGIN_INTERFACE_MEMBER_NOPROXY(EnumerableCoroutine::IImpl)
-				CLASS_MEMBER_METHOD(OnYield, { L"value" })
-				CLASS_MEMBER_METHOD(OnJoin, { L"value" })
 			END_INTERFACE_MEMBER(EnumerableCoroutine::IImpl)
 
 			BEGIN_CLASS_MEMBER(EnumerableCoroutine)
@@ -19115,6 +19386,27 @@ LoadPredefinedTypes
 				CLASS_MEMBER_STATIC_METHOD(ReturnAndExit, { L"impl" })
 				CLASS_MEMBER_STATIC_METHOD(Create, { L"creator" })
 			END_CLASS_MEMBER(EnumerableCoroutine)
+
+			BEGIN_ENUM_ITEM(AsyncStatus)
+				ENUM_CLASS_ITEM(Ready)
+				ENUM_CLASS_ITEM(Executing)
+				ENUM_CLASS_ITEM(Stopped)
+			END_ENUM_ITEM(AsyncStatus)
+
+			BEGIN_INTERFACE_MEMBER_NOPROXY(IAsync)
+				CLASS_MEMBER_PROPERTY_READONLY_FAST(Status)
+				CLASS_MEMBER_METHOD(Execute, { L"callback" })
+				CLASS_MEMBER_STATIC_METHOD(Delay, { L"milliseconds" })
+			END_INTERFACE_MEMBER(IAsync)
+
+			BEGIN_INTERFACE_MEMBER_NOPROXY(AsyncCoroutine::IImpl)
+			END_INTERFACE_MEMBER(AsyncCoroutine::IImpl)
+
+			BEGIN_CLASS_MEMBER(AsyncCoroutine)
+				CLASS_MEMBER_STATIC_METHOD(AwaitAndRead, { L"impl" _ L"value" })
+				CLASS_MEMBER_STATIC_METHOD(ReturnAndExit, { L"impl" _ L"value"})
+				CLASS_MEMBER_STATIC_METHOD(Create, { L"creator" })
+			END_CLASS_MEMBER(AsyncCoroutine)
 
 			BEGIN_INTERFACE_MEMBER_NOPROXY(IBoxedValue)
 				CLASS_MEMBER_METHOD(Copy, NO_PARAMETER)
@@ -19326,9 +19618,14 @@ LoadPredefinedTypes
 					ADD_TYPE_INFO(IValueException)
 
 					ADD_TYPE_INFO(CoroutineStatus)
+					ADD_TYPE_INFO(CoroutineResult)
 					ADD_TYPE_INFO(ICoroutine)
 					ADD_TYPE_INFO(EnumerableCoroutine::IImpl)
 					ADD_TYPE_INFO(EnumerableCoroutine)
+					ADD_TYPE_INFO(AsyncStatus)
+					ADD_TYPE_INFO(IAsync)
+					ADD_TYPE_INFO(AsyncCoroutine::IImpl)
+					ADD_TYPE_INFO(AsyncCoroutine)
 
 					ADD_TYPE_INFO(IBoxedValue)
 					ADD_TYPE_INFO(IBoxedValue::CompareResult)
