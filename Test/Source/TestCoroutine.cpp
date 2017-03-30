@@ -206,11 +206,7 @@ namespace test_coroutine
 			tasks.Add(callback);
 		}
 	};
-}
-using namespace test_coroutine;
 
-namespace test_coroutine
-{
 	class EmptyAsync : public Object, public ICoroutine
 	{
 	public:
@@ -282,13 +278,15 @@ TEST_CASE(TestEmptyAsync)
 {
 	auto scheduler = MakePtr<SyncScheduler>();
 	IAsyncScheduler::RegisterDefaultScheduler(scheduler);
+	Ptr<CoroutineResult> cr;
 	{
-		CreateEmptyAsync()->Execute([](auto output)
+		CreateEmptyAsync()->Execute([&](auto output)
 		{
-			TEST_ASSERT(UnboxValue<WString>(output->GetResult()) == L"Empty!");
+			cr = output;
 		});
 	}
 	scheduler->Run();
+	TEST_ASSERT(UnboxValue<WString>(cr->GetResult()) == L"Empty!");
 	IAsyncScheduler::UnregisterDefaultScheduler();
 }
 
@@ -296,12 +294,89 @@ TEST_CASE(TestFailAsync)
 {
 	auto scheduler = MakePtr<SyncScheduler>();
 	IAsyncScheduler::RegisterDefaultScheduler(scheduler);
+	Ptr<CoroutineResult> cr;
 	{
-		CreateFailAsync()->Execute([](auto output)
+		CreateFailAsync()->Execute([&](auto output)
 		{
-			TEST_ASSERT(output->GetFailure()->GetMessage() == L"Fail!");
+			cr = output;
 		});
 	}
 	scheduler->Run();
+	TEST_ASSERT(cr->GetFailure()->GetMessage() == L"Fail!");
 	IAsyncScheduler::UnregisterDefaultScheduler();
+}
+
+namespace test_coroutine
+{
+	class NestedAsync : public Object, public ICoroutine
+	{
+	public:
+		AC::IImpl*				impl;
+		CoroutineStatus			status = CoroutineStatus::Waiting;
+		vint					state = 0;
+		Ptr<IValueException>	failure;
+
+		NestedAsync(AC::IImpl* _impl)
+			:impl(_impl)
+		{
+		}
+
+		void Resume(bool raiseException, Ptr<CoroutineResult> output)override
+		{
+			try
+			{
+				switch (state++)
+				{
+				case 0:
+					AC::AwaitAndRead(impl, CreateEmptyAsync());
+					break;
+				case 1:
+					if (output->GetFailure()) { throw output->GetFailure(); }
+					AC::AwaitAndRead(impl, CreateFailAsync());
+					break;
+				case 2:
+					if (output->GetFailure()) { throw output->GetFailure(); }
+					AC::ReturnAndExit(impl, BoxValue<WString>(L"Nested!"));
+					status = CoroutineStatus::Stopped;
+					break;
+				}
+			}
+			catch (Ptr<IValueException> ex)
+			{
+				failure = ex;
+				status = CoroutineStatus::Stopped;
+			}
+		}
+
+		Ptr<IValueException> GetFailure()override
+		{
+			return failure;
+		}
+
+		CoroutineStatus GetStatus()override
+		{
+			return status;
+		}
+	};
+
+	Ptr<IAsync> CreateNestedAsync()
+	{
+		return AC::Create([](auto impl) { return MakePtr<NestedAsync>(impl); });
+	}
+}
+
+TEST_CASE(TestNestedAsync)
+{
+	auto scheduler = MakePtr<SyncScheduler>();
+	Ptr<CoroutineResult> cr;
+	IAsyncScheduler::RegisterSchedulerForCurrentThread(scheduler);
+	{
+		CreateNestedAsync()->Execute([&](auto output)
+		{
+			cr = output;
+		});
+	}
+	scheduler->Run();
+	TEST_ASSERT(cr->GetFailure()->GetMessage() == L"Fail!");
+	IAsyncScheduler::UnregisterSchedulerForCurrentThread();
 }
