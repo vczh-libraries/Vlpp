@@ -15287,6 +15287,19 @@ Interface Implementation Proxy (Implement)
 				}
 			END_INTERFACE_PROXY(ICoroutine)
 
+			BEGIN_INTERFACE_PROXY_NOPARENT_SHAREDPTR(IAsync)
+
+				AsyncStatus GetStatus()override
+				{
+					INVOKEGET_INTERFACE_PROXY_NOPARAMS(GetStatus);
+				}
+
+				bool Execute(const Func<void(Ptr<CoroutineResult>)>& callback)override
+				{
+					INVOKEGET_INTERFACE_PROXY(Execute, callback);
+				}
+			END_INTERFACE_PROXY(IAsync)
+
 #pragma warning(pop)
 
 #endif

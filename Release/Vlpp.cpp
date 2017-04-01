@@ -19399,7 +19399,7 @@ LoadPredefinedTypes
 				ENUM_CLASS_ITEM(Stopped)
 			END_ENUM_ITEM(AsyncStatus)
 
-			BEGIN_INTERFACE_MEMBER_NOPROXY(IAsync)
+			BEGIN_INTERFACE_MEMBER(IAsync)
 				CLASS_MEMBER_PROPERTY_READONLY_FAST(Status)
 				CLASS_MEMBER_METHOD(Execute, { L"callback" })
 				CLASS_MEMBER_STATIC_METHOD(Delay, { L"milliseconds" })
