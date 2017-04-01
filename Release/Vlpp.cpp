@@ -19383,6 +19383,7 @@ LoadPredefinedTypes
 			END_CLASS_MEMBER(CoroutineResult)
 
 			BEGIN_INTERFACE_MEMBER_NOPROXY(EnumerableCoroutine::IImpl)
+				CLASS_MEMBER_BASE(IValueEnumerator)
 			END_INTERFACE_MEMBER(EnumerableCoroutine::IImpl)
 
 			BEGIN_CLASS_MEMBER(EnumerableCoroutine)
@@ -19405,6 +19406,7 @@ LoadPredefinedTypes
 			END_INTERFACE_MEMBER(IAsync)
 
 			BEGIN_INTERFACE_MEMBER_NOPROXY(AsyncCoroutine::IImpl)
+				CLASS_MEMBER_BASE(IAsync)
 			END_INTERFACE_MEMBER(AsyncCoroutine::IImpl)
 
 			BEGIN_CLASS_MEMBER(AsyncCoroutine)
