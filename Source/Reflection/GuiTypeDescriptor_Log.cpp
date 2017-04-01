@@ -8,6 +8,8 @@ namespace vl
 		{
 			using namespace collections;
 
+#ifndef VCZH_DEBUG_NO_REFLECTION
+
 /***********************************************************************
 LogTypeManager (enum)
 ***********************************************************************/
@@ -264,6 +266,8 @@ LogTypeManager
 					writer.WriteLine(L"");
 				}
 			}
+
+#endif
 		}
 	}
 }

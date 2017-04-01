@@ -695,6 +695,8 @@ TEST_CASE(TestDescriptableObjectReferenceCounterOperator)
 	}
 }
 
+#ifndef VCZH_DEBUG_NO_REFLECTION
+
 TEST_CASE(TestBoxUnbox)
 {
 	{
@@ -734,8 +736,6 @@ TEST_CASE(TestBoxUnbox)
 		TEST_ASSERT(numbers2[2] == 3);
 	}
 }
-
-#ifndef VCZH_DEBUG_NO_REFLECTION
 
 namespace reflection_test
 {
