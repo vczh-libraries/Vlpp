@@ -260,6 +260,7 @@ IAsync
 			class DelayAsync : public Object, public virtual IAsync, public Description<DelayAsync>
 			{
 			protected:
+				SpinLock							lock;
 				vint								milliseconds;
 				AsyncStatus							status = AsyncStatus::Ready;
 
@@ -276,12 +277,18 @@ IAsync
 
 				bool Execute(const Func<void(Ptr<CoroutineResult>)>& _callback)override
 				{
-					if (status != AsyncStatus::Ready) return false;
-					status = AsyncStatus::Executing;
-					IAsyncScheduler::GetSchedulerForCurrentThread()->DelayExecute([async = Ptr<DelayAsync>(this), callback = _callback]()
+					SPIN_LOCK(lock)
 					{
-						callback(nullptr);
-					}, milliseconds);
+						if (status != AsyncStatus::Ready) return false;
+						status = AsyncStatus::Executing;
+						IAsyncScheduler::GetSchedulerForCurrentThread()->DelayExecute([async = Ptr<DelayAsync>(this), callback = _callback]()
+						{
+							if (callback)
+							{
+								callback(nullptr);
+							}
+						}, milliseconds);
+					}
 					return true;
 				}
 			};
@@ -289,6 +296,95 @@ IAsync
 			Ptr<IAsync> IAsync::Delay(vint milliseconds)
 			{
 				return new DelayAsync(milliseconds);
+			}
+
+/***********************************************************************
+IFuture
+***********************************************************************/
+
+			class FutureAndPromiseAsync : public virtual IFuture, public virtual IPromise, public Description<FutureAndPromiseAsync>
+			{
+			public:
+				SpinLock							lock;
+				AsyncStatus							status = AsyncStatus::Ready;
+				Ptr<CoroutineResult>				cr;
+				Func<void(Ptr<CoroutineResult>)>	callback;
+
+				void ExecuteCallbackAndClear()
+				{
+					status = AsyncStatus::Stopped;
+					if (callback)
+					{
+						callback(cr);
+					}
+					cr = nullptr;
+					callback = {};
+				}
+
+				template<typename F>
+				bool Send(F f)
+				{
+					SPIN_LOCK(lock)
+					{
+						if (status == AsyncStatus::Stopped || cr) return false;
+						cr = MakePtr<CoroutineResult>();
+						f();
+						if (status == AsyncStatus::Executing)
+						{
+							ExecuteCallbackAndClear();
+						}
+					}
+					return true;
+				}
+
+				AsyncStatus GetStatus()override
+				{
+					return status;
+				}
+
+				bool Execute(const Func<void(Ptr<CoroutineResult>)>& _callback)override
+				{
+					SPIN_LOCK(lock)
+					{
+						if (status != AsyncStatus::Ready) return false;
+						callback = _callback;
+						if (cr)
+						{
+							ExecuteCallbackAndClear();
+						}
+						else
+						{
+							status = AsyncStatus::Executing;
+						}
+					}
+					return true;
+				}
+
+				Ptr<IPromise> GetPromise()override
+				{
+					return this;
+				}
+
+				bool SendResult(const Value& result)override
+				{
+					return Send([=]()
+					{
+						cr->SetResult(result);
+					});
+				}
+
+				bool SendFailure(Ptr<IValueException> failure)override
+				{
+					return Send([=]()
+					{
+						cr->SetFailure(failure);
+					});
+				}
+			};
+
+			Ptr<IFuture> IFuture::Create()
+			{
+				return new FutureAndPromiseAsync();
 			}
 
 /***********************************************************************

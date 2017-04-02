@@ -201,6 +201,11 @@ namespace test_coroutine
 			tasks.Add(callback);
 		}
 
+		void ExecuteInBackground(const Func<void()>& callback)override
+		{
+			tasks.Add(callback);
+		}
+
 		void DelayExecute(const Func<void()>& callback, vint milliseconds)override
 		{
 			tasks.Add(callback);
@@ -280,10 +285,12 @@ TEST_CASE(TestEmptyAsync)
 	IAsyncScheduler::RegisterDefaultScheduler(scheduler);
 	Ptr<CoroutineResult> cr;
 	{
-		CreateEmptyAsync()->Execute([&](auto output)
+		auto async = CreateEmptyAsync();
+		TEST_ASSERT(async->Execute([&](auto output)
 		{
 			cr = output;
-		});
+		}) == true);
+		TEST_ASSERT(async->Execute({}) == false);
 	}
 	scheduler->Run();
 	TEST_ASSERT(UnboxValue<WString>(cr->GetResult()) == L"Empty!");
@@ -296,10 +303,12 @@ TEST_CASE(TestFailAsync)
 	IAsyncScheduler::RegisterDefaultScheduler(scheduler);
 	Ptr<CoroutineResult> cr;
 	{
-		CreateFailAsync()->Execute([&](auto output)
+		auto async = CreateFailAsync();
+		TEST_ASSERT(async->Execute([&](auto output)
 		{
 			cr = output;
-		});
+		}) == true);
+		TEST_ASSERT(async->Execute({}) == false);
 	}
 	scheduler->Run();
 	TEST_ASSERT(cr->GetFailure()->GetMessage() == L"Fail!");
@@ -371,10 +380,12 @@ TEST_CASE(TestNestedAsync)
 	Ptr<CoroutineResult> cr;
 	IAsyncScheduler::RegisterSchedulerForCurrentThread(scheduler);
 	{
-		CreateNestedAsync()->Execute([&](auto output)
+		auto async = CreateNestedAsync();
+		TEST_ASSERT(async->Execute([&](auto output)
 		{
 			cr = output;
-		});
+		}) == true);
+		TEST_ASSERT(async->Execute({}) == false);
 	}
 	scheduler->Run();
 	TEST_ASSERT(cr->GetFailure()->GetMessage() == L"Fail!");
@@ -432,12 +443,68 @@ TEST_CASE(TestDelayAsync)
 	Ptr<CoroutineResult> cr;
 	IAsyncScheduler::RegisterSchedulerForCurrentThread(scheduler);
 	{
-		CreateDelayAsync()->Execute([&](auto output)
+		auto async = CreateDelayAsync();
+		TEST_ASSERT(async->Execute([&](auto output)
 		{
 			cr = output;
-		});
+		}) == true);
+		TEST_ASSERT(async->Execute({}) == false);
 	}
 	scheduler->Run();
 	TEST_ASSERT(UnboxValue<WString>(cr->GetResult()) == L"Delay!");
+	IAsyncScheduler::UnregisterSchedulerForCurrentThread();
+}
+
+TEST_CASE(TestFutureAndPromiseSuccess)
+{
+	auto scheduler = MakePtr<SyncScheduler>();
+	Ptr<CoroutineResult> cr;
+	IAsyncScheduler::RegisterSchedulerForCurrentThread(scheduler);
+	{
+		auto future = IFuture::Create();
+		auto promise = future->GetPromise();
+		scheduler->ExecuteInBackground([=]()
+		{
+			TEST_ASSERT(promise->SendResult(BoxValue<WString>(L"Future!")) == true);
+			TEST_ASSERT(promise->SendResult(BoxValue<WString>(L"Future!")) == false);
+		});
+		scheduler->ExecuteInBackground([=, &cr]()
+		{
+			TEST_ASSERT(future->Execute([&](auto output)
+			{
+				cr = output;
+			}) == true);
+			TEST_ASSERT(future->Execute({}) == false);
+		});
+	}
+	scheduler->Run();
+	TEST_ASSERT(UnboxValue<WString>(cr->GetResult()) == L"Future!");
+	IAsyncScheduler::UnregisterSchedulerForCurrentThread();
+}
+
+TEST_CASE(TestFutureAndPromiseFail)
+{
+	auto scheduler = MakePtr<SyncScheduler>();
+	Ptr<CoroutineResult> cr;
+	IAsyncScheduler::RegisterSchedulerForCurrentThread(scheduler);
+	{
+		auto future = IFuture::Create();
+		scheduler->ExecuteInBackground([=, &cr]()
+		{
+			TEST_ASSERT(future->Execute([&](auto output)
+			{
+				cr = output;
+			}) == true);
+			TEST_ASSERT(future->Execute({}) == false);
+		});
+		auto promise = future->GetPromise();
+		scheduler->ExecuteInBackground([=]()
+		{
+			TEST_ASSERT(promise->SendFailure(IValueException::Create(L"Promise!")) == true);
+			TEST_ASSERT(promise->SendFailure(IValueException::Create(L"Promise!")) == false);
+		});
+	}
+	scheduler->Run();
+	TEST_ASSERT(cr->GetFailure()->GetMessage() == L"Promise!");
 	IAsyncScheduler::UnregisterSchedulerForCurrentThread();
 }

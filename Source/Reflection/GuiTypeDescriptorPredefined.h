@@ -260,7 +260,7 @@ Coroutine (Async)
 				Stopped,
 			};
 
-			class IAsync : public IDescriptable, public Description<IAsync>
+			class IAsync : public virtual IDescriptable, public Description<IAsync>
 			{
 			public:
 				virtual AsyncStatus						GetStatus() = 0;
@@ -269,10 +269,26 @@ Coroutine (Async)
 				static Ptr<IAsync>						Delay(vint milliseconds);
 			};
 
-			class IAsyncScheduler : public IDescriptable, public Description<IAsyncScheduler>
+			class IPromise : public virtual IDescriptable, public Description<IPromise>
+			{
+			public:
+				virtual bool							SendResult(const Value& result) = 0;
+				virtual bool							SendFailure(Ptr<IValueException> failure) = 0;
+			};
+
+			class IFuture : public virtual IAsync, public Description<IFuture>
+			{
+			public:
+				virtual Ptr<IPromise>					GetPromise() = 0;
+
+				static Ptr<IFuture>						Create();
+			};
+
+			class IAsyncScheduler : public virtual IDescriptable, public Description<IAsyncScheduler>
 			{
 			public:
 				virtual void							Execute(const Func<void()>& callback) = 0;
+				virtual void							ExecuteInBackground(const Func<void()>& callback) = 0;
 				virtual void							DelayExecute(const Func<void()>& callback, vint milliseconds) = 0;
 
 				static void								RegisterDefaultScheduler(Ptr<IAsyncScheduler> scheduler);

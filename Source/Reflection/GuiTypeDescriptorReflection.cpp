@@ -62,6 +62,9 @@ TypeName
 			IMPL_TYPE_INFO_RENAME(vl::reflection::description::EnumerableCoroutine, system::EnumerableCoroutine)
 			IMPL_TYPE_INFO_RENAME(vl::reflection::description::AsyncStatus, system::AsyncStatus)
 			IMPL_TYPE_INFO_RENAME(vl::reflection::description::IAsync, system::Async)
+			IMPL_TYPE_INFO_RENAME(vl::reflection::description::IPromise, system::Promise)
+			IMPL_TYPE_INFO_RENAME(vl::reflection::description::IFuture, system::Future)
+			IMPL_TYPE_INFO_RENAME(vl::reflection::description::IAsyncScheduler, system::AsyncScheduler)
 			IMPL_TYPE_INFO_RENAME(vl::reflection::description::AsyncCoroutine::IImpl, system::AsyncCoroutine::IImpl)
 			IMPL_TYPE_INFO_RENAME(vl::reflection::description::AsyncCoroutine, system::AsyncCoroutine)
 
@@ -762,6 +765,24 @@ LoadPredefinedTypes
 				CLASS_MEMBER_STATIC_METHOD(Delay, { L"milliseconds" })
 			END_INTERFACE_MEMBER(IAsync)
 
+			BEGIN_INTERFACE_MEMBER_NOPROXY(IPromise)
+				CLASS_MEMBER_METHOD(SendResult, { L"result" })
+				CLASS_MEMBER_METHOD(SendFailure, { L"failure" })
+			END_INTERFACE_MEMBER(IPromise)
+
+			BEGIN_INTERFACE_MEMBER_NOPROXY(IFuture)
+				CLASS_MEMBER_BASE(IAsync)
+				CLASS_MEMBER_PROPERTY_READONLY_FAST(Promise)
+				CLASS_MEMBER_STATIC_METHOD(Create, NO_PARAMETER)
+			END_INTERFACE_MEMBER(IFuture)
+
+			BEGIN_INTERFACE_MEMBER_NOPROXY(IAsyncScheduler)
+				CLASS_MEMBER_METHOD(Execute, { L"callback" })
+				CLASS_MEMBER_METHOD(ExecuteInBackground, { L"callback" })
+				CLASS_MEMBER_METHOD(DelayExecute, { L"callback" _ L"milliseconds" })
+				CLASS_MEMBER_STATIC_METHOD(GetSchedulerForCurrentThread, NO_PARAMETER)
+			END_INTERFACE_MEMBER(IAsyncScheduler)
+
 			BEGIN_INTERFACE_MEMBER_NOPROXY(AsyncCoroutine::IImpl)
 				CLASS_MEMBER_BASE(IAsync)
 			END_INTERFACE_MEMBER(AsyncCoroutine::IImpl)
@@ -989,6 +1010,9 @@ LoadPredefinedTypes
 					ADD_TYPE_INFO(EnumerableCoroutine)
 					ADD_TYPE_INFO(AsyncStatus)
 					ADD_TYPE_INFO(IAsync)
+					ADD_TYPE_INFO(IPromise)
+					ADD_TYPE_INFO(IFuture)
+					ADD_TYPE_INFO(IAsyncScheduler)
 					ADD_TYPE_INFO(AsyncCoroutine::IImpl)
 					ADD_TYPE_INFO(AsyncCoroutine)
 

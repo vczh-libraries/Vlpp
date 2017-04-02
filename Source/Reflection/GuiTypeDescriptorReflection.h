@@ -70,6 +70,9 @@ Predefined Types
 			DECL_TYPE_INFO(EnumerableCoroutine)
 			DECL_TYPE_INFO(AsyncStatus)
 			DECL_TYPE_INFO(IAsync)
+			DECL_TYPE_INFO(IPromise)
+			DECL_TYPE_INFO(IFuture)
+			DECL_TYPE_INFO(IAsyncScheduler)
 			DECL_TYPE_INFO(AsyncCoroutine::IImpl)
 			DECL_TYPE_INFO(AsyncCoroutine)
 
