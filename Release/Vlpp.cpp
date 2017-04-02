@@ -18663,10 +18663,21 @@ AsyncCoroutine
 			{
 				return new CoroutineAsync(creator);
 			}
-
 			void AsyncCoroutine::CreateAndRun(const Creator& creator)
 			{
-				MakePtr<CoroutineAsync>(creator)->Execute({});
+				MakePtr<CoroutineAsync>(creator)->Execute(
+					[](Ptr<CoroutineResult> cr)
+					{
+						if (cr->GetFailure())
+						{
+#pragma push_macro("GetMessage")
+#if defined GetMessage
+#undef GetMessage
+#endif
+							throw Exception(cr->GetFailure()->GetMessage());
+#pragma pop_macro("GetMessage")
+						}
+					});
 			}
 
 /***********************************************************************
@@ -19511,6 +19522,7 @@ LoadPredefinedTypes
 
 			BEGIN_INTERFACE_MEMBER_NOPROXY(IFuture)
 				CLASS_MEMBER_BASE(IAsync)
+				CLASS_MEMBER_BASE(IPromise)
 				CLASS_MEMBER_PROPERTY_READONLY_FAST(Promise)
 				CLASS_MEMBER_STATIC_METHOD(Create, NO_PARAMETER)
 			END_INTERFACE_MEMBER(IFuture)
