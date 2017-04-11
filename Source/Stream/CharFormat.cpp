@@ -845,23 +845,23 @@ CharEncoder
 			return true;
 		}
 
-		bool CanBeUtf16(unsigned char* buffer, vint size)
+		bool CanBeUtf16(unsigned char* buffer, vint size, bool& hitSurrogatePairs)
 		{
-			if(size%2!=0) return false;
-			bool needTrail=false;
-			for(vint i=0;i<size;i+=2)
+			hitSurrogatePairs = false;
+			if (size % 2 != 0) return false;
+			bool needTrail = false;
+			for (vint i = 0; i < size; i += 2)
 			{
-				if(buffer[i]>=128 && buffer[i+1]==0) return false;
-				vuint16_t c=buffer[i]+(buffer[i+1]<<8);
-				if(c==0xFFFF) return false;
-				vint type=0;
-				if(0xD800<=c && c<=0xDBFF) type=1;
-				else if(0xDC00<=c && c<=0xDFFF) type=2;
-				if(needTrail)
+				vuint16_t c = buffer[i] + (buffer[i + 1] << 8);
+				if (c == 0) return false;
+				vint type = 0;
+				if (0xD800 <= c && c <= 0xDBFF) type = 1;
+				else if (0xDC00 <= c && c <= 0xDFFF) type = 2;
+				if (needTrail)
 				{
-					if(type==2)
+					if (type == 2)
 					{
-						needTrail=false;
+						needTrail = false;
 					}
 					else
 					{
@@ -870,11 +870,12 @@ CharEncoder
 				}
 				else
 				{
-					if(type==1)
+					if (type == 1)
 					{
-						needTrail=true;
+						needTrail = true;
+						hitSurrogatePairs = true;
 					}
-					else if(type!=0)
+					else if (type != 0)
 					{
 						return false;
 					}
@@ -883,23 +884,23 @@ CharEncoder
 			return !needTrail;
 		}
 
-		bool CanBeUtf16BE(unsigned char* buffer, vint size)
+		bool CanBeUtf16BE(unsigned char* buffer, vint size, bool& hitSurrogatePairs)
 		{
-			if(size%2!=0) return false;
-			bool needTrail=false;
-			for(vint i=0;i<size;i+=2)
+			hitSurrogatePairs = false;
+			if (size % 2 != 0) return false;
+			bool needTrail = false;
+			for (vint i = 0; i < size; i += 2)
 			{
-				if(buffer[i+1]>=128 && buffer[i]==0) return false;
-				vuint16_t c=buffer[i+1]+(buffer[i]<<8);
-				if(c==0xFFFF) return false;
-				vint type=0;
-				if(0xD800<=c && c<=0xDBFF) type=1;
-				else if(0xDC00<=c && c<=0xDFFF) type=2;
-				if(needTrail)
+				vuint16_t c = buffer[i + 1] + (buffer[i] << 8);
+				if (c == 0) return false;
+				vint type = 0;
+				if (0xD800 <= c && c <= 0xDBFF) type = 1;
+				else if (0xDC00 <= c && c <= 0xDFFF) type = 2;
+				if (needTrail)
 				{
-					if(type==2)
+					if (type == 2)
 					{
-						needTrail=false;
+						needTrail = false;
 					}
 					else
 					{
@@ -908,11 +909,12 @@ CharEncoder
 				}
 				else
 				{
-					if(type==1)
+					if (type == 1)
 					{
-						needTrail=true;
+						needTrail = true;
+						hitSurrogatePairs = true;
 					}
-					else if(type!=0)
+					else if (type != 0)
 					{
 						return false;
 					}
@@ -958,22 +960,23 @@ CharEncoder
 				encoding = BomEncoder::Mbcs;
 				containsBom = false;
 
+				bool utf16HitSurrogatePairs = false;
+				bool utf16BeHitSurrogatePairs = false;
 				bool roughMbcs = CanBeMbcs(buffer, size);
 				bool roughUtf8 = CanBeUtf8(buffer, size);
-				bool roughUtf16 = CanBeUtf16(buffer, size);
-				bool roughUtf16BE = CanBeUtf16BE(buffer, size);
-#if defined VCZH_MSVC
+				bool roughUtf16 = CanBeUtf16(buffer, size, utf16HitSurrogatePairs);
+				bool roughUtf16BE = CanBeUtf16BE(buffer, size, utf16BeHitSurrogatePairs);
+
 				vint roughCount = (roughMbcs ? 1 : 0) + (roughUtf8 ? 1 : 0) + (roughUtf16 ? 1 : 0) + (roughUtf16BE ? 1 : 0);
 				if (roughCount == 1)
 				{
-#endif
 					if (roughUtf8) encoding = BomEncoder::Utf8;
 					else if (roughUtf16) encoding = BomEncoder::Utf16;
 					else if (roughUtf16BE) encoding = BomEncoder::Utf16BE;
-#if defined VCZH_MSVC
 				}
 				else if (roughCount > 1)
 				{
+#if defined VCZH_MSVC
 					int tests[] =
 					{
 						IS_TEXT_UNICODE_REVERSE_ASCII16,
@@ -1072,8 +1075,24 @@ CharEncoder
 							encoding = BomEncoder::Utf8;
 						}
 					}
-				}
+#elif defined VCZH_GCC
+					if (roughUtf16 && roughUtf16BE && !roughUtf8)
+					{
+						if (utf16BEHitSurrogatePairs && !utf16HitSurrogatePairs)
+						{
+							encoding = BomEncoder::Utf16BE;
+						}
+						else
+						{
+							encoding = BomEncoder::Utf16;
+						}
+					}
+					else
+					{
+						encoding = BomEncoder::Utf8;
+					}
 #endif
+				}
 			}
 		}
 	}
