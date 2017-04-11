@@ -961,11 +961,11 @@ CharEncoder
 				containsBom = false;
 
 				bool utf16HitSurrogatePairs = false;
-				bool utf16BeHitSurrogatePairs = false;
+				bool utf16BEHitSurrogatePairs = false;
 				bool roughMbcs = CanBeMbcs(buffer, size);
 				bool roughUtf8 = CanBeUtf8(buffer, size);
 				bool roughUtf16 = CanBeUtf16(buffer, size, utf16HitSurrogatePairs);
-				bool roughUtf16BE = CanBeUtf16BE(buffer, size, utf16BeHitSurrogatePairs);
+				bool roughUtf16BE = CanBeUtf16BE(buffer, size, utf16BEHitSurrogatePairs);
 
 				vint roughCount = (roughMbcs ? 1 : 0) + (roughUtf8 ? 1 : 0) + (roughUtf16 ? 1 : 0) + (roughUtf16BE ? 1 : 0);
 				if (roughCount == 1)
