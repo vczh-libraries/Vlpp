@@ -43,7 +43,7 @@ public:
 	{
 	}
 
-	bool							ReadConfig(StreamReader& reader);
+	bool							ReadConfig(TextReader& reader);
 };
 
 /***********************************************************************

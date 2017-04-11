@@ -1,7 +1,7 @@
 #include "ParserGen.h"
 
 
-bool CodegenConfig::ReadConfig(StreamReader& reader)
+bool CodegenConfig::ReadConfig(TextReader& reader)
 {
 	Regex regexInclude(L"^include:(<path>/.+)$");
 	Regex regexNamespace(L"^namespace:((<namespace>[^.]+)(.(<namespace>[^.]+))*)?$");

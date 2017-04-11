@@ -49,18 +49,18 @@ int main(int argc, char* argv[])
 			CodegenConfig config;
 			WString codeGrammar;
 			{
-				FileStream fileStream(inputPath.GetFullPath(), FileStream::ReadOnly);
-				if (!fileStream.IsAvailable())
+				WString inputText;
+				BomEncoder::Encoding inputEncoding;
+				bool inputBom;
+				if (!File(inputPath).ReadAllTextWithEncodingTesting(inputText, inputEncoding, inputBom))
 				{
 					Console::SetColor(true, false, false, true);
 					Console::WriteLine(L"error> Cannot open \"" + inputPath.GetFullPath() + L" for reading.");
 					Console::SetColor(false, true, false, true);
 					goto STOP_PARSING;
 				}
-				BomDecoder decoder;
-				DecoderStream decoderStream(fileStream, decoder);
-				StreamReader reader(decoderStream);
 
+				StringReader reader(inputText);
 				if (!config.ReadConfig(reader))
 				{
 					goto STOP_PARSING;
@@ -80,7 +80,7 @@ int main(int argc, char* argv[])
 					Console::SetColor(false, true, false, true);
 					goto STOP_PARSING;
 				}
-				BomEncoder encoder(BomEncoder::Utf16);
+				BomEncoder encoder(BomEncoder::Utf8);
 				EncoderStream encoderStream(fileStream, encoder);
 				StreamWriter writer(encoderStream);
 
@@ -133,7 +133,7 @@ int main(int argc, char* argv[])
 				{\
 					Console::WriteLine(L"codegen> Writing \"" + outputPath + L" ...");\
 				}\
-				BomEncoder encoder(BomEncoder::Mbcs);\
+				BomEncoder encoder(BomEncoder::Utf8);\
 				EncoderStream encoderStream(fileStream, encoder);\
 				StreamWriter writer(encoderStream);\
 
