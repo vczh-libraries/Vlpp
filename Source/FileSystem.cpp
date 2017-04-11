@@ -370,14 +370,82 @@ File
 			return filePath;
 		}
 
-		WString File::ReadAllText()const
+		bool File::ReadAllTextWithEncodingTesting(WString& text, stream::BomEncoder::Encoding& encoding, bool& containsBom)
+		{
+			Array<unsigned char> buffer;
+			{
+				FileStream fileStream(filePath.GetFullPath(), FileStream::ReadOnly);
+				if (!fileStream.IsAvailable()) return false;
+				if (fileStream.Size() == 0)
+				{
+					text = L"";
+					encoding = BomEncoder::Mbcs;
+					containsBom = false;
+					return true;
+				}
+
+				buffer.Resize((vint)fileStream.Size());
+				vint count = fileStream.Read(&buffer[0], buffer.Count());
+				CHECK_ERROR(count == buffer.Count(), L"vl::filesystem::File::ReadAllTextWithEncodingTesting(WString&, BomEncoder::Encoding&, bool&)#Failed to read the whole file.");
+			}
+			TestEncoding(&buffer[0], buffer.Count(), encoding, containsBom);
+
+			MemoryWrapperStream memoryStream(&buffer[0], buffer.Count());
+			if (containsBom)
+			{
+				BomDecoder decoder;
+				DecoderStream decoderStream(memoryStream, decoder);
+				StreamReader reader(decoderStream);
+				text = reader.ReadToEnd();
+			}
+			else
+			{
+				switch (encoding)
+				{
+				case BomEncoder::Utf8:
+					{
+						Utf8Decoder decoder;
+						DecoderStream decoderStream(memoryStream, decoder);
+						StreamReader reader(decoderStream);
+						text = reader.ReadToEnd();
+					}
+					break;
+				case BomEncoder::Utf16:
+					{
+						Utf16Decoder decoder;
+						DecoderStream decoderStream(memoryStream, decoder);
+						StreamReader reader(decoderStream);
+						text = reader.ReadToEnd();
+					}
+					break;
+				case BomEncoder::Utf16BE:
+					{
+						Utf16BEDecoder decoder;
+						DecoderStream decoderStream(memoryStream, decoder);
+						StreamReader reader(decoderStream);
+						text = reader.ReadToEnd();
+					}
+					break;
+				default:
+					{
+						MbcsDecoder decoder;
+						DecoderStream decoderStream(memoryStream, decoder);
+						StreamReader reader(decoderStream);
+						text = reader.ReadToEnd();
+					}
+				}
+			}
+			return true;
+		}
+
+		WString File::ReadAllTextByBom()const
 		{
 			WString text;
-			ReadAllText(text);
+			ReadAllTextByBom(text);
 			return text;
 		}
 
-		bool File::ReadAllText(WString& text)const
+		bool File::ReadAllTextByBom(WString& text)const
 		{
 			FileStream fileStream(filePath.GetFullPath(), FileStream::ReadOnly);
 			if (!fileStream.IsAvailable()) return false;
@@ -388,7 +456,7 @@ File
 			return true;
 		}
 
-		bool File::ReadAllLines(collections::List<WString>& lines)const
+		bool File::ReadAllLinesByBom(collections::List<WString>& lines)const
 		{
 			FileStream fileStream(filePath.GetFullPath(), FileStream::ReadOnly);
 			if (!fileStream.IsAvailable()) return false;

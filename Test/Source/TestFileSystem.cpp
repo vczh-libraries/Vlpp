@@ -1,7 +1,10 @@
-#include "../../Source/UnitTest/UnitTest.h"
+﻿#include "../../Source/UnitTest/UnitTest.h"
 #include "../../Source/FileSystem.h"
 #include "../../Source/Locale.h"
 #include "../../Source/Exception.h"
+#include "../../Source/Stream/FileStream.h"
+#include "../../Source/Stream/CharFormat.h"
+#include "../../Source/Stream/Accessor.h"
 
 using namespace vl;
 using namespace vl::filesystem;
@@ -218,8 +221,8 @@ TEST_CASE(CreateDeleteFolders)
 	TEST_ASSERT(d.Exists() == false);
 	TEST_ASSERT(a.WriteAllText(L"A") == false);
 	TEST_ASSERT(b.WriteAllText(L"B") == false);
-	TEST_ASSERT(a.ReadAllText() == L"");
-	TEST_ASSERT(b.ReadAllText() == L"");
+	TEST_ASSERT(a.ReadAllTextByBom() == L"");
+	TEST_ASSERT(b.ReadAllTextByBom() == L"");
 	
 	TEST_ASSERT(c.Create(false) == true);
 	TEST_ASSERT(d.Create(false) == false);
@@ -233,8 +236,8 @@ TEST_CASE(CreateDeleteFolders)
 	TEST_ASSERT(d.Exists() == true);
 	TEST_ASSERT(a.WriteAllText(L"A") == true);
 	TEST_ASSERT(b.WriteAllText(L"B") == true);
-	TEST_ASSERT(a.ReadAllText() == L"A");
-	TEST_ASSERT(b.ReadAllText() == L"B");
+	TEST_ASSERT(a.ReadAllTextByBom() == L"A");
+	TEST_ASSERT(b.ReadAllTextByBom() == L"B");
 	TEST_ASSERT(a.Exists() == true);
 	TEST_ASSERT(b.Exists() == true);
 
@@ -249,8 +252,8 @@ TEST_CASE(CreateDeleteFolders)
 	TEST_ASSERT(d.Exists() == false);
 	TEST_ASSERT(a.WriteAllText(L"A") == false);
 	TEST_ASSERT(b.WriteAllText(L"B") == false);
-	TEST_ASSERT(a.ReadAllText() == L"");
-	TEST_ASSERT(b.ReadAllText() == L"");
+	TEST_ASSERT(a.ReadAllTextByBom() == L"");
+	TEST_ASSERT(b.ReadAllTextByBom() == L"");
 }
 
 TEST_CASE(EnumerateFoldersAndFiles)
@@ -326,9 +329,9 @@ TEST_CASE(RenameFoldersAndFiles)
 	TEST_ASSERT(c.Exists() == true);
 	TEST_ASSERT(d.Exists() == true);
 	TEST_ASSERT(y.Exists() == false);
-	TEST_ASSERT(a.ReadAllText() == L"A");
-	TEST_ASSERT(b.ReadAllText() == L"B");
-	TEST_ASSERT(x.ReadAllText() == L"");
+	TEST_ASSERT(a.ReadAllTextByBom() == L"A");
+	TEST_ASSERT(b.ReadAllTextByBom() == L"B");
+	TEST_ASSERT(x.ReadAllTextByBom() == L"");
 
 	TEST_ASSERT(d.Rename(L"y"));
 	TEST_ASSERT(a.Exists() == true);
@@ -337,9 +340,9 @@ TEST_CASE(RenameFoldersAndFiles)
 	TEST_ASSERT(c.Exists() == true);
 	TEST_ASSERT(d.Exists() == false);
 	TEST_ASSERT(y.Exists() == true);
-	TEST_ASSERT(a.ReadAllText() == L"A");
-	TEST_ASSERT(b.ReadAllText() == L"");
-	TEST_ASSERT(x.ReadAllText() == L"");
+	TEST_ASSERT(a.ReadAllTextByBom() == L"A");
+	TEST_ASSERT(b.ReadAllTextByBom() == L"");
+	TEST_ASSERT(x.ReadAllTextByBom() == L"");
 
 	TEST_ASSERT(File(folder / L"y/b.txt").Rename(L"x.txt"));
 	TEST_ASSERT(a.Exists() == true);
@@ -348,9 +351,9 @@ TEST_CASE(RenameFoldersAndFiles)
 	TEST_ASSERT(c.Exists() == true);
 	TEST_ASSERT(d.Exists() == false);
 	TEST_ASSERT(y.Exists() == true);
-	TEST_ASSERT(a.ReadAllText() == L"A");
-	TEST_ASSERT(b.ReadAllText() == L"");
-	TEST_ASSERT(x.ReadAllText() == L"B");
+	TEST_ASSERT(a.ReadAllTextByBom() == L"A");
+	TEST_ASSERT(b.ReadAllTextByBom() == L"");
+	TEST_ASSERT(x.ReadAllTextByBom() == L"B");
 }
 
 TEST_CASE(FastAccessFiles)
@@ -362,55 +365,142 @@ TEST_CASE(FastAccessFiles)
 	WString text;
 	List<WString> lines;
 	TEST_ASSERT(file.Exists() == false);
-	TEST_ASSERT(file.ReadAllText() == L"");
-	TEST_ASSERT(file.ReadAllText(text) == false && text == L"");
-	TEST_ASSERT(file.ReadAllLines(lines) == false && lines.Count() == 0);
+	TEST_ASSERT(file.ReadAllTextByBom() == L"");
+	TEST_ASSERT(file.ReadAllTextByBom(text) == false && text == L"");
+	TEST_ASSERT(file.ReadAllLinesByBom(lines) == false && lines.Count() == 0);
 	
 	text = L"";
 	lines.Clear();
 	file.WriteAllText(L"Vczh is a genius!");
 	TEST_ASSERT(file.Exists() == true);
-	TEST_ASSERT(file.ReadAllText() == L"Vczh is a genius!");
-	TEST_ASSERT(file.ReadAllText(text) == true && text == L"Vczh is a genius!");
-	TEST_ASSERT(file.ReadAllLines(lines) == true && lines.Count() == 1 && lines[0] == L"Vczh is a genius!");
+	TEST_ASSERT(file.ReadAllTextByBom() == L"Vczh is a genius!");
+	TEST_ASSERT(file.ReadAllTextByBom(text) == true && text == L"Vczh is a genius!");
+	TEST_ASSERT(file.ReadAllLinesByBom(lines) == true && lines.Count() == 1 && lines[0] == L"Vczh is a genius!");
 	
 	text = L"";
 	lines.Clear();
 	file.WriteAllText(L"Vczh is a genius!", true, BomEncoder::Mbcs);
 	TEST_ASSERT(file.Exists() == true);
-	TEST_ASSERT(file.ReadAllText() == L"Vczh is a genius!");
-	TEST_ASSERT(file.ReadAllText(text) == true && text == L"Vczh is a genius!");
-	TEST_ASSERT(file.ReadAllLines(lines) == true && lines.Count() == 1 && lines[0] == L"Vczh is a genius!");
+	TEST_ASSERT(file.ReadAllTextByBom() == L"Vczh is a genius!");
+	TEST_ASSERT(file.ReadAllTextByBom(text) == true && text == L"Vczh is a genius!");
+	TEST_ASSERT(file.ReadAllLinesByBom(lines) == true && lines.Count() == 1 && lines[0] == L"Vczh is a genius!");
 	
 	text = L"";
 	lines.Clear();
 	file.WriteAllText(L"Vczh is a genius!", true, BomEncoder::Utf8);
 	TEST_ASSERT(file.Exists() == true);
-	TEST_ASSERT(file.ReadAllText() == L"Vczh is a genius!");
-	TEST_ASSERT(file.ReadAllText(text) == true && text == L"Vczh is a genius!");
-	TEST_ASSERT(file.ReadAllLines(lines) == true && lines.Count() == 1 && lines[0] == L"Vczh is a genius!");
+	TEST_ASSERT(file.ReadAllTextByBom() == L"Vczh is a genius!");
+	TEST_ASSERT(file.ReadAllTextByBom(text) == true && text == L"Vczh is a genius!");
+	TEST_ASSERT(file.ReadAllLinesByBom(lines) == true && lines.Count() == 1 && lines[0] == L"Vczh is a genius!");
 	
 	text = L"";
 	lines.Clear();
 	file.WriteAllText(L"Vczh is a genius!", true, BomEncoder::Utf16);
 	TEST_ASSERT(file.Exists() == true);
-	TEST_ASSERT(file.ReadAllText() == L"Vczh is a genius!");
-	TEST_ASSERT(file.ReadAllText(text) == true && text == L"Vczh is a genius!");
-	TEST_ASSERT(file.ReadAllLines(lines) == true && lines.Count() == 1 && lines[0] == L"Vczh is a genius!");
+	TEST_ASSERT(file.ReadAllTextByBom() == L"Vczh is a genius!");
+	TEST_ASSERT(file.ReadAllTextByBom(text) == true && text == L"Vczh is a genius!");
+	TEST_ASSERT(file.ReadAllLinesByBom(lines) == true && lines.Count() == 1 && lines[0] == L"Vczh is a genius!");
 	
 	text = L"";
 	lines.Clear();
 	file.WriteAllText(L"Vczh is a genius!", true, BomEncoder::Utf16BE);
 	TEST_ASSERT(file.Exists() == true);
-	TEST_ASSERT(file.ReadAllText() == L"Vczh is a genius!");
-	TEST_ASSERT(file.ReadAllText(text) == true && text == L"Vczh is a genius!");
-	TEST_ASSERT(file.ReadAllLines(lines) == true && lines.Count() == 1 && lines[0] == L"Vczh is a genius!");
+	TEST_ASSERT(file.ReadAllTextByBom() == L"Vczh is a genius!");
+	TEST_ASSERT(file.ReadAllTextByBom(text) == true && text == L"Vczh is a genius!");
+	TEST_ASSERT(file.ReadAllLinesByBom(lines) == true && lines.Count() == 1 && lines[0] == L"Vczh is a genius!");
 	
 	text = L"";
 	lines.Clear();
 	TEST_ASSERT(file.Delete());
 	TEST_ASSERT(file.Exists() == false);
-	TEST_ASSERT(file.ReadAllText() == L"");
-	TEST_ASSERT(file.ReadAllText(text) == false && text == L"");
-	TEST_ASSERT(file.ReadAllLines(lines) == false && lines.Count() == 0);
+	TEST_ASSERT(file.ReadAllTextByBom() == L"");
+	TEST_ASSERT(file.ReadAllTextByBom(text) == false && text == L"");
+	TEST_ASSERT(file.ReadAllLinesByBom(lines) == false && lines.Count() == 0);
+}
+
+void TestFastAccessFilesWithEncodingTestingInternal(IEncoder& encoder, IDecoder& decoder, BomEncoder::Encoding encoding, bool containsBom)
+{
+	WString filePath = GetTestOutputPath() + L"TestFile.ReadWrite.txt";
+	const wchar_t* text =
+		encoding == BomEncoder::Mbcs
+		? L"Vczh is genius!@我是天才"
+		: L"𩰪㦲𦰗𠀼 𣂕𣴑𣱳𦁚 Vczh is genius!@我是天才"
+		;
+
+	{
+		FileStream fileStream(filePath, FileStream::WriteOnly);
+		{
+			EncoderStream encoderStream(fileStream, encoder);
+			StreamWriter writer(encoderStream);
+			writer.WriteString(text);
+		}
+	}
+
+	File file(filePath);
+	TEST_ASSERT(file.Exists());
+
+	WString fileText;
+	BomEncoder::Encoding fileEncoding = BomEncoder::Mbcs;
+	bool fileContainsBom = false;
+	TEST_ASSERT(file.ReadAllTextWithEncodingTesting(fileText, fileEncoding, fileContainsBom));
+
+	TEST_ASSERT(fileText == text);
+	TEST_ASSERT(fileEncoding == encoding);
+	TEST_ASSERT(fileContainsBom == containsBom);
+}
+
+TEST_CASE(FastAccessFilesWithEncodingTesting)
+{
+#ifdef VCZH_MSVC
+	{
+		TEST_PRINT(L"<MBCS, NO-BOM>");
+		MbcsEncoder encoder;
+		MbcsDecoder decoder;
+		TestFastAccessFilesWithEncodingTestingInternal(encoder, decoder, BomEncoder::Mbcs, false);
+	}
+#endif
+	{
+		TEST_PRINT(L"<UTF8, NO-BOM>");
+		Utf8Encoder encoder;
+		Utf8Decoder decoder;
+		TestFastAccessFilesWithEncodingTestingInternal(encoder, decoder, BomEncoder::Utf8, false);
+	}
+	{
+		TEST_PRINT(L"<UTF16, NO-BOM>");
+		Utf16Encoder encoder;
+		Utf16Decoder decoder;
+		TestFastAccessFilesWithEncodingTestingInternal(encoder, decoder, BomEncoder::Utf16, false);
+	}
+	{
+		TEST_PRINT(L"<UTF16_BE, NO-BOM>");
+		Utf16BEEncoder encoder;
+		Utf16BEDecoder decoder;
+		TestFastAccessFilesWithEncodingTestingInternal(encoder, decoder, BomEncoder::Utf16BE, false);
+	}
+#ifdef VCZH_MSVC
+	{
+		TEST_PRINT(L"<MBCS, BOM>");
+		BomEncoder encoder(BomEncoder::Mbcs);
+		BomDecoder decoder;
+		TestFastAccessFilesWithEncodingTestingInternal(encoder, decoder, BomEncoder::Mbcs, false);
+	}
+#endif
+	{
+		TEST_PRINT(L"<UTF8, BOM>");
+		BomEncoder encoder(BomEncoder::Utf8);
+		BomDecoder decoder;
+		TestFastAccessFilesWithEncodingTestingInternal(encoder, decoder, BomEncoder::Utf8, true);
+	}
+	{
+		TEST_PRINT(L"<UTF16, BOM>");
+		BomEncoder encoder(BomEncoder::Utf16);
+		BomDecoder decoder;
+		TestFastAccessFilesWithEncodingTestingInternal(encoder, decoder, BomEncoder::Utf16, true);
+	}
+	{
+		TEST_PRINT(L"<UTF16_BE, BOM>");
+		BomEncoder encoder(BomEncoder::Utf16BE);
+		BomDecoder decoder;
+		TestFastAccessFilesWithEncodingTestingInternal(encoder, decoder, BomEncoder::Utf16BE, true);
+	}
 }

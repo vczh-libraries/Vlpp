@@ -593,7 +593,6 @@ TEST_CASE(TestStreamWriter)
 void TestEncodingInternal(IEncoder& encoder, IDecoder& decoder, BomEncoder::Encoding encoding, bool containsBom)
 {
 	const wchar_t* text=L"𩰪㦲𦰗𠀼 𣂕𣴑𣱳𦁚 Vczh is genius!@我是天才";
-	//const wchar_t* text=L"A𩰪我";
 	MemoryStream memoryStream;
 	{
 		EncoderStream encoderStream(memoryStream, encoder);
@@ -616,13 +615,11 @@ void TestEncodingInternal(IEncoder& encoder, IDecoder& decoder, BomEncoder::Enco
 		TEST_PRINT(L"\tEncoded: "+output);
 	}
 
-#if defined VCZH_WINDOWS	
 	BomEncoder::Encoding resultEncoding;
 	bool resultContainsBom;
 	TestEncoding(&buffer[0], buffer.Count(), resultEncoding, resultContainsBom);
 	TEST_ASSERT(encoding==resultEncoding);
 	TEST_ASSERT(containsBom==resultContainsBom);
-#endif
 
 	if(encoding!=BomEncoder::Mbcs)
 	{
@@ -636,12 +633,14 @@ void TestEncodingInternal(IEncoder& encoder, IDecoder& decoder, BomEncoder::Enco
 
 TEST_CASE(TestEncoding)
 {
+#ifdef VCZH_MSVC
 	{
 		TEST_PRINT(L"<MBCS, NO-BOM>");
 		MbcsEncoder encoder;
 		MbcsDecoder decoder;
-		TestEncodingInternal(encoder, decoder, BomEncoder::Mbcs, true);
+		TestEncodingInternal(encoder, decoder, BomEncoder::Mbcs, false);
 	}
+#endif
 	{
 		TEST_PRINT(L"<UTF8, NO-BOM>");
 		Utf8Encoder encoder;
@@ -660,12 +659,14 @@ TEST_CASE(TestEncoding)
 		Utf16BEDecoder decoder;
 		TestEncodingInternal(encoder, decoder, BomEncoder::Utf16BE, false);
 	}
+#ifdef VCZH_MSVC
 	{
 		TEST_PRINT(L"<MBCS, BOM>");
 		BomEncoder encoder(BomEncoder::Mbcs);
 		BomDecoder decoder;
-		TestEncodingInternal(encoder, decoder, BomEncoder::Mbcs, true);
+		TestEncodingInternal(encoder, decoder, BomEncoder::Mbcs, false);
 	}
+#endif
 	{
 		TEST_PRINT(L"<UTF8, BOM>");
 		BomEncoder encoder(BomEncoder::Utf8);

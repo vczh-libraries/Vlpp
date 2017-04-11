@@ -801,20 +801,11 @@ CharEncoder
 
 		bool CanBeMbcs(unsigned char* buffer, vint size)
 		{
-			bool needTrail=false;
 			for(vint i=0;i<size;i++)
 			{
 				if(buffer[i]==0) return false;
-				if(needTrail)
-				{
-					needTrail=false;
-				}
-				else if(buffer[i]>=128)
-				{
-					needTrail=true;
-				}
 			}
-			return !needTrail;
+			return true;
 		}
 
 		bool CanBeUtf8(unsigned char* buffer, vint size)
@@ -932,13 +923,13 @@ CharEncoder
 
 #if defined VCZH_MSVC
 		template<vint Count>
-		bool GetEncodingResult(int (&tests)[Count], bool(&results)[Count], int test)
+		bool GetEncodingResult(int(&tests)[Count], bool(&results)[Count], int test)
 		{
-			for(vint i=0;i<Count;i++)
+			for (vint i = 0; i < Count; i++)
 			{
-				if(tests[i]&test)
+				if (tests[i] & test)
 				{
-					if(results[i]) return true;
+					if (results[i]) return true;
 				}
 			}
 			return false;
@@ -947,43 +938,43 @@ CharEncoder
 
 		void TestEncoding(unsigned char* buffer, vint size, BomEncoder::Encoding& encoding, bool& containsBom)
 		{
-			if(size>=3 && strncmp((char*)buffer, "\xEF\xBB\xBF", 3)==0)
+			if (size >= 3 && strncmp((char*)buffer, "\xEF\xBB\xBF", 3) == 0)
 			{
-				encoding=BomEncoder::Utf8;
-				containsBom=true;
+				encoding = BomEncoder::Utf8;
+				containsBom = true;
 			}
-			else if(size>=2 && strncmp((char*)buffer, "\xFF\xFE", 2)==0)
+			else if (size >= 2 && strncmp((char*)buffer, "\xFF\xFE", 2) == 0)
 			{
-				encoding=BomEncoder::Utf16;
-				containsBom=true;
+				encoding = BomEncoder::Utf16;
+				containsBom = true;
 			}
-			else if(size>=2 && strncmp((char*)buffer, "\xFE\xFF", 2)==0)
+			else if (size >= 2 && strncmp((char*)buffer, "\xFE\xFF", 2) == 0)
 			{
-				encoding=BomEncoder::Utf16BE;
-				containsBom=true;
+				encoding = BomEncoder::Utf16BE;
+				containsBom = true;
 			}
 			else
 			{
-				encoding=BomEncoder::Mbcs;
-				containsBom=true;
+				encoding = BomEncoder::Mbcs;
+				containsBom = false;
 
-				bool roughMbcs=CanBeMbcs(buffer, size);
-				bool roughUtf8=CanBeUtf8(buffer, size);
-				bool roughUtf16=CanBeUtf16(buffer, size);
-				bool roughUtf16BE=CanBeUtf16BE(buffer, size);
+				bool roughMbcs = CanBeMbcs(buffer, size);
+				bool roughUtf8 = CanBeUtf8(buffer, size);
+				bool roughUtf16 = CanBeUtf16(buffer, size);
+				bool roughUtf16BE = CanBeUtf16BE(buffer, size);
 #if defined VCZH_MSVC
-				vint roughCount=(roughMbcs?1:0)+(roughUtf8?1:0)+(roughUtf16?1:0)+(roughUtf16BE?1:0);
-				if(roughCount==1)
+				vint roughCount = (roughMbcs ? 1 : 0) + (roughUtf8 ? 1 : 0) + (roughUtf16 ? 1 : 0) + (roughUtf16BE ? 1 : 0);
+				if (roughCount == 1)
 				{
 #endif
-					if(roughUtf8) encoding=BomEncoder::Utf8;
-					if(roughUtf16) encoding=BomEncoder::Utf16;
-					if(roughUtf16BE) encoding=BomEncoder::Utf16BE;
+					if (roughUtf8) encoding = BomEncoder::Utf8;
+					else if (roughUtf16) encoding = BomEncoder::Utf16;
+					else if (roughUtf16BE) encoding = BomEncoder::Utf16BE;
 #if defined VCZH_MSVC
 				}
-				else if(roughCount>1)
+				else if (roughCount > 1)
 				{
-					int tests[]=
+					int tests[] =
 					{
 						IS_TEXT_UNICODE_REVERSE_ASCII16,
 						IS_TEXT_UNICODE_REVERSE_STATISTICS,
@@ -998,92 +989,91 @@ CharEncoder
 						IS_TEXT_UNICODE_NULL_BYTES,
 					};
 
-					const vint TestCount=sizeof(tests)/sizeof(*tests);
+					const vint TestCount = sizeof(tests) / sizeof(*tests);
 					bool results[TestCount];
-					for(vint i=0;i<TestCount;i++)
+					for (vint i = 0; i < TestCount; i++)
 					{
-						int test=tests[i];
-						results[i]=IsTextUnicode(buffer, (int)size, &test)!=0;
+						int test = tests[i];
+						results[i] = IsTextUnicode(buffer, (int)size, &test) != 0;
 					}
 
-					if(size%2==0
+					if (size % 2 == 0
 						&& !GetEncodingResult(tests, results, IS_TEXT_UNICODE_REVERSE_ASCII16)
 						&& !GetEncodingResult(tests, results, IS_TEXT_UNICODE_REVERSE_STATISTICS)
 						&& !GetEncodingResult(tests, results, IS_TEXT_UNICODE_REVERSE_CONTROLS)
 						)
 					{
-						for(vint i=0;i<size;i+=2)
+						for (vint i = 0; i < size; i += 2)
 						{
-							unsigned char c=buffer[i];
-							buffer[i]=buffer[i+1];
-							buffer[i+1]=c;
+							unsigned char c = buffer[i];
+							buffer[i] = buffer[i + 1];
+							buffer[i + 1] = c;
 						}
 						// 3 = (count of reverse group) = (count of unicode group)
-						for(vint i=0;i<3;i++)
+						for (vint i = 0; i < 3; i++)
 						{
-							int test=tests[i+3];
-							results[i]=IsTextUnicode(buffer, (int)size, &test)!=0;
+							int test = tests[i + 3];
+							results[i] = IsTextUnicode(buffer, (int)size, &test) != 0;
 						}
-						for(vint i=0;i<size;i+=2)
+						for (vint i = 0; i < size; i += 2)
 						{
-							unsigned char c=buffer[i];
-							buffer[i]=buffer[i+1];
-							buffer[i+1]=c;
+							unsigned char c = buffer[i];
+							buffer[i] = buffer[i + 1];
+							buffer[i + 1] = c;
 						}
 					}
 
-					if(GetEncodingResult(tests, results, IS_TEXT_UNICODE_NOT_UNICODE_MASK))
+					if (GetEncodingResult(tests, results, IS_TEXT_UNICODE_NOT_UNICODE_MASK))
 					{
-						if(GetEncodingResult(tests, results, IS_TEXT_UNICODE_NOT_ASCII_MASK))
+						if (GetEncodingResult(tests, results, IS_TEXT_UNICODE_NOT_ASCII_MASK))
 						{
-							encoding=BomEncoder::Utf8;
+							encoding = BomEncoder::Utf8;
 						}
-						else if(roughUtf8||!roughMbcs)
+						else if (roughUtf8 || !roughMbcs)
 						{
-							encoding=BomEncoder::Utf8;
+							encoding = BomEncoder::Utf8;
 						}
 					}
-					else if(GetEncodingResult(tests, results, IS_TEXT_UNICODE_ASCII16))
+					else if (GetEncodingResult(tests, results, IS_TEXT_UNICODE_ASCII16))
 					{
-						encoding=BomEncoder::Utf16;
+						encoding = BomEncoder::Utf16;
 					}
-					else if(GetEncodingResult(tests, results, IS_TEXT_UNICODE_REVERSE_ASCII16))
+					else if (GetEncodingResult(tests, results, IS_TEXT_UNICODE_REVERSE_ASCII16))
 					{
-						encoding=BomEncoder::Utf16BE;
+						encoding = BomEncoder::Utf16BE;
 					}
-					else if(GetEncodingResult(tests, results, IS_TEXT_UNICODE_CONTROLS))
+					else if (GetEncodingResult(tests, results, IS_TEXT_UNICODE_CONTROLS))
 					{
-						encoding=BomEncoder::Utf16;
+						encoding = BomEncoder::Utf16;
 					}
-					else if(GetEncodingResult(tests, results, IS_TEXT_UNICODE_REVERSE_CONTROLS))
+					else if (GetEncodingResult(tests, results, IS_TEXT_UNICODE_REVERSE_CONTROLS))
 					{
-						encoding=BomEncoder::Utf16BE;
+						encoding = BomEncoder::Utf16BE;
 					}
 					else
 					{
-						if(!roughUtf8)
+						if (!roughUtf8)
 						{
-							if(GetEncodingResult(tests, results, IS_TEXT_UNICODE_STATISTICS))
+							if (GetEncodingResult(tests, results, IS_TEXT_UNICODE_STATISTICS))
 							{
-								encoding=BomEncoder::Utf16;
+								encoding = BomEncoder::Utf16;
 							}
-							else if(GetEncodingResult(tests, results, IS_TEXT_UNICODE_STATISTICS))
+							else if (GetEncodingResult(tests, results, IS_TEXT_UNICODE_STATISTICS))
 							{
-								encoding=BomEncoder::Utf16BE;
+								encoding = BomEncoder::Utf16BE;
 							}
 						}
-						else if(GetEncodingResult(tests, results, IS_TEXT_UNICODE_NOT_UNICODE_MASK))
+						else if (GetEncodingResult(tests, results, IS_TEXT_UNICODE_NOT_UNICODE_MASK))
 						{
-							encoding=BomEncoder::Utf8;
+							encoding = BomEncoder::Utf8;
 						}
-						else if(roughUtf8||!roughMbcs)
+						else if (roughUtf8 || !roughMbcs)
 						{
-							encoding=BomEncoder::Utf8;
+							encoding = BomEncoder::Utf8;
 						}
 					}
 				}
 #endif
-				containsBom=encoding==BomEncoder::Mbcs;
 			}
 		}
 	}
