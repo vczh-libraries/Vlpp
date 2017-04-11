@@ -12,6 +12,7 @@
 #include "../../Source/Stream/CharFormat.h"
 #include "../../Source/Stream/CompressionStream.h"
 #include "../../Source/Pointer.h"
+#include "../../Source/Locale.h"
 
 using namespace vl;
 using namespace vl::stream;
@@ -633,14 +634,13 @@ void TestEncodingInternal(IEncoder& encoder, IDecoder& decoder, BomEncoder::Enco
 
 TEST_CASE(TestEncoding)
 {
-#ifdef VCZH_MSVC
+	if (Locale::SystemDefault().GetName() == L"zh-CN")
 	{
 		TEST_PRINT(L"<MBCS, NO-BOM>");
 		MbcsEncoder encoder;
 		MbcsDecoder decoder;
 		TestEncodingInternal(encoder, decoder, BomEncoder::Mbcs, false);
 	}
-#endif
 	{
 		TEST_PRINT(L"<UTF8, NO-BOM>");
 		Utf8Encoder encoder;
@@ -659,14 +659,13 @@ TEST_CASE(TestEncoding)
 		Utf16BEDecoder decoder;
 		TestEncodingInternal(encoder, decoder, BomEncoder::Utf16BE, false);
 	}
-#ifdef VCZH_MSVC
+	if (Locale::SystemDefault().GetName() == L"zh-CN")
 	{
 		TEST_PRINT(L"<MBCS, BOM>");
 		BomEncoder encoder(BomEncoder::Mbcs);
 		BomDecoder decoder;
 		TestEncodingInternal(encoder, decoder, BomEncoder::Mbcs, false);
 	}
-#endif
 	{
 		TEST_PRINT(L"<UTF8, BOM>");
 		BomEncoder encoder(BomEncoder::Utf8);

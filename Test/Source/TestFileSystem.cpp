@@ -451,14 +451,13 @@ void TestFastAccessFilesWithEncodingTestingInternal(IEncoder& encoder, IDecoder&
 
 TEST_CASE(FastAccessFilesWithEncodingTesting)
 {
-#ifdef VCZH_MSVC
+	if (Locale::SystemDefault().GetName() == L"zh-CN")
 	{
 		TEST_PRINT(L"<MBCS, NO-BOM>");
 		MbcsEncoder encoder;
 		MbcsDecoder decoder;
 		TestFastAccessFilesWithEncodingTestingInternal(encoder, decoder, BomEncoder::Mbcs, false);
 	}
-#endif
 	{
 		TEST_PRINT(L"<UTF8, NO-BOM>");
 		Utf8Encoder encoder;
@@ -477,14 +476,13 @@ TEST_CASE(FastAccessFilesWithEncodingTesting)
 		Utf16BEDecoder decoder;
 		TestFastAccessFilesWithEncodingTestingInternal(encoder, decoder, BomEncoder::Utf16BE, false);
 	}
-#ifdef VCZH_MSVC
+	if (Locale::SystemDefault().GetName() == L"zh-CN")
 	{
 		TEST_PRINT(L"<MBCS, BOM>");
 		BomEncoder encoder(BomEncoder::Mbcs);
 		BomDecoder decoder;
 		TestFastAccessFilesWithEncodingTestingInternal(encoder, decoder, BomEncoder::Mbcs, false);
 	}
-#endif
 	{
 		TEST_PRINT(L"<UTF8, BOM>");
 		BomEncoder encoder(BomEncoder::Utf8);
