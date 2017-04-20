@@ -1,6 +1,8 @@
 # Vlpp
 ### Common Cross-Platform C++ Construction.
 
+**Read the [LICENSE](https://github.com/vczh-libraries/Vlpp/blob/master/LICENSE.md) first.**
+
 Using this library requires you to use C++ source files in
 
 * The [Release folder](https://github.com/vczh-libraries/Vlpp/tree/master/Release) for this library.
