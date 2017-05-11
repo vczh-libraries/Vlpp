@@ -15253,7 +15253,7 @@ Interface Implementation Proxy (Implement)
 			BEGIN_INTERFACE_PROXY_NOPARENT_SHAREDPTR(IValueSubscription)
 				bool Open()override
 				{
-					INVOKEGET_INTERFACE_PROXY_NOPARAMS(Close);
+					INVOKEGET_INTERFACE_PROXY_NOPARAMS(Open);
 				}
 
 				bool Update()override
