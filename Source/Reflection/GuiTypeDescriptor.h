@@ -43,7 +43,6 @@ Attribute
 
 			class IValueFunctionProxy;
 			class IValueInterfaceProxy;
-			class IValueListener;
 			class IValueSubscription;
 
 			class IValueEnumerable;

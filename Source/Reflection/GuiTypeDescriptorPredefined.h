@@ -108,18 +108,12 @@ Interface Implementation Proxy
 				virtual Value					Invoke(Ptr<IValueList> arguments) = 0;
 			};
 
-			class IValueListener : public virtual IDescriptable, public Description<IValueListener>
-			{
-			public:
-				virtual IValueSubscription*		GetSubscription() = 0;
-				virtual bool					GetStopped() = 0;
-				virtual bool					StopListening() = 0;
-			};
-
 			class IValueSubscription : public virtual IDescriptable, public Description<IValueSubscription>
 			{
+				typedef void ValueChangedProc(const Value& newValue);
 			public:
-				virtual Ptr<IValueListener>		Subscribe(const Func<void(const Value&)>& callback) = 0;
+				Event<ValueChangedProc>			ValueChanged;
+
 				virtual bool					Update() = 0;
 				virtual bool					Close() = 0;
 			};

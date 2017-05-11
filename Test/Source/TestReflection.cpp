@@ -777,7 +777,6 @@ namespace reflection_test
 		TEST_ASSERT(GetTypeDescriptor<IValueDictionary>()->GetTypeDescriptorFlags() == TypeDescriptorFlags::Interface);
 		TEST_ASSERT(GetTypeDescriptor<IValueInterfaceProxy>()->GetTypeDescriptorFlags() == TypeDescriptorFlags::Interface);
 		TEST_ASSERT(GetTypeDescriptor<IValueFunctionProxy>()->GetTypeDescriptorFlags() == TypeDescriptorFlags::Interface);
-		TEST_ASSERT(GetTypeDescriptor<IValueListener>()->GetTypeDescriptorFlags() == TypeDescriptorFlags::Interface);
 		TEST_ASSERT(GetTypeDescriptor<IValueSubscription>()->GetTypeDescriptorFlags() == TypeDescriptorFlags::Interface);
 		TEST_ASSERT(GetTypeDescriptor<IValueCallStack>()->GetTypeDescriptorFlags() == TypeDescriptorFlags::Interface);
 		TEST_ASSERT(GetTypeDescriptor<IValueException>()->GetTypeDescriptorFlags() == TypeDescriptorFlags::Interface);

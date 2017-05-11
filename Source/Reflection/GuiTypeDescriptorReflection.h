@@ -58,7 +58,6 @@ Predefined Types
 			DECL_TYPE_INFO(IValueInterfaceProxy)
 			DECL_TYPE_INFO(IValueFunctionProxy)
 
-			DECL_TYPE_INFO(IValueListener)
 			DECL_TYPE_INFO(IValueSubscription)
 			DECL_TYPE_INFO(IValueCallStack)
 			DECL_TYPE_INFO(IValueException)
@@ -251,29 +250,7 @@ Interface Implementation Proxy (Implement)
 				}
 			END_INTERFACE_PROXY(IValueDictionary)
 
-			BEGIN_INTERFACE_PROXY_NOPARENT_SHAREDPTR(IValueListener)
-				IValueSubscription* GetSubscription()override
-				{
-					INVOKEGET_INTERFACE_PROXY_NOPARAMS(GetSubscription);
-				}
-
-				bool GetStopped()override
-				{
-					INVOKEGET_INTERFACE_PROXY_NOPARAMS(GetStopped);
-				}
-
-				bool StopListening()override
-				{
-					INVOKEGET_INTERFACE_PROXY_NOPARAMS(StopListening);
-				}
-			END_INTERFACE_PROXY(IValueListener)
-
 			BEGIN_INTERFACE_PROXY_NOPARENT_SHAREDPTR(IValueSubscription)
-				Ptr<IValueListener> Subscribe(const Func<void(const Value&)>& callback)override
-				{
-					INVOKEGET_INTERFACE_PROXY(Subscribe, callback);
-				}
-
 				bool Update()override
 				{
 					INVOKEGET_INTERFACE_PROXY_NOPARAMS(Update);
