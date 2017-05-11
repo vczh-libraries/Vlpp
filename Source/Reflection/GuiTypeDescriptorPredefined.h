@@ -114,6 +114,7 @@ Interface Implementation Proxy
 			public:
 				Event<ValueChangedProc>			ValueChanged;
 
+				virtual bool					Open() = 0;
 				virtual bool					Update() = 0;
 				virtual bool					Close() = 0;
 			};

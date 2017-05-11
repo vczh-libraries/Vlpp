@@ -251,6 +251,11 @@ Interface Implementation Proxy (Implement)
 			END_INTERFACE_PROXY(IValueDictionary)
 
 			BEGIN_INTERFACE_PROXY_NOPARENT_SHAREDPTR(IValueSubscription)
+				bool Open()override
+				{
+					INVOKEGET_INTERFACE_PROXY_NOPARAMS(Close);
+				}
+
 				bool Update()override
 				{
 					INVOKEGET_INTERFACE_PROXY_NOPARAMS(Update);
