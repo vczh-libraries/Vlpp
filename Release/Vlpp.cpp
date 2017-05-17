@@ -19385,12 +19385,16 @@ LoadPredefinedTypes
 				CLASS_MEMBER_STATIC_METHOD(Mid, { L"value" _ L"start" _ L"length" })
 				CLASS_MEMBER_STATIC_METHOD(Find, { L"value" _ L"substr" })
 				CLASS_MEMBER_STATIC_METHOD(ReverseEnumerable, { L"value" })
-
+#pragma push_macro("CompareString")
+#if defined CompareString
+#undef CompareString
+#endif
 #define DEFINE_COMPARE(TYPE) CLASS_MEMBER_STATIC_EXTERNALMETHOD(PT_CONCAT(Compare, PT(TYPE)), PROTECT_PARAMETERS({L"a" _ L"b"}), vint(*)(TYPE, TYPE), vl::reflection::description::Sys::Compare)
 				REFLECTION_PREDEFINED_PRIMITIVE_TYPES(DEFINE_COMPARE)
 				DEFINE_COMPARE(DateTime)
 				DEFINE_COMPARE(vint)
 #undef DEFINE_COMPARE
+#pragma pop_macro("CompareString")
 			END_CLASS_MEMBER(Sys)
 
 			BEGIN_CLASS_MEMBER(Math)
