@@ -316,6 +316,22 @@ Coroutine (Async)
 Libraries
 ***********************************************************************/
 
+#define REFLECTION_PREDEFINED_PRIMITIVE_TYPES(F)\
+			F(vuint8_t)		\
+			F(vuint16_t)	\
+			F(vuint32_t)	\
+			F(vuint64_t)	\
+			F(vint8_t)		\
+			F(vint16_t)		\
+			F(vint32_t)		\
+			F(vint64_t)		\
+			F(float)		\
+			F(double)		\
+			F(bool)			\
+			F(wchar_t)		\
+			F(WString)		\
+			F(Locale)		\
+
 			class Sys : public Description<Sys>
 			{
 			public:
@@ -324,6 +340,10 @@ Libraries
 				static WString		Right(const WString& value, vint length)			{ return value.Right(length); }
 				static WString		Mid(const WString& value, vint start, vint length)	{ return value.Sub(start, length); }
 				static vint			Find(const WString& value, const WString& substr)	{ return INVLOC.FindFirst(value, substr, Locale::Normalization::None).key; }
+
+#define DEFINE_COMPARE(TYPE) static vint Compare(TYPE a, TYPE b);
+				REFLECTION_PREDEFINED_PRIMITIVE_TYPES(DEFINE_COMPARE)
+#undef DEFINE_COMPARE
 
 				static Ptr<IValueEnumerable>		ReverseEnumerable(Ptr<IValueEnumerable> value);
 			};

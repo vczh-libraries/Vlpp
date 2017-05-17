@@ -1,4 +1,5 @@
 #include "GuiTypeDescriptorMacros.h"
+#include "GuiTypeDescriptorReflection.h"
 #include "../Threading.h"
 
 namespace vl
@@ -665,6 +666,24 @@ Libraries
 				}
 				return new system_sys::ReverseEnumerable(list);
 			}
+
+#define DEFINE_COMPARE(TYPE)\
+			vint Sys::Compare(TYPE a, TYPE b)\
+			{\
+				auto result = TypedValueSerializerProvider<TYPE>::Compare(a, b);\
+				switch (result)\
+				{\
+				case IBoxedValue::Smaller:	return -1;\
+				case IBoxedValue::Greater:	return 1;\
+				case IBoxedValue::Equal:	return 0;\
+				default:\
+					CHECK_FAIL(L"Unexpected compare result.");\
+				}\
+			}\
+
+			REFLECTION_PREDEFINED_PRIMITIVE_TYPES(DEFINE_COMPARE)
+
+#undef DEFINE_COMPARE
 		}
 	}
 }
