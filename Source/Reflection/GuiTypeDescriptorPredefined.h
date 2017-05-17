@@ -343,6 +343,7 @@ Libraries
 
 #define DEFINE_COMPARE(TYPE) static vint Compare(TYPE a, TYPE b);
 				REFLECTION_PREDEFINED_PRIMITIVE_TYPES(DEFINE_COMPARE)
+				DEFINE_COMPARE(DateTime)
 #undef DEFINE_COMPARE
 
 				static Ptr<IValueEnumerable>		ReverseEnumerable(Ptr<IValueEnumerable> value);

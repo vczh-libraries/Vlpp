@@ -18781,7 +18781,7 @@ Libraries
 			}\
 
 			REFLECTION_PREDEFINED_PRIMITIVE_TYPES(DEFINE_COMPARE)
-
+			DEFINE_COMPARE(DateTime)
 #undef DEFINE_COMPARE
 		}
 	}
@@ -19256,7 +19256,11 @@ DateTimeValueSerializer
 
 			IBoxedValue::CompareResult TypedValueSerializerProvider<DateTime>::Compare(const DateTime& a, const DateTime& b)
 			{
-				return IBoxedValue::NotComparable;
+				auto ta = a.filetime;
+				auto tb = b.filetime;
+				if (ta < tb) return IBoxedValue::Smaller;
+				if (ta > tb) return IBoxedValue::Greater;
+				return IBoxedValue::Equal;
 			}
 
 /***********************************************************************
@@ -19350,6 +19354,7 @@ LoadPredefinedTypes
 
 #define DEFINE_COMPARE(TYPE) CLASS_MEMBER_STATIC_METHOD_OVERLOAD(Compare, PROTECT_PARAMETERS({L"a" _ L"b"}), vint(*)(TYPE, TYPE))
 				REFLECTION_PREDEFINED_PRIMITIVE_TYPES(DEFINE_COMPARE)
+				DEFINE_COMPARE(DateTime)
 #undef DEFINE_COMPARE
 			END_CLASS_MEMBER(Sys)
 
@@ -19406,6 +19411,7 @@ LoadPredefinedTypes
 			END_INTERFACE_MEMBER(IDescriptable)
 
 			BEGIN_STRUCT_MEMBER(DateTime)
+				valueType = new SerializableValueType<DateTime>();
 				serializableType = new SerializableType<DateTime>();
 				STRUCT_MEMBER(year)
 				STRUCT_MEMBER(month)
