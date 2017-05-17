@@ -684,6 +684,20 @@ Libraries
 			REFLECTION_PREDEFINED_PRIMITIVE_TYPES(DEFINE_COMPARE)
 			DEFINE_COMPARE(DateTime)
 #undef DEFINE_COMPARE
+
+#define DEFINE_MINMAX(TYPE)\
+			TYPE Math::Min(TYPE a, TYPE b)\
+			{\
+				return Sys::Compare(a, b) < 0 ? a : b;\
+			}\
+			TYPE Math::Max(TYPE a, TYPE b)\
+			{\
+				return Sys::Compare(a, b) > 0 ? a : b;\
+			}\
+
+			REFLECTION_PREDEFINED_PRIMITIVE_TYPES(DEFINE_MINMAX)
+			DEFINE_MINMAX(DateTime)
+#undef DEFINE_MINMAX
 		}
 	}
 }
