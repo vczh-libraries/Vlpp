@@ -234,7 +234,12 @@
     <ClCompile Include="..\..\..\Source\Reflection\GuiTypeDescriptor.cpp" />
     <ClCompile Include="..\..\..\Source\Reflection\GuiTypeDescriptorBuilder.cpp" />
     <ClCompile Include="..\..\..\Source\Reflection\GuiTypeDescriptorPredefined.cpp" />
-    <ClCompile Include="..\..\..\Source\Reflection\GuiTypeDescriptorReflection.cpp" />
+    <ClCompile Include="..\..\..\Source\Reflection\GuiTypeDescriptorReflection.cpp">
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">/bigobj %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">/bigobj %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">/bigobj %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">/bigobj %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
     <ClCompile Include="..\..\..\Source\Reflection\GuiTypeDescriptor_Log.cpp" />
     <ClCompile Include="..\..\..\Source\Regex\Regex.cpp" />
     <ClCompile Include="..\..\..\Source\Regex\RegexAutomaton.cpp" />
