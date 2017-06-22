@@ -13,6 +13,12 @@ Interfaces:
 
 namespace vl
 {
+	namespace collections
+	{
+		template<typename T>
+		class ObservableList;
+	}
+
 	namespace reflection
 	{
 		namespace description
@@ -464,8 +470,9 @@ TypeFlagTester
 				EnumerableType			=1<<1,
 				ReadonlyListType		=1<<2,
 				ListType				=1<<3,
-				ReadonlyDictionaryType	=1<<4,
-				DictionaryType			=1<<5,
+				ObservableListType		=1<<4,
+				ReadonlyDictionaryType	=1<<5,
+				DictionaryType			=1<<6,
 			};
 
 			template<typename T>
@@ -531,6 +538,17 @@ TypeFlagTester
 			};
 
 			template<typename TDerived>
+			struct TypeFlagTester<TDerived, TypeFlags::ObservableListType>
+			{
+				template<typename T>
+				static void* Inherit(collections::ObservableList<T>* source) {}
+				static char Inherit(void* source) {}
+				static char Inherit(const void* source) {}
+
+				static const TypeFlags									Result = sizeof(Inherit(((ValueRetriver<TDerived>*)0)->pointer)) == sizeof(void*) ? TypeFlags::ObservableListType : TypeFlags::NonGenericType;
+			};
+
+			template<typename TDerived>
 			struct TypeFlagTester<TDerived, TypeFlags::ReadonlyDictionaryType>
 			{
 				template<typename K, typename V>
@@ -587,6 +605,12 @@ TypeFlagSelector
 			};
 
 			template<typename T>
+			struct TypeFlagSelectorCase<T, (TypeFlags)((vint)TypeFlags::ObservableListType|(vint)TypeFlags::ListType|(vint)TypeFlags::ReadonlyListType)>
+			{
+				static const  TypeFlags									Result = TypeFlags::ObservableListType;
+			};
+
+			template<typename T>
 			struct TypeFlagSelectorCase<T, (TypeFlags)((vint)TypeFlags::ReadonlyListType)>
 			{
 				static const  TypeFlags									Result=TypeFlags::ReadonlyListType;
@@ -615,6 +639,7 @@ TypeFlagSelector
 					| (vint)TypeFlagTester<T, TypeFlags::EnumerableType>::Result
 					| (vint)TypeFlagTester<T, TypeFlags::ReadonlyListType>::Result
 					| (vint)TypeFlagTester<T, TypeFlags::ListType>::Result
+					| (vint)TypeFlagTester<T, TypeFlags::ObservableListType>::Result
 					| (vint)TypeFlagTester<T, TypeFlags::ReadonlyDictionaryType>::Result
 					| (vint)TypeFlagTester<T, TypeFlags::DictionaryType>::Result
 					)
@@ -692,6 +717,12 @@ TypeHintTester
 			struct TypeHintTester<collections::SortedList<T>>
 			{
 				static const TypeInfoHint								Result = TypeInfoHint::SortedList;
+			};
+
+			template<typename T>
+			struct TypeHintTester<collections::ObservableList<T>>
+			{
+				static const TypeInfoHint								Result = TypeInfoHint::ObservableList;
 			};
 
 			template<typename K, typename V>

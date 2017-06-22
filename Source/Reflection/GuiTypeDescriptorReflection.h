@@ -193,7 +193,7 @@ Interface Implementation Proxy (Implement)
 				}
 			END_INTERFACE_PROXY(IValueList)
 
-			BEGIN_INTERFACE_PROXY_SHAREDPTR(IValueObservableList, IValueReadonlyList)
+			BEGIN_INTERFACE_PROXY_SHAREDPTR(IValueObservableList, IValueList)
 			END_INTERFACE_PROXY(IValueObservableList)
 
 			BEGIN_INTERFACE_PROXY_NOPARENT_SHAREDPTR(IValueReadonlyDictionary)

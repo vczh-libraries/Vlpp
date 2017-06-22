@@ -722,6 +722,7 @@ ITypeDescriptor (type)
 				Array,
 				List,
 				SortedList,
+				ObservableList,
 				Dictionary,
 				NativeCollectionReference,
 			};

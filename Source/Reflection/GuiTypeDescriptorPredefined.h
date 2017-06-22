@@ -64,11 +64,15 @@ Collections
 				static Ptr<IValueList>			Create(collections::LazyList<Value> values);
 			};
 
-			class IValueObservableList : public virtual IValueReadonlyList, public Description<IValueObservableList>
+			class IValueObservableList : public virtual IValueList, public Description<IValueObservableList>
 			{
 				typedef void ItemChangedProc(vint index, vint oldCount, vint newCount);
 			public:
 				Event<ItemChangedProc>			ItemChanged;
+
+				static Ptr<IValueObservableList>	Create();
+				static Ptr<IValueObservableList>	Create(Ptr<IValueReadonlyList> values);
+				static Ptr<IValueObservableList>	Create(collections::LazyList<Value> values);
 			};
 
 			class IValueReadonlyDictionary : public virtual IDescriptable, public Description<IValueReadonlyDictionary>

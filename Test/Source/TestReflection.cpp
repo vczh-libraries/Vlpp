@@ -484,6 +484,8 @@ namespace test
 		const Array<int>& GetArray(Array<int>& x) { return x; }
 		const List<int>& GetList(List<int>& x) { return x; }
 		const SortedList<int>& GetSortedList(SortedList<int>& x) { return x; }
+		const ObservableList<vint>& GetReadableObservableList() { throw nullptr; }
+		ObservableList<vint>& GetObservableList() { throw nullptr; }
 		const Dictionary<int, int>& GetDictionary(Dictionary<int, int>& x) { return x; }
 		const MyList& GetMyList(MyList& x) { return x; }
 		Func<int(int)> GetFunc(Func<int(int)> x) { return x; }
@@ -642,6 +644,8 @@ BEGIN_TYPE_INFO_NAMESPACE
 		CLASS_MEMBER_METHOD(GetArray, { L"x" })
 		CLASS_MEMBER_METHOD(GetList, { L"x" })
 		CLASS_MEMBER_METHOD(GetSortedList, { L"x" })
+		CLASS_MEMBER_METHOD(GetReadableObservableList, NO_PARAMETER)
+		CLASS_MEMBER_METHOD(GetObservableList, NO_PARAMETER)
 		CLASS_MEMBER_METHOD(GetDictionary, { L"x" })
 		CLASS_MEMBER_METHOD(GetMyList, { L"x" })
 		CLASS_MEMBER_METHOD(GetFunc, { L"x" })
@@ -1564,16 +1568,20 @@ namespace reflection_test
 		}
 	}
 
-	template<typename TArgument, typename TReturn>
-	void TestHint(const WString& member, TypeInfoHint hint)
+	template<typename TReturn, typename TArgument>
+	void TestHint(const WString& member, TypeInfoHint hint, bool testParameter = true)
 	{
 		auto td = GetTypeDescriptor<HintTester>();
 		auto method = td->GetMethodGroupByName(member, false)->GetMethod(0);
-		TEST_ASSERT(method->GetParameterCount() == 1);
-		TEST_ASSERT(method->GetReturn()->GetTypeDescriptor() == GetTypeDescriptor<TArgument>());
+		TEST_ASSERT(method->GetReturn()->GetTypeDescriptor() == GetTypeDescriptor<TReturn>());
 		TEST_ASSERT(method->GetReturn()->GetHint() == hint);
-		TEST_ASSERT(method->GetParameter(0)->GetType()->GetTypeDescriptor() == GetTypeDescriptor<TReturn>());
-		TEST_ASSERT(method->GetParameter(0)->GetType()->GetHint() == hint);
+
+		if (testParameter)
+		{
+			TEST_ASSERT(method->GetParameterCount() == 1);
+			TEST_ASSERT(method->GetParameter(0)->GetType()->GetTypeDescriptor() == GetTypeDescriptor<TArgument>());
+			TEST_ASSERT(method->GetParameter(0)->GetType()->GetHint() == hint);
+		}
 	}
 
 	void TestHint()
@@ -1582,6 +1590,8 @@ namespace reflection_test
 		TestHint<IValueReadonlyList, IValueList>(L"GetArray", TypeInfoHint::Array);
 		TestHint<IValueReadonlyList, IValueList>(L"GetList", TypeInfoHint::List);
 		TestHint<IValueReadonlyList, IValueList>(L"GetSortedList", TypeInfoHint::SortedList);
+		TestHint<IValueReadonlyList, void>(L"GetReadableObservableList", TypeInfoHint::ObservableList, false);
+		TestHint<IValueObservableList, void>(L"GetObservableList", TypeInfoHint::ObservableList, false);
 		TestHint<IValueReadonlyDictionary, IValueDictionary>(L"GetDictionary", TypeInfoHint::Dictionary);
 		TestHint<IValueReadonlyList, IValueList>(L"GetMyList", TypeInfoHint::NativeCollectionReference);
 		TestHint<IValueFunctionProxy, IValueFunctionProxy>(L"GetFunc", TypeInfoHint::Normal);

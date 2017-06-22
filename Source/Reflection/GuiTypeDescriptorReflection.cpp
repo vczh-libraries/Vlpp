@@ -704,7 +704,9 @@ LoadPredefinedTypes
 			END_INTERFACE_MEMBER(IValueList)
 
 			BEGIN_INTERFACE_MEMBER(IValueObservableList)
-				CLASS_MEMBER_BASE(IValueReadonlyList)
+				CLASS_MEMBER_BASE(IValueList)
+				CLASS_MEMBER_EXTERNALCTOR(Ptr<IValueObservableList>(), NO_PARAMETER, vl::reflection::description::IValueObservableList::Create)
+				CLASS_MEMBER_EXTERNALCTOR(Ptr<IValueObservableList>(Ptr<IValueReadonlyList>), { L"values" }, vl::reflection::description::IValueObservableList::Create)
 
 				CLASS_MEMBER_EVENT(ItemChanged)
 			END_INTERFACE_MEMBER(IValueObservableList)
