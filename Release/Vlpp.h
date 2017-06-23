@@ -13425,7 +13425,7 @@ ParameterAccessor<TContainer>
 			{
 				if (!observableList)
 				{
-					observableList = new description::ValueObservableListWrapper<ObservableList<T>*>(this);
+					observableList = new reflection::description::ValueObservableListWrapper<ObservableList<T>*>(this);
 				}
 				return observableList;
 			}
