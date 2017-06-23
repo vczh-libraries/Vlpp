@@ -13715,6 +13715,30 @@ namespace vl
 			}
 		};
 
+		struct CreateObservableList
+		{
+			using IValueObservableList = reflection::description::IValueObservableList;
+
+			Ptr<IValueObservableList>			list;
+
+			CreateObservableList()
+				:list(IValueObservableList::Create())
+			{
+			}
+
+			CreateObservableList(Ptr<IValueObservableList> _list)
+				:list(_list)
+			{
+			}
+
+			template<typename T>
+			CreateList Add(const T& value)
+			{
+				list->Add(Box(value));
+				return{ list };
+			}
+		};
+
 		struct CreateDictionary
 		{
 			using IValueDictionary = reflection::description::IValueDictionary;
