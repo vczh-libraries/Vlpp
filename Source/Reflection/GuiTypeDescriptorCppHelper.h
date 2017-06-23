@@ -276,7 +276,7 @@ namespace vl
 			}
 
 			template<typename T>
-			CreateList Add(const T& value)
+			CreateObservableList Add(const T& value)
 			{
 				list->Add(Box(value));
 				return{ list };
