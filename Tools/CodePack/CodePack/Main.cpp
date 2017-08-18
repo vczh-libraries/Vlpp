@@ -99,8 +99,8 @@ WString ReadFile(const FilePath& path)
 }
 
 Dictionary<FilePath, LazyList<FilePath>> scannedFiles;
-Regex regexInclude(LR"/(^\s\#include\s*"(?<path>[^"]+)"\s*$)/");
-Regex regexSystemInclude(LR"/(^\s\#include\s*<(?<path>[^"]+)>\s*$)/");
+Regex regexInclude(LR"/(^\s#include\s*"(?<path>[^"]+)"\s*$)/");
+Regex regexSystemInclude(LR"/(^\s#include\s*<(?<path>[^"]+)>\s*$)/");
 
 LazyList<FilePath> GetIncludedFiles(const FilePath& codeFile)
 {
@@ -251,11 +251,19 @@ void Combine(FilePath inputFilePath, FilePath outputFilePath, LazyList<WString> 
 	Combine(files, outputFilePath, systemIncludes, externalIncludes);
 }
 
-#if defined VCZH_MSVC
-int wmain(int argc, wchar_t* argv[])
-#elif defined VCZH_GCC
 int main(int argc, char* argv[])
-#endif
 {
+	if (argc != 2)
+	{
+		Console::WriteLine(L"CodePack.exe <config-xml>");
+		return 0;
+	}
+
+	Ptr<XmlDocument> config;
+	{
+		auto text = ReadFile(atow(argv[1]));
+		auto table = XmlLoadTable();
+		config = XmlParseDocument(text, table);
+	}
 	return 0;
 }
