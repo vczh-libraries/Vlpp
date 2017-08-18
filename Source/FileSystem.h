@@ -48,12 +48,12 @@ namespace vl
 			~FilePath();
 
 			static vint					Compare(const FilePath& a, const FilePath& b);
-			bool						operator==(const FilePath& filePath){ return Compare(*this, filePath) == 0; }
-			bool						operator!=(const FilePath& filePath){ return Compare(*this, filePath) != 0; }
-			bool						operator< (const FilePath& filePath){ return Compare(*this, filePath) <  0; }
-			bool						operator<=(const FilePath& filePath){ return Compare(*this, filePath) <= 0; }
-			bool						operator> (const FilePath& filePath){ return Compare(*this, filePath) >  0; }
-			bool						operator>=(const FilePath& filePath){ return Compare(*this, filePath) >= 0; }
+			bool						operator==(const FilePath& filePath)const{ return Compare(*this, filePath) == 0; }
+			bool						operator!=(const FilePath& filePath)const{ return Compare(*this, filePath) != 0; }
+			bool						operator< (const FilePath& filePath)const{ return Compare(*this, filePath) <  0; }
+			bool						operator<=(const FilePath& filePath)const{ return Compare(*this, filePath) <= 0; }
+			bool						operator> (const FilePath& filePath)const{ return Compare(*this, filePath) >  0; }
+			bool						operator>=(const FilePath& filePath)const{ return Compare(*this, filePath) >= 0; }
 
 			/// <summary>Concat an absolute path and a relative path.</summary>
 			/// <returns>The result absolute path.</returns>
