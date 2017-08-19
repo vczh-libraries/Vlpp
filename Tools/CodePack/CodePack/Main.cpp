@@ -11,16 +11,16 @@ using namespace vl::stream;
 
 LazyList<FilePath> SearchFiles(const Folder& folder, const WString& extension)
 {
-	List<File> files;
-	List<Folder> folders;
-	folder.GetFiles(files);
-	folder.GetFolders(folders);
+	auto files = MakePtr<List<File>>();
+	auto folders = MakePtr<List<Folder>>();
+	folder.GetFiles(*files.Obj());
+	folder.GetFolders(*folders.Obj());
 
-	return From(files)
+	return LazyList<File>(files)
 		.Select([](const File& file) { return file.GetFilePath(); })
 		.Where([=](const FilePath& path) { return INVLOC.EndsWith(path.GetName(), extension, Locale::IgnoreCase); })
 		.Concat(
-			From(folders)
+			LazyList<Folder>(folders)
 			.SelectMany([=](const Folder& folder) { return SearchFiles(folder, extension); })
 			);
 }
@@ -99,8 +99,8 @@ WString ReadFile(const FilePath& path)
 }
 
 Dictionary<FilePath, LazyList<FilePath>> scannedFiles;
-Regex regexInclude(LR"/(^\s#include\s*"(?<path>[^"]+)"\s*$)/");
-Regex regexSystemInclude(LR"/(^\s#include\s*<(?<path>[^"]+)>\s*$)/");
+Regex regexInclude(LR"/(^\s*#include\s*"(<path>[^"]+)"\s*$)/");
+Regex regexSystemInclude(LR"/(^\s*#include\s*<(<path>[^"]+)>\s*$)/");
 
 LazyList<FilePath> GetIncludedFiles(const FilePath& codeFile)
 {
@@ -163,6 +163,7 @@ LazyList<WString> SortDependencies(const Group<WString, WString>& dependencies)
 			if (!deps.Keys().Contains(category))
 			{
 				sorted->Add(category);
+				unsorted.RemoveAt(index);
 				for (vint i = deps.Count() - 1; i >= 0; i--)
 				{
 					deps.Remove(deps.Keys()[i], category);
@@ -272,7 +273,7 @@ int main(int argc, char* argv[])
 	List<FilePath> folders;
 	CopyFrom(
 		folders,
-		XmlGetElements(XmlGetElement(config->rootElement,L"folders"),L"folders")
+		XmlGetElements(XmlGetElement(config->rootElement,L"folders"), L"folder")
 			.Select([&](Ptr<XmlElement> e)
 			{
 				return workingDir / XmlGetAttribute(e, L"path")->value.value;
@@ -327,14 +328,14 @@ int main(int argc, char* argv[])
 				SortedList<FilePath> headerFiles;
 				CopyFrom(
 					headerFiles,
-					From(categoryDepedencies[key])
+					From(categorizedCppFiles[key])
 						.SelectMany(GetIncludedFiles)
 						.Distinct()
 					);
 
-				SortedList<WString> keys;
+				auto keys = MakePtr<SortedList<WString>>();
 				CopyFrom(
-					keys,
+					*keys.Obj(),
 					From(categorizedHeaderFiles.Keys())
 						.Where([&](const WString& key)
 						{
@@ -345,9 +346,9 @@ int main(int argc, char* argv[])
 								});
 						})
 					);
-				keys.Remove(key);
+				keys->Remove(key);
 
-				return From(keys).Select([&](const WString& k)->Pair<WString, WString>{ return {key,k}; });
+				return LazyList<WString>(keys).Select([=](const WString& k)->Pair<WString, WString>{ return {key,k}; });
 			})
 		);
 
