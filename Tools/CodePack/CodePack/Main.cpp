@@ -259,11 +259,107 @@ int main(int argc, char* argv[])
 		return 0;
 	}
 
+	// load configuration
+	auto workingDir = FilePath(atow(argv[1])).GetFolder();
 	Ptr<XmlDocument> config;
 	{
 		auto text = ReadFile(atow(argv[1]));
 		auto table = XmlLoadTable();
 		config = XmlParseDocument(text, table);
 	}
+
+	// collect project files
+	List<FilePath> folders;
+	CopyFrom(
+		folders,
+		XmlGetElements(XmlGetElement(config->rootElement,L"folders"),L"folders")
+			.Select([&](Ptr<XmlElement> e)
+			{
+				return workingDir / XmlGetAttribute(e, L"path")->value.value;
+			})
+		);
+
+	// collect code files
+	List<FilePath> unprocessedCppFiles, unprocessedHeaderFiles;
+	{
+		List<FilePath> headerFiles;
+		CopyFrom(unprocessedCppFiles, From(folders).SelectMany(GetCppFiles).Distinct());
+		CopyFrom(headerFiles, From(folders).SelectMany(GetHeaderFiles).Distinct());
+		CopyFrom(
+			unprocessedHeaderFiles,
+			From(folders)
+				.SelectMany(GetHeaderFiles)
+				.Concat(unprocessedCppFiles)
+				.SelectMany(GetIncludedFiles)
+				.Concat(headerFiles)
+				.Distinct()
+			);
+	}
+
+	// categorize code files
+	Group<WString, FilePath> categorizedCppFiles, categorizedHeaderFiles;
+	CategorizeCodeFiles(config, unprocessedCppFiles, categorizedCppFiles);
+	CategorizeCodeFiles(config, unprocessedHeaderFiles, categorizedHeaderFiles);
+	auto outputFolder = workingDir / (XmlGetAttribute(XmlGetElement(config->rootElement, L"output"), L"path")->value.value);
+	Dictionary<WString, Tuple<FilePath, bool>> categorizedOutput;
+	CopyFrom(
+		categorizedOutput,
+		XmlGetElements(XmlGetElement(config->rootElement, L"output"), L"codepair")
+			.Select([&](Ptr<XmlElement> e)->decltype(categorizedOutput)::ElementType
+			{
+				return {
+					XmlGetAttribute(e, L"category")->value.value,
+					{
+						outputFolder / XmlGetAttribute(e, L"filename")->value.value,
+						XmlGetAttribute(e, L"generate")->value.value == L"true"
+					}
+				};
+			})
+	);
+
+	// calculate category dependencies
+	Group<WString, WString> categoryDepedencies;
+	CopyFrom(
+		categoryDepedencies,
+		From(categorizedCppFiles.Keys())
+			.SelectMany([&](const WString& key)
+			{
+				SortedList<FilePath> headerFiles;
+				CopyFrom(
+					headerFiles,
+					From(categoryDepedencies[key])
+						.SelectMany(GetIncludedFiles)
+						.Distinct()
+					);
+
+				SortedList<WString> keys;
+				CopyFrom(
+					keys,
+					From(categorizedHeaderFiles.Keys())
+						.Where([&](const WString& key)
+						{
+							return From(categorizedHeaderFiles[key])
+								.Any([&](const FilePath& h)
+								{
+									return headerFiles.Contains(h);
+								});
+						})
+					);
+				keys.Remove(key);
+
+				return From(keys).Select([&](const WString& k)->Pair<WString, WString>{ return {key,k}; });
+			})
+		);
+
+	// sort categories by dependencies
+	List<WString> categoryOrder;
+	CopyFrom(categoryOrder, SortDependencies(categoryDepedencies));
+
+	// generate code pair header files
+
+	// generate code pair cpp files
+
+	// generate header files
+
 	return 0;
 }
