@@ -302,7 +302,7 @@ int main(int argc, char* argv[])
 	CategorizeCodeFiles(config, unprocessedCppFiles, categorizedCppFiles);
 	CategorizeCodeFiles(config, unprocessedHeaderFiles, categorizedHeaderFiles);
 	auto outputFolder = workingDir / (XmlGetAttribute(XmlGetElement(config->rootElement, L"output"), L"path")->value.value);
-	Dictionary<WString, Tuple<FilePath, bool>> categorizedOutput;
+	Dictionary<WString, Tuple<WString, bool>> categorizedOutput;
 	CopyFrom(
 		categorizedOutput,
 		XmlGetElements(XmlGetElement(config->rootElement, L"output"), L"codepair")
@@ -311,7 +311,7 @@ int main(int argc, char* argv[])
 				return {
 					XmlGetAttribute(e, L"category")->value.value,
 					{
-						outputFolder / XmlGetAttribute(e, L"filename")->value.value,
+						XmlGetAttribute(e, L"filename")->value.value,
 						XmlGetAttribute(e, L"generate")->value.value == L"true"
 					}
 				};
@@ -355,12 +355,57 @@ int main(int argc, char* argv[])
 	// sort categories by dependencies
 	List<WString> categoryOrder;
 	CopyFrom(categoryOrder, SortDependencies(categoryDepedencies));
+	Dictionary<WString, Ptr<SortedList<WString>>> categorizedSystemIncludes;
 
 	// generate code pair header files
+	FOREACH(WString, c, categoryOrder)
+	{
+		auto output = outputFolder / (categorizedOutput[c].f0 + L".h");
+
+		auto systemIncludes = MakePtr<SortedList<WString>>();
+		categorizedSystemIncludes.Add(c, systemIncludes);
+
+		if (categorizedOutput[c].f1)
+		{
+			Combine(
+				categorizedHeaderFiles[c],
+				output,
+				*systemIncludes.Obj(),
+				!categoryDepedencies.Keys().Contains(c)
+					? LazyList<WString>()
+					: From(categoryDepedencies[c])
+						.Distinct()
+						.Select([&](const WString& d)
+						{
+							return categorizedOutput[d].f0 + L".h";
+						})
+				);
+		}
+	}
 
 	// generate code pair cpp files
+	FOREACH(WString, c, categoryOrder)
+	{
+		if (categorizedOutput[c].f1)
+		{
+			WString outputHeader[] = { categorizedOutput[c].f0 + L".h" };
+			auto outputCpp = outputFolder / (categorizedOutput[c].f0 + L".cpp");
+			Combine(
+				categorizedCppFiles[c],
+				outputCpp,
+				*categorizedSystemIncludes[c].Obj(),
+				From(outputHeader)
+				);
+		}
+	}
 
 	// generate header files
+	FOREACH(Ptr<XmlElement>, e, XmlGetElements(XmlGetElement(config->rootElement, L"output"), L"header"))
+	{
+		auto source = workingDir / XmlGetAttribute(e, L"source")->value.value;
+		auto output = outputFolder / XmlGetAttribute(e, L"filename")->value.value;
+		Combine(source, output, {});
+	}
 
 	return 0;
 }
