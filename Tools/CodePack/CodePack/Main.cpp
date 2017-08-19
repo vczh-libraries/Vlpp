@@ -139,26 +139,27 @@ LazyList<FilePath> GetIncludedFiles(const FilePath& codeFile)
 	return result;
 }
 
-LazyList<WString> SortDependencies(const Group<WString, WString>& dependencies)
+template<typename T>
+LazyList<T> SortDependencies(const Group<T, T>& dependencies)
 {
-	List<WString> unsorted;
-	Group<WString, WString> deps;
+	List<T> unsorted;
+	Group<T, T> deps;
 	CopyFrom(
 		unsorted,
 		From(dependencies.Keys())
 		.Concat(Range<vint>(0, dependencies.Count())
-			.SelectMany([&](vint index)->LazyList<WString> { return dependencies.GetByIndex(index); })
+			.SelectMany([&](vint index)->LazyList<T> { return dependencies.GetByIndex(index); })
 			)
 			.Distinct()
 		);
 	CopyFrom(deps, dependencies);
 
-	auto sorted = MakePtr<List<WString>>();
+	auto sorted = MakePtr<List<T>>();
 	while (true)
 	{
 		vint count = unsorted.Count();
 
-		FOREACH_INDEXER(WString, category, index, unsorted)
+		FOREACH_INDEXER(T, category, index, unsorted)
 		{
 			if (!deps.Keys().Contains(category))
 			{
@@ -210,7 +211,20 @@ void Combine(const List<FilePath>& files, FilePath outputFilePath, SortedList<WS
 			lines.Add(L"#include \"" + path + L"\"");
 		}
 
-		FOREACH(FilePath, file, files)
+		List<FilePath> sortedFiles;
+		{
+			Group<FilePath, FilePath> dependencies;
+			FOREACH(FilePath, file, files)
+			{
+				FOREACH(FilePath, dep, GetIncludedFiles(file))
+				{
+					dependencies.Add(file, dep);
+				}
+			}
+			CopyFrom(sortedFiles, SortDependencies(dependencies));
+		}
+
+		FOREACH(FilePath, file, From(sortedFiles).Intersect(files))
 		{
 			lines.Add(L"");
 			lines.Add(L"/***********************************************************************");

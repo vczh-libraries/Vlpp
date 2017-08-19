@@ -1,0 +1,6 @@
+<#
+CPP_TARGET=./Bin/CodePack
+CPP_VCXPROJ=./CodePack/CodePack.vcxproj
+TARGETS=("${CPP_TARGET}")
+#>
+<#@ include "${VCPROOT}/vl/vmake-cpp" #>
