@@ -10,6 +10,7 @@ Interfaces:
 #define VCZH_REFLECTION_GUITYPEDESCRIPTORBUILDER_FUNCTION
  
 #include "GuiTypeDescriptorBuilder.h"
+#include "GuiTypeDescriptorCppHelper.h"
  
 namespace vl
 {
