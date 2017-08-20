@@ -391,7 +391,7 @@ LazyList
 			bool IsEmpty()const
 			{
 				Ptr<IEnumerator<T>> enumerator=CreateEnumerator();
-				return enumerator->Next();
+				return !enumerator->Next();
 			}
 
 			//-------------------------------------------------------

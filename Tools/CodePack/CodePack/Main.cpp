@@ -83,7 +83,9 @@ void CategorizeCodeFiles(Ptr<XmlDocument> config, LazyList<FilePath> files, Grou
 			{
 				const auto& as = categorizedFiles.Get(a);
 				const auto& bs = categorizedFiles.Get(b);
-				CHECK_ERROR(!From(as).Intersect(bs).IsEmpty(), L"A file should not appear in multiple categories.");
+				List<FilePath> cs;
+				CopyFrom(cs, From(as).Intersect(bs));
+				CHECK_ERROR(From(cs).IsEmpty(), L"A file should not appear in multiple categories.");
 			}
 		}
 	}
@@ -140,7 +142,7 @@ LazyList<FilePath> GetIncludedFiles(const FilePath& codeFile)
 }
 
 template<typename T>
-LazyList<T> SortDependencies(const Group<T, T>& dependencies)
+LazyList<T> SortDependencies(LazyList<T> all, const Group<T, T>& dependencies)
 {
 	List<T> unsorted;
 	Group<T, T> deps;
@@ -154,7 +156,7 @@ LazyList<T> SortDependencies(const Group<T, T>& dependencies)
 		);
 	CopyFrom(deps, dependencies);
 
-	auto sorted = MakePtr<List<T>>();
+	List<T> sorted;
 	while (true)
 	{
 		vint count = unsorted.Count();
@@ -163,7 +165,7 @@ LazyList<T> SortDependencies(const Group<T, T>& dependencies)
 		{
 			if (!deps.Keys().Contains(category))
 			{
-				sorted->Add(category);
+				sorted.Add(category);
 				unsorted.RemoveAt(index);
 				for (vint i = deps.Count() - 1; i >= 0; i--)
 				{
@@ -176,7 +178,10 @@ LazyList<T> SortDependencies(const Group<T, T>& dependencies)
 		if (unsorted.Count() == 0) break;
 		CHECK_ERROR(count != unsorted.Count(), L"Cycle dependency is not allowed.");
 	}
-	return sorted;
+
+	auto result = MakePtr<List<T>>();
+	CopyFrom(*result.Obj(), From(all).Except(sorted).Concat(sorted));
+	return result;
 }
 
 FilePath GetCommonFolder(const List<FilePath>& paths)
@@ -221,7 +226,7 @@ void Combine(const List<FilePath>& files, FilePath outputFilePath, SortedList<WS
 					dependencies.Add(file, dep);
 				}
 			}
-			CopyFrom(sortedFiles, SortDependencies(dependencies));
+			CopyFrom(sortedFiles, SortDependencies(From(files), dependencies));
 		}
 
 		FOREACH(FilePath, file, From(sortedFiles).Intersect(files))
@@ -368,7 +373,15 @@ int main(int argc, char* argv[])
 
 	// sort categories by dependencies
 	List<WString> categoryOrder;
-	CopyFrom(categoryOrder, SortDependencies(categoryDepedencies));
+	{
+		auto allCategories=
+			XmlGetElements(XmlGetElement(config->rootElement, L"categories"), L"category")
+				.Select([](Ptr<XmlElement> e)
+				{
+					return XmlGetAttribute(e, L"name")->value.value;
+				});
+		CopyFrom(categoryOrder, SortDependencies(allCategories, categoryDepedencies));
+	}
 	Dictionary<WString, Ptr<SortedList<WString>>> categorizedSystemIncludes;
 
 	// generate code pair header files
