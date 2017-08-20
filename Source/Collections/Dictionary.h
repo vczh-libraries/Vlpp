@@ -509,12 +509,12 @@ namespace vl
 			{
 				if (firstIndex < firstCount)
 				{
-					WString firstKey = first.Keys()[firstIndex];
+					auto firstKey = first.Keys()[firstIndex];
 					const List<TValueFirst>& firstValues = first.GetByIndex(firstIndex);
 
 					if (secondIndex < secondCount)
 					{
-						WString secondKey = second.Keys()[secondIndex];
+						auto secondKey = second.Keys()[secondIndex];
 						const List<TValueSecond>& secondValues = second.GetByIndex(secondIndex);
 
 						if (firstKey < secondKey)
@@ -544,7 +544,7 @@ namespace vl
 				{
 					if (secondIndex < secondCount)
 					{
-						WString secondKey = second.Keys()[secondIndex];
+						auto secondKey = second.Keys()[secondIndex];
 						const List<TValueSecond>& secondValues = second.GetByIndex(secondIndex);
 
 						discardSecond(secondKey, secondValues);
