@@ -103,6 +103,7 @@ WString ReadFile(const FilePath& path)
 Dictionary<FilePath, LazyList<FilePath>> scannedFiles;
 Regex regexInclude(LR"/(^\s*#include\s*"(<path>[^"]+)"\s*$)/");
 Regex regexSystemInclude(LR"/(^\s*#include\s*<(<path>[^"]+)>\s*$)/");
+Regex regexInstruction(LR"/(^\s*\/\*\s*CodePack:(<name>\w+)\(((<param>[^,)]+)(,\s*(<param>[^,)]+))*)?\)\s*\*\/\s*$)/");
 
 LazyList<FilePath> GetIncludedFiles(const FilePath& codeFile)
 {
@@ -113,18 +114,70 @@ LazyList<FilePath> GetIncludedFiles(const FilePath& codeFile)
 			return scannedFiles.Values()[index];
 		}
 	}
+	Console::WriteLine(L"Scanning file: " + codeFile.GetFullPath());
 
 	List<FilePath> includes;
 	StringReader reader(ReadFile(codeFile));
+	bool skip = false;
+	vint lineIndex = 0;
 	while (!reader.IsEnd())
 	{
+		lineIndex++;
 		auto line = reader.ReadLine();
-		if (auto match = regexInclude.MatchHead(line))
+		Ptr<RegexMatch> match;
+		if ((match = regexInstruction.MatchHead(line)))
 		{
-			auto path = codeFile.GetFolder() / match->Groups()[L"path"][0].Value();
-			if (!includes.Contains(path))
+			auto name = match->Groups()[L"name"][0].Value();
+			const List<RegexString>* params = nullptr;
 			{
-				includes.Add(path);
+				vint index = match->Groups().Keys().IndexOf(L"param");
+				if (index != -1)
+				{
+					params = &match->Groups().GetByIndex(index);
+				}
+			}
+
+			if (name == L"BeginIgnore")
+			{
+				if (params == nullptr)
+				{
+					skip = true;
+					continue;
+				}
+			}
+			else if (name == L"EndIgnore")
+			{
+				if (params == nullptr)
+				{
+					skip = false;
+					continue;
+				}
+			}
+			else if (name == L"ConditionOn")
+			{
+				if (params && params->Count() == 2)
+				{
+					continue;
+				}
+			}
+			else if (name == L"ConditionOff")
+			{
+				if (params && params->Count() == 2)
+				{
+					continue;
+				}
+			}
+			Console::WriteLine(L"Error: Unrecognizable CodePack instruction: \"" + line + L"\" in file: " + codeFile.GetFullPath() + L" (" + itow(lineIndex) + L")");
+		}
+		else if ((match = regexInclude.MatchHead(line)))
+		{
+			if (!skip)
+			{
+				auto path = codeFile.GetFolder() / match->Groups()[L"path"][0].Value();
+				if (!includes.Contains(path))
+				{
+					includes.Add(path);
+				}
 			}
 		}
 	}
