@@ -35,7 +35,7 @@ LazyList<FilePath> GetHeaderFiles(const FilePath& folder)
 	return SearchFiles(folder, L".h");
 }
 
-void CategorizeCodeFiles(Ptr<XmlDocument> config, LazyList<FilePath> files, Group<WString, FilePath>& categorizedFiles)
+void CategorizeCodeFiles(Ptr<XmlDocument> config, LazyList<FilePath> files, Group<WString, FilePath>& categorizedFiles, Dictionary<FilePath, WString>& reverseCategories)
 {
 	FOREACH(Ptr<XmlElement>, e, XmlGetElements(XmlGetElement(config->rootElement, L"categories"), L"category"))
 	{
@@ -71,6 +71,7 @@ void CategorizeCodeFiles(Ptr<XmlDocument> config, LazyList<FilePath> files, Grou
 			if (!categorizedFiles.Contains(name, file))
 			{
 				categorizedFiles.Add(name, file);
+				reverseCategories.Add(file, name);
 			}
 		}
 	}
@@ -101,6 +102,7 @@ WString ReadFile(const FilePath& path)
 }
 
 Dictionary<FilePath, LazyList<FilePath>> scannedFiles;
+Group<FilePath, Tuple<WString, FilePath>> conditionOns, conditionOffs;
 Regex regexInclude(LR"/(^\s*#include\s*"(<path>[^"]+)"\s*$)/");
 Regex regexSystemInclude(LR"/(^\s*#include\s*<(<path>[^"]+)>\s*$)/");
 Regex regexInstruction(LR"/(^\s*\/\*\s*CodePack:(<name>\w+)\(((<param>[^,)]+)(,\s*(<param>[^,)]+))*)?\)\s*\*\/\s*$)/");
@@ -114,7 +116,9 @@ LazyList<FilePath> GetIncludedFiles(const FilePath& codeFile)
 			return scannedFiles.Values()[index];
 		}
 	}
+	Console::SetColor(true, true, false, true);
 	Console::WriteLine(L"Scanning file: " + codeFile.GetFullPath());
+	Console::SetColor(true, true, true, false);
 
 	List<FilePath> includes;
 	StringReader reader(ReadFile(codeFile));
@@ -157,6 +161,7 @@ LazyList<FilePath> GetIncludedFiles(const FilePath& codeFile)
 			{
 				if (params && params->Count() == 2)
 				{
+					conditionOns.Add(codeFile, { params->Get(0).Value(),codeFile.GetFolder() / params->Get(1).Value() });
 					continue;
 				}
 			}
@@ -164,10 +169,13 @@ LazyList<FilePath> GetIncludedFiles(const FilePath& codeFile)
 			{
 				if (params && params->Count() == 2)
 				{
+					conditionOffs.Add(codeFile, { params->Get(0).Value(),codeFile.GetFolder() / params->Get(1).Value() });
 					continue;
 				}
 			}
+			Console::SetColor(true, false, false, true);
 			Console::WriteLine(L"Error: Unrecognizable CodePack instruction: \"" + line + L"\" in file: " + codeFile.GetFullPath() + L" (" + itow(lineIndex) + L")");
+			Console::SetColor(true, true, true, false);
 		}
 		else if ((match = regexInclude.MatchHead(line)))
 		{
@@ -247,14 +255,32 @@ FilePath GetCommonFolder(const List<FilePath>& paths)
 				return INVLOC.StartsWith(path.GetFullPath(), folder.GetFullPath() + WString(folder.Delimiter), Locale::IgnoreCase);
 			}))
 		{
-			return folder;
+return folder;
 		}
 		folder = folder.GetFolder();
 	}
 	CHECK_FAIL(L"Cannot process files across multiple drives.");
 }
 
-void Combine(const List<FilePath>& files, FilePath outputFilePath, SortedList<WString>& systemIncludes, LazyList<WString> externalIncludes)
+void CollectConditions(Group<WString, WString>& categorizedConditions, Group<FilePath, Tuple<WString, FilePath>>& conditions, const FilePath& file, const Dictionary<FilePath, WString>& reverseCategories)
+{
+	vint index = conditions.Keys().IndexOf(file);
+	if (index != -1)
+	{
+		const auto& tuples = conditions.GetByIndex(index);
+		for (vint i = 0; i < tuples.Count(); i++)
+		{
+			auto condition = tuples[i].f0;
+			auto category = reverseCategories[tuples[i].f1];
+			if (!categorizedConditions.Contains(condition, category))
+			{
+				categorizedConditions.Add(condition, category);
+			}
+		}
+	}
+}
+
+void Combine(const Dictionary<FilePath, WString>& reverseCategories, const List<FilePath>& files, FilePath outputFilePath, SortedList<WString>& systemIncludes, LazyList<WString> externalIncludes)
 {
 	auto prefix = GetCommonFolder(files);
 	auto workingDir = outputFilePath.GetFolder();
@@ -267,6 +293,36 @@ void Combine(const List<FilePath>& files, FilePath outputFilePath, SortedList<WS
 		FOREACH(WString, path, externalIncludes)
 		{
 			lines.Add(L"#include \"" + path + L"\"");
+		}
+		{
+			Group<WString, WString> categorizedConditionOns, categorizedConditionOffs;
+			FOREACH(FilePath, file, files)
+			{
+				CollectConditions(categorizedConditionOns, conditionOns, file, reverseCategories);
+				CollectConditions(categorizedConditionOffs, conditionOffs, file, reverseCategories);
+			}
+
+			for (vint i = 0; i < categorizedConditionOns.Count(); i++)
+			{
+				lines.Add(L"#ifdef " + categorizedConditionOns.Keys()[i]);
+				const auto& categories = categorizedConditionOns.GetByIndex(i);
+				FOREACH(WString, category, categories)
+				{
+					lines.Add(L"#include \"" + reverseCategories[category] + L"\"");
+				}
+				lines.Add(L"#endif");
+			}
+
+			for (vint i = 0; i < categorizedConditionOffs.Count(); i++)
+			{
+				lines.Add(L"#ifndef " + categorizedConditionOffs.Keys()[i]);
+				const auto& categories = categorizedConditionOffs.GetByIndex(i);
+				FOREACH(WString, category, categories)
+				{
+					lines.Add(L"#include \"" + category + L".h\"");
+				}
+				lines.Add(L"#endif");
+			}
 		}
 
 		List<FilePath> sortedFiles;
@@ -290,28 +346,47 @@ void Combine(const List<FilePath>& files, FilePath outputFilePath, SortedList<WS
 			lines.Add(L"***********************************************************************/");
 
 			StringReader reader(ReadFile(file));
+			bool skip = false;
 			while (!reader.IsEnd())
 			{
 				auto line = reader.ReadLine();
-				if (auto match = regexSystemInclude.MatchHead(line))
+				Ptr<RegexMatch> match;
+				if ((match = regexInstruction.MatchHead(line)))
 				{
-					auto systemFile = match->Groups()[L"path"][0].Value();
-					if (systemIncludes.Contains(systemFile)) continue;
-					systemIncludes.Add(systemFile);
-					lines.Add(line);
+					auto name = match->Groups()[L"name"][0].Value();
+					if (name == L"BeginIgnore")
+					{
+						skip = true;
+					}
+					else if (name == L"EndIgnore")
+					{
+						skip = false;
+					}
 				}
-				else if (!regexInclude.MatchHead(line))
+				else if (!skip)
 				{
-					lines.Add(line);
+					if ((match = regexSystemInclude.MatchHead(line)))
+					{
+						auto systemFile = match->Groups()[L"path"][0].Value();
+						if (systemIncludes.Contains(systemFile)) continue;
+						systemIncludes.Add(systemFile);
+						lines.Add(line);
+					}
+					else if (!regexInclude.MatchHead(line))
+					{
+						lines.Add(line);
+					}
 				}
 			}
 		}
 	}
 	File(outputFilePath).WriteAllLines(lines, true, BomEncoder::Utf8);
+	Console::SetColor(false, true, false, true);
 	Console::WriteLine(L"Succeeded to write: " + outputFilePath.GetFullPath());
+	Console::SetColor(true, true, true, false);
 }
 
-void Combine(FilePath inputFilePath, FilePath outputFilePath, LazyList<WString> externalIncludes)
+void Combine(const Dictionary<FilePath, WString>& reverseCategories, FilePath inputFilePath, FilePath outputFilePath, LazyList<WString> externalIncludes)
 {
 	List<FilePath> files;
 	CopyFrom(files, GetIncludedFiles(inputFilePath));
@@ -321,14 +396,17 @@ void Combine(FilePath inputFilePath, FilePath outputFilePath, LazyList<WString> 
 	}
 
 	SortedList<WString> systemIncludes;
-	Combine(files, outputFilePath, systemIncludes, externalIncludes);
+	Combine(reverseCategories, files, outputFilePath, systemIncludes, externalIncludes);
 }
 
 int main(int argc, char* argv[])
 {
+	Console::SetTitle(L"Vczh CodePack for C++");
 	if (argc != 2)
 	{
+		Console::SetColor(true, false, false, true);
 		Console::WriteLine(L"CodePack.exe <config-xml>");
+		Console::SetColor(true, true, true, false);
 		return 0;
 	}
 
@@ -371,8 +449,10 @@ int main(int argc, char* argv[])
 
 	// categorize code files
 	Group<WString, FilePath> categorizedCppFiles, categorizedHeaderFiles;
-	CategorizeCodeFiles(config, unprocessedCppFiles, categorizedCppFiles);
-	CategorizeCodeFiles(config, unprocessedHeaderFiles, categorizedHeaderFiles);
+	Dictionary<FilePath, WString> reverseCategorieNames, reverseCategories;
+
+	CategorizeCodeFiles(config, unprocessedCppFiles, categorizedCppFiles, reverseCategorieNames);
+	CategorizeCodeFiles(config, unprocessedHeaderFiles, categorizedHeaderFiles, reverseCategorieNames);
 	auto outputFolder = workingDir / (XmlGetAttribute(XmlGetElement(config->rootElement, L"output"), L"path")->value.value);
 	Dictionary<WString, Tuple<WString, bool>> categorizedOutput;
 	CopyFrom(
@@ -389,6 +469,12 @@ int main(int argc, char* argv[])
 				};
 			})
 	);
+	for (vint i = 0; i < reverseCategorieNames.Count(); i++)
+	{
+		auto key = reverseCategorieNames.Keys()[i];
+		auto value = reverseCategorieNames.Values()[i];
+		reverseCategories.Add(key, categorizedOutput[value].f0);
+	}
 
 	// calculate category dependencies
 	Group<WString, WString> categoryDepedencies;
@@ -448,6 +534,7 @@ int main(int argc, char* argv[])
 		if (categorizedOutput[c].f1)
 		{
 			Combine(
+				reverseCategories,
 				categorizedHeaderFiles[c],
 				output,
 				*systemIncludes.Obj(),
@@ -471,6 +558,7 @@ int main(int argc, char* argv[])
 			WString outputHeader[] = { categorizedOutput[c].f0 + L".h" };
 			auto outputCpp = outputFolder / (categorizedOutput[c].f0 + L".cpp");
 			Combine(
+				reverseCategories,
 				categorizedCppFiles[c],
 				outputCpp,
 				*categorizedSystemIncludes[c].Obj(),
@@ -484,7 +572,7 @@ int main(int argc, char* argv[])
 	{
 		auto source = workingDir / XmlGetAttribute(e, L"source")->value.value;
 		auto output = outputFolder / XmlGetAttribute(e, L"filename")->value.value;
-		Combine(source, output, {});
+		Combine(reverseCategories, source, output, {});
 	}
 
 	return 0;
