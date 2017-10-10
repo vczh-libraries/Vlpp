@@ -33,7 +33,7 @@ namespace test
 	void LogParsingData(TLoggable loggable, const WString& fileName, const WString& name, List<Ptr<ParsingError>>& errors=*(List<Ptr<ParsingError>>*)0)
 	{
 		FileStream fileStream(GetTestOutputPath() + fileName, FileStream::WriteOnly);
-		BomEncoder encoder(BomEncoder::Utf16);
+		BomEncoder encoder(BomEncoder::Utf8);
 		EncoderStream encoderStream(fileStream, encoder);
 		StreamWriter writer(encoderStream);
 
@@ -56,43 +56,47 @@ namespace test
 		}
 	}
 
-	Ptr<ParsingTable> CreateTable(Ptr<ParsingDefinition> definition, const WString& name, bool enableAmbiguity=false)
+	Ptr<ParsingTable> CreateTable(Ptr<ParsingDefinition> definition, bool logToSource, const WString& name, bool enableAmbiguity = false)
 	{
 		unittest::UnitTest::PrintInfo(L"Building parser <" + name + L">");
 
 		ParsingSymbolManager symbolManager;
 		List<Ptr<ParsingError>> errors;
 		ValidateDefinition(definition, &symbolManager, errors);
-		LogParsingData(definition, L"Parsing."+name+L".Definition.txt", L"Grammar Definition", errors);
-		TEST_ASSERT(errors.Count()==0);
+		LogParsingData(definition, L"Parsing." + name + L".Definition.txt", L"Grammar Definition", errors);
+		TEST_ASSERT(errors.Count() == 0);
 
-		Ptr<Automaton> epsilonPDA=CreateEpsilonPDA(definition, &symbolManager);
-		Ptr<Automaton> nondeterministicPDA=CreateNondeterministicPDAFromEpsilonPDA(epsilonPDA);
-		Ptr<Automaton> jointPDA=CreateJointPDAFromNondeterministicPDA(nondeterministicPDA);
-		
-		LogParsingData(epsilonPDA, L"Parsing."+name+L".EPDA.txt", L"Epsilon PDA");
-		LogParsingData(nondeterministicPDA, L"Parsing."+name+L".NPDA.txt", L"Non-deterministic PDA");
-		LogParsingData(jointPDA, L"Parsing."+name+L".JPDA.txt", L"Joint PDA");
+		Ptr<Automaton> epsilonPDA = CreateEpsilonPDA(definition, &symbolManager);
+		Ptr<Automaton> nondeterministicPDA = CreateNondeterministicPDAFromEpsilonPDA(epsilonPDA);
+		Ptr<Automaton> jointPDA = CreateJointPDAFromNondeterministicPDA(nondeterministicPDA);
+
+		LogParsingData(epsilonPDA, L"Parsing." + name + L".EPDA.txt", L"Epsilon PDA");
+		LogParsingData(nondeterministicPDA, L"Parsing." + name + L".NPDA.txt", L"Non-deterministic PDA");
+		LogParsingData(jointPDA, L"Parsing." + name + L".JPDA.txt", L"Joint PDA");
 
 		CompactJointPDA(jointPDA);
-		LogParsingData(jointPDA, L"Parsing."+name+L".JPDA-Compacted.txt", L"Compacted Joint PDA");
+		LogParsingData(jointPDA, L"Parsing." + name + L".JPDA-Compacted.txt", L"Compacted Joint PDA");
 
 		MarkLeftRecursiveInJointPDA(jointPDA, errors);
-		LogParsingData(jointPDA, L"Parsing."+name+L".JPDA-Marked.txt", L"Compacted Joint PDA", errors);
-		TEST_ASSERT(errors.Count()==0);
+		LogParsingData(jointPDA, L"Parsing." + name + L".JPDA-Marked.txt", L"Compacted Joint PDA", errors);
+		TEST_ASSERT(errors.Count() == 0);
 
-		Ptr<ParsingTable> table=GenerateTableFromPDA(definition, &symbolManager, jointPDA, enableAmbiguity, errors);
-		LogParsingData(table, L"Parsing."+name+L".Table.txt", L"Table", errors);
-		if(!enableAmbiguity)
+		Ptr<ParsingTable> table = GenerateTableFromPDA(definition, &symbolManager, jointPDA, enableAmbiguity, errors);
+		LogParsingData(table, L"Parsing." + name + L".Table.txt", L"Table", errors);
+		if (logToSource)
 		{
-			TEST_ASSERT(errors.Count()==0);
+			LogParsingData(table, L"../Resources/Parsers/" + name + L".Table.txt", L"Table", errors);
+		}
+		if (!enableAmbiguity)
+		{
+			TEST_ASSERT(errors.Count() == 0);
 		}
 
 		unittest::UnitTest::PrintInfo(L"Serializing ...");
 		MemoryStream stream;
 		table->Serialize(stream);
 		stream.SeekFromBegin(0);
-		
+
 		unittest::UnitTest::PrintInfo(L"Deserializing ...");
 		Ptr<ParsingTable> deserializedTable = new ParsingTable(stream);
 		TEST_ASSERT(stream.Position() == stream.Size());
@@ -120,7 +124,7 @@ namespace test
 		Ptr<ParsingTreeNode> node;
 		{
 			FileStream fileStream(GetTestOutputPath() + L"Parsing." + name + L".[" + itow(index) + L"].txt", FileStream::WriteOnly);
-			BomEncoder encoder(BomEncoder::Utf16);
+			BomEncoder encoder(BomEncoder::Utf8);
 			EncoderStream encoderStream(fileStream, encoder);
 			StreamWriter writer(encoderStream);
 
@@ -343,8 +347,7 @@ namespace test
 		if (!firstLoad)
 		{
 			firstLoad = true;
-			Ptr<ParsingTable> table = CreateTable(CreateParserDefinition(), L"Syngram");
-			TEST_ASSERT(table);
+			Ptr<ParsingTable> table = CreateTable(CreateParserDefinition(), false, L"Syngram");
 		}
 
 		WString text;
@@ -358,22 +361,22 @@ namespace test
 		}
 		else
 		{
-			WString fileName = GetTestResourcePath() + L"/Parsers/Parsing." + parserName + L".Definition.txt";
+			WString fileName = GetTestResourcePath() + L"/Parsers/" + parserName + L".txt";
 			FileStream fileStream(fileName, FileStream::ReadOnly);
 			BomDecoder decoder;
 			DecoderStream decoderStream(fileStream, decoder);
 			StreamReader reader(decoderStream);
-			text=reader.ReadToEnd();
+			text = reader.ReadToEnd();
 		}
 
-		Ptr<ParsingGeneralParser> parser=CreateBootstrapStrictParser();
+		Ptr<ParsingGeneralParser> parser = CreateBootstrapStrictParser();
 		TEST_ASSERT(parser);
 
 		List<Ptr<ParsingError>> errors;
-		Ptr<ParsingTreeNode> node=parser->Parse(text, L"ParserDecl", errors);
-		TEST_ASSERT(errors.Count()==0);
+		Ptr<ParsingTreeNode> node = parser->Parse(text, L"ParserDecl", errors);
+		TEST_ASSERT(errors.Count() == 0);
 
-		Ptr<ParsingDefinition> definition=DeserializeDefinition(node);
+		Ptr<ParsingDefinition> definition = DeserializeDefinition(node);
 		return definition;
 	}
 }
@@ -382,7 +385,7 @@ using namespace test;
 TEST_CASE(TestParseNameList)
 {
 	Ptr<ParsingDefinition> definition=LoadDefinition(L"NameList");
-	Ptr<ParsingTable> table=CreateTable(definition, L"NameList");
+	Ptr<ParsingTable> table=CreateTable(definition, true, L"NameList");
 	const wchar_t* inputs[]=
 	{
 		L"vczh",
@@ -398,7 +401,7 @@ TEST_CASE(TestParseNameList)
 TEST_CASE(TestParsingExpression)
 {
 	Ptr<ParsingDefinition> definition=LoadDefinition(L"Calculator");
-	Ptr<ParsingTable> table=CreateTable(definition, L"Calculator");
+	Ptr<ParsingTable> table=CreateTable(definition, true, L"Calculator");
 	const wchar_t* inputs[]=
 	{
 		L"0",
@@ -417,7 +420,7 @@ TEST_CASE(TestParsingExpression)
 TEST_CASE(TestParsingStatement)
 {
 	Ptr<ParsingDefinition> definition=LoadDefinition(L"Statement");
-	Ptr<ParsingTable> table=CreateTable(definition, L"Statement");
+	Ptr<ParsingTable> table=CreateTable(definition, true, L"Statement");
 	const wchar_t* inputs[]=
 	{
 		L"a = b",
@@ -440,7 +443,7 @@ TEST_CASE(TestParsingStatement)
 TEST_CASE(TestParsingNameSemicolonList)
 {
 	Ptr<ParsingDefinition> definition=LoadDefinition(L"NameSemicolonList");
-	Ptr<ParsingTable> table=CreateTable(definition, L"NameSemicolonList");
+	Ptr<ParsingTable> table=CreateTable(definition, true, L"NameSemicolonList");
 	const wchar_t* inputs[]=
 	{
 		L"nothong =",
@@ -457,7 +460,7 @@ TEST_CASE(TestParsingNameSemicolonList)
 TEST_CASE(TestParsingWorkflowType)
 {
 	Ptr<ParsingDefinition> definition=LoadDefinition(L"WorkflowType");
-	Ptr<ParsingTable> table=CreateTable(definition, L"WorkflowType");
+	Ptr<ParsingTable> table=CreateTable(definition, true, L"WorkflowType");
 	const wchar_t* inputs[]=
 	{
 		L"int",
@@ -479,7 +482,7 @@ TEST_CASE(TestParsingWorkflowType)
 TEST_CASE(TestParsingAmbigiousExpression)
 {
 	Ptr<ParsingDefinition> definition=LoadDefinition(L"AmbiguousExpression");
-	Ptr<ParsingTable> table=CreateTable(definition, L"AmbiguousExpression", true);
+	Ptr<ParsingTable> table=CreateTable(definition, true, L"AmbiguousExpression", true);
 	const wchar_t* inputs[]=
 	{
 		L"a",
@@ -558,7 +561,7 @@ TEST_CASE(TestParsingGrammar)
 		{L"Grammar",		L"[Exp:argument {\",\" Exp:argument}]"},
 		{L"Grammar",		L"Term:first \"*\" Factor:second as BinaryExpression with {Operator = \"Mul\"}"},
 	};
-	Ptr<ParsingTable> table=CreateTable(definition, L"Syngram");
+	Ptr<ParsingTable> table=CreateTable(definition, false, L"Syngram");
 	for(vint i=0;i<sizeof(inputTexts)/sizeof(*inputTexts);i++)
 	{
 		Parse(table, inputTexts[i][1], L"Syngram", inputTexts[i][0], i, true, false);
@@ -840,7 +843,7 @@ TEST_CASE(TestGeneratedParser_Json)
 	}
 	{
 		Ptr<ParsingDefinition> definition=LoadDefinition(L"Json");
-		Ptr<ParsingTable> table=CreateTable(definition, L"Json");
+		Ptr<ParsingTable> table=CreateTable(definition, false, L"Json");
 		for(vint i=0;i<sizeof(input)/sizeof(*input);i++)
 		{
 			Parse(table, input[i], L"Json", L"JRoot", i, true, false);
@@ -876,7 +879,7 @@ TEST_CASE(TestGeneratedParser_Xml)
 	}
 	{
 		Ptr<ParsingDefinition> definition=LoadDefinition(L"Xml");
-		Ptr<ParsingTable> table=CreateTable(definition, L"Xml");
+		Ptr<ParsingTable> table=CreateTable(definition, false, L"Xml");
 		for(vint i=0;i<sizeof(input)/sizeof(*input);i++)
 		{
 			Parse(table, input[i], L"Xml", L"XDocument", i, true, false);
