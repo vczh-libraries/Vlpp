@@ -60,10 +60,23 @@ RearrangeState
 
 			vint CompareTransitionForRearranging(Transition* t1, Transition* t2)
 			{
-				if(t1->transitionType<t2->transitionType) return -1;
-				if(t1->transitionType>t2->transitionType) return 1;
-				if(t1->transitionSymbol<t2->transitionSymbol) return -1;
-				if(t1->transitionSymbol>t2->transitionSymbol) return 1;
+				if (t1->transitionType < t2->transitionType) return -1;
+				if (t1->transitionType > t2->transitionType) return 1;
+				if (t1->transitionSymbol && t2->transitionSymbol)
+				{
+					if (t1->transitionSymbol->GetType() < t2->transitionSymbol->GetType()) return -1;
+					if (t1->transitionSymbol->GetType() > t2->transitionSymbol->GetType()) return 1;
+					if (t1->transitionSymbol->GetName() < t2->transitionSymbol->GetName()) return -1;
+					if (t1->transitionSymbol->GetName() > t2->transitionSymbol->GetName()) return 1;
+				}
+				else if (t1->transitionSymbol)
+				{
+					return 1;
+				}
+				else if (t2->transitionSymbol)
+				{
+					return -1;
+				}
 				return 0;
 			}
 
