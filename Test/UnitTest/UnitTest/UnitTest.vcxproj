@@ -412,7 +412,6 @@
   <ItemGroup>
     <Text Include="..\..\..\Source\Parsing\Json\ParsingJson.parser.txt" />
     <Text Include="..\..\..\Source\Parsing\Xml\ParsingXml.parser.txt" />
-    <Text Include="..\..\Source\Parser.Calculator\Parser.Calculator.log" />
     <Text Include="..\..\Source\Parser.Calculator\Parser.Calculator.parser.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

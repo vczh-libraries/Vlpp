@@ -371,7 +371,7 @@ GenerateTable
 				{
 					vint currentState=0;
 					List<State*> scanningStates;
-					FOREACH(Ptr<RuleInfo>, ruleInfo, jointPDA->ruleInfos.Values())
+					FOREACH(Ptr<RuleInfo>, ruleInfo, jointPDA->ruleInfos)
 					{
 						if(!scanningStates.Contains(ruleInfo->rootRuleStartState))
 						{
@@ -462,9 +462,9 @@ GenerateTable
 				/***********************************************************************
 				fill rule infos
 				***********************************************************************/
-				FOREACH_INDEXER(ParsingDefinitionRuleDefinition*, rule, i, jointPDA->ruleInfos.Keys())
+				FOREACH_INDEXER(ParsingDefinitionRuleDefinition*, rule, i, jointPDA->orderedRulesDefs)
 				{
-					Ptr<RuleInfo> pdaRuleInfo=jointPDA->ruleInfos[rule];
+					Ptr<RuleInfo> pdaRuleInfo=jointPDA->ruleDefToInfoMap[rule];
 					ParsingTable::RuleInfo info;
 					info.name=rule->name;
 					info.type=TypeToString(rule->type.Obj());

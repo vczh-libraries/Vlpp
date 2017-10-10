@@ -486,9 +486,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="..\..\Source\Parser.Calculator\Parser.Calculator.log">
-      <Filter>Parser.Calculator</Filter>
-    </Text>
     <Text Include="..\..\Source\Parser.Calculator\Parser.Calculator.parser.txt">
       <Filter>Parser.Calculator</Filter>
     </Text>

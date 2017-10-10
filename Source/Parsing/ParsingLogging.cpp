@@ -622,7 +622,7 @@ Logger (Automaton)
 
 			void Log(Ptr<Automaton> automaton, stream::TextWriter& writer)
 			{
-				FOREACH(Ptr<RuleInfo>, ruleInfo, automaton->ruleInfos.Values())
+				FOREACH(Ptr<RuleInfo>, ruleInfo, automaton->ruleInfos)
 				{
 					writer.WriteString(L"Root Rule Start: ");
 					writer.WriteLine(ruleInfo->rootRuleStartState->stateName);
@@ -643,7 +643,7 @@ Logger (Automaton)
 				}
 
 				List<State*> states;
-				FOREACH(Ptr<RuleInfo>, ruleInfo, automaton->ruleInfos.Values())
+				FOREACH(Ptr<RuleInfo>, ruleInfo, automaton->ruleInfos)
 				{
 					vint currentState=states.Count();
 					states.Add(ruleInfo->rootRuleStartState);

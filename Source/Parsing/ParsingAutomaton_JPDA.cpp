@@ -21,12 +21,12 @@ CreateJointPDAFromNondeterministicPDA
 				// build rule info data
 				Dictionary<WString, ParsingDefinitionRuleDefinition*> ruleMap;
 				Dictionary<State*, State*> oldNewStateMap;
-				FOREACH(ParsingDefinitionRuleDefinition*, rule, nondeterministicPDA->ruleInfos.Keys())
+				FOREACH(ParsingDefinitionRuleDefinition*, rule, nondeterministicPDA->orderedRulesDefs)
 				{
 					// build new rule info
-					Ptr<RuleInfo> ruleInfo=nondeterministicPDA->ruleInfos[rule];
+					Ptr<RuleInfo> ruleInfo=nondeterministicPDA->ruleDefToInfoMap[rule];
 					Ptr<RuleInfo> newRuleInfo=new RuleInfo;
-					automaton->ruleInfos.Add(rule, newRuleInfo);
+					automaton->AddRuleInfo(rule, newRuleInfo);
 					ruleMap.Add(rule->name, rule);
 
 					newRuleInfo->rootRuleStartState=automaton->RootRuleStartState(rule);
@@ -53,10 +53,10 @@ CreateJointPDAFromNondeterministicPDA
 				}
 
 				// create transitions
-				FOREACH(ParsingDefinitionRuleDefinition*, rule, nondeterministicPDA->ruleInfos.Keys())
+				FOREACH(ParsingDefinitionRuleDefinition*, rule, nondeterministicPDA->orderedRulesDefs)
 				{
-					Ptr<RuleInfo> ruleInfo=nondeterministicPDA->ruleInfos[rule];
-					Ptr<RuleInfo> newRuleInfo=automaton->ruleInfos[rule];
+					Ptr<RuleInfo> ruleInfo=nondeterministicPDA->ruleDefToInfoMap[rule];
+					Ptr<RuleInfo> newRuleInfo=automaton->ruleDefToInfoMap[rule];
 
 					// complete new rule info
 					FOREACH(State*, endState, ruleInfo->endStates)
@@ -89,7 +89,7 @@ CreateJointPDAFromNondeterministicPDA
 								// source -> ruleStart
 								// ruleEnd[] -> target
 								ParsingDefinitionRuleDefinition* rule=ruleMap[oldTransition->transitionSymbol->GetName()];
-								Ptr<RuleInfo> oldRuleInfo=nondeterministicPDA->ruleInfos[rule];
+								Ptr<RuleInfo> oldRuleInfo=nondeterministicPDA->ruleDefToInfoMap[rule];
 
 								{
 									Transition* shiftTransition=automaton->Epsilon(newSource, oldNewStateMap[oldRuleInfo->startState]);

@@ -123,6 +123,13 @@ Automaton
 			{
 			}
 
+			void Automaton::AddRuleInfo(definitions::ParsingDefinitionRuleDefinition* rule, Ptr<RuleInfo> ruleInfo)
+			{
+				orderedRulesDefs.Add(rule);
+				ruleInfos.Add(ruleInfo);
+				ruleDefToInfoMap.Add(rule, ruleInfo);
+			}
+
 			State* Automaton::RuleStartState(definitions::ParsingDefinitionRuleDefinition* ownerRule)
 			{
 				State* state=new State;
@@ -169,7 +176,7 @@ Automaton
 				state->grammarNode=grammarNode;
 				state->stateNode=stateNode;
 				state->statePosition=State::BeforeNode;
-				state->stateName=ownerRule->name+L"."+itow(++ruleInfos[ownerRule]->stateNameCount);
+				state->stateName=ownerRule->name+L"."+itow(++ruleDefToInfoMap[ownerRule]->stateNameCount);
 				stateNode=FindAppropriateGrammarState(grammarNode, stateNode, true);
 				state->stateExpression=L"<"+ownerRule->name+L">: "+GrammarStateToString(grammarNode, stateNode, true);
 				return state;
@@ -185,7 +192,7 @@ Automaton
 				state->grammarNode=grammarNode;
 				state->stateNode=stateNode;
 				state->statePosition=State::AfterNode;
-				state->stateName=ownerRule->name+L"."+itow(++ruleInfos[ownerRule]->stateNameCount);
+				state->stateName=ownerRule->name+L"."+itow(++ruleDefToInfoMap[ownerRule]->stateNameCount);
 				stateNode=FindAppropriateGrammarState(grammarNode, stateNode, false);
 				state->stateExpression=L"<"+ownerRule->name+L">: "+GrammarStateToString(grammarNode, stateNode, false);
 				return state;

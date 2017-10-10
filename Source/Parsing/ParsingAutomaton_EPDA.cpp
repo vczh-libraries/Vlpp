@@ -140,7 +140,7 @@ CreateRuleEpsilonPDA
 			void CreateRuleEpsilonPDA(Ptr<Automaton> automaton, Ptr<definitions::ParsingDefinitionRuleDefinition> rule, ParsingSymbolManager* manager)
 			{
 				Ptr<RuleInfo> ruleInfo=new RuleInfo;
-				automaton->ruleInfos.Add(rule.Obj(), ruleInfo);
+				automaton->AddRuleInfo(rule.Obj(), ruleInfo);
 
 				ruleInfo->rootRuleStartState=automaton->RootRuleStartState(rule.Obj());
 				ruleInfo->rootRuleEndState=automaton->RootRuleEndState(rule.Obj());

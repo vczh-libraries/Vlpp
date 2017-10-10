@@ -128,15 +128,21 @@ namespace vl
 
 			class Automaton : public Object
 			{
+				typedef collections::List<definitions::ParsingDefinitionRuleDefinition*>							RuleDefList;
 				typedef collections::Dictionary<definitions::ParsingDefinitionRuleDefinition*, Ptr<RuleInfo>>		RuleInfoMap;
 			public:
 				ParsingSymbolManager*								symbolManager;
 				collections::List<Ptr<Transition>>					transitions;
 				collections::List<Ptr<State>>						states;
-				RuleInfoMap											ruleInfos;
+				collections::List<Ptr<RuleInfo>>					ruleInfos;
+
+				RuleDefList											orderedRulesDefs;
+				RuleInfoMap											ruleDefToInfoMap;
 
 				Automaton(ParsingSymbolManager* _symbolManager);
 				~Automaton();
+
+				void												AddRuleInfo(definitions::ParsingDefinitionRuleDefinition* rule, Ptr<RuleInfo> ruleInfo);
 
 				State*												RuleStartState(definitions::ParsingDefinitionRuleDefinition* ownerRule);
 				State*												RootRuleStartState(definitions::ParsingDefinitionRuleDefinition* ownerRule);
