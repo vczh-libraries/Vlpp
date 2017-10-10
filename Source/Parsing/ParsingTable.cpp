@@ -208,15 +208,15 @@ ParsingTable::TransitionItem
 					NormalTransition;
 			}
 
-			ParsingTable::TransitionItem::OrderResult ParsingTable::TransitionItem::CheckOrder(Ptr<TransitionItem> t1, Ptr<TransitionItem> t2, bool forceGivingOrder)
+			ParsingTable::TransitionItem::OrderResult ParsingTable::TransitionItem::CheckOrder(Ptr<TransitionItem> t1, Ptr<TransitionItem> t2, OrderResult defaultResult)
 			{
 				if(t1->token!=t2->token) return UnknownOrder;
-				if(forceGivingOrder)
+				if (defaultResult != UnknownOrder)
 				{
-					TransitionLevel level1=GetTransitionLevel(t1);
-					TransitionLevel level2=GetTransitionLevel(t2);
-					if(level1>level2) return CorrectOrder;
-					if(level1<level2) return WrongOrder;
+					TransitionLevel level1 = GetTransitionLevel(t1);
+					TransitionLevel level2 = GetTransitionLevel(t2);
+					if (level1 > level2) return CorrectOrder;
+					if (level1 < level2) return WrongOrder;
 				}
 
 				vint ic1=t1->stackPattern.Count();
@@ -249,20 +249,12 @@ ParsingTable::TransitionItem
 						return WrongOrder;
 					}
 				}
-
-				if(forceGivingOrder)
-				{
-					return t1>t2?CorrectOrder:SameOrder;
-				}
-				else
-				{
-					return UnknownOrder;
-				}
+				return defaultResult;
 			}
 
-			vint ParsingTable::TransitionItem::Compare(Ptr<TransitionItem> t1, Ptr<TransitionItem> t2)
+			vint ParsingTable::TransitionItem::Compare(Ptr<TransitionItem> t1, Ptr<TransitionItem> t2, OrderResult defaultResult)
 			{
-				OrderResult order=CheckOrder(t1, t2, true);
+				OrderResult order=CheckOrder(t1, t2, defaultResult);
 				switch(order)
 				{
 				case CorrectOrder:	return -1;

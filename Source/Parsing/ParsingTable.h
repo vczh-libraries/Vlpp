@@ -485,8 +485,8 @@ namespace vl
 					{
 					}
 
-					static OrderResult						CheckOrder(Ptr<TransitionItem> t1, Ptr<TransitionItem> t2, bool forceGivingOrder);
-					static vint								Compare(Ptr<TransitionItem> t1, Ptr<TransitionItem> t2);
+					static OrderResult						CheckOrder(Ptr<TransitionItem> t1, Ptr<TransitionItem> t2, OrderResult defaultResult = UnknownOrder);
+					static vint								Compare(Ptr<TransitionItem> t1, Ptr<TransitionItem> t2, OrderResult defaultResult);
 				};
 
 				class TransitionBag

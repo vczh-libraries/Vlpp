@@ -199,7 +199,7 @@ GenerateTable
 
 			void GenerateLookAhead(Ptr<ParsingTable> table, List<State*>& stateIds, vint state, vint token, Ptr<ParsingTable::TransitionItem> t1, Ptr<ParsingTable::TransitionItem> t2, bool enableAmbiguity, collections::List<Ptr<ParsingError>>& errors)
 			{
-				if(ParsingTable::TransitionItem::CheckOrder(t1, t2, false)==ParsingTable::TransitionItem::UnknownOrder)
+				if(ParsingTable::TransitionItem::CheckOrder(t1, t2, ParsingTable::TransitionItem::UnknownOrder)==ParsingTable::TransitionItem::UnknownOrder)
 				{
 					if(enableAmbiguity || !CreateLookAhead(table, t1, t2, 16))
 					{
@@ -612,7 +612,22 @@ GenerateTable
 						Ptr<ParsingTable::TransitionBag> bag=table->GetTransitionBag(i, j);
 						if(bag)
 						{
-							CopyFrom(bag->transitionItems, From(bag->transitionItems).OrderBy(ParsingTable::TransitionItem::Compare));
+							CopyFrom(
+								bag->transitionItems,
+								From(bag->transitionItems)
+									.OrderBy([&](Ptr<ParsingTable::TransitionItem> t1, Ptr<ParsingTable::TransitionItem> t2)
+									{
+										// stable transition order
+										vint i1 = bag->transitionItems.IndexOf(t1.Obj());
+										vint i2 = bag->transitionItems.IndexOf(t2.Obj());
+										auto defaultOrder =
+											i1 < i2 ? ParsingTable::TransitionItem::CorrectOrder :
+											i1 > i2 ? ParsingTable::TransitionItem::WrongOrder :
+											ParsingTable::TransitionItem::SameOrder
+											;
+										return ParsingTable::TransitionItem::Compare(t1, t2, defaultOrder);
+									})
+								);
 
 							// build look ahead inside a transition
 							for (vint k1 = 0; k1 < bag->transitionItems.Count() - 1; k1++)
