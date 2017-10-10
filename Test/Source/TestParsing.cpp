@@ -10,8 +10,6 @@
 #include "../../Source/Parsing/Parsing.h"
 #include "../../Source/Parsing/Xml/ParsingXml.h"
 #include "../../Source/Parsing/Json/ParsingJson.h"
-#include "Parser.Calculator/Parser.Calculator.h"
-
 using namespace vl;
 using namespace vl::stream;
 using namespace vl::collections;
@@ -22,7 +20,6 @@ using namespace vl::parsing::analyzing;
 using namespace vl::parsing::tabling;
 using namespace vl::parsing::xml;
 using namespace vl::parsing::json;
-using namespace test::parser;
 
 extern WString GetTestResourcePath();
 extern WString GetTestOutputPath();
@@ -727,63 +724,6 @@ TEST_CASE(TestAutoRecoverAmbiguousParser)
 	inputs.Add(L"x<,>a");
 	inputs.Add(L"x<,.a");
 	ParseWithAutoRecover(definition, L"AmbiguousExpression", L"Exp", inputs, true);
-}
-
-namespace test
-{
-	class CalExpressionEvaluationVisitor : public Object, public CalExpression::IVisitor
-	{
-	public:
-		vint result;
-
-		void Visit(CalNumberExpression* node)override
-		{
-			result=wtoi(node->value.value);
-		}
-
-		void Visit(CalBinaryExpression* node)override
-		{
-			node->firstOperand->Accept(this);
-			vint a=result;
-			node->secondOperand->Accept(this);
-			vint b=result;
-			switch(node->binaryOperator)
-			{
-			case CalBinaryExpression::CalBinaryOperator::Add:
-				result=a+b;
-				break;
-			case CalBinaryExpression::CalBinaryOperator::Sub:
-				result=a-b;
-				break;
-			case CalBinaryExpression::CalBinaryOperator::Mul:
-				result=a*b;
-				break;
-			case CalBinaryExpression::CalBinaryOperator::Div:
-				result=a/b;
-				break;
-			default:
-			throw Exception(L"Unknown operator.");
-			}
-		}
-
-		void Visit(CalFunctionExpression* node)override
-		{
-			throw Exception(L"Function calling is not supported.");
-		}
-	};
-}
-using namespace test;
-
-TEST_CASE(TestGeneratedParser_Calculator)
-{
-	Ptr<ParsingTable> table=CalLoadTable();
-	TEST_ASSERT(table);
-	Ptr<CalExpression> exp=CalParseExpression(L"(1+2)*(3+4)", table);
-	TEST_ASSERT(exp);
-
-	CalExpressionEvaluationVisitor visitor;
-	exp->Accept(&visitor);
-	TEST_ASSERT(visitor.result==21);
 }
 
 namespace test

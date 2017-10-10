@@ -262,7 +262,6 @@
     <ClCompile Include="..\..\..\Source\Threading.cpp" />
     <ClCompile Include="..\..\..\Source\ThreadingLinux.cpp" />
     <ClCompile Include="..\..\..\Source\UnitTest\UnitTest.cpp" />
-    <ClCompile Include="..\..\Source\Parser.Calculator\Parser.Calculator.cpp" />
     <ClCompile Include="..\..\Source\TestBasic.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
@@ -335,7 +334,6 @@
     <None Include="..\..\..\Source\Common.fpm" />
     <None Include="..\..\..\Source\GenerateCode.bat" />
     <None Include="..\..\..\Source\Tuple.h.fpm" />
-    <None Include="..\..\Source\Parser.Calculator\Codegen.bat" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\Source\Basic.h" />
@@ -407,12 +405,10 @@
     <ClInclude Include="..\..\..\Source\Threading.h" />
     <ClInclude Include="..\..\..\Source\Tuple.h" />
     <ClInclude Include="..\..\..\Source\UnitTest\UnitTest.h" />
-    <ClInclude Include="..\..\Source\Parser.Calculator\Parser.Calculator.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\..\..\Source\Parsing\Json\ParsingJson.parser.txt" />
     <Text Include="..\..\..\Source\Parsing\Xml\ParsingXml.parser.txt" />
-    <Text Include="..\..\Source\Parser.Calculator\Parser.Calculator.parser.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -13,9 +13,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Parser.Calculator">
-      <UniqueIdentifier>{725f548d-5327-4c78-b1a4-c8a65d471618}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Common">
       <UniqueIdentifier>{a0063a3f-fb90-4cc0-8369-26646e7eadf7}</UniqueIdentifier>
     </Filter>
@@ -86,9 +83,6 @@
     </ClCompile>
     <ClCompile Include="..\..\Source\TestThread.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Parser.Calculator\Parser.Calculator.cpp">
-      <Filter>Parser.Calculator</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\Source\Basic.cpp">
       <Filter>Common</Filter>
@@ -260,9 +254,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\Source\Parser.Calculator\Codegen.bat">
-      <Filter>Parser.Calculator</Filter>
-    </None>
     <None Include="..\..\..\Source\Common.fpm">
       <Filter>Common\_Codegen</Filter>
     </None>
@@ -274,9 +265,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\Source\Parser.Calculator\Parser.Calculator.h">
-      <Filter>Parser.Calculator</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\Source\Basic.h">
       <Filter>Common</Filter>
     </ClInclude>
@@ -486,9 +474,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="..\..\Source\Parser.Calculator\Parser.Calculator.parser.txt">
-      <Filter>Parser.Calculator</Filter>
-    </Text>
     <Text Include="..\..\..\Source\Parsing\Json\ParsingJson.parser.txt">
       <Filter>Common\Parsing\Json</Filter>
     </Text>
