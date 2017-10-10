@@ -41,8 +41,14 @@ CreateNondeterministicPDAFromEpsilonPDA
 					// remove epsilon transitions
 					RemoveEpsilonTransitions(oldNewStateMap, scanningStates, automaton);
 
+					// stable state orders
 					List<State*> newStates;
-					CopyFrom(newStates, oldNewStateMap.Values());
+					CopyFrom(
+						newStates,
+						From(epsilonPDA->states)
+							.Where([&](Ptr<State> s) {return oldNewStateMap.Keys().Contains(s.Obj()); })
+							.Select([&](Ptr<State> s) { return oldNewStateMap[s.Obj()]; })
+						);
 					DeleteUnnecessaryStates(automaton, newRuleInfo, newStates);
 					MergeStates(automaton, newRuleInfo, newStates);
 
