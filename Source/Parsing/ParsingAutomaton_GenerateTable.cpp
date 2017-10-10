@@ -87,7 +87,7 @@ CreateLookAhead
 							case ParsingTable::LookAheadInfo::Prefix:
 								return false;
 							case ParsingTable::LookAheadInfo::Equal:
-								return lai<lai2;
+								return sla.IndexOf(lai.Obj()) < sla.IndexOf(lai2.Obj());
 							default:
 								return true;
 							}
