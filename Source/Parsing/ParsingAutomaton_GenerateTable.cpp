@@ -246,30 +246,30 @@ GenerateTable
 				CollectType(manager->GetGlobal(), types);
 				FOREACH(ParsingSymbol*, type, types)
 				{
-					Ptr<ParsingTable::AttributeInfoList> typeAtt=new ParsingTable::AttributeInfoList;
-					ParsingSymbol* parent=type;
-					while(parent)
+					Ptr<ParsingTable::AttributeInfoList> typeAtt = new ParsingTable::AttributeInfoList;
+					ParsingSymbol* parent = type;
+					while (parent)
 					{
-						ParsingDefinitionClassDefinition* classDef=manager->CacheGetClassDefinition(parent);
+						ParsingDefinitionClassDefinition* classDef = manager->CacheGetClassDefinition(parent);
 						CollectAttributeInfo(typeAtt, classDef->attributes);
 
 						Ptr<List<ParsingSymbol*>> children;
-						vint index=childTypes.Keys().IndexOf(parent);
-						if(index==-1)
+						vint index = childTypes.Keys().IndexOf(parent);
+						if (index == -1)
 						{
-							children=new List<ParsingSymbol*>;
+							children = new List<ParsingSymbol*>;
 							childTypes.Add(parent, children);
 						}
 						else
 						{
-							children=childTypes.Values().Get(index);
+							children = childTypes.Values().Get(index);
 						}
 
 						children->Add(type);
-						parent=parent->GetDescriptorSymbol();
+						parent = parent->GetDescriptorSymbol();
 					}
 
-					if(typeAtt->attributes.Count()>0)
+					if (typeAtt->attributes.Count() > 0)
 					{
 						typeAtts.Add(GetTypeFullName(type), atts.Count());
 						atts.Add(typeAtt);
@@ -281,16 +281,16 @@ GenerateTable
 				}
 
 				// find all class fields
-				for(vint i=0;i<childTypes.Count();i++)
+				for (vint i = 0; i < childTypes.Count(); i++)
 				{
-					ParsingSymbol* type=childTypes.Keys().Get(i);
-					List<ParsingSymbol*>& children=*childTypes.Values().Get(i).Obj();
-					
-					ParsingDefinitionClassDefinition* classDef=manager->CacheGetClassDefinition(type);
+					ParsingSymbol* type = childTypes.Keys().Get(i);
+					List<ParsingSymbol*>& children = *childTypes.Values().Get(i).Obj();
+
+					ParsingDefinitionClassDefinition* classDef = manager->CacheGetClassDefinition(type);
 					List<vint> fieldAtts;
 					FOREACH_INDEXER(Ptr<ParsingDefinitionClassMemberDefinition>, field, index, classDef->members)
 					{
-						if(field->attributes.Count()>0)
+						if (field->attributes.Count() > 0)
 						{
 							fieldAtts.Add(atts.Count());
 							atts.Add(CreateAttributeInfo(field->attributes));
@@ -303,19 +303,19 @@ GenerateTable
 
 					FOREACH(ParsingSymbol*, child, children)
 					{
-						WString type=GetTypeFullName(child);
+						WString type = GetTypeFullName(child);
 						FOREACH_INDEXER(Ptr<ParsingDefinitionClassMemberDefinition>, field, index, classDef->members)
 						{
 							treeFieldAtts.Add(Pair<WString, WString>(type, field->name), fieldAtts[index]);
 						}
 					}
 				}
-				
+
 				/***********************************************************************
 				find all tokens
 				***********************************************************************/
-				vint tokenCount=0;
-				vint discardTokenCount=0;
+				vint tokenCount = 0;
+				vint discardTokenCount = 0;
 				Dictionary<ParsingSymbol*, vint> tokenIds;
 				List<WString> discardTokens;
 
@@ -324,7 +324,7 @@ GenerateTable
 
 				FOREACH(Ptr<ParsingDefinitionTokenDefinition>, token, definition->tokens)
 				{
-					if(token->attributes.Count()>0)
+					if (token->attributes.Count() > 0)
 					{
 						tokenAtts.Add(token->name, atts.Count());
 						atts.Add(CreateAttributeInfo(token->attributes));
@@ -334,25 +334,25 @@ GenerateTable
 						tokenAtts.Add(token->name, -1);
 					}
 
-					if(token->discard)
+					if (token->discard)
 					{
 						discardTokens.Add(token->name);
 						discardTokenCount++;
 					}
 					else
 					{
-						ParsingSymbol* tokenSymbol=jointPDA->symbolManager->GetGlobal()->GetSubSymbolByName(token->name);
-						tokenIds.Add(tokenSymbol, tokenIds.Count()+ParsingTable::UserTokenStart);
+						ParsingSymbol* tokenSymbol = jointPDA->symbolManager->GetGlobal()->GetSubSymbolByName(token->name);
+						tokenIds.Add(tokenSymbol, tokenIds.Count() + ParsingTable::UserTokenStart);
 						tokenCount++;
 					}
 				}
-				
+
 				/***********************************************************************
 				find all rules
 				***********************************************************************/
 				FOREACH(Ptr<ParsingDefinitionRuleDefinition>, rule, definition->rules)
 				{
-					if(rule->attributes.Count()>0)
+					if (rule->attributes.Count() > 0)
 					{
 						ruleAtts.Add(rule->name, atts.Count());
 						atts.Add(CreateAttributeInfo(rule->attributes));
@@ -362,51 +362,51 @@ GenerateTable
 						ruleAtts.Add(rule->name, -1);
 					}
 				}
-				
+
 				/***********************************************************************
 				find all available states
 				***********************************************************************/
 				List<State*> stateIds;
-				vint availableStateCount=0;
+				vint availableStateCount = 0;
 				{
-					vint currentState=0;
+					vint currentState = 0;
 					List<State*> scanningStates;
 					FOREACH(Ptr<RuleInfo>, ruleInfo, jointPDA->ruleInfos)
 					{
-						if(!scanningStates.Contains(ruleInfo->rootRuleStartState))
+						if (!scanningStates.Contains(ruleInfo->rootRuleStartState))
 						{
 							scanningStates.Add(ruleInfo->rootRuleStartState);
 						}
 
-						while(currentState<scanningStates.Count())
+						while (currentState < scanningStates.Count())
 						{
-							State* state=scanningStates[currentState++];
+							State* state = scanningStates[currentState++];
 							stateIds.Add(state);
 
 							FOREACH(Transition*, transition, state->transitions)
 							{
-								if(!scanningStates.Contains(transition->target))
+								if (!scanningStates.Contains(transition->target))
 								{
 									scanningStates.Add(transition->target);
 								}
 							}
 						}
 					}
-					availableStateCount=scanningStates.Count();
+					availableStateCount = scanningStates.Count();
 				}
 
 				// there will be some states that is used in shift and reduce but it is not a reachable state
 				// so the state table will record all state
 				FOREACH(Ptr<State>, state, jointPDA->states)
 				{
-					if(!stateIds.Contains(state.Obj()))
+					if (!stateIds.Contains(state.Obj()))
 					{
 						stateIds.Add(state.Obj());
 					}
 				}
-				vint stateCount=stateIds.Count();
+				vint stateCount = stateIds.Count();
 
-				Ptr<ParsingTable> table=new ParsingTable(atts.Count(), typeAtts.Count(), treeFieldAtts.Count(), tokenCount, discardTokenCount, stateCount, definition->rules.Count());
+				Ptr<ParsingTable> table = new ParsingTable(atts.Count(), typeAtts.Count(), treeFieldAtts.Count(), tokenCount, discardTokenCount, stateCount, definition->rules.Count());
 
 				/***********************************************************************
 				fill attribute infos
@@ -440,22 +440,22 @@ GenerateTable
 				FOREACH(ParsingSymbol*, symbol, tokenIds.Keys())
 				{
 					ParsingTable::TokenInfo info;
-					info.name=symbol->GetName();
-					info.regex=symbol->GetDescriptorString();
-					info.attributeIndex=tokenAtts[info.name];
+					info.name = symbol->GetName();
+					info.regex = symbol->GetDescriptorString();
+					info.attributeIndex = tokenAtts[info.name];
 
-					vint id=tokenIds[symbol];
+					vint id = tokenIds[symbol];
 					table->SetTokenInfo(id, info);
 				}
 
 				FOREACH_INDEXER(WString, name, i, discardTokens)
 				{
-					ParsingSymbol* symbol=jointPDA->symbolManager->GetGlobal()->GetSubSymbolByName(name);
+					ParsingSymbol* symbol = jointPDA->symbolManager->GetGlobal()->GetSubSymbolByName(name);
 
 					ParsingTable::TokenInfo info;
-					info.name=symbol->GetName();
-					info.regex=symbol->GetDescriptorString();
-					info.attributeIndex=tokenAtts[info.name];
+					info.name = symbol->GetName();
+					info.regex = symbol->GetDescriptorString();
+					info.attributeIndex = tokenAtts[info.name];
 					table->SetDiscardTokenInfo(i, info);
 				}
 
@@ -464,22 +464,22 @@ GenerateTable
 				***********************************************************************/
 				FOREACH_INDEXER(ParsingDefinitionRuleDefinition*, rule, i, jointPDA->orderedRulesDefs)
 				{
-					Ptr<RuleInfo> pdaRuleInfo=jointPDA->ruleDefToInfoMap[rule];
+					Ptr<RuleInfo> pdaRuleInfo = jointPDA->ruleDefToInfoMap[rule];
 					ParsingTable::RuleInfo info;
-					info.name=rule->name;
-					info.type=TypeToString(rule->type.Obj());
-					info.rootStartState=stateIds.IndexOf(pdaRuleInfo->rootRuleStartState);
-					info.attributeIndex=ruleAtts[info.name];
-					
-					if(Ptr<ParsingDefinitionPrimitiveType> classType=rule->type.Cast<ParsingDefinitionPrimitiveType>())
+					info.name = rule->name;
+					info.type = TypeToString(rule->type.Obj());
+					info.rootStartState = stateIds.IndexOf(pdaRuleInfo->rootRuleStartState);
+					info.attributeIndex = ruleAtts[info.name];
+
+					if (Ptr<ParsingDefinitionPrimitiveType> classType = rule->type.Cast<ParsingDefinitionPrimitiveType>())
 					{
-						ParsingSymbol* ruleSymbol=manager->GetGlobal()->GetSubSymbolByName(rule->name);
-						ParsingSymbol* ruleType=ruleSymbol->GetDescriptorSymbol();
-						ParsingDefinitionClassDefinition* ruleTypeDef=manager->CacheGetClassDefinition(ruleType);
-						if(ruleTypeDef && ruleTypeDef->ambiguousType)
+						ParsingSymbol* ruleSymbol = manager->GetGlobal()->GetSubSymbolByName(rule->name);
+						ParsingSymbol* ruleType = ruleSymbol->GetDescriptorSymbol();
+						ParsingDefinitionClassDefinition* ruleTypeDef = manager->CacheGetClassDefinition(ruleType);
+						if (ruleTypeDef && ruleTypeDef->ambiguousType)
 						{
-							ParsingSymbol* ambiguousType=manager->CacheGetType(ruleTypeDef->ambiguousType.Obj(), ruleType->GetParentSymbol());
-							info.ambiguousType=GetTypeFullName(ambiguousType);
+							ParsingSymbol* ambiguousType = manager->CacheGetType(ruleTypeDef->ambiguousType.Obj(), ruleType->GetParentSymbol());
+							info.ambiguousType = GetTypeFullName(ambiguousType);
 						}
 					}
 					table->SetRuleInfo(i, info);
@@ -491,9 +491,9 @@ GenerateTable
 				FOREACH_INDEXER(State*, state, i, stateIds)
 				{
 					ParsingTable::StateInfo info;
-					info.ruleName=state->ownerRule->name;
-					info.stateName=state->stateName;
-					info.stateExpression=state->stateExpression;
+					info.ruleName = state->ownerRule->name;
+					info.stateName = state->stateName;
+					info.stateExpression = state->stateExpression;
 					table->SetStateInfo(i, info);
 				}
 
@@ -503,100 +503,100 @@ GenerateTable
 				FOREACH_INDEXER(State*, state, stateIndex, stateIds)
 				{
 					// if this state is not necessary, stop building the table
-					if(stateIndex>=availableStateCount) break;
+					if (stateIndex >= availableStateCount) break;
 
 					FOREACH(Transition*, transition, state->transitions)
 					{
-						vint tokenIndex=-1;
-						switch(transition->transitionType)
+						vint tokenIndex = -1;
+						switch (transition->transitionType)
 						{
 						case Transition::TokenBegin:
-							tokenIndex=ParsingTable::TokenBegin;
+							tokenIndex = ParsingTable::TokenBegin;
 							break;
 						case Transition::TokenFinish:
-							tokenIndex=ParsingTable::TokenFinish;
+							tokenIndex = ParsingTable::TokenFinish;
 							break;
 						case Transition::NormalReduce:
-							tokenIndex=ParsingTable::NormalReduce;
+							tokenIndex = ParsingTable::NormalReduce;
 							break;
 						case Transition::LeftRecursiveReduce:
-							tokenIndex=ParsingTable::LeftRecursiveReduce;
+							tokenIndex = ParsingTable::LeftRecursiveReduce;
 							break;
 						case Transition::Symbol:
-							tokenIndex=tokenIds[transition->transitionSymbol];
+							tokenIndex = tokenIds[transition->transitionSymbol];
 							break;
 						default:;
 						}
 
-						Ptr<ParsingTable::TransitionBag> bag=table->GetTransitionBag(stateIndex, tokenIndex);
-						if(!bag)
+						Ptr<ParsingTable::TransitionBag> bag = table->GetTransitionBag(stateIndex, tokenIndex);
+						if (!bag)
 						{
-							bag=new ParsingTable::TransitionBag;
+							bag = new ParsingTable::TransitionBag;
 							table->SetTransitionBag(stateIndex, tokenIndex, bag);
 						}
 
-						Ptr<ParsingTable::TransitionItem> item=new ParsingTable::TransitionItem;
-						item->token=tokenIndex;
-						item->targetState=stateIds.IndexOf(transition->target);
+						Ptr<ParsingTable::TransitionItem> item = new ParsingTable::TransitionItem;
+						item->token = tokenIndex;
+						item->targetState = stateIds.IndexOf(transition->target);
 						bag->transitionItems.Add(item);
 
 						FOREACH(Ptr<Action>, action, transition->actions)
 						{
 							ParsingTable::Instruction ins;
-							switch(action->actionType)
+							switch (action->actionType)
 							{
 							case Action::Create:
-								{
-									ins.instructionType=ParsingTable::Instruction::Create;
-									ins.nameParameter=GetTypeNameForCreateInstruction(action->actionSource);
-								}
-								break;
-							case Action::Using:
-								{
-									ins.instructionType=ParsingTable::Instruction::Using;
-								}
-								break;
-							case Action::Assign:
-								{
-									if(action->actionSource->GetDescriptorSymbol()->GetType()==ParsingSymbol::ArrayType)
-									{
-										ins.instructionType=ParsingTable::Instruction::Item;
-									}
-									else
-									{
-										ins.instructionType=ParsingTable::Instruction::Assign;
-									}
-									ins.nameParameter=action->actionSource->GetName();
-								}
-								break;
-							case Action::Setter:
-								{
-									ins.instructionType=ParsingTable::Instruction::Setter;
-									ins.nameParameter=action->actionSource->GetName();
-									ins.value=action->actionTarget->GetName();
-								}
-								break;
-							case Action::Shift:
-								{
-									ins.instructionType=ParsingTable::Instruction::Shift;
-									ins.stateParameter=stateIds.IndexOf(action->shiftReduceSource);
-								}
-								break;
-							case Action::Reduce:
-								{
-									ins.instructionType=ParsingTable::Instruction::Reduce;
-									ins.stateParameter=stateIds.IndexOf(action->shiftReduceSource);
-									item->stackPattern.Add(ins.stateParameter);
-								}
-								break;
-							case Action::LeftRecursiveReduce:
-								{
-									ins.instructionType=ParsingTable::Instruction::LeftRecursiveReduce;
-									ins.stateParameter=stateIds.IndexOf(action->shiftReduceSource);
-								}
-								break;
+							{
+								ins.instructionType = ParsingTable::Instruction::Create;
+								ins.nameParameter = GetTypeNameForCreateInstruction(action->actionSource);
 							}
-							ins.creatorRule=action->creatorRule->name;
+							break;
+							case Action::Using:
+							{
+								ins.instructionType = ParsingTable::Instruction::Using;
+							}
+							break;
+							case Action::Assign:
+							{
+								if (action->actionSource->GetDescriptorSymbol()->GetType() == ParsingSymbol::ArrayType)
+								{
+									ins.instructionType = ParsingTable::Instruction::Item;
+								}
+								else
+								{
+									ins.instructionType = ParsingTable::Instruction::Assign;
+								}
+								ins.nameParameter = action->actionSource->GetName();
+							}
+							break;
+							case Action::Setter:
+							{
+								ins.instructionType = ParsingTable::Instruction::Setter;
+								ins.nameParameter = action->actionSource->GetName();
+								ins.value = action->actionTarget->GetName();
+							}
+							break;
+							case Action::Shift:
+							{
+								ins.instructionType = ParsingTable::Instruction::Shift;
+								ins.stateParameter = stateIds.IndexOf(action->shiftReduceSource);
+							}
+							break;
+							case Action::Reduce:
+							{
+								ins.instructionType = ParsingTable::Instruction::Reduce;
+								ins.stateParameter = stateIds.IndexOf(action->shiftReduceSource);
+								item->stackPattern.Add(ins.stateParameter);
+							}
+							break;
+							case Action::LeftRecursiveReduce:
+							{
+								ins.instructionType = ParsingTable::Instruction::LeftRecursiveReduce;
+								ins.stateParameter = stateIds.IndexOf(action->shiftReduceSource);
+							}
+							break;
+							}
+							ins.creatorRule = action->creatorRule->name;
 							item->instructions.Add(ins);
 						}
 					}
@@ -609,33 +609,33 @@ GenerateTable
 				{
 					for (vint j = 0; j < table->GetTokenCount(); j++)
 					{
-						Ptr<ParsingTable::TransitionBag> bag=table->GetTransitionBag(i, j);
-						if(bag)
+						Ptr<ParsingTable::TransitionBag> bag = table->GetTransitionBag(i, j);
+						if (bag)
 						{
 							CopyFrom(
 								bag->transitionItems,
 								From(bag->transitionItems)
-									.OrderBy([&](Ptr<ParsingTable::TransitionItem> t1, Ptr<ParsingTable::TransitionItem> t2)
-									{
-										// stable transition order
-										vint i1 = bag->transitionItems.IndexOf(t1.Obj());
-										vint i2 = bag->transitionItems.IndexOf(t2.Obj());
-										auto defaultOrder =
-											i1 < i2 ? ParsingTable::TransitionItem::CorrectOrder :
-											i1 > i2 ? ParsingTable::TransitionItem::WrongOrder :
-											ParsingTable::TransitionItem::SameOrder
-											;
-										return ParsingTable::TransitionItem::Compare(t1, t2, defaultOrder);
-									})
-								);
+								.OrderBy([&](Ptr<ParsingTable::TransitionItem> t1, Ptr<ParsingTable::TransitionItem> t2)
+							{
+								// stable transition order
+								vint i1 = bag->transitionItems.IndexOf(t1.Obj());
+								vint i2 = bag->transitionItems.IndexOf(t2.Obj());
+								auto defaultOrder =
+									i1 < i2 ? ParsingTable::TransitionItem::CorrectOrder :
+									i1 > i2 ? ParsingTable::TransitionItem::WrongOrder :
+									ParsingTable::TransitionItem::SameOrder
+									;
+								return ParsingTable::TransitionItem::Compare(t1, t2, defaultOrder);
+							})
+							);
 
 							// build look ahead inside a transition
 							for (vint k1 = 0; k1 < bag->transitionItems.Count() - 1; k1++)
 							{
 								for (vint k2 = k1 + 1; k2 < bag->transitionItems.Count(); k2++)
 								{
-									Ptr<ParsingTable::TransitionItem> t1=bag->transitionItems[k1];
-									Ptr<ParsingTable::TransitionItem> t2=bag->transitionItems[k2];
+									Ptr<ParsingTable::TransitionItem> t1 = bag->transitionItems[k1];
+									Ptr<ParsingTable::TransitionItem> t2 = bag->transitionItems[k2];
 									GenerateLookAhead(table, stateIds, i, j, t1, t2, enableAmbiguity, errors);
 								}
 							}
@@ -649,8 +649,8 @@ GenerateTable
 									{
 										for (vint k2 = 0; k2 < bag->transitionItems.Count(); k2++)
 										{
-											Ptr<ParsingTable::TransitionItem> t1=reduceBag->transitionItems[k1];
-											Ptr<ParsingTable::TransitionItem> t2=bag->transitionItems[k2];
+											Ptr<ParsingTable::TransitionItem> t1 = reduceBag->transitionItems[k1];
+											Ptr<ParsingTable::TransitionItem> t2 = bag->transitionItems[k2];
 											GenerateLookAhead(table, stateIds, i, j, t1, t2, enableAmbiguity, errors);
 										}
 									}
@@ -663,7 +663,7 @@ GenerateTable
 				/***********************************************************************
 				initialize table
 				***********************************************************************/
-				if(errors.Count()>0)
+				if (errors.Count() > 0)
 				{
 					table->SetAmbiguity(true);
 				}
