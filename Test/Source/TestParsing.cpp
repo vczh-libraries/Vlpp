@@ -32,6 +32,7 @@ namespace test
 	template<typename TLoggable>
 	void LogParsingData(TLoggable loggable, const Folder& folder, const WString& fileName, const WString& name, List<Ptr<ParsingError>>& errors = *(List<Ptr<ParsingError>>*)0)
 	{
+		unittest::UnitTest::PrintInfo(L"Writing " + fileName + L" ...");
 		FileStream fileStream((folder.GetFilePath() / fileName).GetFullPath(), FileStream::WriteOnly);
 		BomEncoder encoder(BomEncoder::Utf8);
 		EncoderStream encoderStream(fileStream, encoder);
@@ -479,6 +480,18 @@ TEST_CASE(TestParsingWorkflowType)
 		Parse(table, inputs[i], L"WorkflowType", L"WorkflowType", i, true, false);
 	}
 }
+
+TEST_CASE(TestParsingWorkflow)
+{
+#ifdef _DEBUG
+	vl::unittest::UnitTest::PrintInfo(L"Pass TestParsingWorkflow under Debug mode");
+#endif
+#ifdef NDEBUG
+	Ptr<ParsingDefinition> definition = LoadDefinition(L"Workflow");
+	Ptr<ParsingTable> table = CreateTable(definition, L"Workflow", true);
+#endif
+}
+
 
 TEST_CASE(TestParsingAmbigiousExpression)
 {

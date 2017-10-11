@@ -1,0 +1,3615 @@
+﻿=============================================================
+Non-deterministic PDA
+=============================================================
+Root Rule Start: _Type.RootStart
+Root Rule End: _Type.RootEnd
+Rule Start: _Type.Start
+Rule End: _Type.23
+
+Root Rule Start: _CtorFragment.RootStart
+Root Rule End: _CtorFragment.RootEnd
+Rule Start: _CtorFragment.Start
+Rule End: _CtorFragment.3
+
+Root Rule Start: _LetVariable.RootStart
+Root Rule End: _LetVariable.RootEnd
+Rule Start: _LetVariable.Start
+Rule End: _LetVariable.4
+
+Root Rule Start: _VirtualExpression.RootStart
+Root Rule End: _VirtualExpression.RootEnd
+Rule Start: _VirtualExpression.Start
+Rule End: _VirtualExpression.5
+
+Root Rule Start: _ExpPrimitive.RootStart
+Root Rule End: _ExpPrimitive.RootEnd
+Rule Start: _ExpPrimitive.Start
+Rule End: _ExpPrimitive.35
+
+Root Rule Start: _Exp0.RootStart
+Root Rule End: _Exp0.RootEnd
+Rule Start: _Exp0.Start
+Rule End: _Exp0.1
+
+Root Rule Start: _Exp1.RootStart
+Root Rule End: _Exp1.RootEnd
+Rule Start: _Exp1.Start
+Rule End: _Exp1.1
+
+Root Rule Start: _Exp2.RootStart
+Root Rule End: _Exp2.RootEnd
+Rule Start: _Exp2.Start
+Rule End: _Exp2.1
+
+Root Rule Start: _Exp3.RootStart
+Root Rule End: _Exp3.RootEnd
+Rule Start: _Exp3.Start
+Rule End: _Exp3.1
+
+Root Rule Start: _Exp4.RootStart
+Root Rule End: _Exp4.RootEnd
+Rule Start: _Exp4.Start
+Rule End: _Exp4.1
+
+Root Rule Start: _Exp5.RootStart
+Root Rule End: _Exp5.RootEnd
+Rule Start: _Exp5.Start
+Rule End: _Exp5.1
+
+Root Rule Start: _Exp6.RootStart
+Root Rule End: _Exp6.RootEnd
+Rule Start: _Exp6.Start
+Rule End: _Exp6.1
+
+Root Rule Start: _Exp7.RootStart
+Root Rule End: _Exp7.RootEnd
+Rule Start: _Exp7.Start
+Rule End: _Exp7.1
+
+Root Rule Start: _Exp8.RootStart
+Root Rule End: _Exp8.RootEnd
+Rule Start: _Exp8.Start
+Rule End: _Exp8.1
+
+Root Rule Start: _Exp9.RootStart
+Root Rule End: _Exp9.RootEnd
+Rule Start: _Exp9.Start
+Rule End: _Exp9.1
+
+Root Rule Start: _Exp10.RootStart
+Root Rule End: _Exp10.RootEnd
+Rule Start: _Exp10.Start
+Rule End: _Exp10.1
+
+Root Rule Start: _Exp11.RootStart
+Root Rule End: _Exp11.RootEnd
+Rule Start: _Exp11.Start
+Rule End: _Exp11.1
+
+Root Rule Start: _Expression.RootStart
+Root Rule End: _Expression.RootEnd
+Rule Start: _Expression.Start
+Rule End: _Expression.1
+
+Root Rule Start: _SwitchCase.RootStart
+Root Rule End: _SwitchCase.RootEnd
+Rule Start: _SwitchCase.Start
+Rule End: _SwitchCase.5
+
+Root Rule Start: _Block.RootStart
+Root Rule End: _Block.RootEnd
+Rule Start: _Block.Start
+Rule End: _Block.4
+
+Root Rule Start: _If.RootStart
+Root Rule End: _If.RootEnd
+Rule Start: _If.Start
+Rule End: _If.11
+
+Root Rule Start: _VirtualStatement.RootStart
+Root Rule End: _VirtualStatement.RootEnd
+Rule Start: _VirtualStatement.Start
+Rule End: _VirtualStatement.27
+
+Root Rule Start: _CoStatement.RootStart
+Root Rule End: _CoStatement.RootEnd
+Rule Start: _CoStatement.Start
+Rule End: _CoStatement.3
+
+Root Rule Start: _CoProvider.RootStart
+Root Rule End: _CoProvider.RootEnd
+Rule Start: _CoProvider.Start
+Rule End: _CoProvider.3
+
+Root Rule Start: _Statement.RootStart
+Root Rule End: _Statement.RootEnd
+Rule Start: _Statement.Start
+Rule End: _Statement.1
+
+Root Rule Start: _Attribute.RootStart
+Root Rule End: _Attribute.RootEnd
+Rule Start: _Attribute.Start
+Rule End: _Attribute.6
+
+Root Rule Start: _Namespace.RootStart
+Root Rule End: _Namespace.RootEnd
+Rule Start: _Namespace.Start
+Rule End: _Namespace.6
+
+Root Rule Start: _FunctionArgument.RootStart
+Root Rule End: _FunctionArgument.RootEnd
+Rule Start: _FunctionArgument.Start
+Rule End: _FunctionArgument.5
+
+Root Rule Start: _Function.RootStart
+Root Rule End: _Function.RootEnd
+Rule Start: _Function.Start
+Rule End: _Function.12
+
+Root Rule Start: _Variable.RootStart
+Root Rule End: _Variable.RootEnd
+Rule Start: _Variable.Start
+Rule End: _Variable.8
+
+Root Rule Start: _Event.RootStart
+Root Rule End: _Event.RootEnd
+Rule Start: _Event.Start
+Rule End: _Event.9
+
+Root Rule Start: _Property.RootStart
+Root Rule End: _Property.RootEnd
+Rule Start: _Property.Start
+Rule End: _Property.12
+
+Root Rule Start: _BaseConstructorCall.RootStart
+Root Rule End: _BaseConstructorCall.RootEnd
+Rule Start: _BaseConstructorCall.Start
+Rule End: _BaseConstructorCall.6
+
+Root Rule Start: _Constructor.RootStart
+Root Rule End: _Constructor.RootEnd
+Rule Start: _Constructor.Start
+Rule End: _Constructor.12
+
+Root Rule Start: _Destructor.RootStart
+Root Rule End: _Destructor.RootEnd
+Rule Start: _Destructor.Start
+Rule End: _Destructor.3
+
+Root Rule Start: _ClassBody.RootStart
+Root Rule End: _ClassBody.RootEnd
+Rule Start: _ClassBody.Start
+Rule End: _ClassBody.7
+
+Root Rule Start: _Class.RootStart
+Root Rule End: _Class.RootEnd
+Rule Start: _Class.Start
+Rule End: _Class.10
+
+Root Rule Start: _EnumItemInt.RootStart
+Root Rule End: _EnumItemInt.RootEnd
+Rule Start: _EnumItemInt.Start
+Rule End: _EnumItemInt.2
+
+Root Rule Start: _EnumItemA.RootStart
+Root Rule End: _EnumItemA.RootEnd
+Rule Start: _EnumItemA.Start
+Rule End: _EnumItemA.6
+
+Root Rule Start: _EnumItemB.RootStart
+Root Rule End: _EnumItemB.RootEnd
+Rule Start: _EnumItemB.Start
+Rule End: _EnumItemB.7
+
+Root Rule Start: _Enum.RootStart
+Root Rule End: _Enum.RootEnd
+Rule Start: _Enum.Start
+Rule End: _Enum.14
+
+Root Rule Start: _StructMember.RootStart
+Root Rule End: _StructMember.RootEnd
+Rule Start: _StructMember.Start
+Rule End: _StructMember.6
+
+Root Rule Start: _Struct.RootStart
+Root Rule End: _Struct.RootEnd
+Rule Start: _Struct.Start
+Rule End: _Struct.6
+
+Root Rule Start: _APConfig.RootStart
+Root Rule End: _APConfig.RootEnd
+Rule Start: _APConfig.Start
+Rule End: _APConfig.9
+
+Root Rule Start: _AutoProperty.RootStart
+Root Rule End: _AutoProperty.RootEnd
+Rule Start: _AutoProperty.Start
+Rule End: _AutoProperty.6
+
+Root Rule Start: _CastResultInterface.RootStart
+Root Rule End: _CastResultInterface.RootEnd
+Rule Start: _CastResultInterface.Start
+Rule End: _CastResultInterface.9
+
+Root Rule Start: _SharedDeclarationBranch.RootStart
+Root Rule End: _SharedDeclarationBranch.RootEnd
+Rule Start: _SharedDeclarationBranch.Start
+Rule End: _SharedDeclarationBranch.1
+
+Root Rule Start: _MemberDeclarationBranch.RootStart
+Root Rule End: _MemberDeclarationBranch.RootEnd
+Rule Start: _MemberDeclarationBranch.Start
+Rule End: _MemberDeclarationBranch.1
+
+Root Rule Start: _Declaration.RootStart
+Root Rule End: _Declaration.RootEnd
+Rule Start: _Declaration.Start
+Rule End: _Declaration.1
+
+Root Rule Start: _ClassMember.RootStart
+Root Rule End: _ClassMember.RootEnd
+Rule Start: _ClassMember.Start
+Rule End: _ClassMember.3
+
+Root Rule Start: _MemberDeclaration.RootStart
+Root Rule End: _MemberDeclaration.RootEnd
+Rule Start: _MemberDeclaration.Start
+Rule End: _MemberDeclaration.1
+
+Root Rule Start: _UsingFragment.RootStart
+Root Rule End: _UsingFragment.RootEnd
+Rule Start: _UsingFragment.Start
+Rule End: _UsingFragment.3
+
+Root Rule Start: _UsingItem.RootStart
+Root Rule End: _UsingItem.RootEnd
+Rule Start: _UsingItem.Start
+Rule End: _UsingItem.2
+
+Root Rule Start: _UsingPath.RootStart
+Root Rule End: _UsingPath.RootEnd
+Rule Start: _UsingPath.Start
+Rule End: _UsingPath.5
+
+Root Rule Start: _Module.RootStart
+Root Rule End: _Module.RootEnd
+Rule Start: _Module.Start
+Rule End: _Module.5
+
+@ $<_Type>
+STATE _Type.RootStart
+    TOKEN-BEGIN => _Type.Start
+
+@ <_Type>
+STATE _Type.Start
+    [TYPE_VOID "void"] => _Type.1
+        SET name => Void
+        CREATE PredefinedType
+    [TYPE_OBJECT "object"] => _Type.1
+        SET name => Object
+        CREATE PredefinedType
+    [TYPE_INTERFACE "interface"] => _Type.1
+        SET name => Interface
+        CREATE PredefinedType
+    [TYPE_INT "int"] => _Type.1
+        SET name => Int
+        CREATE PredefinedType
+    [TYPE_UINT "uint"] => _Type.1
+        SET name => UInt
+        CREATE PredefinedType
+    [TYPE_FLOAT "float"] => _Type.1
+        SET name => Float
+        CREATE PredefinedType
+    [TYPE_DOUBLE "double"] => _Type.1
+        SET name => Double
+        CREATE PredefinedType
+    [TYPE_STRING "string"] => _Type.1
+        SET name => String
+        CREATE PredefinedType
+    [TYPE_CHAR "char"] => _Type.1
+        SET name => Char
+        CREATE PredefinedType
+    [TYPE_BOOL "bool"] => _Type.1
+        SET name => Bool
+        CREATE PredefinedType
+    [NAME] => _Type.1
+        ASSIGN name
+        CREATE ReferenceType
+    [KEYWORD_FUNC "func"] => _Type.12
+    <_Type> => _Type.13
+        ASSIGN element
+    <_Type> => _Type.14
+        ASSIGN element
+    <_Type> => _Type.15
+        ASSIGN element
+    <_Type> => _Type.16
+        ASSIGN element
+    <_Type> => _Type.17
+        ASSIGN value
+    [KEYWORD_OBSERVE "observe"] => _Type.18
+    [KEYWORD_CONST "const"] => _Type.19
+    <_Type> => _Type.20
+        ASSIGN parent
+    [SCOPE_DELIMITER "::"] => _Type.21
+        CREATE TopQualifiedType
+    [OPEN_BRACKET "("] => _Type.22
+
+<_Type>: "void" as PredefinedType@ with { name = "Void" }
+<_Type>: "object" as PredefinedType@ with { name = "Object" }
+<_Type>: "interface" as PredefinedType@ with { name = "Interface" }
+<_Type>: "int" as PredefinedType@ with { name = "Int" }
+<_Type>: "uint" as PredefinedType@ with { name = "UInt" }
+<_Type>: "float" as PredefinedType@ with { name = "Float" }
+<_Type>: "double" as PredefinedType@ with { name = "Double" }
+<_Type>: "string" as PredefinedType@ with { name = "String" }
+<_Type>: "char" as PredefinedType@ with { name = "Char" }
+<_Type>: "bool" as PredefinedType@ with { name = "Bool" }
+<_Type>: NAME : name as ReferenceType@
+<_Type>: "func" "(" [ _Type : arguments { "," _Type : arguments } ] ")" ":" _Type : result as FunctionType@
+<_Type>: _Type : element "*" as RawPointerType@
+<_Type>: _Type : element "^" as SharedPointerType@
+<_Type>: _Type : element "?" as NullableType@
+<_Type>: _Type : element "{" "}" as EnumerableType@
+<_Type>: _Type : value "[" [ _Type : key ] "]" as MapType@ with { writability = "Writable" }
+<_Type>: "observe" _Type : element "[" "]" as ObservableListType@
+<_Type>: "const" _Type : value "[" [ _Type : key ] "]" as MapType@ with { writability = "Readonly" }
+<_Type>: _Type : parent "::" NAME : name as ChildType@
+<_Type>: "::" NAME : name as TopQualifiedType@
+STATE _Type.1
+    EPSILON => _Type.23
+
+<_Type>: "func"@ "(" [ _Type : arguments { "," _Type : arguments } ] ")" ":" _Type : result as FunctionType
+STATE _Type.12
+    [OPEN_BRACKET "("] => _Type.34
+
+<_Type>: _Type : element@ "*" as RawPointerType
+STATE _Type.13
+    [MUL "*"] => _Type.1
+        CREATE RawPointerType
+
+<_Type>: _Type : element@ "^" as SharedPointerType
+STATE _Type.14
+    [EXP "^"] => _Type.1
+        CREATE SharedPointerType
+
+<_Type>: _Type : element@ "?" as NullableType
+STATE _Type.15
+    [QUESTION_MARK "?"] => _Type.1
+        CREATE NullableType
+
+<_Type>: _Type : element@ "{" "}" as EnumerableType
+STATE _Type.16
+    [OPEN_BRACE "{"] => _Type.38
+
+<_Type>: _Type : value@ "[" [ _Type : key ] "]" as MapType with { writability = "Writable" }
+STATE _Type.17
+    [OPEN_ARRAY "["] => _Type.39
+
+<_Type>: "observe"@ _Type : element "[" "]" as ObservableListType
+STATE _Type.18
+    <_Type> => _Type.40
+        ASSIGN element
+
+<_Type>: "const"@ _Type : value "[" [ _Type : key ] "]" as MapType with { writability = "Readonly" }
+STATE _Type.19
+    <_Type> => _Type.41
+        ASSIGN value
+
+<_Type>: _Type : parent@ "::" NAME : name as ChildType
+STATE _Type.20
+    [SCOPE_DELIMITER "::"] => _Type.42
+        CREATE ChildType
+
+<_Type>: "::"@ NAME : name as TopQualifiedType
+STATE _Type.21
+    [NAME] => _Type.1
+        ASSIGN name
+
+<_Type>: "("@ !_Type ")"
+STATE _Type.22
+    <_Type> => _Type.44
+        USING 
+
+<_Type>: "void" as PredefinedType with { name = "Void" }@
+<_Type>: "object" as PredefinedType with { name = "Object" }@
+<_Type>: "interface" as PredefinedType with { name = "Interface" }@
+<_Type>: "int" as PredefinedType with { name = "Int" }@
+<_Type>: "uint" as PredefinedType with { name = "UInt" }@
+<_Type>: "float" as PredefinedType with { name = "Float" }@
+<_Type>: "double" as PredefinedType with { name = "Double" }@
+<_Type>: "string" as PredefinedType with { name = "String" }@
+<_Type>: "char" as PredefinedType with { name = "Char" }@
+<_Type>: "bool" as PredefinedType with { name = "Bool" }@
+<_Type>: NAME : name as ReferenceType@
+<_Type>: "func" "(" [ _Type : arguments { "," _Type : arguments } ] ")" ":" _Type : result as FunctionType@
+<_Type>: _Type : element "*" as RawPointerType@
+<_Type>: _Type : element "^" as SharedPointerType@
+<_Type>: _Type : element "?" as NullableType@
+<_Type>: _Type : element "{" "}" as EnumerableType@
+<_Type>: _Type : value "[" [ _Type : key ] "]" as MapType with { writability = "Writable" }@
+<_Type>: "observe" _Type : element "[" "]" as ObservableListType@
+<_Type>: "const" _Type : value "[" [ _Type : key ] "]" as MapType with { writability = "Readonly" }@
+<_Type>: _Type : parent "::" NAME : name as ChildType@
+<_Type>: "::" NAME : name as TopQualifiedType@
+<_Type>: "(" !_Type ")"@
+END STATE _Type.23
+    TOKEN-FINISH => _Type.RootEnd
+
+<_Type>: "func" "("@ [ _Type : arguments { "," _Type : arguments } ] ")" ":" _Type : result as FunctionType
+STATE _Type.34
+    [CLOSE_BRACKET ")"] => _Type.46
+    <_Type> => _Type.45
+        ASSIGN arguments
+
+<_Type>: _Type : element "{"@ "}" as EnumerableType
+STATE _Type.38
+    [CLOSE_BRACE "}"] => _Type.1
+        CREATE EnumerableType
+
+<_Type>: _Type : value "["@ [ _Type : key ] "]" as MapType with { writability = "Writable" }
+STATE _Type.39
+    [CLOSE_ARRAY "]"] => _Type.1
+        SET writability => Writable
+        CREATE MapType
+    <_Type> => _Type.51
+        ASSIGN key
+        CREATE MapType
+        SET writability => Writable
+
+<_Type>: "observe" _Type : element@ "[" "]" as ObservableListType
+STATE _Type.40
+    [OPEN_ARRAY "["] => _Type.51
+        CREATE ObservableListType
+
+<_Type>: "const" _Type : value@ "[" [ _Type : key ] "]" as MapType with { writability = "Readonly" }
+STATE _Type.41
+    [OPEN_ARRAY "["] => _Type.54
+
+<_Type>: _Type : parent "::"@ NAME : name as ChildType
+STATE _Type.42
+    [NAME] => _Type.1
+        ASSIGN name
+
+<_Type>: "(" !_Type@ ")"
+STATE _Type.44
+    [CLOSE_BRACKET ")"] => _Type.23
+
+$<_Type> @
+STATE _Type.RootEnd
+
+<_Type>: "func" "(" [ _Type : arguments { "," _Type : arguments } ] ")"@ ":" _Type : result as FunctionType
+STATE _Type.46
+    [COLON ":"] => _Type.59
+
+<_Type>: "func" "(" [ _Type : arguments@ { "," _Type : arguments } ] ")" ":" _Type : result as FunctionType
+<_Type>: "func" "(" [ _Type : arguments @{ "," _Type : arguments } ] ")" ":" _Type : result as FunctionType
+STATE _Type.45
+    [CLOSE_BRACKET ")"] => _Type.46
+    [COMMA ","] => _Type.58
+
+<_Type>: _Type : value "[" [ _Type : key ]@ "]" as MapType with { writability = "Writable" }
+<_Type>: "observe" _Type : element "["@ "]" as ObservableListType
+<_Type>: "const" _Type : value "[" [ _Type : key ]@ "]" as MapType with { writability = "Readonly" }
+STATE _Type.51
+    [CLOSE_ARRAY "]"] => _Type.1
+
+<_Type>: "const" _Type : value "["@ [ _Type : key ] "]" as MapType with { writability = "Readonly" }
+STATE _Type.54
+    [CLOSE_ARRAY "]"] => _Type.1
+        SET writability => Readonly
+        CREATE MapType
+    <_Type> => _Type.51
+        ASSIGN key
+        CREATE MapType
+        SET writability => Readonly
+
+<_Type>: "func" "(" [ _Type : arguments { "," _Type : arguments } ] ")" ":"@ _Type : result as FunctionType
+STATE _Type.59
+    <_Type> => _Type.1
+        ASSIGN result
+        CREATE FunctionType
+
+<_Type>: "func" "(" [ _Type : arguments { ","@ _Type : arguments } ] ")" ":" _Type : result as FunctionType
+STATE _Type.58
+    <_Type> => _Type.45
+        ASSIGN arguments
+
+--------------------------------
+@ $<_CtorFragment>
+STATE _CtorFragment.RootStart
+    TOKEN-BEGIN => _CtorFragment.Start
+
+@ <_CtorFragment>
+STATE _CtorFragment.Start
+    <_Expression> => _CtorFragment.1
+        ASSIGN key
+
+<_CtorFragment>: _Expression : key@ [ ":" _Expression : value ] as ConstructorArgument
+STATE _CtorFragment.1
+    EPSILON => _CtorFragment.3
+        CREATE ConstructorArgument
+    [COLON ":"] => _CtorFragment.2
+
+<_CtorFragment>: _Expression : key [ ":" _Expression : value ] as ConstructorArgument@
+END STATE _CtorFragment.3
+    TOKEN-FINISH => _CtorFragment.RootEnd
+
+<_CtorFragment>: _Expression : key [ ":"@ _Expression : value ] as ConstructorArgument
+STATE _CtorFragment.2
+    <_Expression> => _CtorFragment.4
+        ASSIGN value
+
+$<_CtorFragment> @
+STATE _CtorFragment.RootEnd
+
+<_CtorFragment>: _Expression : key [ ":" _Expression : value ] as ConstructorArgument@
+STATE _CtorFragment.4
+    EPSILON => _CtorFragment.3
+        CREATE ConstructorArgument
+
+--------------------------------
+@ $<_LetVariable>
+STATE _LetVariable.RootStart
+    TOKEN-BEGIN => _LetVariable.Start
+
+@ <_LetVariable>
+STATE _LetVariable.Start
+    [NAME] => _LetVariable.1
+        ASSIGN name
+
+<_LetVariable>: NAME : name@ "=" _Expression : value as LetVariable
+STATE _LetVariable.1
+    [ASSIGN "="] => _LetVariable.2
+
+<_LetVariable>: NAME : name "="@ _Expression : value as LetVariable
+STATE _LetVariable.2
+    <_Expression> => _LetVariable.3
+        ASSIGN value
+
+<_LetVariable>: NAME : name "=" _Expression : value as LetVariable@
+STATE _LetVariable.3
+    EPSILON => _LetVariable.4
+        CREATE LetVariable
+
+<_LetVariable>: NAME : name "=" _Expression : value as LetVariable@
+END STATE _LetVariable.4
+    TOKEN-FINISH => _LetVariable.RootEnd
+
+$<_LetVariable> @
+STATE _LetVariable.RootEnd
+
+--------------------------------
+@ $<_VirtualExpression>
+STATE _VirtualExpression.RootStart
+    TOKEN-BEGIN => _VirtualExpression.Start
+
+@ <_VirtualExpression>
+STATE _VirtualExpression.Start
+    [FORMATSTRING] => _VirtualExpression.1
+        ASSIGN value
+        CREATE FormatExpression
+    [KEYWORD_BIND "bind"] => _VirtualExpression.2
+    [COROUTINE_COROUTINE "$coroutine"] => _VirtualExpression.3
+    [KEYWORD_NEW "new"] => _VirtualExpression.4
+
+<_VirtualExpression>: FORMATSTRING : value as FormatExpression@
+<_VirtualExpression>: "bind" "(" _Expression : expression ")" as BindExpression@
+<_VirtualExpression>: "$coroutine" [ "(" NAME : name ")" ] _Block : statement as NewCoroutineExpression@
+<_VirtualExpression>: "new" _Type : type "(" "using" _Expression : expression ")" as MixinCastExpression@
+STATE _VirtualExpression.1
+    EPSILON => _VirtualExpression.5
+
+<_VirtualExpression>: "bind"@ "(" _Expression : expression ")" as BindExpression
+STATE _VirtualExpression.2
+    [OPEN_BRACKET "("] => _VirtualExpression.6
+        CREATE BindExpression
+
+<_VirtualExpression>: "$coroutine"@ [ "(" NAME : name ")" ] _Block : statement as NewCoroutineExpression
+STATE _VirtualExpression.3
+    [OPEN_BRACKET "("] => _VirtualExpression.7
+    <_Block> => _VirtualExpression.1
+        ASSIGN statement
+        CREATE NewCoroutineExpression
+
+<_VirtualExpression>: "new"@ _Type : type "(" "using" _Expression : expression ")" as MixinCastExpression
+STATE _VirtualExpression.4
+    <_Type> => _VirtualExpression.9
+        ASSIGN type
+
+<_VirtualExpression>: FORMATSTRING : value as FormatExpression@
+<_VirtualExpression>: "bind" "(" _Expression : expression ")" as BindExpression@
+<_VirtualExpression>: "$coroutine" [ "(" NAME : name ")" ] _Block : statement as NewCoroutineExpression@
+<_VirtualExpression>: "new" _Type : type "(" "using" _Expression : expression ")" as MixinCastExpression@
+END STATE _VirtualExpression.5
+    TOKEN-FINISH => _VirtualExpression.RootEnd
+
+<_VirtualExpression>: "bind" "("@ _Expression : expression ")" as BindExpression
+STATE _VirtualExpression.6
+    <_Expression> => _VirtualExpression.10
+        ASSIGN expression
+
+<_VirtualExpression>: "$coroutine" [ "("@ NAME : name ")" ] _Block : statement as NewCoroutineExpression
+STATE _VirtualExpression.7
+    [NAME] => _VirtualExpression.11
+        ASSIGN name
+
+<_VirtualExpression>: "new" _Type : type@ "(" "using" _Expression : expression ")" as MixinCastExpression
+STATE _VirtualExpression.9
+    [OPEN_BRACKET "("] => _VirtualExpression.13
+
+$<_VirtualExpression> @
+STATE _VirtualExpression.RootEnd
+
+<_VirtualExpression>: "bind" "(" _Expression : expression@ ")" as BindExpression
+<_VirtualExpression>: "new" _Type : type "(" "using" _Expression : expression@ ")" as MixinCastExpression
+STATE _VirtualExpression.10
+    [CLOSE_BRACKET ")"] => _VirtualExpression.1
+
+<_VirtualExpression>: "$coroutine" [ "(" NAME : name@ ")" ] _Block : statement as NewCoroutineExpression
+STATE _VirtualExpression.11
+    [CLOSE_BRACKET ")"] => _VirtualExpression.15
+
+<_VirtualExpression>: "new" _Type : type "("@ "using" _Expression : expression ")" as MixinCastExpression
+STATE _VirtualExpression.13
+    [KEYWORD_USING "using"] => _VirtualExpression.16
+        CREATE MixinCastExpression
+
+<_VirtualExpression>: "$coroutine" [ "(" NAME : name ")" ]@ _Block : statement as NewCoroutineExpression
+STATE _VirtualExpression.15
+    <_Block> => _VirtualExpression.1
+        ASSIGN statement
+        CREATE NewCoroutineExpression
+
+<_VirtualExpression>: "new" _Type : type "(" "using"@ _Expression : expression ")" as MixinCastExpression
+STATE _VirtualExpression.16
+    <_Expression> => _VirtualExpression.10
+        ASSIGN expression
+
+--------------------------------
+@ $<_ExpPrimitive>
+STATE _ExpPrimitive.RootStart
+    TOKEN-BEGIN => _ExpPrimitive.Start
+
+@ <_ExpPrimitive>
+STATE _ExpPrimitive.Start
+    [KEYWORD_NULL "null"] => _ExpPrimitive.1
+        SET value => Null
+        CREATE LiteralExpression
+    [KEYWORD_TRUE "true"] => _ExpPrimitive.1
+        SET value => True
+        CREATE LiteralExpression
+    [KEYWORD_FALSE "false"] => _ExpPrimitive.1
+        SET value => False
+        CREATE LiteralExpression
+    [INTEGER] => _ExpPrimitive.1
+        ASSIGN value
+        CREATE IntegerExpression
+    [FLOAT] => _ExpPrimitive.1
+        ASSIGN value
+        CREATE FloatingExpression
+    [STRING] => _ExpPrimitive.1
+        ASSIGN value
+        CREATE StringExpression
+    [KEYWORD_THIS "this"] => _ExpPrimitive.1
+        CREATE ThisExpression
+    [NAME] => _ExpPrimitive.1
+        ASSIGN name
+        CREATE ReferenceExpression
+    [ORDERED_NAME] => _ExpPrimitive.1
+        ASSIGN name
+        CREATE OrderedNameExpression
+    [OPEN_BRACKET "("] => _ExpPrimitive.10
+    [OPEN_ARRAY "["] => _ExpPrimitive.11
+        CREATE OrderedLambdaExpression
+    <_Function> => _ExpPrimitive.1
+        ASSIGN function
+        CREATE FunctionExpression
+    [KEYWORD_LET "let"] => _ExpPrimitive.13
+    [KEYWORD_RANGE "range"] => _ExpPrimitive.14
+    [OPEN_BRACE "{"] => _ExpPrimitive.15
+    [KEYWORD_NEW "new"] => _ExpPrimitive.16
+    <_ExpPrimitive> => _ExpPrimitive.18
+        ASSIGN parent
+    <_ExpPrimitive> => _ExpPrimitive.20
+        ASSIGN function
+    <_ExpPrimitive> => _ExpPrimitive.21
+        ASSIGN parent
+    <_ExpPrimitive> => _ExpPrimitive.22
+        ASSIGN parent
+    <_ExpPrimitive> => _ExpPrimitive.23
+        ASSIGN first
+    <_ExpPrimitive> => _ExpPrimitive.24
+        ASSIGN element
+    <_ExpPrimitive> => _ExpPrimitive.25
+        ASSIGN expression
+    <_ExpPrimitive> => _ExpPrimitive.26
+        ASSIGN expression
+    <_ExpPrimitive> => _ExpPrimitive.27
+        ASSIGN expression
+    <_ExpPrimitive> => _ExpPrimitive.28
+        ASSIGN expression
+    [KEYWORD_TYPEOF "typeof"] => _ExpPrimitive.29
+    [KEYWORD_TYPE "type"] => _ExpPrimitive.30
+    [KEYWORD_ATTACH "attach"] => _ExpPrimitive.31
+    [KEYWORD_DETACH "detach"] => _ExpPrimitive.32
+    [SCOPE_DELIMITER "::"] => _ExpPrimitive.33
+        CREATE TopQualifiedExpression
+    <_VirtualExpression> => _ExpPrimitive.35
+        USING 
+
+<_ExpPrimitive>: "null" as LiteralExpression@ with { value = "Null" }
+<_ExpPrimitive>: "true" as LiteralExpression@ with { value = "True" }
+<_ExpPrimitive>: "false" as LiteralExpression@ with { value = "False" }
+<_ExpPrimitive>: INTEGER : value as IntegerExpression@
+<_ExpPrimitive>: FLOAT : value as FloatingExpression@
+<_ExpPrimitive>: STRING : value as StringExpression@
+<_ExpPrimitive>: "this" as ThisExpression@
+<_ExpPrimitive>: NAME : name as ReferenceExpression@
+<_ExpPrimitive>: ORDERED_NAME : name as OrderedNameExpression@
+<_ExpPrimitive>: "[" _Expression : body "]" as OrderedLambdaExpression@
+<_ExpPrimitive>: _Function : function as FunctionExpression@
+<_ExpPrimitive>: "let" _LetVariable : variables { "," _LetVariable : variables } "in" "(" _Expression : expression ")" as LetExpression@
+<_ExpPrimitive>: "range" ( ( "(" with { beginBoundary = "Exclusive" } ) | ( "[" with { beginBoundary = "Inclusive" } ) ) _Expression : begin "," _Expression : end ( ( ")" with { endBoundary = "Exclusive" } ) | ( "]" with { endBoundary = "Inclusive" } ) ) as RangeExpression@
+<_ExpPrimitive>: "range" ( ( "(" with { beginBoundary = "Exclusive" } ) | ( "[" with { beginBoundary = "Inclusive" } ) ) _Expression : begin "," _Expression : end ( ( ")" with { endBoundary = "Exclusive" } ) | ( "]" with { endBoundary = "Inclusive" } ) ) as RangeExpression@
+<_ExpPrimitive>: "{" { _CtorFragment : arguments } "}" as ConstructorExpression@
+<_ExpPrimitive>: "new" _Type : type "(" [ _Expression : arguments { "," _Expression : arguments } ] ")" as NewClassExpression@
+<_ExpPrimitive>: "new" _Type : type "{" { _MemberDeclaration : declarations } "}" as NewInterfaceExpression@
+<_ExpPrimitive>: _ExpPrimitive : parent "." "observe" "(" _Expression : expression [ "on" _Expression : events { "," _Expression : events } ] ")" as ObserveExpression@ with { observeType = "SimpleObserve" }
+<_ExpPrimitive>: _ExpPrimitive : parent "." "observe" "as" NAME : name "(" _Expression : expression [ "on" _Expression : events { "," _Expression : events } ] ")" as ObserveExpression@ with { observeType = "ExtendedObserve" }
+<_ExpPrimitive>: _ExpPrimitive : function "(" [ _Expression : arguments { "," _Expression : arguments } ] ")" as CallExpression@
+<_ExpPrimitive>: _ExpPrimitive : parent "." NAME : name as MemberExpression@
+<_ExpPrimitive>: _ExpPrimitive : parent "::" NAME : name as ChildExpression@
+<_ExpPrimitive>: _ExpPrimitive : first "[" _Expression : second "]" as BinaryExpression@ with { op = "Index" }
+<_ExpPrimitive>: _ExpPrimitive : element ( ( "in" with { test = "In" } ) | ( "not" "in" with { test = "NotIn" } ) ) _Expression : collection as SetTestingExpression@
+<_ExpPrimitive>: _ExpPrimitive : expression "of" _Type : type as InferExpression@
+<_ExpPrimitive>: _ExpPrimitive : expression ( ( ( ( "is" with { test = "IsType" } ) | ( "is" "not" with { test = "IsNotType" } ) ) _Type : type as TypeTestingExpression ) | ( "is" "null" as TypeTestingExpression with { test = "IsNull" } ) | ( "is" "not" "null" as TypeTestingExpression with { test = "IsNotNull" } ) )@
+<_ExpPrimitive>: _ExpPrimitive : expression ( ( ( ( "is" with { test = "IsType" } ) | ( "is" "not" with { test = "IsNotType" } ) ) _Type : type as TypeTestingExpression ) | ( "is" "null" as TypeTestingExpression with { test = "IsNull" } ) | ( "is" "not" "null" as TypeTestingExpression with { test = "IsNotNull" } ) )@
+<_ExpPrimitive>: _ExpPrimitive : expression ( ( ( ( "is" with { test = "IsType" } ) | ( "is" "not" with { test = "IsNotType" } ) ) _Type : type as TypeTestingExpression ) | ( "is" "null" as TypeTestingExpression with { test = "IsNull" } ) | ( "is" "not" "null" as TypeTestingExpression with { test = "IsNotNull" } ) )@
+<_ExpPrimitive>: _ExpPrimitive : expression "as" _Type : type as TypeCastingExpression@ with { strategy = "Weak" }
+<_ExpPrimitive>: _ExpPrimitive : expression "as" "*" as ExpectedTypeCastExpression@ with { strategy = "Weak" }
+<_ExpPrimitive>: "typeof" "(" _Type : type ")" as TypeOfTypeExpression@
+<_ExpPrimitive>: "type" "(" _Expression : expression ")" as TypeOfExpressionExpression@
+<_ExpPrimitive>: "attach" "(" _Expression : event "," _Expression : function ")" as AttachEventExpression@
+<_ExpPrimitive>: "detach" "(" _Expression : event "," _Expression : handler ")" as DetachEventExpression@
+<_ExpPrimitive>: "::" NAME : name as TopQualifiedExpression@
+STATE _ExpPrimitive.1
+    EPSILON => _ExpPrimitive.35
+
+<_ExpPrimitive>: "("@ !_Expression ")"
+STATE _ExpPrimitive.10
+    <_Expression> => _ExpPrimitive.44
+        USING 
+
+<_ExpPrimitive>: "["@ _Expression : body "]" as OrderedLambdaExpression
+STATE _ExpPrimitive.11
+    <_Expression> => _ExpPrimitive.45
+        ASSIGN body
+
+<_ExpPrimitive>: "let"@ _LetVariable : variables { "," _LetVariable : variables } "in" "(" _Expression : expression ")" as LetExpression
+<_ExpPrimitive>: "let" _LetVariable : variables { ","@ _LetVariable : variables } "in" "(" _Expression : expression ")" as LetExpression
+STATE _ExpPrimitive.13
+    <_LetVariable> => _ExpPrimitive.47
+        ASSIGN variables
+
+<_ExpPrimitive>: "range"@ ( ( "(" with { beginBoundary = "Exclusive" } ) | ( "[" with { beginBoundary = "Inclusive" } ) ) _Expression : begin "," _Expression : end ( ( ")" with { endBoundary = "Exclusive" } ) | ( "]" with { endBoundary = "Inclusive" } ) ) as RangeExpression
+STATE _ExpPrimitive.14
+    [OPEN_ARRAY "["] => _ExpPrimitive.48
+        SET beginBoundary => Inclusive
+    [OPEN_BRACKET "("] => _ExpPrimitive.48
+        SET beginBoundary => Exclusive
+
+<_ExpPrimitive>: "{"@ { _CtorFragment : arguments } "}" as ConstructorExpression
+<_ExpPrimitive>: "{" @{ _CtorFragment : arguments } "}" as ConstructorExpression
+STATE _ExpPrimitive.15
+    [CLOSE_BRACE "}"] => _ExpPrimitive.1
+        CREATE ConstructorExpression
+    <_CtorFragment> => _ExpPrimitive.15
+        ASSIGN arguments
+
+<_ExpPrimitive>: "new"@ _Type : type "(" [ _Expression : arguments { "," _Expression : arguments } ] ")" as NewClassExpression
+<_ExpPrimitive>: "new"@ _Type : type "{" { _MemberDeclaration : declarations } "}" as NewInterfaceExpression
+STATE _ExpPrimitive.16
+    <_Type> => _ExpPrimitive.52
+        ASSIGN type
+    <_Type> => _ExpPrimitive.53
+        ASSIGN type
+
+<_ExpPrimitive>: _ExpPrimitive : parent@ "." "observe" "(" _Expression : expression [ "on" _Expression : events { "," _Expression : events } ] ")" as ObserveExpression with { observeType = "SimpleObserve" }
+<_ExpPrimitive>: _ExpPrimitive : parent@ "." "observe" "as" NAME : name "(" _Expression : expression [ "on" _Expression : events { "," _Expression : events } ] ")" as ObserveExpression with { observeType = "ExtendedObserve" }
+STATE _ExpPrimitive.18
+    [DOT "."] => _ExpPrimitive.54
+
+<_ExpPrimitive>: _ExpPrimitive : function@ "(" [ _Expression : arguments { "," _Expression : arguments } ] ")" as CallExpression
+STATE _ExpPrimitive.20
+    [OPEN_BRACKET "("] => _ExpPrimitive.56
+
+<_ExpPrimitive>: _ExpPrimitive : parent@ "." NAME : name as MemberExpression
+STATE _ExpPrimitive.21
+    [DOT "."] => _ExpPrimitive.57
+        CREATE MemberExpression
+
+<_ExpPrimitive>: _ExpPrimitive : parent@ "::" NAME : name as ChildExpression
+STATE _ExpPrimitive.22
+    [SCOPE_DELIMITER "::"] => _ExpPrimitive.58
+        CREATE ChildExpression
+
+<_ExpPrimitive>: _ExpPrimitive : first@ "[" _Expression : second "]" as BinaryExpression with { op = "Index" }
+STATE _ExpPrimitive.23
+    [OPEN_ARRAY "["] => _ExpPrimitive.59
+        SET op => Index
+        CREATE BinaryExpression
+
+<_ExpPrimitive>: _ExpPrimitive : element@ ( ( "in" with { test = "In" } ) | ( "not" "in" with { test = "NotIn" } ) ) _Expression : collection as SetTestingExpression
+STATE _ExpPrimitive.24
+    [KEYWORD_IN "in"] => _ExpPrimitive.60
+        CREATE SetTestingExpression
+        SET test => In
+    [KEYWORD_NOT "not"] => _ExpPrimitive.61
+
+<_ExpPrimitive>: _ExpPrimitive : expression@ "of" _Type : type as InferExpression
+STATE _ExpPrimitive.25
+    [KEYWORD_OF "of"] => _ExpPrimitive.62
+        CREATE InferExpression
+
+<_ExpPrimitive>: _ExpPrimitive : expression@ ( ( ( ( "is" with { test = "IsType" } ) | ( "is" "not" with { test = "IsNotType" } ) ) _Type : type as TypeTestingExpression ) | ( "is" "null" as TypeTestingExpression with { test = "IsNull" } ) | ( "is" "not" "null" as TypeTestingExpression with { test = "IsNotNull" } ) )
+STATE _ExpPrimitive.26
+    [KEYWORD_IS "is"] => _ExpPrimitive.63
+        CREATE TypeTestingExpression
+        SET test => IsType
+    [KEYWORD_IS "is"] => _ExpPrimitive.64
+
+<_ExpPrimitive>: _ExpPrimitive : expression@ "as" _Type : type as TypeCastingExpression with { strategy = "Weak" }
+STATE _ExpPrimitive.27
+    [KEYWORD_AS "as"] => _ExpPrimitive.67
+        CREATE TypeCastingExpression
+        SET strategy => Weak
+
+<_ExpPrimitive>: _ExpPrimitive : expression@ "as" "*" as ExpectedTypeCastExpression with { strategy = "Weak" }
+STATE _ExpPrimitive.28
+    [KEYWORD_AS "as"] => _ExpPrimitive.68
+
+<_ExpPrimitive>: "typeof"@ "(" _Type : type ")" as TypeOfTypeExpression
+STATE _ExpPrimitive.29
+    [OPEN_BRACKET "("] => _ExpPrimitive.69
+
+<_ExpPrimitive>: "type"@ "(" _Expression : expression ")" as TypeOfExpressionExpression
+STATE _ExpPrimitive.30
+    [OPEN_BRACKET "("] => _ExpPrimitive.70
+        CREATE TypeOfExpressionExpression
+
+<_ExpPrimitive>: "attach"@ "(" _Expression : event "," _Expression : function ")" as AttachEventExpression
+STATE _ExpPrimitive.31
+    [OPEN_BRACKET "("] => _ExpPrimitive.71
+
+<_ExpPrimitive>: "detach"@ "(" _Expression : event "," _Expression : handler ")" as DetachEventExpression
+STATE _ExpPrimitive.32
+    [OPEN_BRACKET "("] => _ExpPrimitive.72
+
+<_ExpPrimitive>: "::"@ NAME : name as TopQualifiedExpression
+STATE _ExpPrimitive.33
+    [NAME] => _ExpPrimitive.1
+        ASSIGN name
+
+<_ExpPrimitive>: "null" as LiteralExpression with { value = "Null" }@
+<_ExpPrimitive>: "true" as LiteralExpression with { value = "True" }@
+<_ExpPrimitive>: "false" as LiteralExpression with { value = "False" }@
+<_ExpPrimitive>: INTEGER : value as IntegerExpression@
+<_ExpPrimitive>: FLOAT : value as FloatingExpression@
+<_ExpPrimitive>: STRING : value as StringExpression@
+<_ExpPrimitive>: "this" as ThisExpression@
+<_ExpPrimitive>: NAME : name as ReferenceExpression@
+<_ExpPrimitive>: ORDERED_NAME : name as OrderedNameExpression@
+<_ExpPrimitive>: "(" !_Expression ")"@
+<_ExpPrimitive>: "[" _Expression : body "]" as OrderedLambdaExpression@
+<_ExpPrimitive>: _Function : function as FunctionExpression@
+<_ExpPrimitive>: "let" _LetVariable : variables { "," _LetVariable : variables } "in" "(" _Expression : expression ")" as LetExpression@
+<_ExpPrimitive>: "range" ( ( "(" with { beginBoundary = "Exclusive" } ) | ( "[" with { beginBoundary = "Inclusive" } ) ) _Expression : begin "," _Expression : end ( ( ")" with { endBoundary = "Exclusive" } ) | ( "]" with { endBoundary = "Inclusive" } ) ) as RangeExpression@
+<_ExpPrimitive>: "{" { _CtorFragment : arguments } "}" as ConstructorExpression@
+<_ExpPrimitive>: "new" _Type : type "(" [ _Expression : arguments { "," _Expression : arguments } ] ")" as NewClassExpression@
+<_ExpPrimitive>: "new" _Type : type "{" { _MemberDeclaration : declarations } "}" as NewInterfaceExpression@
+<_ExpPrimitive>: _ExpPrimitive : parent "." "observe" "(" _Expression : expression [ "on" _Expression : events { "," _Expression : events } ] ")" as ObserveExpression with { observeType = "SimpleObserve" }@
+<_ExpPrimitive>: _ExpPrimitive : parent "." "observe" "as" NAME : name "(" _Expression : expression [ "on" _Expression : events { "," _Expression : events } ] ")" as ObserveExpression with { observeType = "ExtendedObserve" }@
+<_ExpPrimitive>: _ExpPrimitive : function "(" [ _Expression : arguments { "," _Expression : arguments } ] ")" as CallExpression@
+<_ExpPrimitive>: _ExpPrimitive : parent "." NAME : name as MemberExpression@
+<_ExpPrimitive>: _ExpPrimitive : parent "::" NAME : name as ChildExpression@
+<_ExpPrimitive>: _ExpPrimitive : first "[" _Expression : second "]" as BinaryExpression with { op = "Index" }@
+<_ExpPrimitive>: _ExpPrimitive : element ( ( "in" with { test = "In" } ) | ( "not" "in" with { test = "NotIn" } ) ) _Expression : collection as SetTestingExpression@
+<_ExpPrimitive>: _ExpPrimitive : expression "of" _Type : type as InferExpression@
+<_ExpPrimitive>: _ExpPrimitive : expression ( ( ( ( "is" with { test = "IsType" } ) | ( "is" "not" with { test = "IsNotType" } ) ) _Type : type as TypeTestingExpression ) | ( "is" "null" as TypeTestingExpression with { test = "IsNull" } ) | ( "is" "not" "null" as TypeTestingExpression with { test = "IsNotNull" } ) )@
+<_ExpPrimitive>: _ExpPrimitive : expression "as" _Type : type as TypeCastingExpression with { strategy = "Weak" }@
+<_ExpPrimitive>: _ExpPrimitive : expression "as" "*" as ExpectedTypeCastExpression with { strategy = "Weak" }@
+<_ExpPrimitive>: "typeof" "(" _Type : type ")" as TypeOfTypeExpression@
+<_ExpPrimitive>: "type" "(" _Expression : expression ")" as TypeOfExpressionExpression@
+<_ExpPrimitive>: "attach" "(" _Expression : event "," _Expression : function ")" as AttachEventExpression@
+<_ExpPrimitive>: "detach" "(" _Expression : event "," _Expression : handler ")" as DetachEventExpression@
+<_ExpPrimitive>: "::" NAME : name as TopQualifiedExpression@
+<_ExpPrimitive>: !_VirtualExpression@
+END STATE _ExpPrimitive.35
+    TOKEN-FINISH => _ExpPrimitive.RootEnd
+
+<_ExpPrimitive>: "(" !_Expression@ ")"
+STATE _ExpPrimitive.44
+    [CLOSE_BRACKET ")"] => _ExpPrimitive.35
+
+<_ExpPrimitive>: "[" _Expression : body@ "]" as OrderedLambdaExpression
+<_ExpPrimitive>: _ExpPrimitive : first "[" _Expression : second@ "]" as BinaryExpression with { op = "Index" }
+STATE _ExpPrimitive.45
+    [CLOSE_ARRAY "]"] => _ExpPrimitive.1
+
+<_ExpPrimitive>: "let" _LetVariable : variables@ { "," _LetVariable : variables } "in" "(" _Expression : expression ")" as LetExpression
+<_ExpPrimitive>: "let" _LetVariable : variables @{ "," _LetVariable : variables } "in" "(" _Expression : expression ")" as LetExpression
+STATE _ExpPrimitive.47
+    [COMMA ","] => _ExpPrimitive.13
+    [KEYWORD_IN "in"] => _ExpPrimitive.76
+
+<_ExpPrimitive>: "range" ( ( "(" with { beginBoundary = "Exclusive" } ) | ( "[" with { beginBoundary = "Inclusive" } ) )@ _Expression : begin "," _Expression : end ( ( ")" with { endBoundary = "Exclusive" } ) | ( "]" with { endBoundary = "Inclusive" } ) ) as RangeExpression
+<_ExpPrimitive>: "range" ( ( "(" with { beginBoundary = "Exclusive" } ) | ( "[" with { beginBoundary = "Inclusive" } ) )@ _Expression : begin "," _Expression : end ( ( ")" with { endBoundary = "Exclusive" } ) | ( "]" with { endBoundary = "Inclusive" } ) ) as RangeExpression
+STATE _ExpPrimitive.48
+    <_Expression> => _ExpPrimitive.78
+        ASSIGN begin
+
+<_ExpPrimitive>: "new" _Type : type@ "(" [ _Expression : arguments { "," _Expression : arguments } ] ")" as NewClassExpression
+STATE _ExpPrimitive.52
+    [OPEN_BRACKET "("] => _ExpPrimitive.80
+
+<_ExpPrimitive>: "new" _Type : type@ "{" { _MemberDeclaration : declarations } "}" as NewInterfaceExpression
+STATE _ExpPrimitive.53
+    [OPEN_BRACE "{"] => _ExpPrimitive.81
+
+<_ExpPrimitive>: _ExpPrimitive : parent "."@ "observe" "(" _Expression : expression [ "on" _Expression : events { "," _Expression : events } ] ")" as ObserveExpression with { observeType = "SimpleObserve" }
+<_ExpPrimitive>: _ExpPrimitive : parent "."@ "observe" "as" NAME : name "(" _Expression : expression [ "on" _Expression : events { "," _Expression : events } ] ")" as ObserveExpression with { observeType = "ExtendedObserve" }
+STATE _ExpPrimitive.54
+    [KEYWORD_OBSERVE "observe"] => _ExpPrimitive.82
+
+<_ExpPrimitive>: _ExpPrimitive : function "("@ [ _Expression : arguments { "," _Expression : arguments } ] ")" as CallExpression
+STATE _ExpPrimitive.56
+    [CLOSE_BRACKET ")"] => _ExpPrimitive.1
+        CREATE CallExpression
+    <_Expression> => _ExpPrimitive.84
+        ASSIGN arguments
+
+<_ExpPrimitive>: _ExpPrimitive : parent "."@ NAME : name as MemberExpression
+STATE _ExpPrimitive.57
+    [NAME] => _ExpPrimitive.1
+        ASSIGN name
+
+<_ExpPrimitive>: _ExpPrimitive : parent "::"@ NAME : name as ChildExpression
+STATE _ExpPrimitive.58
+    [NAME] => _ExpPrimitive.1
+        ASSIGN name
+
+<_ExpPrimitive>: _ExpPrimitive : first "["@ _Expression : second "]" as BinaryExpression with { op = "Index" }
+STATE _ExpPrimitive.59
+    <_Expression> => _ExpPrimitive.45
+        ASSIGN second
+
+<_ExpPrimitive>: _ExpPrimitive : element ( ( "in" with { test = "In" } ) | ( "not" "in" with { test = "NotIn" } ) )@ _Expression : collection as SetTestingExpression
+<_ExpPrimitive>: _ExpPrimitive : element ( ( "in" with { test = "In" } ) | ( "not" "in" with { test = "NotIn" } ) )@ _Expression : collection as SetTestingExpression
+STATE _ExpPrimitive.60
+    <_Expression> => _ExpPrimitive.1
+        ASSIGN collection
+
+<_ExpPrimitive>: _ExpPrimitive : element ( ( "in" with { test = "In" } ) | ( "not"@ "in" with { test = "NotIn" } ) ) _Expression : collection as SetTestingExpression
+STATE _ExpPrimitive.61
+    [KEYWORD_IN "in"] => _ExpPrimitive.60
+        CREATE SetTestingExpression
+        SET test => NotIn
+
+<_ExpPrimitive>: _ExpPrimitive : expression "of"@ _Type : type as InferExpression
+STATE _ExpPrimitive.62
+    <_Type> => _ExpPrimitive.1
+        ASSIGN type
+
+<_ExpPrimitive>: _ExpPrimitive : expression ( ( ( ( "is" with { test = "IsType" } ) | ( "is" "not" with { test = "IsNotType" } ) )@ _Type : type as TypeTestingExpression ) | ( "is" "null" as TypeTestingExpression with { test = "IsNull" } ) | ( "is" "not" "null" as TypeTestingExpression with { test = "IsNotNull" } ) )
+<_ExpPrimitive>: _ExpPrimitive : expression ( ( ( ( "is" with { test = "IsType" } ) | ( "is" "not" with { test = "IsNotType" } ) )@ _Type : type as TypeTestingExpression ) | ( "is" "null" as TypeTestingExpression with { test = "IsNull" } ) | ( "is" "not" "null" as TypeTestingExpression with { test = "IsNotNull" } ) )
+STATE _ExpPrimitive.63
+    <_Type> => _ExpPrimitive.1
+        ASSIGN type
+
+<_ExpPrimitive>: _ExpPrimitive : expression ( ( ( ( "is" with { test = "IsType" } ) | ( "is"@ "not" with { test = "IsNotType" } ) ) _Type : type as TypeTestingExpression ) | ( "is" "null" as TypeTestingExpression with { test = "IsNull" } ) | ( "is" "not" "null" as TypeTestingExpression with { test = "IsNotNull" } ) )
+<_ExpPrimitive>: _ExpPrimitive : expression ( ( ( ( "is" with { test = "IsType" } ) | ( "is" "not" with { test = "IsNotType" } ) ) _Type : type as TypeTestingExpression ) | ( "is"@ "null" as TypeTestingExpression with { test = "IsNull" } ) | ( "is" "not" "null" as TypeTestingExpression with { test = "IsNotNull" } ) )
+<_ExpPrimitive>: _ExpPrimitive : expression ( ( ( ( "is" with { test = "IsType" } ) | ( "is" "not" with { test = "IsNotType" } ) ) _Type : type as TypeTestingExpression ) | ( "is" "null" as TypeTestingExpression with { test = "IsNull" } ) | ( "is"@ "not" "null" as TypeTestingExpression with { test = "IsNotNull" } ) )
+STATE _ExpPrimitive.64
+    [KEYWORD_NOT "not"] => _ExpPrimitive.63
+        CREATE TypeTestingExpression
+        SET test => IsNotType
+    [KEYWORD_NULL "null"] => _ExpPrimitive.1
+        SET test => IsNull
+        CREATE TypeTestingExpression
+    [KEYWORD_NOT "not"] => _ExpPrimitive.95
+
+<_ExpPrimitive>: _ExpPrimitive : expression "as"@ _Type : type as TypeCastingExpression with { strategy = "Weak" }
+STATE _ExpPrimitive.67
+    <_Type> => _ExpPrimitive.1
+        ASSIGN type
+
+<_ExpPrimitive>: _ExpPrimitive : expression "as"@ "*" as ExpectedTypeCastExpression with { strategy = "Weak" }
+STATE _ExpPrimitive.68
+    [MUL "*"] => _ExpPrimitive.1
+        SET strategy => Weak
+        CREATE ExpectedTypeCastExpression
+
+<_ExpPrimitive>: "typeof" "("@ _Type : type ")" as TypeOfTypeExpression
+STATE _ExpPrimitive.69
+    <_Type> => _ExpPrimitive.128
+        ASSIGN type
+        CREATE TypeOfTypeExpression
+
+<_ExpPrimitive>: "type" "("@ _Expression : expression ")" as TypeOfExpressionExpression
+STATE _ExpPrimitive.70
+    <_Expression> => _ExpPrimitive.128
+        ASSIGN expression
+
+<_ExpPrimitive>: "attach" "("@ _Expression : event "," _Expression : function ")" as AttachEventExpression
+STATE _ExpPrimitive.71
+    <_Expression> => _ExpPrimitive.100
+        ASSIGN event
+
+<_ExpPrimitive>: "detach" "("@ _Expression : event "," _Expression : handler ")" as DetachEventExpression
+STATE _ExpPrimitive.72
+    <_Expression> => _ExpPrimitive.101
+        ASSIGN event
+
+$<_ExpPrimitive> @
+STATE _ExpPrimitive.RootEnd
+
+<_ExpPrimitive>: "let" _LetVariable : variables { "," _LetVariable : variables } "in"@ "(" _Expression : expression ")" as LetExpression
+STATE _ExpPrimitive.76
+    [OPEN_BRACKET "("] => _ExpPrimitive.104
+        CREATE LetExpression
+
+<_ExpPrimitive>: "range" ( ( "(" with { beginBoundary = "Exclusive" } ) | ( "[" with { beginBoundary = "Inclusive" } ) ) _Expression : begin@ "," _Expression : end ( ( ")" with { endBoundary = "Exclusive" } ) | ( "]" with { endBoundary = "Inclusive" } ) ) as RangeExpression
+STATE _ExpPrimitive.78
+    [COMMA ","] => _ExpPrimitive.106
+
+<_ExpPrimitive>: "new" _Type : type "("@ [ _Expression : arguments { "," _Expression : arguments } ] ")" as NewClassExpression
+STATE _ExpPrimitive.80
+    [CLOSE_BRACKET ")"] => _ExpPrimitive.1
+        CREATE NewClassExpression
+    <_Expression> => _ExpPrimitive.107
+        ASSIGN arguments
+
+<_ExpPrimitive>: "new" _Type : type "{"@ { _MemberDeclaration : declarations } "}" as NewInterfaceExpression
+<_ExpPrimitive>: "new" _Type : type "{" @{ _MemberDeclaration : declarations } "}" as NewInterfaceExpression
+STATE _ExpPrimitive.81
+    [CLOSE_BRACE "}"] => _ExpPrimitive.1
+        CREATE NewInterfaceExpression
+    <_MemberDeclaration> => _ExpPrimitive.81
+        ASSIGN declarations
+
+<_ExpPrimitive>: _ExpPrimitive : parent "." "observe"@ "(" _Expression : expression [ "on" _Expression : events { "," _Expression : events } ] ")" as ObserveExpression with { observeType = "SimpleObserve" }
+<_ExpPrimitive>: _ExpPrimitive : parent "." "observe"@ "as" NAME : name "(" _Expression : expression [ "on" _Expression : events { "," _Expression : events } ] ")" as ObserveExpression with { observeType = "ExtendedObserve" }
+STATE _ExpPrimitive.82
+    [OPEN_BRACKET "("] => _ExpPrimitive.111
+    [KEYWORD_AS "as"] => _ExpPrimitive.112
+
+<_ExpPrimitive>: _ExpPrimitive : function "(" [ _Expression : arguments@ { "," _Expression : arguments } ] ")" as CallExpression
+<_ExpPrimitive>: _ExpPrimitive : function "(" [ _Expression : arguments @{ "," _Expression : arguments } ] ")" as CallExpression
+STATE _ExpPrimitive.84
+    [CLOSE_BRACKET ")"] => _ExpPrimitive.1
+        CREATE CallExpression
+    [COMMA ","] => _ExpPrimitive.113
+
+<_ExpPrimitive>: _ExpPrimitive : expression ( ( ( ( "is" with { test = "IsType" } ) | ( "is" "not" with { test = "IsNotType" } ) ) _Type : type as TypeTestingExpression ) | ( "is" "null" as TypeTestingExpression with { test = "IsNull" } ) | ( "is" "not"@ "null" as TypeTestingExpression with { test = "IsNotNull" } ) )
+STATE _ExpPrimitive.95
+    [KEYWORD_NULL "null"] => _ExpPrimitive.1
+        SET test => IsNotNull
+        CREATE TypeTestingExpression
+
+<_ExpPrimitive>: "let" _LetVariable : variables { "," _LetVariable : variables } "in" "(" _Expression : expression@ ")" as LetExpression
+<_ExpPrimitive>: "typeof" "(" _Type : type@ ")" as TypeOfTypeExpression
+<_ExpPrimitive>: "type" "(" _Expression : expression@ ")" as TypeOfExpressionExpression
+<_ExpPrimitive>: "attach" "(" _Expression : event "," _Expression : function@ ")" as AttachEventExpression
+<_ExpPrimitive>: "detach" "(" _Expression : event "," _Expression : handler@ ")" as DetachEventExpression
+STATE _ExpPrimitive.128
+    [CLOSE_BRACKET ")"] => _ExpPrimitive.1
+
+<_ExpPrimitive>: "attach" "(" _Expression : event@ "," _Expression : function ")" as AttachEventExpression
+STATE _ExpPrimitive.100
+    [COMMA ","] => _ExpPrimitive.126
+        CREATE AttachEventExpression
+
+<_ExpPrimitive>: "detach" "(" _Expression : event@ "," _Expression : handler ")" as DetachEventExpression
+STATE _ExpPrimitive.101
+    [COMMA ","] => _ExpPrimitive.127
+        CREATE DetachEventExpression
+
+<_ExpPrimitive>: "let" _LetVariable : variables { "," _LetVariable : variables } "in" "("@ _Expression : expression ")" as LetExpression
+STATE _ExpPrimitive.104
+    <_Expression> => _ExpPrimitive.128
+        ASSIGN expression
+
+<_ExpPrimitive>: "range" ( ( "(" with { beginBoundary = "Exclusive" } ) | ( "[" with { beginBoundary = "Inclusive" } ) ) _Expression : begin ","@ _Expression : end ( ( ")" with { endBoundary = "Exclusive" } ) | ( "]" with { endBoundary = "Inclusive" } ) ) as RangeExpression
+STATE _ExpPrimitive.106
+    <_Expression> => _ExpPrimitive.129
+        ASSIGN end
+
+<_ExpPrimitive>: "new" _Type : type "(" [ _Expression : arguments@ { "," _Expression : arguments } ] ")" as NewClassExpression
+<_ExpPrimitive>: "new" _Type : type "(" [ _Expression : arguments @{ "," _Expression : arguments } ] ")" as NewClassExpression
+STATE _ExpPrimitive.107
+    [CLOSE_BRACKET ")"] => _ExpPrimitive.1
+        CREATE NewClassExpression
+    [COMMA ","] => _ExpPrimitive.130
+
+<_ExpPrimitive>: _ExpPrimitive : parent "." "observe" "("@ _Expression : expression [ "on" _Expression : events { "," _Expression : events } ] ")" as ObserveExpression with { observeType = "SimpleObserve" }
+STATE _ExpPrimitive.111
+    <_Expression> => _ExpPrimitive.133
+        ASSIGN expression
+
+<_ExpPrimitive>: _ExpPrimitive : parent "." "observe" "as"@ NAME : name "(" _Expression : expression [ "on" _Expression : events { "," _Expression : events } ] ")" as ObserveExpression with { observeType = "ExtendedObserve" }
+STATE _ExpPrimitive.112
+    [NAME] => _ExpPrimitive.134
+        ASSIGN name
+
+<_ExpPrimitive>: _ExpPrimitive : function "(" [ _Expression : arguments { ","@ _Expression : arguments } ] ")" as CallExpression
+STATE _ExpPrimitive.113
+    <_Expression> => _ExpPrimitive.84
+        ASSIGN arguments
+
+<_ExpPrimitive>: "attach" "(" _Expression : event ","@ _Expression : function ")" as AttachEventExpression
+STATE _ExpPrimitive.126
+    <_Expression> => _ExpPrimitive.128
+        ASSIGN function
+
+<_ExpPrimitive>: "detach" "(" _Expression : event ","@ _Expression : handler ")" as DetachEventExpression
+STATE _ExpPrimitive.127
+    <_Expression> => _ExpPrimitive.128
+        ASSIGN handler
+
+<_ExpPrimitive>: "range" ( ( "(" with { beginBoundary = "Exclusive" } ) | ( "[" with { beginBoundary = "Inclusive" } ) ) _Expression : begin "," _Expression : end@ ( ( ")" with { endBoundary = "Exclusive" } ) | ( "]" with { endBoundary = "Inclusive" } ) ) as RangeExpression
+STATE _ExpPrimitive.129
+    [CLOSE_ARRAY "]"] => _ExpPrimitive.1
+        SET endBoundary => Inclusive
+        CREATE RangeExpression
+    [CLOSE_BRACKET ")"] => _ExpPrimitive.1
+        SET endBoundary => Exclusive
+        CREATE RangeExpression
+
+<_ExpPrimitive>: "new" _Type : type "(" [ _Expression : arguments { ","@ _Expression : arguments } ] ")" as NewClassExpression
+STATE _ExpPrimitive.130
+    <_Expression> => _ExpPrimitive.107
+        ASSIGN arguments
+
+<_ExpPrimitive>: _ExpPrimitive : parent "." "observe" "(" _Expression : expression@ [ "on" _Expression : events { "," _Expression : events } ] ")" as ObserveExpression with { observeType = "SimpleObserve" }
+STATE _ExpPrimitive.133
+    [CLOSE_BRACKET ")"] => _ExpPrimitive.1
+        SET observeType => SimpleObserve
+        CREATE ObserveExpression
+    [KEYWORD_ON "on"] => _ExpPrimitive.145
+
+<_ExpPrimitive>: _ExpPrimitive : parent "." "observe" "as" NAME : name@ "(" _Expression : expression [ "on" _Expression : events { "," _Expression : events } ] ")" as ObserveExpression with { observeType = "ExtendedObserve" }
+STATE _ExpPrimitive.134
+    [OPEN_BRACKET "("] => _ExpPrimitive.147
+
+<_ExpPrimitive>: _ExpPrimitive : parent "." "observe" "(" _Expression : expression [ "on"@ _Expression : events { "," _Expression : events } ] ")" as ObserveExpression with { observeType = "SimpleObserve" }
+<_ExpPrimitive>: _ExpPrimitive : parent "." "observe" "(" _Expression : expression [ "on" _Expression : events { ","@ _Expression : events } ] ")" as ObserveExpression with { observeType = "SimpleObserve" }
+STATE _ExpPrimitive.145
+    <_Expression> => _ExpPrimitive.152
+        ASSIGN events
+
+<_ExpPrimitive>: _ExpPrimitive : parent "." "observe" "as" NAME : name "("@ _Expression : expression [ "on" _Expression : events { "," _Expression : events } ] ")" as ObserveExpression with { observeType = "ExtendedObserve" }
+STATE _ExpPrimitive.147
+    <_Expression> => _ExpPrimitive.154
+        ASSIGN expression
+
+<_ExpPrimitive>: _ExpPrimitive : parent "." "observe" "(" _Expression : expression [ "on" _Expression : events@ { "," _Expression : events } ] ")" as ObserveExpression with { observeType = "SimpleObserve" }
+<_ExpPrimitive>: _ExpPrimitive : parent "." "observe" "(" _Expression : expression [ "on" _Expression : events @{ "," _Expression : events } ] ")" as ObserveExpression with { observeType = "SimpleObserve" }
+STATE _ExpPrimitive.152
+    [CLOSE_BRACKET ")"] => _ExpPrimitive.1
+        SET observeType => SimpleObserve
+        CREATE ObserveExpression
+    [COMMA ","] => _ExpPrimitive.145
+
+<_ExpPrimitive>: _ExpPrimitive : parent "." "observe" "as" NAME : name "(" _Expression : expression@ [ "on" _Expression : events { "," _Expression : events } ] ")" as ObserveExpression with { observeType = "ExtendedObserve" }
+STATE _ExpPrimitive.154
+    [CLOSE_BRACKET ")"] => _ExpPrimitive.1
+        SET observeType => ExtendedObserve
+        CREATE ObserveExpression
+    [KEYWORD_ON "on"] => _ExpPrimitive.158
+
+<_ExpPrimitive>: _ExpPrimitive : parent "." "observe" "as" NAME : name "(" _Expression : expression [ "on"@ _Expression : events { "," _Expression : events } ] ")" as ObserveExpression with { observeType = "ExtendedObserve" }
+<_ExpPrimitive>: _ExpPrimitive : parent "." "observe" "as" NAME : name "(" _Expression : expression [ "on" _Expression : events { ","@ _Expression : events } ] ")" as ObserveExpression with { observeType = "ExtendedObserve" }
+STATE _ExpPrimitive.158
+    <_Expression> => _ExpPrimitive.161
+        ASSIGN events
+
+<_ExpPrimitive>: _ExpPrimitive : parent "." "observe" "as" NAME : name "(" _Expression : expression [ "on" _Expression : events@ { "," _Expression : events } ] ")" as ObserveExpression with { observeType = "ExtendedObserve" }
+<_ExpPrimitive>: _ExpPrimitive : parent "." "observe" "as" NAME : name "(" _Expression : expression [ "on" _Expression : events @{ "," _Expression : events } ] ")" as ObserveExpression with { observeType = "ExtendedObserve" }
+STATE _ExpPrimitive.161
+    [CLOSE_BRACKET ")"] => _ExpPrimitive.1
+        SET observeType => ExtendedObserve
+        CREATE ObserveExpression
+    [COMMA ","] => _ExpPrimitive.158
+
+--------------------------------
+@ $<_Exp0>
+STATE _Exp0.RootStart
+    TOKEN-BEGIN => _Exp0.Start
+
+@ <_Exp0>
+STATE _Exp0.Start
+    <_ExpPrimitive> => _Exp0.1
+        USING 
+    [ADD "+"] => _Exp0.2
+        CREATE UnaryExpression
+        SET op => Positive
+    [SUB "-"] => _Exp0.2
+        CREATE UnaryExpression
+        SET op => Negative
+    [KEYWORD_NOT "not"] => _Exp0.2
+        CREATE UnaryExpression
+        SET op => Not
+    [KEYWORD_CAST "cast"] => _Exp0.5
+
+<_Exp0>: !_ExpPrimitive@
+<_Exp0>: "+" _Exp0 : operand as UnaryExpression with { op = "Positive" }@
+<_Exp0>: "-" _Exp0 : operand as UnaryExpression with { op = "Negative" }@
+<_Exp0>: "not" _Exp0 : operand as UnaryExpression with { op = "Not" }@
+<_Exp0>: "cast" _Type : type _Exp0 : expression as TypeCastingExpression with { strategy = "Strong" }@
+<_Exp0>: "cast" "*" _Exp0 : expression as ExpectedTypeCastExpression with { strategy = "Strong" }@
+END STATE _Exp0.1
+    TOKEN-FINISH => _Exp0.RootEnd
+
+<_Exp0>: "+"@ _Exp0 : operand as UnaryExpression with { op = "Positive" }
+<_Exp0>: "-"@ _Exp0 : operand as UnaryExpression with { op = "Negative" }
+<_Exp0>: "not"@ _Exp0 : operand as UnaryExpression with { op = "Not" }
+STATE _Exp0.2
+    <_Exp0> => _Exp0.7
+        ASSIGN operand
+
+<_Exp0>: "cast"@ _Type : type _Exp0 : expression as TypeCastingExpression with { strategy = "Strong" }
+<_Exp0>: "cast"@ "*" _Exp0 : expression as ExpectedTypeCastExpression with { strategy = "Strong" }
+STATE _Exp0.5
+    <_Type> => _Exp0.10
+        ASSIGN type
+        CREATE TypeCastingExpression
+        SET strategy => Strong
+    [MUL "*"] => _Exp0.11
+        CREATE ExpectedTypeCastExpression
+        SET strategy => Strong
+
+$<_Exp0> @
+STATE _Exp0.RootEnd
+
+<_Exp0>: "+" _Exp0 : operand as UnaryExpression@ with { op = "Positive" }
+<_Exp0>: "-" _Exp0 : operand as UnaryExpression@ with { op = "Negative" }
+<_Exp0>: "not" _Exp0 : operand as UnaryExpression@ with { op = "Not" }
+<_Exp0>: "cast" _Type : type _Exp0 : expression as TypeCastingExpression@ with { strategy = "Strong" }
+<_Exp0>: "cast" "*" _Exp0 : expression as ExpectedTypeCastExpression@ with { strategy = "Strong" }
+STATE _Exp0.7
+    EPSILON => _Exp0.1
+
+<_Exp0>: "cast" _Type : type@ _Exp0 : expression as TypeCastingExpression with { strategy = "Strong" }
+STATE _Exp0.10
+    <_Exp0> => _Exp0.7
+        ASSIGN expression
+
+<_Exp0>: "cast" "*"@ _Exp0 : expression as ExpectedTypeCastExpression with { strategy = "Strong" }
+STATE _Exp0.11
+    <_Exp0> => _Exp0.7
+        ASSIGN expression
+
+--------------------------------
+@ $<_Exp1>
+STATE _Exp1.RootStart
+    TOKEN-BEGIN => _Exp1.Start
+
+@ <_Exp1>
+STATE _Exp1.Start
+    <_Exp0> => _Exp1.1
+        USING 
+    <_Exp1> => _Exp1.2
+        ASSIGN first
+
+<_Exp1>: !_Exp0@
+<_Exp1>: _Exp1 : first "^" _Exp0 : second as BinaryExpression with { op = "Exp" }@
+END STATE _Exp1.1
+    TOKEN-FINISH => _Exp1.RootEnd
+
+<_Exp1>: _Exp1 : first@ "^" _Exp0 : second as BinaryExpression with { op = "Exp" }
+STATE _Exp1.2
+    [EXP "^"] => _Exp1.3
+
+$<_Exp1> @
+STATE _Exp1.RootEnd
+
+<_Exp1>: _Exp1 : first "^"@ _Exp0 : second as BinaryExpression with { op = "Exp" }
+STATE _Exp1.3
+    <_Exp0> => _Exp1.4
+        ASSIGN second
+
+<_Exp1>: _Exp1 : first "^" _Exp0 : second as BinaryExpression@ with { op = "Exp" }
+STATE _Exp1.4
+    EPSILON => _Exp1.1
+        CREATE BinaryExpression
+        SET op => Exp
+
+--------------------------------
+@ $<_Exp2>
+STATE _Exp2.RootStart
+    TOKEN-BEGIN => _Exp2.Start
+
+@ <_Exp2>
+STATE _Exp2.Start
+    <_Exp1> => _Exp2.1
+        USING 
+    <_Exp2> => _Exp2.2
+        ASSIGN first
+
+<_Exp2>: !_Exp1@
+<_Exp2>: _Exp2 : first "*" _Exp1 : second as BinaryExpression with { op = "Mul" }@
+<_Exp2>: _Exp2 : first "/" _Exp1 : second as BinaryExpression with { op = "Div" }@
+<_Exp2>: _Exp2 : first "%" _Exp1 : second as BinaryExpression with { op = "Mod" }@
+END STATE _Exp2.1
+    TOKEN-FINISH => _Exp2.RootEnd
+
+<_Exp2>: _Exp2 : first@ "*" _Exp1 : second as BinaryExpression with { op = "Mul" }
+<_Exp2>: _Exp2 : first@ "/" _Exp1 : second as BinaryExpression with { op = "Div" }
+<_Exp2>: _Exp2 : first@ "%" _Exp1 : second as BinaryExpression with { op = "Mod" }
+STATE _Exp2.2
+    [MUL "*"] => _Exp2.5
+        CREATE BinaryExpression
+        SET op => Mul
+    [DIV "/"] => _Exp2.5
+        CREATE BinaryExpression
+        SET op => Div
+    [MOD "%"] => _Exp2.5
+        CREATE BinaryExpression
+        SET op => Mod
+
+$<_Exp2> @
+STATE _Exp2.RootEnd
+
+<_Exp2>: _Exp2 : first "*"@ _Exp1 : second as BinaryExpression with { op = "Mul" }
+<_Exp2>: _Exp2 : first "/"@ _Exp1 : second as BinaryExpression with { op = "Div" }
+<_Exp2>: _Exp2 : first "%"@ _Exp1 : second as BinaryExpression with { op = "Mod" }
+STATE _Exp2.5
+    <_Exp1> => _Exp2.8
+        ASSIGN second
+
+<_Exp2>: _Exp2 : first "*" _Exp1 : second as BinaryExpression@ with { op = "Mul" }
+<_Exp2>: _Exp2 : first "/" _Exp1 : second as BinaryExpression@ with { op = "Div" }
+<_Exp2>: _Exp2 : first "%" _Exp1 : second as BinaryExpression@ with { op = "Mod" }
+STATE _Exp2.8
+    EPSILON => _Exp2.1
+
+--------------------------------
+@ $<_Exp3>
+STATE _Exp3.RootStart
+    TOKEN-BEGIN => _Exp3.Start
+
+@ <_Exp3>
+STATE _Exp3.Start
+    <_Exp2> => _Exp3.1
+        USING 
+    <_Exp3> => _Exp3.2
+        ASSIGN first
+
+<_Exp3>: !_Exp2@
+<_Exp3>: _Exp3 : first "+" _Exp2 : second as BinaryExpression with { op = "Add" }@
+<_Exp3>: _Exp3 : first "-" _Exp2 : second as BinaryExpression with { op = "Sub" }@
+<_Exp3>: _Exp3 : first "&" _Exp2 : second as BinaryExpression with { op = "Union" }@
+<_Exp3>: _Exp3 : first "|" _Exp2 : second as BinaryExpression with { op = "Intersect" }@
+END STATE _Exp3.1
+    TOKEN-FINISH => _Exp3.RootEnd
+
+<_Exp3>: _Exp3 : first@ "+" _Exp2 : second as BinaryExpression with { op = "Add" }
+<_Exp3>: _Exp3 : first@ "-" _Exp2 : second as BinaryExpression with { op = "Sub" }
+<_Exp3>: _Exp3 : first@ "&" _Exp2 : second as BinaryExpression with { op = "Union" }
+<_Exp3>: _Exp3 : first@ "|" _Exp2 : second as BinaryExpression with { op = "Intersect" }
+STATE _Exp3.2
+    [ADD "+"] => _Exp3.6
+        CREATE BinaryExpression
+        SET op => Add
+    [SUB "-"] => _Exp3.6
+        CREATE BinaryExpression
+        SET op => Sub
+    [UNION "&"] => _Exp3.6
+        CREATE BinaryExpression
+        SET op => Union
+    [INTERSECTION "|"] => _Exp3.6
+        CREATE BinaryExpression
+        SET op => Intersect
+
+$<_Exp3> @
+STATE _Exp3.RootEnd
+
+<_Exp3>: _Exp3 : first "+"@ _Exp2 : second as BinaryExpression with { op = "Add" }
+<_Exp3>: _Exp3 : first "-"@ _Exp2 : second as BinaryExpression with { op = "Sub" }
+<_Exp3>: _Exp3 : first "&"@ _Exp2 : second as BinaryExpression with { op = "Union" }
+<_Exp3>: _Exp3 : first "|"@ _Exp2 : second as BinaryExpression with { op = "Intersect" }
+STATE _Exp3.6
+    <_Exp2> => _Exp3.10
+        ASSIGN second
+
+<_Exp3>: _Exp3 : first "+" _Exp2 : second as BinaryExpression@ with { op = "Add" }
+<_Exp3>: _Exp3 : first "-" _Exp2 : second as BinaryExpression@ with { op = "Sub" }
+<_Exp3>: _Exp3 : first "&" _Exp2 : second as BinaryExpression@ with { op = "Union" }
+<_Exp3>: _Exp3 : first "|" _Exp2 : second as BinaryExpression@ with { op = "Intersect" }
+STATE _Exp3.10
+    EPSILON => _Exp3.1
+
+--------------------------------
+@ $<_Exp4>
+STATE _Exp4.RootStart
+    TOKEN-BEGIN => _Exp4.Start
+
+@ <_Exp4>
+STATE _Exp4.Start
+    <_Exp3> => _Exp4.1
+        USING 
+    <_Exp4> => _Exp4.2
+        ASSIGN first
+
+<_Exp4>: !_Exp3@
+<_Exp4>: _Exp4 : first "shl" _Exp3 : second as BinaryExpression with { op = "Shl" }@
+<_Exp4>: _Exp4 : first "shr" _Exp3 : second as BinaryExpression with { op = "Shr" }@
+END STATE _Exp4.1
+    TOKEN-FINISH => _Exp4.RootEnd
+
+<_Exp4>: _Exp4 : first@ "shl" _Exp3 : second as BinaryExpression with { op = "Shl" }
+<_Exp4>: _Exp4 : first@ "shr" _Exp3 : second as BinaryExpression with { op = "Shr" }
+STATE _Exp4.2
+    [KEYWORD_SHL "shl"] => _Exp4.4
+        CREATE BinaryExpression
+        SET op => Shl
+    [KEYWORD_SHR "shr"] => _Exp4.4
+        CREATE BinaryExpression
+        SET op => Shr
+
+$<_Exp4> @
+STATE _Exp4.RootEnd
+
+<_Exp4>: _Exp4 : first "shl"@ _Exp3 : second as BinaryExpression with { op = "Shl" }
+<_Exp4>: _Exp4 : first "shr"@ _Exp3 : second as BinaryExpression with { op = "Shr" }
+STATE _Exp4.4
+    <_Exp3> => _Exp4.6
+        ASSIGN second
+
+<_Exp4>: _Exp4 : first "shl" _Exp3 : second as BinaryExpression@ with { op = "Shl" }
+<_Exp4>: _Exp4 : first "shr" _Exp3 : second as BinaryExpression@ with { op = "Shr" }
+STATE _Exp4.6
+    EPSILON => _Exp4.1
+
+--------------------------------
+@ $<_Exp5>
+STATE _Exp5.RootStart
+    TOKEN-BEGIN => _Exp5.Start
+
+@ <_Exp5>
+STATE _Exp5.Start
+    <_Exp4> => _Exp5.1
+        USING 
+    <_Exp5> => _Exp5.2
+        ASSIGN first
+
+<_Exp5>: !_Exp4@
+<_Exp5>: _Exp5 : first "<" _Exp4 : second as BinaryExpression with { op = "LT" }@
+<_Exp5>: _Exp5 : first ">" _Exp4 : second as BinaryExpression with { op = "GT" }@
+<_Exp5>: _Exp5 : first "<=" _Exp4 : second as BinaryExpression with { op = "LE" }@
+<_Exp5>: _Exp5 : first ">=" _Exp4 : second as BinaryExpression with { op = "GE" }@
+<_Exp5>: _Exp5 : first "==" _Exp4 : second as BinaryExpression with { op = "EQ" }@
+<_Exp5>: _Exp5 : first "!=" _Exp4 : second as BinaryExpression with { op = "NE" }@
+END STATE _Exp5.1
+    TOKEN-FINISH => _Exp5.RootEnd
+
+<_Exp5>: _Exp5 : first@ "<" _Exp4 : second as BinaryExpression with { op = "LT" }
+<_Exp5>: _Exp5 : first@ ">" _Exp4 : second as BinaryExpression with { op = "GT" }
+<_Exp5>: _Exp5 : first@ "<=" _Exp4 : second as BinaryExpression with { op = "LE" }
+<_Exp5>: _Exp5 : first@ ">=" _Exp4 : second as BinaryExpression with { op = "GE" }
+<_Exp5>: _Exp5 : first@ "==" _Exp4 : second as BinaryExpression with { op = "EQ" }
+<_Exp5>: _Exp5 : first@ "!=" _Exp4 : second as BinaryExpression with { op = "NE" }
+STATE _Exp5.2
+    [LT "<"] => _Exp5.8
+        CREATE BinaryExpression
+        SET op => LT
+    [GT ">"] => _Exp5.8
+        CREATE BinaryExpression
+        SET op => GT
+    [LE "<="] => _Exp5.8
+        CREATE BinaryExpression
+        SET op => LE
+    [GE ">="] => _Exp5.8
+        CREATE BinaryExpression
+        SET op => GE
+    [EQ "=="] => _Exp5.8
+        CREATE BinaryExpression
+        SET op => EQ
+    [NE "!="] => _Exp5.8
+        CREATE BinaryExpression
+        SET op => NE
+
+$<_Exp5> @
+STATE _Exp5.RootEnd
+
+<_Exp5>: _Exp5 : first "<"@ _Exp4 : second as BinaryExpression with { op = "LT" }
+<_Exp5>: _Exp5 : first ">"@ _Exp4 : second as BinaryExpression with { op = "GT" }
+<_Exp5>: _Exp5 : first "<="@ _Exp4 : second as BinaryExpression with { op = "LE" }
+<_Exp5>: _Exp5 : first ">="@ _Exp4 : second as BinaryExpression with { op = "GE" }
+<_Exp5>: _Exp5 : first "=="@ _Exp4 : second as BinaryExpression with { op = "EQ" }
+<_Exp5>: _Exp5 : first "!="@ _Exp4 : second as BinaryExpression with { op = "NE" }
+STATE _Exp5.8
+    <_Exp4> => _Exp5.14
+        ASSIGN second
+
+<_Exp5>: _Exp5 : first "<" _Exp4 : second as BinaryExpression@ with { op = "LT" }
+<_Exp5>: _Exp5 : first ">" _Exp4 : second as BinaryExpression@ with { op = "GT" }
+<_Exp5>: _Exp5 : first "<=" _Exp4 : second as BinaryExpression@ with { op = "LE" }
+<_Exp5>: _Exp5 : first ">=" _Exp4 : second as BinaryExpression@ with { op = "GE" }
+<_Exp5>: _Exp5 : first "==" _Exp4 : second as BinaryExpression@ with { op = "EQ" }
+<_Exp5>: _Exp5 : first "!=" _Exp4 : second as BinaryExpression@ with { op = "NE" }
+STATE _Exp5.14
+    EPSILON => _Exp5.1
+
+--------------------------------
+@ $<_Exp6>
+STATE _Exp6.RootStart
+    TOKEN-BEGIN => _Exp6.Start
+
+@ <_Exp6>
+STATE _Exp6.Start
+    <_Exp5> => _Exp6.1
+        USING 
+    <_Exp6> => _Exp6.2
+        ASSIGN first
+
+<_Exp6>: !_Exp5@
+<_Exp6>: _Exp6 : first "xor" _Exp5 : second as BinaryExpression with { op = "Xor" }@
+END STATE _Exp6.1
+    TOKEN-FINISH => _Exp6.RootEnd
+
+<_Exp6>: _Exp6 : first@ "xor" _Exp5 : second as BinaryExpression with { op = "Xor" }
+STATE _Exp6.2
+    [KEYWORD_XOR "xor"] => _Exp6.3
+
+$<_Exp6> @
+STATE _Exp6.RootEnd
+
+<_Exp6>: _Exp6 : first "xor"@ _Exp5 : second as BinaryExpression with { op = "Xor" }
+STATE _Exp6.3
+    <_Exp5> => _Exp6.4
+        ASSIGN second
+
+<_Exp6>: _Exp6 : first "xor" _Exp5 : second as BinaryExpression@ with { op = "Xor" }
+STATE _Exp6.4
+    EPSILON => _Exp6.1
+        CREATE BinaryExpression
+        SET op => Xor
+
+--------------------------------
+@ $<_Exp7>
+STATE _Exp7.RootStart
+    TOKEN-BEGIN => _Exp7.Start
+
+@ <_Exp7>
+STATE _Exp7.Start
+    <_Exp6> => _Exp7.1
+        USING 
+    <_Exp7> => _Exp7.2
+        ASSIGN first
+
+<_Exp7>: !_Exp6@
+<_Exp7>: _Exp7 : first "and" _Exp6 : second as BinaryExpression with { op = "And" }@
+END STATE _Exp7.1
+    TOKEN-FINISH => _Exp7.RootEnd
+
+<_Exp7>: _Exp7 : first@ "and" _Exp6 : second as BinaryExpression with { op = "And" }
+STATE _Exp7.2
+    [KEYWORD_AND "and"] => _Exp7.3
+
+$<_Exp7> @
+STATE _Exp7.RootEnd
+
+<_Exp7>: _Exp7 : first "and"@ _Exp6 : second as BinaryExpression with { op = "And" }
+STATE _Exp7.3
+    <_Exp6> => _Exp7.4
+        ASSIGN second
+
+<_Exp7>: _Exp7 : first "and" _Exp6 : second as BinaryExpression@ with { op = "And" }
+STATE _Exp7.4
+    EPSILON => _Exp7.1
+        CREATE BinaryExpression
+        SET op => And
+
+--------------------------------
+@ $<_Exp8>
+STATE _Exp8.RootStart
+    TOKEN-BEGIN => _Exp8.Start
+
+@ <_Exp8>
+STATE _Exp8.Start
+    <_Exp7> => _Exp8.1
+        USING 
+    <_Exp8> => _Exp8.2
+        ASSIGN first
+
+<_Exp8>: !_Exp7@
+<_Exp8>: _Exp8 : first "or" _Exp7 : second as BinaryExpression with { op = "Or" }@
+END STATE _Exp8.1
+    TOKEN-FINISH => _Exp8.RootEnd
+
+<_Exp8>: _Exp8 : first@ "or" _Exp7 : second as BinaryExpression with { op = "Or" }
+STATE _Exp8.2
+    [KEYWORD_OR "or"] => _Exp8.3
+
+$<_Exp8> @
+STATE _Exp8.RootEnd
+
+<_Exp8>: _Exp8 : first "or"@ _Exp7 : second as BinaryExpression with { op = "Or" }
+STATE _Exp8.3
+    <_Exp7> => _Exp8.4
+        ASSIGN second
+
+<_Exp8>: _Exp8 : first "or" _Exp7 : second as BinaryExpression@ with { op = "Or" }
+STATE _Exp8.4
+    EPSILON => _Exp8.1
+        CREATE BinaryExpression
+        SET op => Or
+
+--------------------------------
+@ $<_Exp9>
+STATE _Exp9.RootStart
+    TOKEN-BEGIN => _Exp9.Start
+
+@ <_Exp9>
+STATE _Exp9.Start
+    <_Exp8> => _Exp9.1
+        USING 
+    <_Exp9> => _Exp9.2
+        ASSIGN first
+
+<_Exp9>: !_Exp8@
+<_Exp9>: _Exp9 : first "??" _Exp8 : second as BinaryExpression with { op = "FailedThen" }@
+END STATE _Exp9.1
+    TOKEN-FINISH => _Exp9.RootEnd
+
+<_Exp9>: _Exp9 : first@ "??" _Exp8 : second as BinaryExpression with { op = "FailedThen" }
+STATE _Exp9.2
+    [FAILED_THEN "??"] => _Exp9.3
+
+$<_Exp9> @
+STATE _Exp9.RootEnd
+
+<_Exp9>: _Exp9 : first "??"@ _Exp8 : second as BinaryExpression with { op = "FailedThen" }
+STATE _Exp9.3
+    <_Exp8> => _Exp9.4
+        ASSIGN second
+
+<_Exp9>: _Exp9 : first "??" _Exp8 : second as BinaryExpression@ with { op = "FailedThen" }
+STATE _Exp9.4
+    EPSILON => _Exp9.1
+        CREATE BinaryExpression
+        SET op => FailedThen
+
+--------------------------------
+@ $<_Exp10>
+STATE _Exp10.RootStart
+    TOKEN-BEGIN => _Exp10.Start
+
+@ <_Exp10>
+STATE _Exp10.Start
+    <_Exp9> => _Exp10.1
+        USING 
+    <_Exp9> => _Exp10.2
+        ASSIGN condition
+
+<_Exp10>: !_Exp9@
+<_Exp10>: _Exp9 : condition "?" _Exp10 : trueBranch ":" _Exp10 : falseBranch as IfExpression@
+END STATE _Exp10.1
+    TOKEN-FINISH => _Exp10.RootEnd
+
+<_Exp10>: _Exp9 : condition@ "?" _Exp10 : trueBranch ":" _Exp10 : falseBranch as IfExpression
+STATE _Exp10.2
+    [QUESTION_MARK "?"] => _Exp10.3
+
+$<_Exp10> @
+STATE _Exp10.RootEnd
+
+<_Exp10>: _Exp9 : condition "?"@ _Exp10 : trueBranch ":" _Exp10 : falseBranch as IfExpression
+STATE _Exp10.3
+    <_Exp10> => _Exp10.4
+        ASSIGN trueBranch
+
+<_Exp10>: _Exp9 : condition "?" _Exp10 : trueBranch@ ":" _Exp10 : falseBranch as IfExpression
+STATE _Exp10.4
+    [COLON ":"] => _Exp10.5
+
+<_Exp10>: _Exp9 : condition "?" _Exp10 : trueBranch ":"@ _Exp10 : falseBranch as IfExpression
+STATE _Exp10.5
+    <_Exp10> => _Exp10.6
+        ASSIGN falseBranch
+
+<_Exp10>: _Exp9 : condition "?" _Exp10 : trueBranch ":" _Exp10 : falseBranch as IfExpression@
+STATE _Exp10.6
+    EPSILON => _Exp10.1
+        CREATE IfExpression
+
+--------------------------------
+@ $<_Exp11>
+STATE _Exp11.RootStart
+    TOKEN-BEGIN => _Exp11.Start
+
+@ <_Exp11>
+STATE _Exp11.Start
+    <_Exp10> => _Exp11.1
+        USING 
+    <_Exp10> => _Exp11.2
+        ASSIGN first
+
+<_Exp11>: !_Exp10@
+<_Exp11>: _Exp10 : first "=" _Exp11 : second as BinaryExpression with { op = "Assign" }@
+END STATE _Exp11.1
+    TOKEN-FINISH => _Exp11.RootEnd
+
+<_Exp11>: _Exp10 : first@ "=" _Exp11 : second as BinaryExpression with { op = "Assign" }
+STATE _Exp11.2
+    [ASSIGN "="] => _Exp11.3
+
+$<_Exp11> @
+STATE _Exp11.RootEnd
+
+<_Exp11>: _Exp10 : first "="@ _Exp11 : second as BinaryExpression with { op = "Assign" }
+STATE _Exp11.3
+    <_Exp11> => _Exp11.4
+        ASSIGN second
+
+<_Exp11>: _Exp10 : first "=" _Exp11 : second as BinaryExpression@ with { op = "Assign" }
+STATE _Exp11.4
+    EPSILON => _Exp11.1
+        CREATE BinaryExpression
+        SET op => Assign
+
+--------------------------------
+@ $<_Expression>
+STATE _Expression.RootStart
+    TOKEN-BEGIN => _Expression.Start
+
+@ <_Expression>
+STATE _Expression.Start
+    <_Exp11> => _Expression.1
+        USING 
+
+<_Expression>: !_Exp11@
+END STATE _Expression.1
+    TOKEN-FINISH => _Expression.RootEnd
+
+$<_Expression> @
+STATE _Expression.RootEnd
+
+--------------------------------
+@ $<_SwitchCase>
+STATE _SwitchCase.RootStart
+    TOKEN-BEGIN => _SwitchCase.Start
+
+@ <_SwitchCase>
+STATE _SwitchCase.Start
+    [KEYWORD_CASE "case"] => _SwitchCase.1
+
+<_SwitchCase>: "case"@ _Expression : expression ":" _Block : statement as SwitchCase
+STATE _SwitchCase.1
+    <_Expression> => _SwitchCase.2
+        ASSIGN expression
+
+<_SwitchCase>: "case" _Expression : expression@ ":" _Block : statement as SwitchCase
+STATE _SwitchCase.2
+    [COLON ":"] => _SwitchCase.3
+
+<_SwitchCase>: "case" _Expression : expression ":"@ _Block : statement as SwitchCase
+STATE _SwitchCase.3
+    <_Block> => _SwitchCase.4
+        ASSIGN statement
+
+<_SwitchCase>: "case" _Expression : expression ":" _Block : statement as SwitchCase@
+STATE _SwitchCase.4
+    EPSILON => _SwitchCase.5
+        CREATE SwitchCase
+
+<_SwitchCase>: "case" _Expression : expression ":" _Block : statement as SwitchCase@
+END STATE _SwitchCase.5
+    TOKEN-FINISH => _SwitchCase.RootEnd
+
+$<_SwitchCase> @
+STATE _SwitchCase.RootEnd
+
+--------------------------------
+@ $<_Block>
+STATE _Block.RootStart
+    TOKEN-BEGIN => _Block.Start
+
+@ <_Block>
+STATE _Block.Start
+    [OPEN_BRACE "{"] => _Block.1
+
+<_Block>: "{"@ { _Statement : statements } "}" as BlockStatement
+<_Block>: "{" @{ _Statement : statements } "}" as BlockStatement
+STATE _Block.1
+    [CLOSE_BRACE "}"] => _Block.2
+    <_Statement> => _Block.1
+        ASSIGN statements
+
+<_Block>: "{" { _Statement : statements } "}" as BlockStatement@
+STATE _Block.2
+    EPSILON => _Block.4
+        CREATE BlockStatement
+
+<_Block>: "{" { _Statement : statements } "}" as BlockStatement@
+END STATE _Block.4
+    TOKEN-FINISH => _Block.RootEnd
+
+$<_Block> @
+STATE _Block.RootEnd
+
+--------------------------------
+@ $<_If>
+STATE _If.RootStart
+    TOKEN-BEGIN => _If.Start
+
+@ <_If>
+STATE _If.Start
+    [KEYWORD_IF "if"] => _If.1
+
+<_If>: "if"@ "(" [ "var" NAME : name ":" _Type : type "=" ] _Expression : expression ")" _Block : trueBranch [ "else" ( _Block : falseBranch | _If : falseBranch ) ] as IfStatement
+STATE _If.1
+    [OPEN_BRACKET "("] => _If.2
+
+<_If>: "if" "("@ [ "var" NAME : name ":" _Type : type "=" ] _Expression : expression ")" _Block : trueBranch [ "else" ( _Block : falseBranch | _If : falseBranch ) ] as IfStatement
+STATE _If.2
+    [KEYWORD_VAR "var"] => _If.3
+    <_Expression> => _If.4
+        ASSIGN expression
+
+<_If>: "if" "(" [ "var"@ NAME : name ":" _Type : type "=" ] _Expression : expression ")" _Block : trueBranch [ "else" ( _Block : falseBranch | _If : falseBranch ) ] as IfStatement
+STATE _If.3
+    [NAME] => _If.5
+        ASSIGN name
+
+<_If>: "if" "(" [ "var" NAME : name ":" _Type : type "=" ] _Expression : expression@ ")" _Block : trueBranch [ "else" ( _Block : falseBranch | _If : falseBranch ) ] as IfStatement
+STATE _If.4
+    [CLOSE_BRACKET ")"] => _If.6
+
+<_If>: "if" "(" [ "var" NAME : name@ ":" _Type : type "=" ] _Expression : expression ")" _Block : trueBranch [ "else" ( _Block : falseBranch | _If : falseBranch ) ] as IfStatement
+STATE _If.5
+    [COLON ":"] => _If.7
+
+<_If>: "if" "(" [ "var" NAME : name ":" _Type : type "=" ] _Expression : expression ")"@ _Block : trueBranch [ "else" ( _Block : falseBranch | _If : falseBranch ) ] as IfStatement
+STATE _If.6
+    <_Block> => _If.8
+        ASSIGN trueBranch
+
+<_If>: "if" "(" [ "var" NAME : name ":"@ _Type : type "=" ] _Expression : expression ")" _Block : trueBranch [ "else" ( _Block : falseBranch | _If : falseBranch ) ] as IfStatement
+STATE _If.7
+    <_Type> => _If.9
+        ASSIGN type
+
+<_If>: "if" "(" [ "var" NAME : name ":" _Type : type "=" ] _Expression : expression ")" _Block : trueBranch@ [ "else" ( _Block : falseBranch | _If : falseBranch ) ] as IfStatement
+STATE _If.8
+    EPSILON => _If.11
+        CREATE IfStatement
+    [KEYWORD_ELSE "else"] => _If.10
+
+<_If>: "if" "(" [ "var" NAME : name ":" _Type : type@ "=" ] _Expression : expression ")" _Block : trueBranch [ "else" ( _Block : falseBranch | _If : falseBranch ) ] as IfStatement
+STATE _If.9
+    [ASSIGN "="] => _If.12
+
+<_If>: "if" "(" [ "var" NAME : name ":" _Type : type "=" ] _Expression : expression ")" _Block : trueBranch [ "else" ( _Block : falseBranch | _If : falseBranch ) ] as IfStatement@
+END STATE _If.11
+    TOKEN-FINISH => _If.RootEnd
+
+<_If>: "if" "(" [ "var" NAME : name ":" _Type : type "=" ] _Expression : expression ")" _Block : trueBranch [ "else"@ ( _Block : falseBranch | _If : falseBranch ) ] as IfStatement
+STATE _If.10
+    <_Block> => _If.13
+        ASSIGN falseBranch
+    <_If> => _If.13
+        ASSIGN falseBranch
+
+<_If>: "if" "(" [ "var" NAME : name ":" _Type : type "=" ]@ _Expression : expression ")" _Block : trueBranch [ "else" ( _Block : falseBranch | _If : falseBranch ) ] as IfStatement
+STATE _If.12
+    <_Expression> => _If.4
+        ASSIGN expression
+
+$<_If> @
+STATE _If.RootEnd
+
+<_If>: "if" "(" [ "var" NAME : name ":" _Type : type "=" ] _Expression : expression ")" _Block : trueBranch [ "else" ( _Block : falseBranch | _If : falseBranch ) ] as IfStatement@
+STATE _If.13
+    EPSILON => _If.11
+        CREATE IfStatement
+
+--------------------------------
+@ $<_VirtualStatement>
+STATE _VirtualStatement.RootStart
+    TOKEN-BEGIN => _VirtualStatement.Start
+
+@ <_VirtualStatement>
+STATE _VirtualStatement.Start
+    [KEYWORD_SWITCH "switch"] => _VirtualStatement.1
+    [KEYWORD_FOR "for"] => _VirtualStatement.2
+    [KEYWORD_VAR "var"] => _VirtualStatement.3
+    [COROUTINE_OPERATOR] => _VirtualStatement.4
+        ASSIGN opName
+
+<_VirtualStatement>: "switch"@ "(" _Expression : expression ")" "{" { _SwitchCase : caseBranches } [ "default" ":" _Block : defaultBranch ] "}" as SwitchStatement
+STATE _VirtualStatement.1
+    [OPEN_BRACKET "("] => _VirtualStatement.5
+
+<_VirtualStatement>: "for"@ "(" NAME : name ( ( "in" with { direction = "Normal" } ) | ( "in" "reversed" with { direction = "Reversed" } ) ) _Expression : collection ")" _Block : statement as ForEachStatement
+STATE _VirtualStatement.2
+    [OPEN_BRACKET "("] => _VirtualStatement.6
+
+<_VirtualStatement>: [ "var"@ NAME : varName "=" ] COROUTINE_OPERATOR : opName [ _Expression : arguments { "," _Expression : arguments } ] ";" as CoOperatorStatement
+STATE _VirtualStatement.3
+    [NAME] => _VirtualStatement.7
+        ASSIGN varName
+
+<_VirtualStatement>: [ "var" NAME : varName "=" ] COROUTINE_OPERATOR : opName@ [ _Expression : arguments { "," _Expression : arguments } ] ";" as CoOperatorStatement
+STATE _VirtualStatement.4
+    [SEMICOLON ";"] => _VirtualStatement.23
+        CREATE CoOperatorStatement
+    <_Expression> => _VirtualStatement.8
+        ASSIGN arguments
+
+<_VirtualStatement>: "switch" "("@ _Expression : expression ")" "{" { _SwitchCase : caseBranches } [ "default" ":" _Block : defaultBranch ] "}" as SwitchStatement
+STATE _VirtualStatement.5
+    <_Expression> => _VirtualStatement.10
+        ASSIGN expression
+
+<_VirtualStatement>: "for" "("@ NAME : name ( ( "in" with { direction = "Normal" } ) | ( "in" "reversed" with { direction = "Reversed" } ) ) _Expression : collection ")" _Block : statement as ForEachStatement
+STATE _VirtualStatement.6
+    [NAME] => _VirtualStatement.11
+        ASSIGN name
+
+<_VirtualStatement>: [ "var" NAME : varName@ "=" ] COROUTINE_OPERATOR : opName [ _Expression : arguments { "," _Expression : arguments } ] ";" as CoOperatorStatement
+STATE _VirtualStatement.7
+    [ASSIGN "="] => _VirtualStatement.12
+
+<_VirtualStatement>: "switch" "(" _Expression : expression ")" "{" { _SwitchCase : caseBranches } [ "default" ":" _Block : defaultBranch ] "}" as SwitchStatement@
+<_VirtualStatement>: "for" "(" NAME : name ( ( "in" with { direction = "Normal" } ) | ( "in" "reversed" with { direction = "Reversed" } ) ) _Expression : collection ")" _Block : statement as ForEachStatement@
+<_VirtualStatement>: [ "var" NAME : varName "=" ] COROUTINE_OPERATOR : opName [ _Expression : arguments { "," _Expression : arguments } ] ";" as CoOperatorStatement@
+STATE _VirtualStatement.23
+    EPSILON => _VirtualStatement.27
+
+<_VirtualStatement>: [ "var" NAME : varName "=" ] COROUTINE_OPERATOR : opName [ _Expression : arguments@ { "," _Expression : arguments } ] ";" as CoOperatorStatement
+<_VirtualStatement>: [ "var" NAME : varName "=" ] COROUTINE_OPERATOR : opName [ _Expression : arguments @{ "," _Expression : arguments } ] ";" as CoOperatorStatement
+STATE _VirtualStatement.8
+    [COMMA ","] => _VirtualStatement.13
+    [SEMICOLON ";"] => _VirtualStatement.23
+        CREATE CoOperatorStatement
+
+<_VirtualStatement>: "switch" "(" _Expression : expression@ ")" "{" { _SwitchCase : caseBranches } [ "default" ":" _Block : defaultBranch ] "}" as SwitchStatement
+STATE _VirtualStatement.10
+    [CLOSE_BRACKET ")"] => _VirtualStatement.15
+
+<_VirtualStatement>: "for" "(" NAME : name@ ( ( "in" with { direction = "Normal" } ) | ( "in" "reversed" with { direction = "Reversed" } ) ) _Expression : collection ")" _Block : statement as ForEachStatement
+STATE _VirtualStatement.11
+    [KEYWORD_IN "in"] => _VirtualStatement.16
+        SET direction => Normal
+    [KEYWORD_IN "in"] => _VirtualStatement.17
+
+<_VirtualStatement>: [ "var" NAME : varName "=" ]@ COROUTINE_OPERATOR : opName [ _Expression : arguments { "," _Expression : arguments } ] ";" as CoOperatorStatement
+STATE _VirtualStatement.12
+    [COROUTINE_OPERATOR] => _VirtualStatement.4
+        ASSIGN opName
+
+<_VirtualStatement>: "switch" "(" _Expression : expression ")" "{" { _SwitchCase : caseBranches } [ "default" ":" _Block : defaultBranch ] "}" as SwitchStatement@
+<_VirtualStatement>: "for" "(" NAME : name ( ( "in" with { direction = "Normal" } ) | ( "in" "reversed" with { direction = "Reversed" } ) ) _Expression : collection ")" _Block : statement as ForEachStatement@
+<_VirtualStatement>: [ "var" NAME : varName "=" ] COROUTINE_OPERATOR : opName [ _Expression : arguments { "," _Expression : arguments } ] ";" as CoOperatorStatement@
+END STATE _VirtualStatement.27
+    TOKEN-FINISH => _VirtualStatement.RootEnd
+
+<_VirtualStatement>: [ "var" NAME : varName "=" ] COROUTINE_OPERATOR : opName [ _Expression : arguments { ","@ _Expression : arguments } ] ";" as CoOperatorStatement
+STATE _VirtualStatement.13
+    <_Expression> => _VirtualStatement.8
+        ASSIGN arguments
+
+<_VirtualStatement>: "switch" "(" _Expression : expression ")"@ "{" { _SwitchCase : caseBranches } [ "default" ":" _Block : defaultBranch ] "}" as SwitchStatement
+STATE _VirtualStatement.15
+    [OPEN_BRACE "{"] => _VirtualStatement.19
+
+<_VirtualStatement>: "for" "(" NAME : name ( ( "in" with { direction = "Normal" } ) | ( "in" "reversed" with { direction = "Reversed" } ) )@ _Expression : collection ")" _Block : statement as ForEachStatement
+<_VirtualStatement>: "for" "(" NAME : name ( ( "in" with { direction = "Normal" } ) | ( "in" "reversed" with { direction = "Reversed" } ) )@ _Expression : collection ")" _Block : statement as ForEachStatement
+STATE _VirtualStatement.16
+    <_Expression> => _VirtualStatement.20
+        ASSIGN collection
+
+<_VirtualStatement>: "for" "(" NAME : name ( ( "in" with { direction = "Normal" } ) | ( "in"@ "reversed" with { direction = "Reversed" } ) ) _Expression : collection ")" _Block : statement as ForEachStatement
+STATE _VirtualStatement.17
+    [KEYWORD_REVERSED "reversed"] => _VirtualStatement.16
+        SET direction => Reversed
+
+$<_VirtualStatement> @
+STATE _VirtualStatement.RootEnd
+
+<_VirtualStatement>: "switch" "(" _Expression : expression ")" "{"@ { _SwitchCase : caseBranches } [ "default" ":" _Block : defaultBranch ] "}" as SwitchStatement
+<_VirtualStatement>: "switch" "(" _Expression : expression ")" "{" @{ _SwitchCase : caseBranches } [ "default" ":" _Block : defaultBranch ] "}" as SwitchStatement
+STATE _VirtualStatement.19
+    [CLOSE_BRACE "}"] => _VirtualStatement.23
+        CREATE SwitchStatement
+    [KEYWORD_DEFAULT "default"] => _VirtualStatement.22
+    <_SwitchCase> => _VirtualStatement.19
+        ASSIGN caseBranches
+
+<_VirtualStatement>: "for" "(" NAME : name ( ( "in" with { direction = "Normal" } ) | ( "in" "reversed" with { direction = "Reversed" } ) ) _Expression : collection@ ")" _Block : statement as ForEachStatement
+STATE _VirtualStatement.20
+    [CLOSE_BRACKET ")"] => _VirtualStatement.25
+
+<_VirtualStatement>: "switch" "(" _Expression : expression ")" "{" { _SwitchCase : caseBranches } [ "default"@ ":" _Block : defaultBranch ] "}" as SwitchStatement
+STATE _VirtualStatement.22
+    [COLON ":"] => _VirtualStatement.26
+
+<_VirtualStatement>: "for" "(" NAME : name ( ( "in" with { direction = "Normal" } ) | ( "in" "reversed" with { direction = "Reversed" } ) ) _Expression : collection ")"@ _Block : statement as ForEachStatement
+STATE _VirtualStatement.25
+    <_Block> => _VirtualStatement.23
+        ASSIGN statement
+        CREATE ForEachStatement
+
+<_VirtualStatement>: "switch" "(" _Expression : expression ")" "{" { _SwitchCase : caseBranches } [ "default" ":"@ _Block : defaultBranch ] "}" as SwitchStatement
+STATE _VirtualStatement.26
+    <_Block> => _VirtualStatement.29
+        ASSIGN defaultBranch
+
+<_VirtualStatement>: "switch" "(" _Expression : expression ")" "{" { _SwitchCase : caseBranches } [ "default" ":" _Block : defaultBranch ]@ "}" as SwitchStatement
+STATE _VirtualStatement.29
+    [CLOSE_BRACE "}"] => _VirtualStatement.23
+        CREATE SwitchStatement
+
+--------------------------------
+@ $<_CoStatement>
+STATE _CoStatement.RootStart
+    TOKEN-BEGIN => _CoStatement.Start
+
+@ <_CoStatement>
+STATE _CoStatement.Start
+    [COROUTINE_PAUSE "$pause"] => _CoStatement.1
+
+<_CoStatement>: "$pause"@ ( ";" | _Block : statement ) as CoPauseStatement
+STATE _CoStatement.1
+    [SEMICOLON ";"] => _CoStatement.2
+    <_Block> => _CoStatement.2
+        ASSIGN statement
+
+<_CoStatement>: "$pause" ( ";" | _Block : statement ) as CoPauseStatement@
+STATE _CoStatement.2
+    EPSILON => _CoStatement.3
+        CREATE CoPauseStatement
+
+<_CoStatement>: "$pause" ( ";" | _Block : statement ) as CoPauseStatement@
+END STATE _CoStatement.3
+    TOKEN-FINISH => _CoStatement.RootEnd
+
+$<_CoStatement> @
+STATE _CoStatement.RootEnd
+
+--------------------------------
+@ $<_CoProvider>
+STATE _CoProvider.RootStart
+    TOKEN-BEGIN => _CoProvider.Start
+
+@ <_CoProvider>
+STATE _CoProvider.Start
+    [COROUTINE_SIGN "$"] => _CoProvider.1
+    [COROUTINE_OPERATOR] => _CoProvider.1
+        ASSIGN name
+
+<_CoProvider>: ( "$" | COROUTINE_OPERATOR : name )@ _Block : statement as CoProviderStatement
+STATE _CoProvider.1
+    <_Block> => _CoProvider.2
+        ASSIGN statement
+
+<_CoProvider>: ( "$" | COROUTINE_OPERATOR : name ) _Block : statement as CoProviderStatement@
+STATE _CoProvider.2
+    EPSILON => _CoProvider.3
+        CREATE CoProviderStatement
+
+<_CoProvider>: ( "$" | COROUTINE_OPERATOR : name ) _Block : statement as CoProviderStatement@
+END STATE _CoProvider.3
+    TOKEN-FINISH => _CoProvider.RootEnd
+
+$<_CoProvider> @
+STATE _CoProvider.RootEnd
+
+--------------------------------
+@ $<_Statement>
+STATE _Statement.RootStart
+    TOKEN-BEGIN => _Statement.Start
+
+@ <_Statement>
+STATE _Statement.Start
+    <_Block> => _Statement.1
+        USING 
+    <_Variable> => _Statement.2
+        ASSIGN variable
+        CREATE VariableStatement
+    [KEYWORD_BREAK "break"] => _Statement.3
+        CREATE BreakStatement
+    [KEYWORD_CONTINUE "continue"] => _Statement.3
+        CREATE ContinueStatement
+    [KEYWORD_RETURN "return"] => _Statement.5
+    [KEYWORD_DELETE "delete"] => _Statement.6
+    [KEYWORD_RAISE "raise"] => _Statement.7
+    <_If> => _Statement.1
+        USING 
+    [KEYWORD_WHILE "while"] => _Statement.9
+    [KEYWORD_TRY "try"] => _Statement.10
+    <_Expression> => _Statement.3
+        ASSIGN expression
+        CREATE ExpressionStatement
+    <_VirtualStatement> => _Statement.1
+        USING 
+    <_CoStatement> => _Statement.1
+        USING 
+
+<_Statement>: !_Block@
+<_Statement>: _Variable : variable as VariableStatement@
+<_Statement>: "break" ";" as BreakStatement@
+<_Statement>: "continue" ";" as ContinueStatement@
+<_Statement>: "return" [ _Expression : expression ] ";" as ReturnStatement@
+<_Statement>: "delete" _Expression : expression ";" as DeleteStatement@
+<_Statement>: "raise" [ _Expression : expression ] ";" as RaiseExceptionStatement@
+<_Statement>: !_If@
+<_Statement>: "while" "(" _Expression : condition ")" _Block : statement as WhileStatement@
+<_Statement>: "try" _Block : protectedStatement [ "catch" "(" NAME : name ")" _Block : catchStatement ] [ "finally" _Block : finallyStatement ] as TryStatement@
+<_Statement>: _Expression : expression ";" as ExpressionStatement@
+<_Statement>: !_VirtualStatement@
+<_Statement>: !_CoStatement@
+END STATE _Statement.1
+    TOKEN-FINISH => _Statement.RootEnd
+
+<_Statement>: _Variable : variable as VariableStatement@
+<_Statement>: "break" ";" as BreakStatement@
+<_Statement>: "continue" ";" as ContinueStatement@
+<_Statement>: "return" [ _Expression : expression ] ";" as ReturnStatement@
+<_Statement>: "delete" _Expression : expression ";" as DeleteStatement@
+<_Statement>: "raise" [ _Expression : expression ] ";" as RaiseExceptionStatement@
+<_Statement>: "while" "(" _Expression : condition ")" _Block : statement as WhileStatement@
+<_Statement>: "try" _Block : protectedStatement [ "catch" "(" NAME : name ")" _Block : catchStatement ] [ "finally" _Block : finallyStatement ] as TryStatement@
+<_Statement>: _Expression : expression ";" as ExpressionStatement@
+STATE _Statement.2
+    EPSILON => _Statement.1
+
+<_Statement>: "break"@ ";" as BreakStatement
+<_Statement>: "continue"@ ";" as ContinueStatement
+<_Statement>: "return" [ _Expression : expression ]@ ";" as ReturnStatement
+<_Statement>: "delete" _Expression : expression@ ";" as DeleteStatement
+<_Statement>: "raise" [ _Expression : expression ]@ ";" as RaiseExceptionStatement
+<_Statement>: _Expression : expression@ ";" as ExpressionStatement
+STATE _Statement.3
+    [SEMICOLON ";"] => _Statement.2
+
+<_Statement>: "return"@ [ _Expression : expression ] ";" as ReturnStatement
+STATE _Statement.5
+    [SEMICOLON ";"] => _Statement.2
+        CREATE ReturnStatement
+    <_Expression> => _Statement.3
+        ASSIGN expression
+        CREATE ReturnStatement
+
+<_Statement>: "delete"@ _Expression : expression ";" as DeleteStatement
+STATE _Statement.6
+    <_Expression> => _Statement.3
+        ASSIGN expression
+        CREATE DeleteStatement
+
+<_Statement>: "raise"@ [ _Expression : expression ] ";" as RaiseExceptionStatement
+STATE _Statement.7
+    [SEMICOLON ";"] => _Statement.2
+        CREATE RaiseExceptionStatement
+    <_Expression> => _Statement.3
+        ASSIGN expression
+        CREATE RaiseExceptionStatement
+
+<_Statement>: "while"@ "(" _Expression : condition ")" _Block : statement as WhileStatement
+STATE _Statement.9
+    [OPEN_BRACKET "("] => _Statement.22
+
+<_Statement>: "try"@ _Block : protectedStatement [ "catch" "(" NAME : name ")" _Block : catchStatement ] [ "finally" _Block : finallyStatement ] as TryStatement
+STATE _Statement.10
+    <_Block> => _Statement.23
+        ASSIGN protectedStatement
+
+$<_Statement> @
+STATE _Statement.RootEnd
+
+<_Statement>: "while" "("@ _Expression : condition ")" _Block : statement as WhileStatement
+STATE _Statement.22
+    <_Expression> => _Statement.30
+        ASSIGN condition
+
+<_Statement>: "try" _Block : protectedStatement@ [ "catch" "(" NAME : name ")" _Block : catchStatement ] [ "finally" _Block : finallyStatement ] as TryStatement
+STATE _Statement.23
+    EPSILON => _Statement.1
+        CREATE TryStatement
+    [KEYWORD_CATCH "catch"] => _Statement.31
+    [KEYWORD_FINALLY "finally"] => _Statement.32
+        CREATE TryStatement
+
+<_Statement>: "while" "(" _Expression : condition@ ")" _Block : statement as WhileStatement
+STATE _Statement.30
+    [CLOSE_BRACKET ")"] => _Statement.36
+        CREATE WhileStatement
+
+<_Statement>: "try" _Block : protectedStatement [ "catch"@ "(" NAME : name ")" _Block : catchStatement ] [ "finally" _Block : finallyStatement ] as TryStatement
+STATE _Statement.31
+    [OPEN_BRACKET "("] => _Statement.37
+
+<_Statement>: "try" _Block : protectedStatement [ "catch" "(" NAME : name ")" _Block : catchStatement ] [ "finally"@ _Block : finallyStatement ] as TryStatement
+STATE _Statement.32
+    <_Block> => _Statement.2
+        ASSIGN finallyStatement
+
+<_Statement>: "while" "(" _Expression : condition ")"@ _Block : statement as WhileStatement
+STATE _Statement.36
+    <_Block> => _Statement.2
+        ASSIGN statement
+
+<_Statement>: "try" _Block : protectedStatement [ "catch" "("@ NAME : name ")" _Block : catchStatement ] [ "finally" _Block : finallyStatement ] as TryStatement
+STATE _Statement.37
+    [NAME] => _Statement.40
+        ASSIGN name
+
+<_Statement>: "try" _Block : protectedStatement [ "catch" "(" NAME : name@ ")" _Block : catchStatement ] [ "finally" _Block : finallyStatement ] as TryStatement
+STATE _Statement.40
+    [CLOSE_BRACKET ")"] => _Statement.42
+
+<_Statement>: "try" _Block : protectedStatement [ "catch" "(" NAME : name ")"@ _Block : catchStatement ] [ "finally" _Block : finallyStatement ] as TryStatement
+STATE _Statement.42
+    <_Block> => _Statement.43
+        ASSIGN catchStatement
+
+<_Statement>: "try" _Block : protectedStatement [ "catch" "(" NAME : name ")" _Block : catchStatement ]@ [ "finally" _Block : finallyStatement ] as TryStatement
+STATE _Statement.43
+    EPSILON => _Statement.1
+        CREATE TryStatement
+    [KEYWORD_FINALLY "finally"] => _Statement.32
+        CREATE TryStatement
+
+--------------------------------
+@ $<_Attribute>
+STATE _Attribute.RootStart
+    TOKEN-BEGIN => _Attribute.Start
+
+@ <_Attribute>
+STATE _Attribute.Start
+    [AT "@"] => _Attribute.1
+
+<_Attribute>: "@"@ NAME : category ":" NAME : name [ "(" _Expression : value ")" ] as Attribute
+STATE _Attribute.1
+    [NAME] => _Attribute.2
+        ASSIGN category
+
+<_Attribute>: "@" NAME : category@ ":" NAME : name [ "(" _Expression : value ")" ] as Attribute
+STATE _Attribute.2
+    [COLON ":"] => _Attribute.3
+
+<_Attribute>: "@" NAME : category ":"@ NAME : name [ "(" _Expression : value ")" ] as Attribute
+STATE _Attribute.3
+    [NAME] => _Attribute.4
+        ASSIGN name
+
+<_Attribute>: "@" NAME : category ":" NAME : name@ [ "(" _Expression : value ")" ] as Attribute
+STATE _Attribute.4
+    EPSILON => _Attribute.6
+        CREATE Attribute
+    [OPEN_BRACKET "("] => _Attribute.5
+
+<_Attribute>: "@" NAME : category ":" NAME : name [ "(" _Expression : value ")" ] as Attribute@
+END STATE _Attribute.6
+    TOKEN-FINISH => _Attribute.RootEnd
+
+<_Attribute>: "@" NAME : category ":" NAME : name [ "("@ _Expression : value ")" ] as Attribute
+STATE _Attribute.5
+    <_Expression> => _Attribute.7
+        ASSIGN value
+
+$<_Attribute> @
+STATE _Attribute.RootEnd
+
+<_Attribute>: "@" NAME : category ":" NAME : name [ "(" _Expression : value@ ")" ] as Attribute
+STATE _Attribute.7
+    [CLOSE_BRACKET ")"] => _Attribute.8
+
+<_Attribute>: "@" NAME : category ":" NAME : name [ "(" _Expression : value ")" ] as Attribute@
+STATE _Attribute.8
+    EPSILON => _Attribute.6
+        CREATE Attribute
+
+--------------------------------
+@ $<_Namespace>
+STATE _Namespace.RootStart
+    TOKEN-BEGIN => _Namespace.Start
+
+@ <_Namespace>
+STATE _Namespace.Start
+    [KEYWORD_NAMESPACE "namespace"] => _Namespace.1
+
+<_Namespace>: "namespace"@ NAME : name "{" { _Declaration : declarations } "}" as NamespaceDeclaration
+STATE _Namespace.1
+    [NAME] => _Namespace.2
+        ASSIGN name
+
+<_Namespace>: "namespace" NAME : name@ "{" { _Declaration : declarations } "}" as NamespaceDeclaration
+STATE _Namespace.2
+    [OPEN_BRACE "{"] => _Namespace.3
+
+<_Namespace>: "namespace" NAME : name "{"@ { _Declaration : declarations } "}" as NamespaceDeclaration
+<_Namespace>: "namespace" NAME : name "{" @{ _Declaration : declarations } "}" as NamespaceDeclaration
+STATE _Namespace.3
+    [CLOSE_BRACE "}"] => _Namespace.4
+    <_Declaration> => _Namespace.3
+        ASSIGN declarations
+
+<_Namespace>: "namespace" NAME : name "{" { _Declaration : declarations } "}" as NamespaceDeclaration@
+STATE _Namespace.4
+    EPSILON => _Namespace.6
+        CREATE NamespaceDeclaration
+
+<_Namespace>: "namespace" NAME : name "{" { _Declaration : declarations } "}" as NamespaceDeclaration@
+END STATE _Namespace.6
+    TOKEN-FINISH => _Namespace.RootEnd
+
+$<_Namespace> @
+STATE _Namespace.RootEnd
+
+--------------------------------
+@ $<_FunctionArgument>
+STATE _FunctionArgument.RootStart
+    TOKEN-BEGIN => _FunctionArgument.Start
+
+@ <_FunctionArgument>
+STATE _FunctionArgument.Start
+    [NAME] => _FunctionArgument.1
+        ASSIGN name
+    <_Attribute> => _FunctionArgument.2
+        ASSIGN attributes
+
+<_FunctionArgument>: { _Attribute : attributes } NAME : name@ ":" _Type : type as FunctionArgument
+STATE _FunctionArgument.1
+    [COLON ":"] => _FunctionArgument.3
+
+<_FunctionArgument>: @{ _Attribute : attributes } NAME : name ":" _Type : type as FunctionArgument
+STATE _FunctionArgument.2
+    [NAME] => _FunctionArgument.1
+        ASSIGN name
+    <_Attribute> => _FunctionArgument.2
+        ASSIGN attributes
+
+<_FunctionArgument>: { _Attribute : attributes } NAME : name ":"@ _Type : type as FunctionArgument
+STATE _FunctionArgument.3
+    <_Type> => _FunctionArgument.4
+        ASSIGN type
+
+<_FunctionArgument>: { _Attribute : attributes } NAME : name ":" _Type : type as FunctionArgument@
+STATE _FunctionArgument.4
+    EPSILON => _FunctionArgument.5
+        CREATE FunctionArgument
+
+<_FunctionArgument>: { _Attribute : attributes } NAME : name ":" _Type : type as FunctionArgument@
+END STATE _FunctionArgument.5
+    TOKEN-FINISH => _FunctionArgument.RootEnd
+
+$<_FunctionArgument> @
+STATE _FunctionArgument.RootEnd
+
+--------------------------------
+@ $<_Function>
+STATE _Function.RootStart
+    TOKEN-BEGIN => _Function.Start
+
+@ <_Function>
+STATE _Function.Start
+    [KEYWORD_FUNC "func"] => _Function.1
+
+<_Function>: "func"@ ( ( NAME : name "(" with { anonymity = "Named" } ) | ( "(" with { anonymity = "Anonymous" } ) ) [ _FunctionArgument : arguments { "," _FunctionArgument : arguments } ] ")" ":" _Type : returnType ( _Block : statement | _CoProvider : statement | ";" ) as FunctionDeclaration
+STATE _Function.1
+    [NAME] => _Function.2
+        ASSIGN name
+    [OPEN_BRACKET "("] => _Function.3
+
+<_Function>: "func" ( ( NAME : name@ "(" with { anonymity = "Named" } ) | ( "(" with { anonymity = "Anonymous" } ) ) [ _FunctionArgument : arguments { "," _FunctionArgument : arguments } ] ")" ":" _Type : returnType ( _Block : statement | _CoProvider : statement | ";" ) as FunctionDeclaration
+STATE _Function.2
+    [OPEN_BRACKET "("] => _Function.4
+
+<_Function>: "func" ( ( NAME : name "(" with { anonymity = "Named" } ) | ( "(" with { anonymity = "Anonymous" } ) )@ [ _FunctionArgument : arguments { "," _FunctionArgument : arguments } ] ")" ":" _Type : returnType ( _Block : statement | _CoProvider : statement | ";" ) as FunctionDeclaration
+STATE _Function.3
+    [CLOSE_BRACKET ")"] => _Function.6
+        SET anonymity => Anonymous
+    <_FunctionArgument> => _Function.5
+        ASSIGN arguments
+        SET anonymity => Anonymous
+
+<_Function>: "func" ( ( NAME : name "(" with { anonymity = "Named" } ) | ( "(" with { anonymity = "Anonymous" } ) )@ [ _FunctionArgument : arguments { "," _FunctionArgument : arguments } ] ")" ":" _Type : returnType ( _Block : statement | _CoProvider : statement | ";" ) as FunctionDeclaration
+STATE _Function.4
+    [CLOSE_BRACKET ")"] => _Function.6
+        SET anonymity => Named
+    <_FunctionArgument> => _Function.5
+        ASSIGN arguments
+        SET anonymity => Named
+
+<_Function>: "func" ( ( NAME : name "(" with { anonymity = "Named" } ) | ( "(" with { anonymity = "Anonymous" } ) ) [ _FunctionArgument : arguments { "," _FunctionArgument : arguments } ] ")"@ ":" _Type : returnType ( _Block : statement | _CoProvider : statement | ";" ) as FunctionDeclaration
+STATE _Function.6
+    [COLON ":"] => _Function.8
+
+<_Function>: "func" ( ( NAME : name "(" with { anonymity = "Named" } ) | ( "(" with { anonymity = "Anonymous" } ) ) [ _FunctionArgument : arguments@ { "," _FunctionArgument : arguments } ] ")" ":" _Type : returnType ( _Block : statement | _CoProvider : statement | ";" ) as FunctionDeclaration
+<_Function>: "func" ( ( NAME : name "(" with { anonymity = "Named" } ) | ( "(" with { anonymity = "Anonymous" } ) ) [ _FunctionArgument : arguments @{ "," _FunctionArgument : arguments } ] ")" ":" _Type : returnType ( _Block : statement | _CoProvider : statement | ";" ) as FunctionDeclaration
+STATE _Function.5
+    [CLOSE_BRACKET ")"] => _Function.6
+    [COMMA ","] => _Function.7
+
+<_Function>: "func" ( ( NAME : name "(" with { anonymity = "Named" } ) | ( "(" with { anonymity = "Anonymous" } ) ) [ _FunctionArgument : arguments { "," _FunctionArgument : arguments } ] ")" ":"@ _Type : returnType ( _Block : statement | _CoProvider : statement | ";" ) as FunctionDeclaration
+STATE _Function.8
+    <_Type> => _Function.10
+        ASSIGN returnType
+
+<_Function>: "func" ( ( NAME : name "(" with { anonymity = "Named" } ) | ( "(" with { anonymity = "Anonymous" } ) ) [ _FunctionArgument : arguments { ","@ _FunctionArgument : arguments } ] ")" ":" _Type : returnType ( _Block : statement | _CoProvider : statement | ";" ) as FunctionDeclaration
+STATE _Function.7
+    <_FunctionArgument> => _Function.5
+        ASSIGN arguments
+
+<_Function>: "func" ( ( NAME : name "(" with { anonymity = "Named" } ) | ( "(" with { anonymity = "Anonymous" } ) ) [ _FunctionArgument : arguments { "," _FunctionArgument : arguments } ] ")" ":" _Type : returnType@ ( _Block : statement | _CoProvider : statement | ";" ) as FunctionDeclaration
+STATE _Function.10
+    [SEMICOLON ";"] => _Function.11
+    <_Block> => _Function.11
+        ASSIGN statement
+    <_CoProvider> => _Function.11
+        ASSIGN statement
+
+<_Function>: "func" ( ( NAME : name "(" with { anonymity = "Named" } ) | ( "(" with { anonymity = "Anonymous" } ) ) [ _FunctionArgument : arguments { "," _FunctionArgument : arguments } ] ")" ":" _Type : returnType ( _Block : statement | _CoProvider : statement | ";" ) as FunctionDeclaration@
+STATE _Function.11
+    EPSILON => _Function.12
+        CREATE FunctionDeclaration
+
+<_Function>: "func" ( ( NAME : name "(" with { anonymity = "Named" } ) | ( "(" with { anonymity = "Anonymous" } ) ) [ _FunctionArgument : arguments { "," _FunctionArgument : arguments } ] ")" ":" _Type : returnType ( _Block : statement | _CoProvider : statement | ";" ) as FunctionDeclaration@
+END STATE _Function.12
+    TOKEN-FINISH => _Function.RootEnd
+
+$<_Function> @
+STATE _Function.RootEnd
+
+--------------------------------
+@ $<_Variable>
+STATE _Variable.RootStart
+    TOKEN-BEGIN => _Variable.Start
+
+@ <_Variable>
+STATE _Variable.Start
+    [KEYWORD_VAR "var"] => _Variable.1
+
+<_Variable>: "var"@ NAME : name [ ":" _Type : type ] "=" _Expression : expression ";" as VariableDeclaration
+STATE _Variable.1
+    [NAME] => _Variable.2
+        ASSIGN name
+
+<_Variable>: "var" NAME : name@ [ ":" _Type : type ] "=" _Expression : expression ";" as VariableDeclaration
+STATE _Variable.2
+    [ASSIGN "="] => _Variable.4
+    [COLON ":"] => _Variable.3
+
+<_Variable>: "var" NAME : name [ ":" _Type : type ] "="@ _Expression : expression ";" as VariableDeclaration
+STATE _Variable.4
+    <_Expression> => _Variable.6
+        ASSIGN expression
+
+<_Variable>: "var" NAME : name [ ":"@ _Type : type ] "=" _Expression : expression ";" as VariableDeclaration
+STATE _Variable.3
+    <_Type> => _Variable.5
+        ASSIGN type
+
+<_Variable>: "var" NAME : name [ ":" _Type : type ] "=" _Expression : expression@ ";" as VariableDeclaration
+STATE _Variable.6
+    [SEMICOLON ";"] => _Variable.7
+
+<_Variable>: "var" NAME : name [ ":" _Type : type ]@ "=" _Expression : expression ";" as VariableDeclaration
+STATE _Variable.5
+    [ASSIGN "="] => _Variable.4
+
+<_Variable>: "var" NAME : name [ ":" _Type : type ] "=" _Expression : expression ";" as VariableDeclaration@
+STATE _Variable.7
+    EPSILON => _Variable.8
+        CREATE VariableDeclaration
+
+<_Variable>: "var" NAME : name [ ":" _Type : type ] "=" _Expression : expression ";" as VariableDeclaration@
+END STATE _Variable.8
+    TOKEN-FINISH => _Variable.RootEnd
+
+$<_Variable> @
+STATE _Variable.RootEnd
+
+--------------------------------
+@ $<_Event>
+STATE _Event.RootStart
+    TOKEN-BEGIN => _Event.Start
+
+@ <_Event>
+STATE _Event.Start
+    [KEYWORD_EVENT "event"] => _Event.1
+
+<_Event>: "event"@ NAME : name "(" [ _Type : arguments { "," _Type : arguments } ] ")" ";" as EventDeclaration
+STATE _Event.1
+    [NAME] => _Event.2
+        ASSIGN name
+
+<_Event>: "event" NAME : name@ "(" [ _Type : arguments { "," _Type : arguments } ] ")" ";" as EventDeclaration
+STATE _Event.2
+    [OPEN_BRACKET "("] => _Event.3
+
+<_Event>: "event" NAME : name "("@ [ _Type : arguments { "," _Type : arguments } ] ")" ";" as EventDeclaration
+STATE _Event.3
+    [CLOSE_BRACKET ")"] => _Event.5
+    <_Type> => _Event.4
+        ASSIGN arguments
+
+<_Event>: "event" NAME : name "(" [ _Type : arguments { "," _Type : arguments } ] ")"@ ";" as EventDeclaration
+STATE _Event.5
+    [SEMICOLON ";"] => _Event.7
+
+<_Event>: "event" NAME : name "(" [ _Type : arguments@ { "," _Type : arguments } ] ")" ";" as EventDeclaration
+<_Event>: "event" NAME : name "(" [ _Type : arguments @{ "," _Type : arguments } ] ")" ";" as EventDeclaration
+STATE _Event.4
+    [CLOSE_BRACKET ")"] => _Event.5
+    [COMMA ","] => _Event.6
+
+<_Event>: "event" NAME : name "(" [ _Type : arguments { "," _Type : arguments } ] ")" ";" as EventDeclaration@
+STATE _Event.7
+    EPSILON => _Event.9
+        CREATE EventDeclaration
+
+<_Event>: "event" NAME : name "(" [ _Type : arguments { ","@ _Type : arguments } ] ")" ";" as EventDeclaration
+STATE _Event.6
+    <_Type> => _Event.4
+        ASSIGN arguments
+
+<_Event>: "event" NAME : name "(" [ _Type : arguments { "," _Type : arguments } ] ")" ";" as EventDeclaration@
+END STATE _Event.9
+    TOKEN-FINISH => _Event.RootEnd
+
+$<_Event> @
+STATE _Event.RootEnd
+
+--------------------------------
+@ $<_Property>
+STATE _Property.RootStart
+    TOKEN-BEGIN => _Property.Start
+
+@ <_Property>
+STATE _Property.Start
+    [KEYWORD_PROP "prop"] => _Property.1
+
+<_Property>: "prop"@ NAME : name ":" _Type : type "{" NAME : getter [ "," NAME : setter ] [ ":" NAME : valueChangedEvent ] "}" as PropertyDeclaration
+STATE _Property.1
+    [NAME] => _Property.2
+        ASSIGN name
+
+<_Property>: "prop" NAME : name@ ":" _Type : type "{" NAME : getter [ "," NAME : setter ] [ ":" NAME : valueChangedEvent ] "}" as PropertyDeclaration
+STATE _Property.2
+    [COLON ":"] => _Property.3
+
+<_Property>: "prop" NAME : name ":"@ _Type : type "{" NAME : getter [ "," NAME : setter ] [ ":" NAME : valueChangedEvent ] "}" as PropertyDeclaration
+STATE _Property.3
+    <_Type> => _Property.4
+        ASSIGN type
+
+<_Property>: "prop" NAME : name ":" _Type : type@ "{" NAME : getter [ "," NAME : setter ] [ ":" NAME : valueChangedEvent ] "}" as PropertyDeclaration
+STATE _Property.4
+    [OPEN_BRACE "{"] => _Property.5
+
+<_Property>: "prop" NAME : name ":" _Type : type "{"@ NAME : getter [ "," NAME : setter ] [ ":" NAME : valueChangedEvent ] "}" as PropertyDeclaration
+STATE _Property.5
+    [NAME] => _Property.6
+        ASSIGN getter
+
+<_Property>: "prop" NAME : name ":" _Type : type "{" NAME : getter@ [ "," NAME : setter ] [ ":" NAME : valueChangedEvent ] "}" as PropertyDeclaration
+STATE _Property.6
+    [CLOSE_BRACE "}"] => _Property.9
+    [COLON ":"] => _Property.8
+    [COMMA ","] => _Property.7
+
+<_Property>: "prop" NAME : name ":" _Type : type "{" NAME : getter [ "," NAME : setter ] [ ":" NAME : valueChangedEvent ] "}" as PropertyDeclaration@
+STATE _Property.9
+    EPSILON => _Property.12
+        CREATE PropertyDeclaration
+
+<_Property>: "prop" NAME : name ":" _Type : type "{" NAME : getter [ "," NAME : setter ] [ ":"@ NAME : valueChangedEvent ] "}" as PropertyDeclaration
+STATE _Property.8
+    [NAME] => _Property.11
+        ASSIGN valueChangedEvent
+
+<_Property>: "prop" NAME : name ":" _Type : type "{" NAME : getter [ ","@ NAME : setter ] [ ":" NAME : valueChangedEvent ] "}" as PropertyDeclaration
+STATE _Property.7
+    [NAME] => _Property.10
+        ASSIGN setter
+
+<_Property>: "prop" NAME : name ":" _Type : type "{" NAME : getter [ "," NAME : setter ] [ ":" NAME : valueChangedEvent ] "}" as PropertyDeclaration@
+END STATE _Property.12
+    TOKEN-FINISH => _Property.RootEnd
+
+<_Property>: "prop" NAME : name ":" _Type : type "{" NAME : getter [ "," NAME : setter ] [ ":" NAME : valueChangedEvent ]@ "}" as PropertyDeclaration
+STATE _Property.11
+    [CLOSE_BRACE "}"] => _Property.9
+
+<_Property>: "prop" NAME : name ":" _Type : type "{" NAME : getter [ "," NAME : setter ]@ [ ":" NAME : valueChangedEvent ] "}" as PropertyDeclaration
+STATE _Property.10
+    [CLOSE_BRACE "}"] => _Property.9
+    [COLON ":"] => _Property.8
+
+$<_Property> @
+STATE _Property.RootEnd
+
+--------------------------------
+@ $<_BaseConstructorCall>
+STATE _BaseConstructorCall.RootStart
+    TOKEN-BEGIN => _BaseConstructorCall.Start
+
+@ <_BaseConstructorCall>
+STATE _BaseConstructorCall.Start
+    <_Type> => _BaseConstructorCall.1
+        ASSIGN type
+
+<_BaseConstructorCall>: _Type : type@ "(" [ _Expression : arguments { "," _Expression : arguments } ] ")" as BaseConstructorCall
+STATE _BaseConstructorCall.1
+    [OPEN_BRACKET "("] => _BaseConstructorCall.2
+
+<_BaseConstructorCall>: _Type : type "("@ [ _Expression : arguments { "," _Expression : arguments } ] ")" as BaseConstructorCall
+STATE _BaseConstructorCall.2
+    [CLOSE_BRACKET ")"] => _BaseConstructorCall.4
+    <_Expression> => _BaseConstructorCall.3
+        ASSIGN arguments
+
+<_BaseConstructorCall>: _Type : type "(" [ _Expression : arguments { "," _Expression : arguments } ] ")" as BaseConstructorCall@
+STATE _BaseConstructorCall.4
+    EPSILON => _BaseConstructorCall.6
+        CREATE BaseConstructorCall
+
+<_BaseConstructorCall>: _Type : type "(" [ _Expression : arguments@ { "," _Expression : arguments } ] ")" as BaseConstructorCall
+<_BaseConstructorCall>: _Type : type "(" [ _Expression : arguments @{ "," _Expression : arguments } ] ")" as BaseConstructorCall
+STATE _BaseConstructorCall.3
+    [CLOSE_BRACKET ")"] => _BaseConstructorCall.4
+    [COMMA ","] => _BaseConstructorCall.5
+
+<_BaseConstructorCall>: _Type : type "(" [ _Expression : arguments { "," _Expression : arguments } ] ")" as BaseConstructorCall@
+END STATE _BaseConstructorCall.6
+    TOKEN-FINISH => _BaseConstructorCall.RootEnd
+
+<_BaseConstructorCall>: _Type : type "(" [ _Expression : arguments { ","@ _Expression : arguments } ] ")" as BaseConstructorCall
+STATE _BaseConstructorCall.5
+    <_Expression> => _BaseConstructorCall.3
+        ASSIGN arguments
+
+$<_BaseConstructorCall> @
+STATE _BaseConstructorCall.RootEnd
+
+--------------------------------
+@ $<_Constructor>
+STATE _Constructor.RootStart
+    TOKEN-BEGIN => _Constructor.Start
+
+@ <_Constructor>
+STATE _Constructor.Start
+    [KEYWORD_NEW "new"] => _Constructor.1
+        SET constructorType => SharedPtr
+    [KEYWORD_NEW "new"] => _Constructor.2
+
+<_Constructor>: ( ( "new" with { constructorType = "SharedPtr" } ) | ( "new" "*" with { constructorType = "RawPtr" } ) )@ "(" [ _FunctionArgument : arguments { "," _FunctionArgument : arguments } ] ")" [ ":" _BaseConstructorCall : baseConstructorCalls { "," _BaseConstructorCall : baseConstructorCalls } ] _Block : statement as ConstructorDeclaration
+<_Constructor>: ( ( "new" with { constructorType = "SharedPtr" } ) | ( "new" "*" with { constructorType = "RawPtr" } ) )@ "(" [ _FunctionArgument : arguments { "," _FunctionArgument : arguments } ] ")" [ ":" _BaseConstructorCall : baseConstructorCalls { "," _BaseConstructorCall : baseConstructorCalls } ] _Block : statement as ConstructorDeclaration
+STATE _Constructor.1
+    [OPEN_BRACKET "("] => _Constructor.3
+
+<_Constructor>: ( ( "new" with { constructorType = "SharedPtr" } ) | ( "new"@ "*" with { constructorType = "RawPtr" } ) ) "(" [ _FunctionArgument : arguments { "," _FunctionArgument : arguments } ] ")" [ ":" _BaseConstructorCall : baseConstructorCalls { "," _BaseConstructorCall : baseConstructorCalls } ] _Block : statement as ConstructorDeclaration
+STATE _Constructor.2
+    [MUL "*"] => _Constructor.1
+        SET constructorType => RawPtr
+
+<_Constructor>: ( ( "new" with { constructorType = "SharedPtr" } ) | ( "new" "*" with { constructorType = "RawPtr" } ) ) "("@ [ _FunctionArgument : arguments { "," _FunctionArgument : arguments } ] ")" [ ":" _BaseConstructorCall : baseConstructorCalls { "," _BaseConstructorCall : baseConstructorCalls } ] _Block : statement as ConstructorDeclaration
+STATE _Constructor.3
+    [CLOSE_BRACKET ")"] => _Constructor.6
+    <_FunctionArgument> => _Constructor.5
+        ASSIGN arguments
+
+<_Constructor>: ( ( "new" with { constructorType = "SharedPtr" } ) | ( "new" "*" with { constructorType = "RawPtr" } ) ) "(" [ _FunctionArgument : arguments { "," _FunctionArgument : arguments } ] ")"@ [ ":" _BaseConstructorCall : baseConstructorCalls { "," _BaseConstructorCall : baseConstructorCalls } ] _Block : statement as ConstructorDeclaration
+STATE _Constructor.6
+    [COLON ":"] => _Constructor.8
+    <_Block> => _Constructor.9
+        ASSIGN statement
+
+<_Constructor>: ( ( "new" with { constructorType = "SharedPtr" } ) | ( "new" "*" with { constructorType = "RawPtr" } ) ) "(" [ _FunctionArgument : arguments@ { "," _FunctionArgument : arguments } ] ")" [ ":" _BaseConstructorCall : baseConstructorCalls { "," _BaseConstructorCall : baseConstructorCalls } ] _Block : statement as ConstructorDeclaration
+<_Constructor>: ( ( "new" with { constructorType = "SharedPtr" } ) | ( "new" "*" with { constructorType = "RawPtr" } ) ) "(" [ _FunctionArgument : arguments @{ "," _FunctionArgument : arguments } ] ")" [ ":" _BaseConstructorCall : baseConstructorCalls { "," _BaseConstructorCall : baseConstructorCalls } ] _Block : statement as ConstructorDeclaration
+STATE _Constructor.5
+    [CLOSE_BRACKET ")"] => _Constructor.6
+    [COMMA ","] => _Constructor.7
+
+<_Constructor>: ( ( "new" with { constructorType = "SharedPtr" } ) | ( "new" "*" with { constructorType = "RawPtr" } ) ) "(" [ _FunctionArgument : arguments { "," _FunctionArgument : arguments } ] ")" [ ":"@ _BaseConstructorCall : baseConstructorCalls { "," _BaseConstructorCall : baseConstructorCalls } ] _Block : statement as ConstructorDeclaration
+<_Constructor>: ( ( "new" with { constructorType = "SharedPtr" } ) | ( "new" "*" with { constructorType = "RawPtr" } ) ) "(" [ _FunctionArgument : arguments { "," _FunctionArgument : arguments } ] ")" [ ":" _BaseConstructorCall : baseConstructorCalls { ","@ _BaseConstructorCall : baseConstructorCalls } ] _Block : statement as ConstructorDeclaration
+STATE _Constructor.8
+    <_BaseConstructorCall> => _Constructor.11
+        ASSIGN baseConstructorCalls
+
+<_Constructor>: ( ( "new" with { constructorType = "SharedPtr" } ) | ( "new" "*" with { constructorType = "RawPtr" } ) ) "(" [ _FunctionArgument : arguments { "," _FunctionArgument : arguments } ] ")" [ ":" _BaseConstructorCall : baseConstructorCalls { "," _BaseConstructorCall : baseConstructorCalls } ] _Block : statement as ConstructorDeclaration@
+STATE _Constructor.9
+    EPSILON => _Constructor.12
+        CREATE ConstructorDeclaration
+
+<_Constructor>: ( ( "new" with { constructorType = "SharedPtr" } ) | ( "new" "*" with { constructorType = "RawPtr" } ) ) "(" [ _FunctionArgument : arguments { ","@ _FunctionArgument : arguments } ] ")" [ ":" _BaseConstructorCall : baseConstructorCalls { "," _BaseConstructorCall : baseConstructorCalls } ] _Block : statement as ConstructorDeclaration
+STATE _Constructor.7
+    <_FunctionArgument> => _Constructor.5
+        ASSIGN arguments
+
+<_Constructor>: ( ( "new" with { constructorType = "SharedPtr" } ) | ( "new" "*" with { constructorType = "RawPtr" } ) ) "(" [ _FunctionArgument : arguments { "," _FunctionArgument : arguments } ] ")" [ ":" _BaseConstructorCall : baseConstructorCalls@ { "," _BaseConstructorCall : baseConstructorCalls } ] _Block : statement as ConstructorDeclaration
+<_Constructor>: ( ( "new" with { constructorType = "SharedPtr" } ) | ( "new" "*" with { constructorType = "RawPtr" } ) ) "(" [ _FunctionArgument : arguments { "," _FunctionArgument : arguments } ] ")" [ ":" _BaseConstructorCall : baseConstructorCalls @{ "," _BaseConstructorCall : baseConstructorCalls } ] _Block : statement as ConstructorDeclaration
+STATE _Constructor.11
+    [COMMA ","] => _Constructor.8
+    <_Block> => _Constructor.9
+        ASSIGN statement
+
+<_Constructor>: ( ( "new" with { constructorType = "SharedPtr" } ) | ( "new" "*" with { constructorType = "RawPtr" } ) ) "(" [ _FunctionArgument : arguments { "," _FunctionArgument : arguments } ] ")" [ ":" _BaseConstructorCall : baseConstructorCalls { "," _BaseConstructorCall : baseConstructorCalls } ] _Block : statement as ConstructorDeclaration@
+END STATE _Constructor.12
+    TOKEN-FINISH => _Constructor.RootEnd
+
+$<_Constructor> @
+STATE _Constructor.RootEnd
+
+--------------------------------
+@ $<_Destructor>
+STATE _Destructor.RootStart
+    TOKEN-BEGIN => _Destructor.Start
+
+@ <_Destructor>
+STATE _Destructor.Start
+    [KEYWORD_DELETE "delete"] => _Destructor.1
+
+<_Destructor>: "delete"@ _Block : statement as DestructorDeclaration
+STATE _Destructor.1
+    <_Block> => _Destructor.2
+        ASSIGN statement
+
+<_Destructor>: "delete" _Block : statement as DestructorDeclaration@
+STATE _Destructor.2
+    EPSILON => _Destructor.3
+        CREATE DestructorDeclaration
+
+<_Destructor>: "delete" _Block : statement as DestructorDeclaration@
+END STATE _Destructor.3
+    TOKEN-FINISH => _Destructor.RootEnd
+
+$<_Destructor> @
+STATE _Destructor.RootEnd
+
+--------------------------------
+@ $<_ClassBody>
+STATE _ClassBody.RootStart
+    TOKEN-BEGIN => _ClassBody.Start
+
+@ <_ClassBody>
+STATE _ClassBody.Start
+    [COLON ":"] => _ClassBody.1
+    [OPEN_BRACE "{"] => _ClassBody.2
+
+<_ClassBody>: [ ":"@ _Type : baseTypes { "," _Type : baseTypes } ] "{" { _MemberDeclaration : declarations } "}" as ClassDeclaration
+<_ClassBody>: [ ":" _Type : baseTypes { ","@ _Type : baseTypes } ] "{" { _MemberDeclaration : declarations } "}" as ClassDeclaration
+STATE _ClassBody.1
+    <_Type> => _ClassBody.3
+        ASSIGN baseTypes
+
+<_ClassBody>: [ ":" _Type : baseTypes { "," _Type : baseTypes } ] "{"@ { _MemberDeclaration : declarations } "}" as ClassDeclaration
+<_ClassBody>: [ ":" _Type : baseTypes { "," _Type : baseTypes } ] "{" @{ _MemberDeclaration : declarations } "}" as ClassDeclaration
+STATE _ClassBody.2
+    [CLOSE_BRACE "}"] => _ClassBody.4
+    <_MemberDeclaration> => _ClassBody.2
+        ASSIGN declarations
+
+<_ClassBody>: [ ":" _Type : baseTypes@ { "," _Type : baseTypes } ] "{" { _MemberDeclaration : declarations } "}" as ClassDeclaration
+<_ClassBody>: [ ":" _Type : baseTypes @{ "," _Type : baseTypes } ] "{" { _MemberDeclaration : declarations } "}" as ClassDeclaration
+STATE _ClassBody.3
+    [COMMA ","] => _ClassBody.1
+    [OPEN_BRACE "{"] => _ClassBody.2
+
+<_ClassBody>: [ ":" _Type : baseTypes { "," _Type : baseTypes } ] "{" { _MemberDeclaration : declarations } "}" as ClassDeclaration@
+STATE _ClassBody.4
+    EPSILON => _ClassBody.7
+        CREATE ClassDeclaration
+
+<_ClassBody>: [ ":" _Type : baseTypes { "," _Type : baseTypes } ] "{" { _MemberDeclaration : declarations } "}" as ClassDeclaration@
+END STATE _ClassBody.7
+    TOKEN-FINISH => _ClassBody.RootEnd
+
+$<_ClassBody> @
+STATE _ClassBody.RootEnd
+
+--------------------------------
+@ $<_Class>
+STATE _Class.RootStart
+    TOKEN-BEGIN => _Class.Start
+
+@ <_Class>
+STATE _Class.Start
+    [KEYWORD_CLASS "class"] => _Class.1
+        SET kind => Class
+        SET constructorType => Undefined
+    [TYPE_INTERFACE "interface"] => _Class.1
+        SET kind => Interface
+        SET constructorType => SharedPtr
+    [TYPE_INTERFACE "interface"] => _Class.3
+
+<_Class>: "class"@ NAME : name !_ClassBody with { kind = "Class" } with { constructorType = "Undefined" }
+<_Class>: "interface"@ NAME : name !_ClassBody with { kind = "Interface" } with { constructorType = "SharedPtr" }
+STATE _Class.1
+    [NAME] => _Class.4
+        ASSIGN name
+
+<_Class>: "interface"@ NAME : name "*" !_ClassBody with { kind = "Interface" } with { constructorType = "RawPtr" }
+STATE _Class.3
+    [NAME] => _Class.6
+        ASSIGN name
+
+<_Class>: "class" NAME : name@ !_ClassBody with { kind = "Class" } with { constructorType = "Undefined" }
+<_Class>: "interface" NAME : name@ !_ClassBody with { kind = "Interface" } with { constructorType = "SharedPtr" }
+<_Class>: "interface" NAME : name "*"@ !_ClassBody with { kind = "Interface" } with { constructorType = "RawPtr" }
+STATE _Class.4
+    <_ClassBody> => _Class.7
+        USING 
+
+<_Class>: "interface" NAME : name@ "*" !_ClassBody with { kind = "Interface" } with { constructorType = "RawPtr" }
+STATE _Class.6
+    [MUL "*"] => _Class.4
+        SET constructorType => RawPtr
+        SET kind => Interface
+
+<_Class>: "class" NAME : name !_ClassBody@ with { kind = "Class" } with { constructorType = "Undefined" }
+<_Class>: "interface" NAME : name !_ClassBody@ with { kind = "Interface" } with { constructorType = "SharedPtr" }
+<_Class>: "interface" NAME : name "*" !_ClassBody@ with { kind = "Interface" } with { constructorType = "RawPtr" }
+STATE _Class.7
+    EPSILON => _Class.10
+
+<_Class>: "class" NAME : name !_ClassBody with { kind = "Class" } with { constructorType = "Undefined" }@
+<_Class>: "interface" NAME : name !_ClassBody with { kind = "Interface" } with { constructorType = "SharedPtr" }@
+<_Class>: "interface" NAME : name "*" !_ClassBody with { kind = "Interface" } with { constructorType = "RawPtr" }@
+END STATE _Class.10
+    TOKEN-FINISH => _Class.RootEnd
+
+$<_Class> @
+STATE _Class.RootEnd
+
+--------------------------------
+@ $<_EnumItemInt>
+STATE _EnumItemInt.RootStart
+    TOKEN-BEGIN => _EnumItemInt.Start
+
+@ <_EnumItemInt>
+STATE _EnumItemInt.Start
+    [NAME] => _EnumItemInt.1
+        ASSIGN name
+
+<_EnumItemInt>: NAME : name as EnumItemIntersection@
+STATE _EnumItemInt.1
+    EPSILON => _EnumItemInt.2
+        CREATE EnumItemIntersection
+
+<_EnumItemInt>: NAME : name as EnumItemIntersection@
+END STATE _EnumItemInt.2
+    TOKEN-FINISH => _EnumItemInt.RootEnd
+
+$<_EnumItemInt> @
+STATE _EnumItemInt.RootEnd
+
+--------------------------------
+@ $<_EnumItemA>
+STATE _EnumItemA.RootStart
+    TOKEN-BEGIN => _EnumItemA.Start
+
+@ <_EnumItemA>
+STATE _EnumItemA.Start
+    [NAME] => _EnumItemA.1
+        ASSIGN name
+    <_Attribute> => _EnumItemA.2
+        ASSIGN attributes
+
+<_EnumItemA>: { _Attribute : attributes } NAME : name@ "=" INTEGER : number "," as EnumItem with { kind = "Constant" }
+STATE _EnumItemA.1
+    [ASSIGN "="] => _EnumItemA.3
+
+<_EnumItemA>: @{ _Attribute : attributes } NAME : name "=" INTEGER : number "," as EnumItem with { kind = "Constant" }
+STATE _EnumItemA.2
+    [NAME] => _EnumItemA.1
+        ASSIGN name
+    <_Attribute> => _EnumItemA.2
+        ASSIGN attributes
+
+<_EnumItemA>: { _Attribute : attributes } NAME : name "="@ INTEGER : number "," as EnumItem with { kind = "Constant" }
+STATE _EnumItemA.3
+    [INTEGER] => _EnumItemA.4
+        ASSIGN number
+
+<_EnumItemA>: { _Attribute : attributes } NAME : name "=" INTEGER : number@ "," as EnumItem with { kind = "Constant" }
+STATE _EnumItemA.4
+    [COMMA ","] => _EnumItemA.5
+
+<_EnumItemA>: { _Attribute : attributes } NAME : name "=" INTEGER : number "," as EnumItem@ with { kind = "Constant" }
+STATE _EnumItemA.5
+    EPSILON => _EnumItemA.6
+        CREATE EnumItem
+        SET kind => Constant
+
+<_EnumItemA>: { _Attribute : attributes } NAME : name "=" INTEGER : number "," as EnumItem with { kind = "Constant" }@
+END STATE _EnumItemA.6
+    TOKEN-FINISH => _EnumItemA.RootEnd
+
+$<_EnumItemA> @
+STATE _EnumItemA.RootEnd
+
+--------------------------------
+@ $<_EnumItemB>
+STATE _EnumItemB.RootStart
+    TOKEN-BEGIN => _EnumItemB.Start
+
+@ <_EnumItemB>
+STATE _EnumItemB.Start
+    [NAME] => _EnumItemB.1
+        ASSIGN name
+    <_Attribute> => _EnumItemB.2
+        ASSIGN attributes
+
+<_EnumItemB>: { _Attribute : attributes } NAME : name@ "=" _EnumItemInt : intersections { "|" _EnumItemInt : intersections } "," as EnumItem with { kind = "Intersection" }
+STATE _EnumItemB.1
+    [ASSIGN "="] => _EnumItemB.3
+
+<_EnumItemB>: @{ _Attribute : attributes } NAME : name "=" _EnumItemInt : intersections { "|" _EnumItemInt : intersections } "," as EnumItem with { kind = "Intersection" }
+STATE _EnumItemB.2
+    [NAME] => _EnumItemB.1
+        ASSIGN name
+    <_Attribute> => _EnumItemB.2
+        ASSIGN attributes
+
+<_EnumItemB>: { _Attribute : attributes } NAME : name "="@ _EnumItemInt : intersections { "|" _EnumItemInt : intersections } "," as EnumItem with { kind = "Intersection" }
+<_EnumItemB>: { _Attribute : attributes } NAME : name "=" _EnumItemInt : intersections { "|"@ _EnumItemInt : intersections } "," as EnumItem with { kind = "Intersection" }
+STATE _EnumItemB.3
+    <_EnumItemInt> => _EnumItemB.4
+        ASSIGN intersections
+
+<_EnumItemB>: { _Attribute : attributes } NAME : name "=" _EnumItemInt : intersections@ { "|" _EnumItemInt : intersections } "," as EnumItem with { kind = "Intersection" }
+<_EnumItemB>: { _Attribute : attributes } NAME : name "=" _EnumItemInt : intersections @{ "|" _EnumItemInt : intersections } "," as EnumItem with { kind = "Intersection" }
+STATE _EnumItemB.4
+    [COMMA ","] => _EnumItemB.5
+    [INTERSECTION "|"] => _EnumItemB.3
+
+<_EnumItemB>: { _Attribute : attributes } NAME : name "=" _EnumItemInt : intersections { "|" _EnumItemInt : intersections } "," as EnumItem@ with { kind = "Intersection" }
+STATE _EnumItemB.5
+    EPSILON => _EnumItemB.7
+        CREATE EnumItem
+        SET kind => Intersection
+
+<_EnumItemB>: { _Attribute : attributes } NAME : name "=" _EnumItemInt : intersections { "|" _EnumItemInt : intersections } "," as EnumItem with { kind = "Intersection" }@
+END STATE _EnumItemB.7
+    TOKEN-FINISH => _EnumItemB.RootEnd
+
+$<_EnumItemB> @
+STATE _EnumItemB.RootEnd
+
+--------------------------------
+@ $<_Enum>
+STATE _Enum.RootStart
+    TOKEN-BEGIN => _Enum.Start
+
+@ <_Enum>
+STATE _Enum.Start
+    [KEYWORD_ENUM "enum"] => _Enum.1
+    [KEYWORD_FLAGENUM "flagenum"] => _Enum.2
+
+<_Enum>: "enum"@ NAME : name "{" _EnumItemA : items { _EnumItemA : items } "}" as EnumDeclaration with { kind = "Normal" }
+STATE _Enum.1
+    [NAME] => _Enum.3
+        ASSIGN name
+
+<_Enum>: "flagenum"@ NAME : name "{" _EnumItemA : items { _EnumItemA : items } { _EnumItemB : items } "}" as EnumDeclaration with { kind = "Flag" }
+STATE _Enum.2
+    [NAME] => _Enum.4
+        ASSIGN name
+
+<_Enum>: "enum" NAME : name@ "{" _EnumItemA : items { _EnumItemA : items } "}" as EnumDeclaration with { kind = "Normal" }
+STATE _Enum.3
+    [OPEN_BRACE "{"] => _Enum.5
+
+<_Enum>: "flagenum" NAME : name@ "{" _EnumItemA : items { _EnumItemA : items } { _EnumItemB : items } "}" as EnumDeclaration with { kind = "Flag" }
+STATE _Enum.4
+    [OPEN_BRACE "{"] => _Enum.6
+
+<_Enum>: "enum" NAME : name "{"@ _EnumItemA : items { _EnumItemA : items } "}" as EnumDeclaration with { kind = "Normal" }
+STATE _Enum.5
+    <_EnumItemA> => _Enum.7
+        ASSIGN items
+
+<_Enum>: "flagenum" NAME : name "{"@ _EnumItemA : items { _EnumItemA : items } { _EnumItemB : items } "}" as EnumDeclaration with { kind = "Flag" }
+STATE _Enum.6
+    <_EnumItemA> => _Enum.8
+        ASSIGN items
+
+<_Enum>: "enum" NAME : name "{" _EnumItemA : items@ { _EnumItemA : items } "}" as EnumDeclaration with { kind = "Normal" }
+<_Enum>: "enum" NAME : name "{" _EnumItemA : items @{ _EnumItemA : items } "}" as EnumDeclaration with { kind = "Normal" }
+STATE _Enum.7
+    [CLOSE_BRACE "}"] => _Enum.9
+        SET kind => Normal
+        CREATE EnumDeclaration
+    <_EnumItemA> => _Enum.7
+        ASSIGN items
+
+<_Enum>: "flagenum" NAME : name "{" _EnumItemA : items@ { _EnumItemA : items } { _EnumItemB : items } "}" as EnumDeclaration with { kind = "Flag" }
+<_Enum>: "flagenum" NAME : name "{" _EnumItemA : items @{ _EnumItemA : items } { _EnumItemB : items } "}" as EnumDeclaration with { kind = "Flag" }
+STATE _Enum.8
+    [CLOSE_BRACE "}"] => _Enum.9
+        SET kind => Flag
+        CREATE EnumDeclaration
+    <_EnumItemA> => _Enum.8
+        ASSIGN items
+    <_EnumItemB> => _Enum.12
+        ASSIGN items
+
+<_Enum>: "enum" NAME : name "{" _EnumItemA : items { _EnumItemA : items } "}" as EnumDeclaration@ with { kind = "Normal" }
+<_Enum>: "flagenum" NAME : name "{" _EnumItemA : items { _EnumItemA : items } { _EnumItemB : items } "}" as EnumDeclaration@ with { kind = "Flag" }
+STATE _Enum.9
+    EPSILON => _Enum.14
+
+<_Enum>: "flagenum" NAME : name "{" _EnumItemA : items { _EnumItemA : items } @{ _EnumItemB : items } "}" as EnumDeclaration with { kind = "Flag" }
+STATE _Enum.12
+    [CLOSE_BRACE "}"] => _Enum.9
+        SET kind => Flag
+        CREATE EnumDeclaration
+    <_EnumItemB> => _Enum.12
+        ASSIGN items
+
+<_Enum>: "enum" NAME : name "{" _EnumItemA : items { _EnumItemA : items } "}" as EnumDeclaration with { kind = "Normal" }@
+<_Enum>: "flagenum" NAME : name "{" _EnumItemA : items { _EnumItemA : items } { _EnumItemB : items } "}" as EnumDeclaration with { kind = "Flag" }@
+END STATE _Enum.14
+    TOKEN-FINISH => _Enum.RootEnd
+
+$<_Enum> @
+STATE _Enum.RootEnd
+
+--------------------------------
+@ $<_StructMember>
+STATE _StructMember.RootStart
+    TOKEN-BEGIN => _StructMember.Start
+
+@ <_StructMember>
+STATE _StructMember.Start
+    [NAME] => _StructMember.1
+        ASSIGN name
+    <_Attribute> => _StructMember.2
+        ASSIGN attributes
+
+<_StructMember>: { _Attribute : attributes } NAME : name@ ":" _Type : type ";" as StructMember
+STATE _StructMember.1
+    [COLON ":"] => _StructMember.3
+
+<_StructMember>: @{ _Attribute : attributes } NAME : name ":" _Type : type ";" as StructMember
+STATE _StructMember.2
+    [NAME] => _StructMember.1
+        ASSIGN name
+    <_Attribute> => _StructMember.2
+        ASSIGN attributes
+
+<_StructMember>: { _Attribute : attributes } NAME : name ":"@ _Type : type ";" as StructMember
+STATE _StructMember.3
+    <_Type> => _StructMember.4
+        ASSIGN type
+
+<_StructMember>: { _Attribute : attributes } NAME : name ":" _Type : type@ ";" as StructMember
+STATE _StructMember.4
+    [SEMICOLON ";"] => _StructMember.5
+
+<_StructMember>: { _Attribute : attributes } NAME : name ":" _Type : type ";" as StructMember@
+STATE _StructMember.5
+    EPSILON => _StructMember.6
+        CREATE StructMember
+
+<_StructMember>: { _Attribute : attributes } NAME : name ":" _Type : type ";" as StructMember@
+END STATE _StructMember.6
+    TOKEN-FINISH => _StructMember.RootEnd
+
+$<_StructMember> @
+STATE _StructMember.RootEnd
+
+--------------------------------
+@ $<_Struct>
+STATE _Struct.RootStart
+    TOKEN-BEGIN => _Struct.Start
+
+@ <_Struct>
+STATE _Struct.Start
+    [KEYWORD_STRUCT "struct"] => _Struct.1
+
+<_Struct>: "struct"@ NAME : name "{" { _StructMember : members } "}" as StructDeclaration
+STATE _Struct.1
+    [NAME] => _Struct.2
+        ASSIGN name
+
+<_Struct>: "struct" NAME : name@ "{" { _StructMember : members } "}" as StructDeclaration
+STATE _Struct.2
+    [OPEN_BRACE "{"] => _Struct.3
+
+<_Struct>: "struct" NAME : name "{"@ { _StructMember : members } "}" as StructDeclaration
+<_Struct>: "struct" NAME : name "{" @{ _StructMember : members } "}" as StructDeclaration
+STATE _Struct.3
+    [CLOSE_BRACE "}"] => _Struct.4
+    <_StructMember> => _Struct.3
+        ASSIGN members
+
+<_Struct>: "struct" NAME : name "{" { _StructMember : members } "}" as StructDeclaration@
+STATE _Struct.4
+    EPSILON => _Struct.6
+        CREATE StructDeclaration
+
+<_Struct>: "struct" NAME : name "{" { _StructMember : members } "}" as StructDeclaration@
+END STATE _Struct.6
+    TOKEN-FINISH => _Struct.RootEnd
+
+$<_Struct> @
+STATE _Struct.RootEnd
+
+--------------------------------
+@ $<_APConfig>
+STATE _APConfig.RootStart
+    TOKEN-BEGIN => _APConfig.Start
+
+@ <_APConfig>
+STATE _APConfig.Start
+    [OPEN_BRACE "{"] => _APConfig.1
+        CREATE AutoPropertyDeclaration
+        SET configConst => Writable
+        SET configObserve => Observable
+    [OPEN_BRACE "{"] => _APConfig.2
+
+<_APConfig>: "{"@ "}" as AutoPropertyDeclaration with { configConst = "Writable" } with { configObserve = "Observable" }
+<_APConfig>: "{" "const"@ "}" as AutoPropertyDeclaration with { configConst = "Readonly" } with { configObserve = "Observable" }
+<_APConfig>: "{" "not" "observe"@ "}" as AutoPropertyDeclaration with { configConst = "Writable" } with { configObserve = "NotObservable" }
+<_APConfig>: "{" "const" "," "not" "observe"@ "}" as AutoPropertyDeclaration with { configConst = "Readonly" } with { configObserve = "NotObservable" }
+STATE _APConfig.1
+    [CLOSE_BRACE "}"] => _APConfig.5
+
+<_APConfig>: "{"@ "const" "}" as AutoPropertyDeclaration with { configConst = "Readonly" } with { configObserve = "Observable" }
+<_APConfig>: "{"@ "not" "observe" "}" as AutoPropertyDeclaration with { configConst = "Writable" } with { configObserve = "NotObservable" }
+<_APConfig>: "{"@ "const" "," "not" "observe" "}" as AutoPropertyDeclaration with { configConst = "Readonly" } with { configObserve = "NotObservable" }
+STATE _APConfig.2
+    [KEYWORD_CONST "const"] => _APConfig.1
+        CREATE AutoPropertyDeclaration
+        SET configConst => Readonly
+        SET configObserve => Observable
+    [KEYWORD_NOT "not"] => _APConfig.7
+        SET configObserve => NotObservable
+        SET configConst => Writable
+        CREATE AutoPropertyDeclaration
+    [KEYWORD_CONST "const"] => _APConfig.8
+
+<_APConfig>: "{" "}" as AutoPropertyDeclaration@ with { configConst = "Writable" } with { configObserve = "Observable" }
+<_APConfig>: "{" "const" "}" as AutoPropertyDeclaration@ with { configConst = "Readonly" } with { configObserve = "Observable" }
+<_APConfig>: "{" "not" "observe" "}" as AutoPropertyDeclaration@ with { configConst = "Writable" } with { configObserve = "NotObservable" }
+<_APConfig>: "{" "const" "," "not" "observe" "}" as AutoPropertyDeclaration@ with { configConst = "Readonly" } with { configObserve = "NotObservable" }
+STATE _APConfig.5
+    EPSILON => _APConfig.9
+
+<_APConfig>: "{" "not"@ "observe" "}" as AutoPropertyDeclaration with { configConst = "Writable" } with { configObserve = "NotObservable" }
+<_APConfig>: "{" "const" "," "not"@ "observe" "}" as AutoPropertyDeclaration with { configConst = "Readonly" } with { configObserve = "NotObservable" }
+STATE _APConfig.7
+    [KEYWORD_OBSERVE "observe"] => _APConfig.1
+
+<_APConfig>: "{" "const"@ "," "not" "observe" "}" as AutoPropertyDeclaration with { configConst = "Readonly" } with { configObserve = "NotObservable" }
+STATE _APConfig.8
+    [COMMA ","] => _APConfig.12
+
+<_APConfig>: "{" "}" as AutoPropertyDeclaration with { configConst = "Writable" } with { configObserve = "Observable" }@
+<_APConfig>: "{" "const" "}" as AutoPropertyDeclaration with { configConst = "Readonly" } with { configObserve = "Observable" }@
+<_APConfig>: "{" "not" "observe" "}" as AutoPropertyDeclaration with { configConst = "Writable" } with { configObserve = "NotObservable" }@
+<_APConfig>: "{" "const" "," "not" "observe" "}" as AutoPropertyDeclaration with { configConst = "Readonly" } with { configObserve = "NotObservable" }@
+END STATE _APConfig.9
+    TOKEN-FINISH => _APConfig.RootEnd
+
+<_APConfig>: "{" "const" ","@ "not" "observe" "}" as AutoPropertyDeclaration with { configConst = "Readonly" } with { configObserve = "NotObservable" }
+STATE _APConfig.12
+    [KEYWORD_NOT "not"] => _APConfig.7
+        SET configObserve => NotObservable
+        SET configConst => Readonly
+        CREATE AutoPropertyDeclaration
+
+$<_APConfig> @
+STATE _APConfig.RootEnd
+
+--------------------------------
+@ $<_AutoProperty>
+STATE _AutoProperty.RootStart
+    TOKEN-BEGIN => _AutoProperty.Start
+
+@ <_AutoProperty>
+STATE _AutoProperty.Start
+    [KEYWORD_PROP "prop"] => _AutoProperty.1
+
+<_AutoProperty>: "prop"@ NAME : name ":" _Type : type [ "=" _Expression : expression ] !_APConfig
+STATE _AutoProperty.1
+    [NAME] => _AutoProperty.2
+        ASSIGN name
+
+<_AutoProperty>: "prop" NAME : name@ ":" _Type : type [ "=" _Expression : expression ] !_APConfig
+STATE _AutoProperty.2
+    [COLON ":"] => _AutoProperty.3
+
+<_AutoProperty>: "prop" NAME : name ":"@ _Type : type [ "=" _Expression : expression ] !_APConfig
+STATE _AutoProperty.3
+    <_Type> => _AutoProperty.4
+        ASSIGN type
+
+<_AutoProperty>: "prop" NAME : name ":" _Type : type@ [ "=" _Expression : expression ] !_APConfig
+STATE _AutoProperty.4
+    [ASSIGN "="] => _AutoProperty.5
+    <_APConfig> => _AutoProperty.6
+        USING 
+
+<_AutoProperty>: "prop" NAME : name ":" _Type : type [ "="@ _Expression : expression ] !_APConfig
+STATE _AutoProperty.5
+    <_Expression> => _AutoProperty.7
+        ASSIGN expression
+
+<_AutoProperty>: "prop" NAME : name ":" _Type : type [ "=" _Expression : expression ] !_APConfig@
+END STATE _AutoProperty.6
+    TOKEN-FINISH => _AutoProperty.RootEnd
+
+<_AutoProperty>: "prop" NAME : name ":" _Type : type [ "=" _Expression : expression ]@ !_APConfig
+STATE _AutoProperty.7
+    <_APConfig> => _AutoProperty.6
+        USING 
+
+$<_AutoProperty> @
+STATE _AutoProperty.RootEnd
+
+--------------------------------
+@ $<_CastResultInterface>
+STATE _CastResultInterface.RootStart
+    TOKEN-BEGIN => _CastResultInterface.Start
+
+@ <_CastResultInterface>
+STATE _CastResultInterface.Start
+    [COROUTINE_INTERFACE "$interface"] => _CastResultInterface.1
+
+<_CastResultInterface>: "$interface"@ NAME : name ":" _Type : baseType "<" _Type : elementType ">" ";" as CastResultInterfaceDeclaration
+STATE _CastResultInterface.1
+    [NAME] => _CastResultInterface.2
+        ASSIGN name
+
+<_CastResultInterface>: "$interface" NAME : name@ ":" _Type : baseType "<" _Type : elementType ">" ";" as CastResultInterfaceDeclaration
+STATE _CastResultInterface.2
+    [COLON ":"] => _CastResultInterface.3
+
+<_CastResultInterface>: "$interface" NAME : name ":"@ _Type : baseType "<" _Type : elementType ">" ";" as CastResultInterfaceDeclaration
+STATE _CastResultInterface.3
+    <_Type> => _CastResultInterface.4
+        ASSIGN baseType
+
+<_CastResultInterface>: "$interface" NAME : name ":" _Type : baseType@ "<" _Type : elementType ">" ";" as CastResultInterfaceDeclaration
+STATE _CastResultInterface.4
+    [LT "<"] => _CastResultInterface.5
+
+<_CastResultInterface>: "$interface" NAME : name ":" _Type : baseType "<"@ _Type : elementType ">" ";" as CastResultInterfaceDeclaration
+STATE _CastResultInterface.5
+    <_Type> => _CastResultInterface.6
+        ASSIGN elementType
+
+<_CastResultInterface>: "$interface" NAME : name ":" _Type : baseType "<" _Type : elementType@ ">" ";" as CastResultInterfaceDeclaration
+STATE _CastResultInterface.6
+    [GT ">"] => _CastResultInterface.7
+
+<_CastResultInterface>: "$interface" NAME : name ":" _Type : baseType "<" _Type : elementType ">"@ ";" as CastResultInterfaceDeclaration
+STATE _CastResultInterface.7
+    [SEMICOLON ";"] => _CastResultInterface.8
+
+<_CastResultInterface>: "$interface" NAME : name ":" _Type : baseType "<" _Type : elementType ">" ";" as CastResultInterfaceDeclaration@
+STATE _CastResultInterface.8
+    EPSILON => _CastResultInterface.9
+        CREATE CastResultInterfaceDeclaration
+
+<_CastResultInterface>: "$interface" NAME : name ":" _Type : baseType "<" _Type : elementType ">" ";" as CastResultInterfaceDeclaration@
+END STATE _CastResultInterface.9
+    TOKEN-FINISH => _CastResultInterface.RootEnd
+
+$<_CastResultInterface> @
+STATE _CastResultInterface.RootEnd
+
+--------------------------------
+@ $<_SharedDeclarationBranch>
+STATE _SharedDeclarationBranch.RootStart
+    TOKEN-BEGIN => _SharedDeclarationBranch.Start
+
+@ <_SharedDeclarationBranch>
+STATE _SharedDeclarationBranch.Start
+    <_Namespace> => _SharedDeclarationBranch.1
+        USING 
+    <_Variable> => _SharedDeclarationBranch.1
+        USING 
+    <_Event> => _SharedDeclarationBranch.1
+        USING 
+    <_Property> => _SharedDeclarationBranch.1
+        USING 
+    <_Constructor> => _SharedDeclarationBranch.1
+        USING 
+    <_Destructor> => _SharedDeclarationBranch.1
+        USING 
+    <_Class> => _SharedDeclarationBranch.1
+        USING 
+    <_Enum> => _SharedDeclarationBranch.1
+        USING 
+    <_Struct> => _SharedDeclarationBranch.1
+        USING 
+    <_CastResultInterface> => _SharedDeclarationBranch.1
+        USING 
+
+<_SharedDeclarationBranch>: !_Namespace@
+<_SharedDeclarationBranch>: !_Variable@
+<_SharedDeclarationBranch>: !_Event@
+<_SharedDeclarationBranch>: !_Property@
+<_SharedDeclarationBranch>: !_Constructor@
+<_SharedDeclarationBranch>: !_Destructor@
+<_SharedDeclarationBranch>: !_Class@
+<_SharedDeclarationBranch>: !_Enum@
+<_SharedDeclarationBranch>: !_Struct@
+<_SharedDeclarationBranch>: !_CastResultInterface@
+END STATE _SharedDeclarationBranch.1
+    TOKEN-FINISH => _SharedDeclarationBranch.RootEnd
+
+$<_SharedDeclarationBranch> @
+STATE _SharedDeclarationBranch.RootEnd
+
+--------------------------------
+@ $<_MemberDeclarationBranch>
+STATE _MemberDeclarationBranch.RootStart
+    TOKEN-BEGIN => _MemberDeclarationBranch.Start
+
+@ <_MemberDeclarationBranch>
+STATE _MemberDeclarationBranch.Start
+    <_Function> => _MemberDeclarationBranch.1
+        USING 
+    <_AutoProperty> => _MemberDeclarationBranch.1
+        USING 
+
+<_MemberDeclarationBranch>: !_Function@
+<_MemberDeclarationBranch>: !_AutoProperty@
+END STATE _MemberDeclarationBranch.1
+    TOKEN-FINISH => _MemberDeclarationBranch.RootEnd
+
+$<_MemberDeclarationBranch> @
+STATE _MemberDeclarationBranch.RootEnd
+
+--------------------------------
+@ $<_Declaration>
+STATE _Declaration.RootStart
+    TOKEN-BEGIN => _Declaration.Start
+
+@ <_Declaration>
+STATE _Declaration.Start
+    <_SharedDeclarationBranch> => _Declaration.1
+        USING 
+    <_Attribute> => _Declaration.2
+        ASSIGN attributes
+    <_MemberDeclarationBranch> => _Declaration.1
+        USING 
+    <_Attribute> => _Declaration.4
+        ASSIGN attributes
+
+<_Declaration>: { _Attribute : attributes } !_SharedDeclarationBranch@
+<_Declaration>: { _Attribute : attributes } !_MemberDeclarationBranch@
+END STATE _Declaration.1
+    TOKEN-FINISH => _Declaration.RootEnd
+
+<_Declaration>: @{ _Attribute : attributes } !_SharedDeclarationBranch
+STATE _Declaration.2
+    <_Attribute> => _Declaration.2
+        ASSIGN attributes
+    <_SharedDeclarationBranch> => _Declaration.1
+        USING 
+
+<_Declaration>: @{ _Attribute : attributes } !_MemberDeclarationBranch
+STATE _Declaration.4
+    <_Attribute> => _Declaration.4
+        ASSIGN attributes
+    <_MemberDeclarationBranch> => _Declaration.1
+        USING 
+
+$<_Declaration> @
+STATE _Declaration.RootEnd
+
+--------------------------------
+@ $<_ClassMember>
+STATE _ClassMember.RootStart
+    TOKEN-BEGIN => _ClassMember.Start
+
+@ <_ClassMember>
+STATE _ClassMember.Start
+    [KEYWORD_STATIC "static"] => _ClassMember.1
+        SET kind => Static
+        CREATE ClassMember
+    [KEYWORD_OVERRIDE "override"] => _ClassMember.1
+        SET kind => Override
+        CREATE ClassMember
+
+<_ClassMember>: "static" as ClassMember@ with { kind = "Static" }
+<_ClassMember>: "override" as ClassMember@ with { kind = "Override" }
+STATE _ClassMember.1
+    EPSILON => _ClassMember.3
+
+<_ClassMember>: "static" as ClassMember with { kind = "Static" }@
+<_ClassMember>: "override" as ClassMember with { kind = "Override" }@
+END STATE _ClassMember.3
+    TOKEN-FINISH => _ClassMember.RootEnd
+
+$<_ClassMember> @
+STATE _ClassMember.RootEnd
+
+--------------------------------
+@ $<_MemberDeclaration>
+STATE _MemberDeclaration.RootStart
+    TOKEN-BEGIN => _MemberDeclaration.Start
+
+@ <_MemberDeclaration>
+STATE _MemberDeclaration.Start
+    <_SharedDeclarationBranch> => _MemberDeclaration.1
+        USING 
+    <_Attribute> => _MemberDeclaration.2
+        ASSIGN attributes
+    <_ClassMember> => _MemberDeclaration.3
+        ASSIGN classMember
+    <_MemberDeclarationBranch> => _MemberDeclaration.1
+        USING 
+    <_Attribute> => _MemberDeclaration.5
+        ASSIGN attributes
+
+<_MemberDeclaration>: { _Attribute : attributes } !_SharedDeclarationBranch@
+<_MemberDeclaration>: { _Attribute : attributes } [ _ClassMember : classMember ] !_MemberDeclarationBranch@
+END STATE _MemberDeclaration.1
+    TOKEN-FINISH => _MemberDeclaration.RootEnd
+
+<_MemberDeclaration>: @{ _Attribute : attributes } !_SharedDeclarationBranch
+STATE _MemberDeclaration.2
+    <_Attribute> => _MemberDeclaration.2
+        ASSIGN attributes
+    <_SharedDeclarationBranch> => _MemberDeclaration.1
+        USING 
+
+<_MemberDeclaration>: { _Attribute : attributes } [ _ClassMember : classMember ]@ !_MemberDeclarationBranch
+STATE _MemberDeclaration.3
+    <_MemberDeclarationBranch> => _MemberDeclaration.1
+        USING 
+
+<_MemberDeclaration>: @{ _Attribute : attributes } [ _ClassMember : classMember ] !_MemberDeclarationBranch
+STATE _MemberDeclaration.5
+    <_Attribute> => _MemberDeclaration.5
+        ASSIGN attributes
+    <_ClassMember> => _MemberDeclaration.3
+        ASSIGN classMember
+    <_MemberDeclarationBranch> => _MemberDeclaration.1
+        USING 
+
+$<_MemberDeclaration> @
+STATE _MemberDeclaration.RootEnd
+
+--------------------------------
+@ $<_UsingFragment>
+STATE _UsingFragment.RootStart
+    TOKEN-BEGIN => _UsingFragment.Start
+
+@ <_UsingFragment>
+STATE _UsingFragment.Start
+    [NAME] => _UsingFragment.1
+        ASSIGN name
+        CREATE ModuleUsingNameFragment
+    [MUL "*"] => _UsingFragment.1
+        CREATE ModuleUsingWildCardFragment
+
+<_UsingFragment>: NAME : name as ModuleUsingNameFragment@
+<_UsingFragment>: "*" as ModuleUsingWildCardFragment@
+STATE _UsingFragment.1
+    EPSILON => _UsingFragment.3
+
+<_UsingFragment>: NAME : name as ModuleUsingNameFragment@
+<_UsingFragment>: "*" as ModuleUsingWildCardFragment@
+END STATE _UsingFragment.3
+    TOKEN-FINISH => _UsingFragment.RootEnd
+
+$<_UsingFragment> @
+STATE _UsingFragment.RootEnd
+
+--------------------------------
+@ $<_UsingItem>
+STATE _UsingItem.RootStart
+    TOKEN-BEGIN => _UsingItem.Start
+
+@ <_UsingItem>
+STATE _UsingItem.Start
+    <_UsingFragment> => _UsingItem.1
+        ASSIGN fragments
+
+<_UsingItem>: _UsingFragment : fragments@ { _UsingFragment : fragments } as ModuleUsingItem
+<_UsingItem>: _UsingFragment : fragments @{ _UsingFragment : fragments } as ModuleUsingItem
+STATE _UsingItem.1
+    EPSILON => _UsingItem.2
+        CREATE ModuleUsingItem
+    <_UsingFragment> => _UsingItem.1
+        ASSIGN fragments
+
+<_UsingItem>: _UsingFragment : fragments { _UsingFragment : fragments } as ModuleUsingItem@
+END STATE _UsingItem.2
+    TOKEN-FINISH => _UsingItem.RootEnd
+
+$<_UsingItem> @
+STATE _UsingItem.RootEnd
+
+--------------------------------
+@ $<_UsingPath>
+STATE _UsingPath.RootStart
+    TOKEN-BEGIN => _UsingPath.Start
+
+@ <_UsingPath>
+STATE _UsingPath.Start
+    [KEYWORD_USING "using"] => _UsingPath.1
+
+<_UsingPath>: "using"@ _UsingItem : items { "::" _UsingItem : items } ";" as ModuleUsingPath
+<_UsingPath>: "using" _UsingItem : items { "::"@ _UsingItem : items } ";" as ModuleUsingPath
+STATE _UsingPath.1
+    <_UsingItem> => _UsingPath.2
+        ASSIGN items
+
+<_UsingPath>: "using" _UsingItem : items@ { "::" _UsingItem : items } ";" as ModuleUsingPath
+<_UsingPath>: "using" _UsingItem : items @{ "::" _UsingItem : items } ";" as ModuleUsingPath
+STATE _UsingPath.2
+    [SCOPE_DELIMITER "::"] => _UsingPath.1
+    [SEMICOLON ";"] => _UsingPath.3
+
+<_UsingPath>: "using" _UsingItem : items { "::" _UsingItem : items } ";" as ModuleUsingPath@
+STATE _UsingPath.3
+    EPSILON => _UsingPath.5
+        CREATE ModuleUsingPath
+
+<_UsingPath>: "using" _UsingItem : items { "::" _UsingItem : items } ";" as ModuleUsingPath@
+END STATE _UsingPath.5
+    TOKEN-FINISH => _UsingPath.RootEnd
+
+$<_UsingPath> @
+STATE _UsingPath.RootEnd
+
+--------------------------------
+@ $<_Module>
+STATE _Module.RootStart
+    TOKEN-BEGIN => _Module.Start
+
+@ <_Module>
+STATE _Module.Start
+    [KEYWORD_MODULE "module"] => _Module.1
+        SET moduleType => Module
+    [KEYWORD_UNIT "unit"] => _Module.1
+        SET moduleType => Unit
+
+<_Module>: ( ( "module" with { moduleType = "Module" } ) | ( "unit" with { moduleType = "Unit" } ) )@ NAME : name ";" { _UsingPath : paths } { _Declaration : declarations } as Module
+<_Module>: ( ( "module" with { moduleType = "Module" } ) | ( "unit" with { moduleType = "Unit" } ) )@ NAME : name ";" { _UsingPath : paths } { _Declaration : declarations } as Module
+STATE _Module.1
+    [NAME] => _Module.3
+        ASSIGN name
+
+<_Module>: ( ( "module" with { moduleType = "Module" } ) | ( "unit" with { moduleType = "Unit" } ) ) NAME : name@ ";" { _UsingPath : paths } { _Declaration : declarations } as Module
+STATE _Module.3
+    [SEMICOLON ";"] => _Module.4
+
+<_Module>: ( ( "module" with { moduleType = "Module" } ) | ( "unit" with { moduleType = "Unit" } ) ) NAME : name ";"@ { _UsingPath : paths } { _Declaration : declarations } as Module
+<_Module>: ( ( "module" with { moduleType = "Module" } ) | ( "unit" with { moduleType = "Unit" } ) ) NAME : name ";" @{ _UsingPath : paths } { _Declaration : declarations } as Module
+STATE _Module.4
+    EPSILON => _Module.5
+        CREATE Module
+    <_Declaration> => _Module.6
+        ASSIGN declarations
+    <_UsingPath> => _Module.4
+        ASSIGN paths
+
+<_Module>: ( ( "module" with { moduleType = "Module" } ) | ( "unit" with { moduleType = "Unit" } ) ) NAME : name ";" { _UsingPath : paths } { _Declaration : declarations } as Module@
+END STATE _Module.5
+    TOKEN-FINISH => _Module.RootEnd
+
+<_Module>: ( ( "module" with { moduleType = "Module" } ) | ( "unit" with { moduleType = "Unit" } ) ) NAME : name ";" { _UsingPath : paths } @{ _Declaration : declarations } as Module
+STATE _Module.6
+    EPSILON => _Module.5
+        CREATE Module
+    <_Declaration> => _Module.6
+        ASSIGN declarations
+
+$<_Module> @
+STATE _Module.RootEnd
+
+--------------------------------
