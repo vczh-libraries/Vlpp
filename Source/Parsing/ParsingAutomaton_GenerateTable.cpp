@@ -240,7 +240,10 @@ GenerateTable
 				List<ParsingSymbol*> types;
 				Dictionary<WString, vint> typeAtts;
 				Dictionary<Pair<WString, WString>, vint> treeFieldAtts;
-				Dictionary<ParsingSymbol*, Ptr<List<ParsingSymbol*>>> childTypes;
+
+				// stable class field order
+				List<ParsingSymbol*> orderedChildTypeKeys;
+				Dictionary<ParsingSymbol*, Ptr<List<ParsingSymbol*>>> childTypeValues;
 
 				// find all class types
 				CollectType(manager->GetGlobal(), types);
@@ -254,15 +257,16 @@ GenerateTable
 						CollectAttributeInfo(typeAtt, classDef->attributes);
 
 						Ptr<List<ParsingSymbol*>> children;
-						vint index = childTypes.Keys().IndexOf(parent);
+						vint index = childTypeValues.Keys().IndexOf(parent);
 						if (index == -1)
 						{
 							children = new List<ParsingSymbol*>;
-							childTypes.Add(parent, children);
+							orderedChildTypeKeys.Add(parent);
+							childTypeValues.Add(parent, children);
 						}
 						else
 						{
-							children = childTypes.Values().Get(index);
+							children = childTypeValues.Values().Get(index);
 						}
 
 						children->Add(type);
@@ -281,13 +285,12 @@ GenerateTable
 				}
 
 				// find all class fields
-				for (vint i = 0; i < childTypes.Count(); i++)
+				FOREACH(ParsingSymbol*, type, orderedChildTypeKeys)
 				{
-					ParsingSymbol* type = childTypes.Keys().Get(i);
-					List<ParsingSymbol*>& children = *childTypes.Values().Get(i).Obj();
-
+					List<ParsingSymbol*>& children = *childTypeValues[type].Obj();
 					ParsingDefinitionClassDefinition* classDef = manager->CacheGetClassDefinition(type);
 					List<vint> fieldAtts;
+
 					FOREACH_INDEXER(Ptr<ParsingDefinitionClassMemberDefinition>, field, index, classDef->members)
 					{
 						if (field->attributes.Count() > 0)
