@@ -58,25 +58,28 @@ IsMergableCandidate
 RearrangeState
 ***********************************************************************/
 
+#define COMPARE_SYMBOL(S1, S2)\
+			if (S1 && S2)\
+			{\
+				if (S1->GetType() < S2->GetType()) return -1;\
+				if (S1->GetType() > S2->GetType()) return 1;\
+				if (S1->GetName() < S2->GetName()) return -1;\
+				if (S1->GetName() > S2->GetName()) return 1;\
+			}\
+			else if (S1)\
+			{\
+				return 1;\
+			}\
+			else if (S2)\
+			{\
+				return -1;\
+			}\
+
 			vint CompareTransitionForRearranging(Transition* t1, Transition* t2)
 			{
 				if (t1->transitionType < t2->transitionType) return -1;
 				if (t1->transitionType > t2->transitionType) return 1;
-				if (t1->transitionSymbol && t2->transitionSymbol)
-				{
-					if (t1->transitionSymbol->GetType() < t2->transitionSymbol->GetType()) return -1;
-					if (t1->transitionSymbol->GetType() > t2->transitionSymbol->GetType()) return 1;
-					if (t1->transitionSymbol->GetName() < t2->transitionSymbol->GetName()) return -1;
-					if (t1->transitionSymbol->GetName() > t2->transitionSymbol->GetName()) return 1;
-				}
-				else if (t1->transitionSymbol)
-				{
-					return 1;
-				}
-				else if (t2->transitionSymbol)
-				{
-					return -1;
-				}
+				COMPARE_SYMBOL(t1->transitionSymbol, t2->transitionSymbol);
 				return 0;
 			}
 
@@ -84,12 +87,12 @@ RearrangeState
 			{
 				if(a1->actionType<a2->actionType) return -1;
 				if(a1->actionType>a2->actionType) return 1;
-				if(a1->actionSource<a2->actionSource) return -1;
-				if(a1->actionSource>a2->actionSource) return 1;
-				if(a1->actionTarget<a2->actionTarget) return -1;
-				if(a1->actionTarget>a2->actionTarget) return 1;
+				COMPARE_SYMBOL(a1->actionSource, a2->actionSource);
+				COMPARE_SYMBOL(a1->actionTarget, a2->actionTarget);
 				return 0;
 			}
+
+#undef COMPARE_SYMBOL
 
 			void RearrangeState(State* state, SortedList<State*>& stateContentSorted)
 			{
