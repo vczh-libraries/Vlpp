@@ -1,0 +1,236 @@
+﻿=============================================================
+Grammar Definition
+=============================================================
+class AttributeDef
+{
+    token name @Semantic("Attribute");
+    token[] arguments;
+}
+
+class DefBase
+{
+    AttributeDef[] attributes;
+}
+
+class TypeObj
+{
+}
+
+class PrimitiveTypeObj : TypeObj
+{
+    token name @Semantic("Type");
+}
+
+class TokenTypeObj : TypeObj
+{
+}
+
+class SubTypeObj : TypeObj
+{
+    TypeObj parentType;
+    token name @Semantic("Type");
+}
+
+class ArrayTypeObj : TypeObj
+{
+    TypeObj elementType;
+}
+
+class TypeDef : DefBase
+{
+    token name @Color("Type");
+}
+
+class ClassMemberDef : DefBase
+{
+    TypeObj type;
+    token name;
+    token unescapingFunction;
+}
+
+class ClassTypeDef : TypeDef
+{
+    TypeObj ambiguousType;
+    TypeObj parentType;
+    ClassMemberDef[] members;
+    TypeDef[] subTypes;
+}
+
+class EnumMemberDef : DefBase
+{
+    token name;
+}
+
+class EnumTypeDef : TypeDef
+{
+    EnumMemberDef[] members;
+}
+
+class GrammarDef
+{
+}
+
+class PrimitiveGrammarDef : GrammarDef
+{
+    token name @Semantic("Token", "Rule");
+}
+
+class TextGrammarDef : GrammarDef
+{
+    token text @Semantic("Literal");
+}
+
+class SequenceGrammarDef : GrammarDef
+{
+    GrammarDef first;
+    GrammarDef second;
+}
+
+class AlternativeGrammarDef : GrammarDef
+{
+    GrammarDef first;
+    GrammarDef second;
+}
+
+class LoopGrammarDef : GrammarDef
+{
+    GrammarDef grammar;
+}
+
+class OptionalGrammarDef : GrammarDef
+{
+    GrammarDef grammar;
+}
+
+class CreateGrammarDef : GrammarDef
+{
+    GrammarDef grammar;
+    TypeObj type;
+}
+
+class AssignGrammarDef : GrammarDef
+{
+    GrammarDef grammar;
+    token memberName @Semantic("Field");
+}
+
+class UseGrammarDef : GrammarDef
+{
+    GrammarDef grammar;
+}
+
+class SetterGrammarDef : GrammarDef
+{
+    GrammarDef grammar;
+    token memberName @Semantic("Field");
+    token value @Semantic("EnumValue");
+}
+
+class TokenDef : DefBase
+{
+    enum DiscardOption
+    {
+        DiscardToken,
+        KeepToken,
+    }
+
+    token name @Color("Token");
+    token regex;
+    DiscardOption discard;
+}
+
+class RuleDef : DefBase
+{
+    token name @Color("Rule");
+    TypeObj type;
+    GrammarDef[] grammars;
+}
+
+class ParserDef
+{
+    DefBase[] definitions;
+}
+
+token CLASS = "class" @Color("Keyword"), @Candidate();
+token AMBIGUOUS = "ambiguous" @Color("Keyword"), @Candidate();
+token ENUM = "enum" @Color("Keyword"), @Candidate();
+token TOKEN = "token" @Color("Keyword"), @Candidate();
+token DISCARDTOKEN = "discardtoken" @Color("Keyword"), @Candidate();
+token RULE = "rule" @Color("Keyword"), @Candidate();
+token AS = "as" @Color("Keyword"), @Candidate();
+token WITH = "with" @Color("Keyword"), @Candidate();
+token OPEN = "/{";
+token CLOSE = "/}";
+token SEMICOLON = ";";
+token COLON = ":";
+token COMMA = ",";
+token DOT = ".";
+token ASSIGN = "/=";
+token USING = "/!";
+token OR = "/|";
+token OPTOPEN = "/[";
+token OPTCLOSE = "/]";
+token PREOPEN = "/(";
+token PRECLOSE = "/)";
+token ATT = "@" @Color("Attribute");
+token NAME = "[a-zA-Z_]/w*" @Color("Default"), @ContextColor(), @AutoComplete();
+token STRING = """([^""]|"""")*""" @Color("String"), @AutoComplete();
+discardtoken SPACE = "/s+";
+discardtoken COMMENT = "////[^\r\n]*";
+
+rule AttributeDef Attribute
+        = "@" NAME : name "(" [ STRING : arguments { "," STRING : arguments } ] ")" as AttributeDef
+        ;
+rule TypeObj Type
+        = NAME : name as PrimitiveTypeObj
+        = "token" as TokenTypeObj
+        = Type : parentType "." NAME : name as SubTypeObj
+        = Type : elementType "[" "]" as ArrayTypeObj
+        ;
+rule EnumMemberDef EnumMember
+        = NAME : name [ Attribute : attributes { "," Attribute : attributes } ] "," as EnumMemberDef
+        ;
+rule EnumTypeDef Enum
+        = "enum" NAME : name [ Attribute : attributes { "," Attribute : attributes } ] "{" { EnumMember : members } "}" as EnumTypeDef
+        ;
+rule ClassMemberDef ClassMember
+        = Type : type NAME : name [ "(" NAME : unescapingFunction ")" ] [ Attribute : attributes { "," Attribute : attributes } ] ";" as ClassMemberDef
+        ;
+rule ClassTypeDef Class
+        = "class" NAME : name [ "ambiguous" "(" Type : ambiguousType ")" ] [ ":" Type : parentType ] [ Attribute : attributes { "," Attribute : attributes } ] "{" { ClassMember : members | TypeDecl : subTypes } "}" as ClassTypeDef
+        ;
+rule TypeDef TypeDecl
+        = !Enum | !Class
+        ;
+rule GrammarDef PrimitiveGrammar
+        = NAME : name as PrimitiveGrammarDef
+        = STRING : text as TextGrammarDef
+        = PrimitiveGrammar : grammar ":" NAME : memberName as AssignGrammarDef
+        = "!" PrimitiveGrammar : grammar as UseGrammarDef
+        = "[" Grammar : grammar "]" as OptionalGrammarDef
+        = "{" Grammar : grammar "}" as LoopGrammarDef
+        = "(" !Grammar ")"
+        ;
+rule GrammarDef SequenceGrammar
+        = !PrimitiveGrammar
+        = SequenceGrammar : first PrimitiveGrammar : second as SequenceGrammarDef
+        ;
+rule GrammarDef AlternativeGrammar
+        = !SequenceGrammar
+        = AlternativeGrammar : first "|" SequenceGrammar : second as AlternativeGrammarDef
+        ;
+rule GrammarDef Grammar
+        = !AlternativeGrammar
+        = Grammar : grammar "as" Type : type as CreateGrammarDef
+        = Grammar : grammar "with" "{" NAME : memberName "=" STRING : value "}" as SetterGrammarDef
+        ;
+rule TokenDef TokenDecl
+        = "token" NAME : name "=" STRING : regex [ Attribute : attributes { "," Attribute : attributes } ] ";" as TokenDef with { discard = "KeepToken" }
+        = "discardtoken" NAME : name "=" STRING : regex ";" as TokenDef with { discard = "DiscardToken" }
+        ;
+rule RuleDef RuleDecl
+        = "rule" Type : type NAME : name [ Attribute : attributes { "," Attribute : attributes } ] { "=" Grammar : grammars } ";" as RuleDef
+        ;
+rule ParserDef ParserDecl
+        = { TypeDecl : definitions | TokenDecl : definitions | RuleDecl : definitions } ( TypeDecl : definitions | TokenDecl : definitions | RuleDecl : definitions ) as ParserDef
+        ;

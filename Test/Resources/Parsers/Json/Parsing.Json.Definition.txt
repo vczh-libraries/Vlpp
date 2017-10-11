@@ -1,0 +1,83 @@
+﻿=============================================================
+Grammar Definition
+=============================================================
+class Node
+{
+}
+
+class Literal : Node
+{
+    enum Value
+    {
+        True,
+        False,
+        Null,
+    }
+
+    Value value;
+}
+
+class String : Node
+{
+    token content (JsonUnescapingString) @Color("String");
+}
+
+class Number : Node
+{
+    token content;
+}
+
+class Array : Node
+{
+    Node[] items;
+}
+
+class ObjectField : Node
+{
+    token name (JsonUnescapingString) @Color("AttName");
+    Node value;
+}
+
+class Object : Node
+{
+    ObjectField[] fields;
+}
+
+token TRUEVALUE = "true" @Color("Keyword");
+token FALSEVALUE = "false" @Color("Keyword");
+token NULLVALUE = "null" @Color("Keyword");
+token OBJOPEN = "\{" @Color("Boundary");
+token OBJCLOSE = "\}" @Color("Boundary");
+token ARROPEN = "\[" @Color("Boundary");
+token ARRCLOSE = "\]" @Color("Boundary");
+token COMMA = ",";
+token COLON = ":";
+token NUMBER = "[\-]?\d+(.\d+)?([eE][+\-]?\d+)?" @Color("Number");
+token STRING = """([^\\""]|\\[^u]|\\u\d{4})*""" @ContextColor();
+discardtoken SPACE = "\s+";
+
+rule Node JLiteral
+        = STRING : content as String
+        = NUMBER : content as Number
+        = "true" as Literal with { value = "True" }
+        = "false" as Literal with { value = "False" }
+        = "null" as Literal with { value = "Null" }
+        ;
+rule ObjectField JField
+        = STRING : name ":" JValue : value as ObjectField
+        ;
+rule Object JObject
+        = "{" [ JField : fields { "," JField : fields } ] "}" as Object
+        ;
+rule Array JArray
+        = "[" [ JValue : items { "," JValue : items } ] "]" as Array
+        ;
+rule Node JValue
+        = !JLiteral
+        = !JObject
+        = !JArray
+        ;
+rule Node JRoot
+        = !JObject
+        = !JArray
+        ;

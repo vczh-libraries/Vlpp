@@ -1,0 +1,70 @@
+﻿=============================================================
+Joint PDA
+=============================================================
+Root Rule Start: Name.RootStart
+Root Rule End: Name.RootEnd
+Rule Start: Name.Start
+Rule End: Name.2
+
+Root Rule Start: NameList.RootStart
+Root Rule End: NameList.RootEnd
+Rule Start: NameList.Start
+Rule End: NameList.2
+
+@ $<Name>
+STATE Name.RootStart
+    TOKEN-BEGIN => Name.Start
+
+@ <Name>
+STATE Name.Start
+    [NAME] => Name.1
+        ASSIGN name
+
+<Name>: NAME : name as NameItemExpression@
+STATE Name.1
+    EPSILON => Name.2
+        CREATE NameItemExpression
+
+<Name>: NAME : name as NameItemExpression@
+END STATE Name.2
+    TOKEN-FINISH => Name.RootEnd
+    NORMAL-REDUCE => NameList.1
+        REDUCE [NameList.Start => NameList.1] 
+        ASSIGN names
+    NORMAL-REDUCE => NameList.1
+        REDUCE [NameList.3 => NameList.1] 
+        ASSIGN names
+
+$<Name> @
+STATE Name.RootEnd
+
+<NameList>: Name : names@ { "," Name : names } as NameListExpression
+<NameList>: Name : names @{ "," Name : names } as NameListExpression
+STATE NameList.1
+    EPSILON => NameList.2
+        CREATE NameListExpression
+    [COMMA ","] => NameList.3
+
+<NameList>: Name : names { "," Name : names } as NameListExpression@
+END STATE NameList.2
+    TOKEN-FINISH => NameList.RootEnd
+
+<NameList>: Name : names { ","@ Name : names } as NameListExpression
+STATE NameList.3
+    EPSILON => Name.Start
+        SHIFT [NameList.3 => NameList.1] 
+
+$<NameList> @
+STATE NameList.RootEnd
+
+--------------------------------
+@ $<NameList>
+STATE NameList.RootStart
+    TOKEN-BEGIN => NameList.Start
+
+@ <NameList>
+STATE NameList.Start
+    EPSILON => Name.Start
+        SHIFT [NameList.Start => NameList.1] 
+
+--------------------------------

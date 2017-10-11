@@ -1,0 +1,413 @@
+﻿=============================================================
+Compacted Joint PDA
+=============================================================
+Root Rule Start: Number.RootStart
+Root Rule End: Number.RootEnd
+Rule Start: Number.Start
+Rule End: Number.2
+
+Root Rule Start: Call.RootStart
+Root Rule End: Call.RootEnd
+Rule Start: Call.Start
+Rule End: Call.6
+
+Root Rule Start: Factor.RootStart
+Root Rule End: Factor.RootEnd
+Rule Start: Factor.Start
+Rule End: Factor.1
+
+Root Rule Start: Term.RootStart
+Root Rule End: Term.RootEnd
+Rule Start: Term.Start
+Rule End: Term.1
+
+Root Rule Start: Exp.RootStart
+Root Rule End: Exp.RootEnd
+Rule Start: Exp.Start
+Rule End: Exp.1
+
+Root Rule Start: Exec.RootStart
+Root Rule End: Exec.RootEnd
+Rule Start: Exec.Start
+Rule End: Exec.2
+
+@ $<Number>
+STATE Number.RootStart
+    TOKEN-BEGIN => Number.Start
+
+@ <Number>
+STATE Number.Start
+    [NUMBER] => Number.1
+        ASSIGN value
+
+<Number>: NUMBER : value as NumberExpression@
+STATE Number.1
+    TOKEN-FINISH [SHIFT-REDUCE-COMPACTED] => Number.RootEnd
+        CREATE NumberExpression
+    NORMAL-REDUCE [SHIFT-REDUCE-COMPACTED] => Factor.1
+        CREATE NumberExpression
+        REDUCE [Factor.Start => Factor.1] 
+        USING 
+
+$<Number> @
+STATE Number.RootEnd
+
+<Factor>: !Number | !Call@
+<Factor>: "(" !Exp ")"@
+END STATE Factor.1
+    TOKEN-FINISH => Factor.RootEnd
+    NORMAL-REDUCE => Term.1
+        REDUCE [Term.Start => Term.1] 
+        USING 
+    NORMAL-REDUCE => Term.4
+        REDUCE [Term.3 => Term.4] 
+        ASSIGN secondOperand
+
+$<Factor> @
+STATE Factor.RootEnd
+
+<Term>: !Factor@
+<Term>: Term : firstOperand "*" Factor : secondOperand as BinaryExpression with { binaryOperator = "Mul" }@
+<Term>: Term : firstOperand "/" Factor : secondOperand as BinaryExpression with { binaryOperator = "Div" }@
+END STATE Term.1
+    NORMAL-REDUCE => Term.2
+        REDUCE [Term.Start => Term.2] 
+        ASSIGN firstOperand
+    TOKEN-FINISH => Term.RootEnd
+    NORMAL-REDUCE => Exp.1
+        REDUCE [Exp.Start => Exp.1] 
+        USING 
+    NORMAL-REDUCE => Exp.4
+        REDUCE [Exp.3 => Exp.4] 
+        ASSIGN secondOperand
+
+<Term>: Term : firstOperand "*" Factor : secondOperand as BinaryExpression@ with { binaryOperator = "Mul" }
+<Term>: Term : firstOperand "/" Factor : secondOperand as BinaryExpression@ with { binaryOperator = "Div" }
+STATE Term.4
+    NORMAL-REDUCE [SHIFT-REDUCE-COMPACTED] => Term.2
+        REDUCE [Term.Start => Term.2] 
+        ASSIGN firstOperand
+    TOKEN-FINISH [SHIFT-REDUCE-COMPACTED] => Term.RootEnd
+    NORMAL-REDUCE [SHIFT-REDUCE-COMPACTED] => Exp.1
+        REDUCE [Exp.Start => Exp.1] 
+        USING 
+    NORMAL-REDUCE [SHIFT-REDUCE-COMPACTED] => Exp.4
+        REDUCE [Exp.3 => Exp.4] 
+        ASSIGN secondOperand
+
+<Term>: Term : firstOperand@ "*" Factor : secondOperand as BinaryExpression with { binaryOperator = "Mul" }
+<Term>: Term : firstOperand@ "/" Factor : secondOperand as BinaryExpression with { binaryOperator = "Div" }
+STATE Term.2
+    [MUL "*"] => Term.3
+        CREATE BinaryExpression
+        SET binaryOperator => Mul
+    [DIV "/"] => Term.3
+        CREATE BinaryExpression
+        SET binaryOperator => Div
+
+$<Term> @
+STATE Term.RootEnd
+
+<Exp>: !Term@
+<Exp>: Exp : firstOperand "+" Term : secondOperand as BinaryExpression with { binaryOperator = "Add" }@
+<Exp>: Exp : firstOperand "-" Term : secondOperand as BinaryExpression with { binaryOperator = "Sub" }@
+END STATE Exp.1
+    NORMAL-REDUCE => Call.3
+        REDUCE [Call.2 => Call.3] 
+        ASSIGN arguments
+    NORMAL-REDUCE => Call.3
+        REDUCE [Call.5 => Call.3] 
+        ASSIGN arguments
+    NORMAL-REDUCE => Factor.3
+        REDUCE [Factor.2 => Factor.3] 
+        USING 
+    NORMAL-REDUCE => Exp.2
+        REDUCE [Exp.Start => Exp.2] 
+        ASSIGN firstOperand
+    TOKEN-FINISH => Exp.RootEnd
+    NORMAL-REDUCE => Exec.2
+        REDUCE [Exec.Start => Exec.2] 
+        USING 
+    NORMAL-REDUCE => Exec.2
+        REDUCE [Exec.1 => Exec.2] 
+        USING 
+
+<Exp>: Exp : firstOperand "+" Term : secondOperand as BinaryExpression@ with { binaryOperator = "Add" }
+<Exp>: Exp : firstOperand "-" Term : secondOperand as BinaryExpression@ with { binaryOperator = "Sub" }
+STATE Exp.4
+    NORMAL-REDUCE [SHIFT-REDUCE-COMPACTED] => Call.3
+        REDUCE [Call.2 => Call.3] 
+        ASSIGN arguments
+    NORMAL-REDUCE [SHIFT-REDUCE-COMPACTED] => Call.3
+        REDUCE [Call.5 => Call.3] 
+        ASSIGN arguments
+    NORMAL-REDUCE [SHIFT-REDUCE-COMPACTED] => Factor.3
+        REDUCE [Factor.2 => Factor.3] 
+        USING 
+    NORMAL-REDUCE [SHIFT-REDUCE-COMPACTED] => Exp.2
+        REDUCE [Exp.Start => Exp.2] 
+        ASSIGN firstOperand
+    TOKEN-FINISH [SHIFT-REDUCE-COMPACTED] => Exp.RootEnd
+    NORMAL-REDUCE [SHIFT-REDUCE-COMPACTED] => Exec.2
+        REDUCE [Exec.Start => Exec.2] 
+        USING 
+    NORMAL-REDUCE [SHIFT-REDUCE-COMPACTED] => Exec.2
+        REDUCE [Exec.1 => Exec.2] 
+        USING 
+
+<Term>: Term : firstOperand "*"@ Factor : secondOperand as BinaryExpression with { binaryOperator = "Mul" }
+<Term>: Term : firstOperand "/"@ Factor : secondOperand as BinaryExpression with { binaryOperator = "Div" }
+STATE Term.3
+    [NUMBER] [SHIFT-REDUCE-COMPACTED] => Number.1
+        SHIFT [Term.3 => Term.4] 
+        SHIFT [Factor.Start => Factor.1] 
+        ASSIGN value
+    [NAME] [SHIFT-REDUCE-COMPACTED] => Call.1
+        SHIFT [Term.3 => Term.4] 
+        SHIFT [Factor.Start => Factor.1] 
+        ASSIGN functionName
+    [LEFT "("] [SHIFT-REDUCE-COMPACTED] => Factor.2
+        SHIFT [Term.3 => Term.4] 
+
+<Call>: NAME : functionName "(" [ Exp : arguments@ { "," Exp : arguments } ] ")" as FunctionExpression
+<Call>: NAME : functionName "(" [ Exp : arguments @{ "," Exp : arguments } ] ")" as FunctionExpression
+STATE Call.3
+    [COMMA ","] => Call.5
+    [RIGHT ")"] => Call.4
+
+<Factor>: "(" !Exp@ ")"
+STATE Factor.3
+    [RIGHT ")"] => Factor.1
+
+<Exp>: Exp : firstOperand@ "+" Term : secondOperand as BinaryExpression with { binaryOperator = "Add" }
+<Exp>: Exp : firstOperand@ "-" Term : secondOperand as BinaryExpression with { binaryOperator = "Sub" }
+STATE Exp.2
+    [ADD "+"] => Exp.3
+        CREATE BinaryExpression
+        SET binaryOperator => Add
+    [SUB "-"] => Exp.3
+        CREATE BinaryExpression
+        SET binaryOperator => Sub
+
+$<Exp> @
+STATE Exp.RootEnd
+
+<Exec>: [ EXEC ] !Exp@
+END STATE Exec.2
+    TOKEN-FINISH => Exec.RootEnd
+
+<Call>: NAME : functionName@ "(" [ Exp : arguments { "," Exp : arguments } ] ")" as FunctionExpression
+STATE Call.1
+    [LEFT "("] => Call.2
+
+<Factor>: "("@ !Exp ")"
+STATE Factor.2
+    [NUMBER] [SHIFT-REDUCE-COMPACTED] => Number.1
+        SHIFT [Factor.2 => Factor.3] 
+        SHIFT [Exp.Start => Exp.1] 
+        SHIFT [Term.Start => Term.1] 
+        SHIFT [Factor.Start => Factor.1] 
+        ASSIGN value
+    [NAME] [SHIFT-REDUCE-COMPACTED] => Call.1
+        SHIFT [Factor.2 => Factor.3] 
+        SHIFT [Exp.Start => Exp.1] 
+        SHIFT [Term.Start => Term.1] 
+        SHIFT [Factor.Start => Factor.1] 
+        ASSIGN functionName
+    [LEFT "("] [SHIFT-REDUCE-COMPACTED] => Factor.2
+        SHIFT [Factor.2 => Factor.3] 
+        SHIFT [Exp.Start => Exp.1] 
+        SHIFT [Term.Start => Term.1] 
+    [LEFT "("] [SHIFT-REDUCE-COMPACTED] => Factor.2
+        SHIFT [Factor.2 => Factor.3] 
+        SHIFT [Exp.Start => Exp.1] 
+        SHIFT [Term.Start => Term.1] 
+    [LEFT "("] [SHIFT-REDUCE-COMPACTED] => Factor.2
+        SHIFT [Factor.2 => Factor.3] 
+        SHIFT [Exp.Start => Exp.1] 
+        SHIFT [Term.Start => Term.1] 
+
+<Call>: NAME : functionName "(" [ Exp : arguments { ","@ Exp : arguments } ] ")" as FunctionExpression
+STATE Call.5
+    [NUMBER] [SHIFT-REDUCE-COMPACTED] => Number.1
+        SHIFT [Call.5 => Call.3] 
+        SHIFT [Exp.Start => Exp.1] 
+        SHIFT [Term.Start => Term.1] 
+        SHIFT [Factor.Start => Factor.1] 
+        ASSIGN value
+    [NAME] [SHIFT-REDUCE-COMPACTED] => Call.1
+        SHIFT [Call.5 => Call.3] 
+        SHIFT [Exp.Start => Exp.1] 
+        SHIFT [Term.Start => Term.1] 
+        SHIFT [Factor.Start => Factor.1] 
+        ASSIGN functionName
+    [LEFT "("] [SHIFT-REDUCE-COMPACTED] => Factor.2
+        SHIFT [Call.5 => Call.3] 
+        SHIFT [Exp.Start => Exp.1] 
+        SHIFT [Term.Start => Term.1] 
+
+<Call>: NAME : functionName "(" [ Exp : arguments { "," Exp : arguments } ] ")" as FunctionExpression@
+STATE Call.4
+    TOKEN-FINISH [SHIFT-REDUCE-COMPACTED] => Call.RootEnd
+        CREATE FunctionExpression
+    NORMAL-REDUCE [SHIFT-REDUCE-COMPACTED] => Factor.1
+        CREATE FunctionExpression
+        REDUCE [Factor.Start => Factor.1] 
+        USING 
+
+<Exp>: Exp : firstOperand "+"@ Term : secondOperand as BinaryExpression with { binaryOperator = "Add" }
+<Exp>: Exp : firstOperand "-"@ Term : secondOperand as BinaryExpression with { binaryOperator = "Sub" }
+STATE Exp.3
+    [NUMBER] [SHIFT-REDUCE-COMPACTED] => Number.1
+        SHIFT [Exp.3 => Exp.4] 
+        SHIFT [Term.Start => Term.1] 
+        SHIFT [Factor.Start => Factor.1] 
+        ASSIGN value
+    [NAME] [SHIFT-REDUCE-COMPACTED] => Call.1
+        SHIFT [Exp.3 => Exp.4] 
+        SHIFT [Term.Start => Term.1] 
+        SHIFT [Factor.Start => Factor.1] 
+        ASSIGN functionName
+    [LEFT "("] [SHIFT-REDUCE-COMPACTED] => Factor.2
+        SHIFT [Exp.3 => Exp.4] 
+        SHIFT [Term.Start => Term.1] 
+
+$<Exec> @
+STATE Exec.RootEnd
+
+<Call>: NAME : functionName "("@ [ Exp : arguments { "," Exp : arguments } ] ")" as FunctionExpression
+STATE Call.2
+    [RIGHT ")"] => Call.4
+    [NUMBER] [SHIFT-REDUCE-COMPACTED] => Number.1
+        SHIFT [Call.2 => Call.3] 
+        SHIFT [Exp.Start => Exp.1] 
+        SHIFT [Term.Start => Term.1] 
+        SHIFT [Factor.Start => Factor.1] 
+        ASSIGN value
+    [NAME] [SHIFT-REDUCE-COMPACTED] => Call.1
+        SHIFT [Call.2 => Call.3] 
+        SHIFT [Exp.Start => Exp.1] 
+        SHIFT [Term.Start => Term.1] 
+        SHIFT [Factor.Start => Factor.1] 
+        ASSIGN functionName
+    [LEFT "("] [SHIFT-REDUCE-COMPACTED] => Factor.2
+        SHIFT [Call.2 => Call.3] 
+        SHIFT [Exp.Start => Exp.1] 
+        SHIFT [Term.Start => Term.1] 
+
+$<Call> @
+STATE Call.RootEnd
+
+--------------------------------
+@ $<Call>
+STATE Call.RootStart
+    TOKEN-BEGIN => Call.Start
+
+@ <Call>
+STATE Call.Start
+    [NAME] => Call.1
+        ASSIGN functionName
+
+--------------------------------
+@ $<Factor>
+STATE Factor.RootStart
+    TOKEN-BEGIN => Factor.Start
+
+@ <Factor>
+STATE Factor.Start
+    [LEFT "("] => Factor.2
+    [NUMBER] [SHIFT-REDUCE-COMPACTED] => Number.1
+        SHIFT [Factor.Start => Factor.1] 
+        ASSIGN value
+    [NAME] [SHIFT-REDUCE-COMPACTED] => Call.1
+        SHIFT [Factor.Start => Factor.1] 
+        ASSIGN functionName
+
+--------------------------------
+@ $<Term>
+STATE Term.RootStart
+    TOKEN-BEGIN => Term.Start
+
+@ <Term>
+STATE Term.Start
+    [NUMBER] [SHIFT-REDUCE-COMPACTED] => Number.1
+        SHIFT [Term.Start => Term.1] 
+        SHIFT [Factor.Start => Factor.1] 
+        ASSIGN value
+    [NAME] [SHIFT-REDUCE-COMPACTED] => Call.1
+        SHIFT [Term.Start => Term.1] 
+        SHIFT [Factor.Start => Factor.1] 
+        ASSIGN functionName
+    [LEFT "("] [SHIFT-REDUCE-COMPACTED] => Factor.2
+        SHIFT [Term.Start => Term.1] 
+    EPSILON [LEFT-RECURSIVE] => Term.Start
+        SHIFT [Term.Start => Term.2] 
+
+--------------------------------
+@ $<Exp>
+STATE Exp.RootStart
+    TOKEN-BEGIN => Exp.Start
+
+@ <Exp>
+STATE Exp.Start
+    [NUMBER] [SHIFT-REDUCE-COMPACTED] => Number.1
+        SHIFT [Exp.Start => Exp.1] 
+        SHIFT [Term.Start => Term.1] 
+        SHIFT [Factor.Start => Factor.1] 
+        ASSIGN value
+    [NAME] [SHIFT-REDUCE-COMPACTED] => Call.1
+        SHIFT [Exp.Start => Exp.1] 
+        SHIFT [Term.Start => Term.1] 
+        SHIFT [Factor.Start => Factor.1] 
+        ASSIGN functionName
+    [LEFT "("] [SHIFT-REDUCE-COMPACTED] => Factor.2
+        SHIFT [Exp.Start => Exp.1] 
+        SHIFT [Term.Start => Term.1] 
+    EPSILON [LEFT-RECURSIVE] => Exp.Start
+        SHIFT [Exp.Start => Exp.2] 
+
+--------------------------------
+@ $<Exec>
+STATE Exec.RootStart
+    TOKEN-BEGIN => Exec.Start
+
+@ <Exec>
+STATE Exec.Start
+    [EXEC "exec"] => Exec.1
+    [NUMBER] [SHIFT-REDUCE-COMPACTED] => Number.1
+        SHIFT [Exec.Start => Exec.2] 
+        SHIFT [Exp.Start => Exp.1] 
+        SHIFT [Term.Start => Term.1] 
+        SHIFT [Factor.Start => Factor.1] 
+        ASSIGN value
+    [NAME] [SHIFT-REDUCE-COMPACTED] => Call.1
+        SHIFT [Exec.Start => Exec.2] 
+        SHIFT [Exp.Start => Exp.1] 
+        SHIFT [Term.Start => Term.1] 
+        SHIFT [Factor.Start => Factor.1] 
+        ASSIGN functionName
+    [LEFT "("] [SHIFT-REDUCE-COMPACTED] => Factor.2
+        SHIFT [Exec.Start => Exec.2] 
+        SHIFT [Exp.Start => Exp.1] 
+        SHIFT [Term.Start => Term.1] 
+
+<Exec>: [ EXEC ]@ !Exp
+STATE Exec.1
+    [NUMBER] [SHIFT-REDUCE-COMPACTED] => Number.1
+        SHIFT [Exec.1 => Exec.2] 
+        SHIFT [Exp.Start => Exp.1] 
+        SHIFT [Term.Start => Term.1] 
+        SHIFT [Factor.Start => Factor.1] 
+        ASSIGN value
+    [NAME] [SHIFT-REDUCE-COMPACTED] => Call.1
+        SHIFT [Exec.1 => Exec.2] 
+        SHIFT [Exp.Start => Exp.1] 
+        SHIFT [Term.Start => Term.1] 
+        SHIFT [Factor.Start => Factor.1] 
+        ASSIGN functionName
+    [LEFT "("] [SHIFT-REDUCE-COMPACTED] => Factor.2
+        SHIFT [Exec.1 => Exec.2] 
+        SHIFT [Exp.Start => Exp.1] 
+        SHIFT [Term.Start => Term.1] 
+
+--------------------------------

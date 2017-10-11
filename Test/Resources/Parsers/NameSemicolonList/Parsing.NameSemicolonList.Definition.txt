@@ -1,0 +1,25 @@
+﻿=============================================================
+Grammar Definition
+=============================================================
+class NameMapExpression
+{
+    token key;
+    token[] names;
+}
+
+class NameTableExpression
+{
+    NameMapExpression[] maps;
+}
+
+token NAME = "[a-zA-Z_]/w*";
+token DEFINE = "/=";
+token SEMICOLON = ";";
+discardtoken SPACE = "/s+";
+
+rule NameMapExpression NameMap
+        = NAME : key "=" { NAME : names ";" } as NameMapExpression
+        ;
+rule NameTableExpression NameTable
+        = NameMap : maps { NameMap : maps } as NameTableExpression
+        ;

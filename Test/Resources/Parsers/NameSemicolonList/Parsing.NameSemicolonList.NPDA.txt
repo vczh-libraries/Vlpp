@@ -1,0 +1,71 @@
+﻿=============================================================
+Non-deterministic PDA
+=============================================================
+Root Rule Start: NameMap.RootStart
+Root Rule End: NameMap.RootEnd
+Rule Start: NameMap.Start
+Rule End: NameMap.3
+
+Root Rule Start: NameTable.RootStart
+Root Rule End: NameTable.RootEnd
+Rule Start: NameTable.Start
+Rule End: NameTable.2
+
+@ $<NameMap>
+STATE NameMap.RootStart
+    TOKEN-BEGIN => NameMap.Start
+
+@ <NameMap>
+STATE NameMap.Start
+    [NAME] => NameMap.1
+        ASSIGN key
+
+<NameMap>: NAME : key@ "=" { NAME : names ";" } as NameMapExpression
+STATE NameMap.1
+    [DEFINE "="] => NameMap.2
+
+<NameMap>: NAME : key "="@ { NAME : names ";" } as NameMapExpression
+<NameMap>: NAME : key "=" @{ NAME : names ";" } as NameMapExpression
+STATE NameMap.2
+    EPSILON => NameMap.3
+        CREATE NameMapExpression
+    [NAME] => NameMap.4
+        ASSIGN names
+
+<NameMap>: NAME : key "=" { NAME : names ";" } as NameMapExpression@
+END STATE NameMap.3
+    TOKEN-FINISH => NameMap.RootEnd
+
+<NameMap>: NAME : key "=" { NAME : names@ ";" } as NameMapExpression
+STATE NameMap.4
+    [SEMICOLON ";"] => NameMap.2
+
+$<NameMap> @
+STATE NameMap.RootEnd
+
+--------------------------------
+@ $<NameTable>
+STATE NameTable.RootStart
+    TOKEN-BEGIN => NameTable.Start
+
+@ <NameTable>
+STATE NameTable.Start
+    <NameMap> => NameTable.1
+        ASSIGN maps
+
+<NameTable>: NameMap : maps@ { NameMap : maps } as NameTableExpression
+<NameTable>: NameMap : maps @{ NameMap : maps } as NameTableExpression
+STATE NameTable.1
+    EPSILON => NameTable.2
+        CREATE NameTableExpression
+    <NameMap> => NameTable.1
+        ASSIGN maps
+
+<NameTable>: NameMap : maps { NameMap : maps } as NameTableExpression@
+END STATE NameTable.2
+    TOKEN-FINISH => NameTable.RootEnd
+
+$<NameTable> @
+STATE NameTable.RootEnd
+
+--------------------------------

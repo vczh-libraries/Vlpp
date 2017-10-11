@@ -1,0 +1,86 @@
+﻿=============================================================
+Grammar Definition
+=============================================================
+class Node
+{
+}
+
+class Text : Node
+{
+    token content;
+}
+
+class CData : Node
+{
+    token content (XmlUnescapeCData);
+}
+
+class Attribute : Node
+{
+    token name @Color("AttName");
+    token value (XmlUnescapeAttributeValue) @Color("AttValue");
+}
+
+class Comment : Node
+{
+    token content (XmlUnescapeComment);
+}
+
+class Element : Node
+{
+    token name @Color("TagName");
+    token closingName @Color("TagName");
+    Attribute[] attributes;
+    Node[] subNodes (XmlMergeTextFragment);
+}
+
+class Instruction : Node
+{
+    token name @Color("TagName");
+    Attribute[] attributes;
+}
+
+class Document : Node
+{
+    Node[] prologs;
+    Element rootElement;
+}
+
+token INSTRUCTION_OPEN = "/</?" @Color("Boundary");
+token INSTRUCTION_CLOSE = "/?/>" @Color("Boundary");
+token COMPLEX_ELEMENT_OPEN = "/<//" @Color("Boundary");
+token SINGLE_ELEMENT_CLOSE = "///>" @Color("Boundary");
+token ELEMENT_OPEN = "/<" @Color("Boundary");
+token ELEMENT_CLOSE = "/>" @Color("Boundary");
+token EQUAL = "/=";
+token NAME = "[a-zA-Z0-9:._/-]+" @ContextColor();
+token ATTVALUE = """[^<>""]*""|'[^<>']*'" @ContextColor();
+token COMMENT = "/</!--([^/->]|-[^/->]|--[^>])*--/>" @Color("Comment");
+token CDATA = "/</!/[CDATA/[([^/]]|/][^/]]|/]/][^>])*/]/]/>";
+token TEXT = "([^<>=""' /r/n/ta-zA-Z0-9:._/-])+|""|'";
+discardtoken SPACE = "/s+";
+
+rule Attribute XAttribute
+        = NAME : name "=" ATTVALUE : value as Attribute
+        ;
+rule Text XText
+        = NAME : content | EQUAL : content | ATTVALUE : content | TEXT : content as Text
+        ;
+rule CData XCData
+        = CDATA : content as CData
+        ;
+rule Comment XComment
+        = COMMENT : content as Comment
+        ;
+rule Element XElement
+        = "<" NAME : name { XAttribute : attributes } ( "/>" | ">" { XSubNode : subNodes } "</" NAME : closingName ">" ) as Element
+        ;
+rule Node XSubNode
+        = !XText | !XCData | !XComment | !XElement
+        ;
+rule Instruction XInstruction
+        = "<?" NAME : name { XAttribute : attributes } "?>" as Instruction
+        ;
+rule Document XDocument
+        = { XInstruction : prologs | XComment : prologs } XElement : rootElement as Document
+        ;

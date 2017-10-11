@@ -1,0 +1,434 @@
+﻿=============================================================
+Epsilon PDA
+=============================================================
+Root Rule Start: Value.RootStart
+Root Rule End: Value.RootEnd
+Rule Start: Value.Start
+Rule End: Value.2.End
+
+Root Rule Start: Condition.RootStart
+Root Rule End: Condition.RootEnd
+Rule Start: Condition.Start
+Rule End: Condition.2.End
+Rule End: Condition.8.End
+Rule End: Condition.14.End
+Rule End: Condition.20.End
+Rule End: Condition.26.End
+Rule End: Condition.32.End
+
+Root Rule Start: Assign.RootStart
+Root Rule End: Assign.RootEnd
+Rule Start: Assign.Start
+Rule End: Assign.2.End
+
+Root Rule Start: Return.RootStart
+Root Rule End: Return.RootEnd
+Rule Start: Return.Start
+Rule End: Return.2.End
+
+Root Rule Start: Block.RootStart
+Root Rule End: Block.RootEnd
+Rule Start: Block.Start
+Rule End: Block.2.End
+
+Root Rule Start: IfElse.RootStart
+Root Rule End: IfElse.RootEnd
+Rule Start: IfElse.Start
+Rule End: IfElse.2.End
+
+Root Rule Start: Stat.RootStart
+Root Rule End: Stat.RootEnd
+Rule Start: Stat.Start
+Rule End: Stat.2.End
+
+@ $<Value>
+STATE Value.RootStart
+    TOKEN-BEGIN => Value.Start
+
+@ <Value>
+STATE Value.Start
+    EPSILON => Value.1
+
+<Value>: @VALUE : content as ValueExpression
+STATE Value.1
+    [VALUE] => Value.3
+        ASSIGN content
+
+<Value>: VALUE : content as ValueExpression@
+STATE Value.3
+    EPSILON => Value.2.End
+        CREATE ValueExpression
+
+<Value>: VALUE : content as ValueExpression@
+END STATE Value.2.End
+    TOKEN-FINISH => Value.RootEnd
+
+$<Value> @
+STATE Value.RootEnd
+
+--------------------------------
+@ $<Condition>
+STATE Condition.RootStart
+    TOKEN-BEGIN => Condition.Start
+
+@ <Condition>
+STATE Condition.Start
+    EPSILON => Condition.1
+    EPSILON => Condition.7
+    EPSILON => Condition.13
+    EPSILON => Condition.19
+    EPSILON => Condition.25
+    EPSILON => Condition.31
+
+<Condition>: @Value : leftOperand "<" Value : rightOperand as ConditionExpression with { conditionOperator = "LT" }
+STATE Condition.1
+    <Value> => Condition.6
+        ASSIGN leftOperand
+
+<Condition>: @Value : leftOperand "<=" Value : rightOperand as ConditionExpression with { conditionOperator = "LE" }
+STATE Condition.7
+    <Value> => Condition.12
+        ASSIGN leftOperand
+
+<Condition>: @Value : leftOperand ">" Value : rightOperand as ConditionExpression with { conditionOperator = "GT" }
+STATE Condition.13
+    <Value> => Condition.18
+        ASSIGN leftOperand
+
+<Condition>: @Value : leftOperand ">=" Value : rightOperand as ConditionExpression with { conditionOperator = "GE" }
+STATE Condition.19
+    <Value> => Condition.24
+        ASSIGN leftOperand
+
+<Condition>: @Value : leftOperand "==" Value : rightOperand as ConditionExpression with { conditionOperator = "EQ" }
+STATE Condition.25
+    <Value> => Condition.30
+        ASSIGN leftOperand
+
+<Condition>: @Value : leftOperand "!=" Value : rightOperand as ConditionExpression with { conditionOperator = "NE" }
+STATE Condition.31
+    <Value> => Condition.36
+        ASSIGN leftOperand
+
+<Condition>: Value : leftOperand@ "<" Value : rightOperand as ConditionExpression with { conditionOperator = "LT" }
+STATE Condition.6
+    [LT "<"] => Condition.5
+
+<Condition>: Value : leftOperand@ "<=" Value : rightOperand as ConditionExpression with { conditionOperator = "LE" }
+STATE Condition.12
+    [LE "<="] => Condition.11
+
+<Condition>: Value : leftOperand@ ">" Value : rightOperand as ConditionExpression with { conditionOperator = "GT" }
+STATE Condition.18
+    [GT ">"] => Condition.17
+
+<Condition>: Value : leftOperand@ ">=" Value : rightOperand as ConditionExpression with { conditionOperator = "GE" }
+STATE Condition.24
+    [GE ">="] => Condition.23
+
+<Condition>: Value : leftOperand@ "==" Value : rightOperand as ConditionExpression with { conditionOperator = "EQ" }
+STATE Condition.30
+    [EQ "=="] => Condition.29
+
+<Condition>: Value : leftOperand@ "!=" Value : rightOperand as ConditionExpression with { conditionOperator = "NE" }
+STATE Condition.36
+    [NE "!="] => Condition.35
+
+<Condition>: Value : leftOperand "<"@ Value : rightOperand as ConditionExpression with { conditionOperator = "LT" }
+STATE Condition.5
+    <Value> => Condition.4
+        ASSIGN rightOperand
+
+<Condition>: Value : leftOperand "<="@ Value : rightOperand as ConditionExpression with { conditionOperator = "LE" }
+STATE Condition.11
+    <Value> => Condition.10
+        ASSIGN rightOperand
+
+<Condition>: Value : leftOperand ">"@ Value : rightOperand as ConditionExpression with { conditionOperator = "GT" }
+STATE Condition.17
+    <Value> => Condition.16
+        ASSIGN rightOperand
+
+<Condition>: Value : leftOperand ">="@ Value : rightOperand as ConditionExpression with { conditionOperator = "GE" }
+STATE Condition.23
+    <Value> => Condition.22
+        ASSIGN rightOperand
+
+<Condition>: Value : leftOperand "=="@ Value : rightOperand as ConditionExpression with { conditionOperator = "EQ" }
+STATE Condition.29
+    <Value> => Condition.28
+        ASSIGN rightOperand
+
+<Condition>: Value : leftOperand "!="@ Value : rightOperand as ConditionExpression with { conditionOperator = "NE" }
+STATE Condition.35
+    <Value> => Condition.34
+        ASSIGN rightOperand
+
+<Condition>: Value : leftOperand "<" Value : rightOperand as ConditionExpression@ with { conditionOperator = "LT" }
+STATE Condition.4
+    EPSILON => Condition.3
+        CREATE ConditionExpression
+
+<Condition>: Value : leftOperand "<=" Value : rightOperand as ConditionExpression@ with { conditionOperator = "LE" }
+STATE Condition.10
+    EPSILON => Condition.9
+        CREATE ConditionExpression
+
+<Condition>: Value : leftOperand ">" Value : rightOperand as ConditionExpression@ with { conditionOperator = "GT" }
+STATE Condition.16
+    EPSILON => Condition.15
+        CREATE ConditionExpression
+
+<Condition>: Value : leftOperand ">=" Value : rightOperand as ConditionExpression@ with { conditionOperator = "GE" }
+STATE Condition.22
+    EPSILON => Condition.21
+        CREATE ConditionExpression
+
+<Condition>: Value : leftOperand "==" Value : rightOperand as ConditionExpression@ with { conditionOperator = "EQ" }
+STATE Condition.28
+    EPSILON => Condition.27
+        CREATE ConditionExpression
+
+<Condition>: Value : leftOperand "!=" Value : rightOperand as ConditionExpression@ with { conditionOperator = "NE" }
+STATE Condition.34
+    EPSILON => Condition.33
+        CREATE ConditionExpression
+
+<Condition>: Value : leftOperand "<" Value : rightOperand as ConditionExpression@ with { conditionOperator = "LT" }
+STATE Condition.3
+    EPSILON => Condition.2.End
+        SET conditionOperator => LT
+
+<Condition>: Value : leftOperand "<=" Value : rightOperand as ConditionExpression@ with { conditionOperator = "LE" }
+STATE Condition.9
+    EPSILON => Condition.8.End
+        SET conditionOperator => LE
+
+<Condition>: Value : leftOperand ">" Value : rightOperand as ConditionExpression@ with { conditionOperator = "GT" }
+STATE Condition.15
+    EPSILON => Condition.14.End
+        SET conditionOperator => GT
+
+<Condition>: Value : leftOperand ">=" Value : rightOperand as ConditionExpression@ with { conditionOperator = "GE" }
+STATE Condition.21
+    EPSILON => Condition.20.End
+        SET conditionOperator => GE
+
+<Condition>: Value : leftOperand "==" Value : rightOperand as ConditionExpression@ with { conditionOperator = "EQ" }
+STATE Condition.27
+    EPSILON => Condition.26.End
+        SET conditionOperator => EQ
+
+<Condition>: Value : leftOperand "!=" Value : rightOperand as ConditionExpression@ with { conditionOperator = "NE" }
+STATE Condition.33
+    EPSILON => Condition.32.End
+        SET conditionOperator => NE
+
+<Condition>: Value : leftOperand "<" Value : rightOperand as ConditionExpression with { conditionOperator = "LT" }@
+END STATE Condition.2.End
+    TOKEN-FINISH => Condition.RootEnd
+
+<Condition>: Value : leftOperand "<=" Value : rightOperand as ConditionExpression with { conditionOperator = "LE" }@
+END STATE Condition.8.End
+    TOKEN-FINISH => Condition.RootEnd
+
+<Condition>: Value : leftOperand ">" Value : rightOperand as ConditionExpression with { conditionOperator = "GT" }@
+END STATE Condition.14.End
+    TOKEN-FINISH => Condition.RootEnd
+
+<Condition>: Value : leftOperand ">=" Value : rightOperand as ConditionExpression with { conditionOperator = "GE" }@
+END STATE Condition.20.End
+    TOKEN-FINISH => Condition.RootEnd
+
+<Condition>: Value : leftOperand "==" Value : rightOperand as ConditionExpression with { conditionOperator = "EQ" }@
+END STATE Condition.26.End
+    TOKEN-FINISH => Condition.RootEnd
+
+<Condition>: Value : leftOperand "!=" Value : rightOperand as ConditionExpression with { conditionOperator = "NE" }@
+END STATE Condition.32.End
+    TOKEN-FINISH => Condition.RootEnd
+
+$<Condition> @
+STATE Condition.RootEnd
+
+--------------------------------
+@ $<Assign>
+STATE Assign.RootStart
+    TOKEN-BEGIN => Assign.Start
+
+@ <Assign>
+STATE Assign.Start
+    EPSILON => Assign.1
+
+<Assign>: @Value : leftOperand "=" Value : rightOperand as AssignStatement
+STATE Assign.1
+    <Value> => Assign.5
+        ASSIGN leftOperand
+
+<Assign>: Value : leftOperand@ "=" Value : rightOperand as AssignStatement
+STATE Assign.5
+    [ASSIGN "="] => Assign.4
+
+<Assign>: Value : leftOperand "="@ Value : rightOperand as AssignStatement
+STATE Assign.4
+    <Value> => Assign.3
+        ASSIGN rightOperand
+
+<Assign>: Value : leftOperand "=" Value : rightOperand as AssignStatement@
+STATE Assign.3
+    EPSILON => Assign.2.End
+        CREATE AssignStatement
+
+<Assign>: Value : leftOperand "=" Value : rightOperand as AssignStatement@
+END STATE Assign.2.End
+    TOKEN-FINISH => Assign.RootEnd
+
+$<Assign> @
+STATE Assign.RootEnd
+
+--------------------------------
+@ $<Return>
+STATE Return.RootStart
+    TOKEN-BEGIN => Return.Start
+
+@ <Return>
+STATE Return.Start
+    EPSILON => Return.1
+
+<Return>: @"return" Value : result as ReturnStatement
+STATE Return.1
+    [RETURN "return"] => Return.4
+
+<Return>: "return"@ Value : result as ReturnStatement
+STATE Return.4
+    <Value> => Return.3
+        ASSIGN result
+
+<Return>: "return" Value : result as ReturnStatement@
+STATE Return.3
+    EPSILON => Return.2.End
+        CREATE ReturnStatement
+
+<Return>: "return" Value : result as ReturnStatement@
+END STATE Return.2.End
+    TOKEN-FINISH => Return.RootEnd
+
+$<Return> @
+STATE Return.RootEnd
+
+--------------------------------
+@ $<Block>
+STATE Block.RootStart
+    TOKEN-BEGIN => Block.Start
+
+@ <Block>
+STATE Block.Start
+    EPSILON => Block.1
+
+<Block>: @"{" { Stat : statements } "}" as BlockStatement
+STATE Block.1
+    [OPEN "{"] => Block.5
+
+<Block>: "{"@ { Stat : statements } "}" as BlockStatement
+STATE Block.5
+    EPSILON => Block.6
+
+<Block>: "{" @{ Stat : statements } "}" as BlockStatement
+STATE Block.6
+    EPSILON => Block.4
+    <Stat> => Block.6
+        ASSIGN statements
+
+<Block>: "{" { Stat : statements }@ "}" as BlockStatement
+STATE Block.4
+    [CLOSE "}"] => Block.3
+
+<Block>: "{" { Stat : statements } "}" as BlockStatement@
+STATE Block.3
+    EPSILON => Block.2.End
+        CREATE BlockStatement
+
+<Block>: "{" { Stat : statements } "}" as BlockStatement@
+END STATE Block.2.End
+    TOKEN-FINISH => Block.RootEnd
+
+$<Block> @
+STATE Block.RootEnd
+
+--------------------------------
+@ $<IfElse>
+STATE IfElse.RootStart
+    TOKEN-BEGIN => IfElse.Start
+
+@ <IfElse>
+STATE IfElse.Start
+    EPSILON => IfElse.1
+
+<IfElse>: @"if" Condition : condition "then" Stat : trueStatement [ "else" Stat : falseStatement ] as IfElseStatement
+STATE IfElse.1
+    [IF "if"] => IfElse.7
+
+<IfElse>: "if"@ Condition : condition "then" Stat : trueStatement [ "else" Stat : falseStatement ] as IfElseStatement
+STATE IfElse.7
+    <Condition> => IfElse.6
+        ASSIGN condition
+
+<IfElse>: "if" Condition : condition@ "then" Stat : trueStatement [ "else" Stat : falseStatement ] as IfElseStatement
+STATE IfElse.6
+    [THEN "then"] => IfElse.5
+
+<IfElse>: "if" Condition : condition "then"@ Stat : trueStatement [ "else" Stat : falseStatement ] as IfElseStatement
+STATE IfElse.5
+    <Stat> => IfElse.4
+        ASSIGN trueStatement
+
+<IfElse>: "if" Condition : condition "then" Stat : trueStatement@ [ "else" Stat : falseStatement ] as IfElseStatement
+STATE IfElse.4
+    [ELSE "else"] => IfElse.8
+    EPSILON => IfElse.3
+
+<IfElse>: "if" Condition : condition "then" Stat : trueStatement [ "else"@ Stat : falseStatement ] as IfElseStatement
+STATE IfElse.8
+    <Stat> => IfElse.3
+        ASSIGN falseStatement
+
+<IfElse>: "if" Condition : condition "then" Stat : trueStatement [ "else" Stat : falseStatement ] as IfElseStatement@
+STATE IfElse.3
+    EPSILON => IfElse.2.End
+        CREATE IfElseStatement
+
+<IfElse>: "if" Condition : condition "then" Stat : trueStatement [ "else" Stat : falseStatement ] as IfElseStatement@
+END STATE IfElse.2.End
+    TOKEN-FINISH => IfElse.RootEnd
+
+$<IfElse> @
+STATE IfElse.RootEnd
+
+--------------------------------
+@ $<Stat>
+STATE Stat.RootStart
+    TOKEN-BEGIN => Stat.Start
+
+@ <Stat>
+STATE Stat.Start
+    EPSILON => Stat.1
+
+<Stat>: @!Assign | !Return | !Block | !IfElse
+STATE Stat.1
+    <Assign> => Stat.2.End
+        USING 
+    <Return> => Stat.2.End
+        USING 
+    <Block> => Stat.2.End
+        USING 
+    <IfElse> => Stat.2.End
+        USING 
+
+<Stat>: !Assign | !Return | !Block | !IfElse@
+END STATE Stat.2.End
+    TOKEN-FINISH => Stat.RootEnd
+
+$<Stat> @
+STATE Stat.RootEnd
+
+--------------------------------

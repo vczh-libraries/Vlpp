@@ -1,0 +1,153 @@
+﻿=============================================================
+Non-deterministic PDA
+=============================================================
+Root Rule Start: Primitive.RootStart
+Root Rule End: Primitive.RootEnd
+Rule Start: Primitive.Start
+Rule End: Primitive.4
+
+Root Rule Start: Invoke.RootStart
+Root Rule End: Invoke.RootEnd
+Rule Start: Invoke.Start
+Rule End: Invoke.1
+
+Root Rule Start: Exp.RootStart
+Root Rule End: Exp.RootEnd
+Rule Start: Exp.Start
+Rule End: Exp.1
+
+@ $<Primitive>
+STATE Primitive.RootStart
+    TOKEN-BEGIN => Primitive.Start
+
+@ <Primitive>
+STATE Primitive.Start
+    [NAME] => Primitive.1
+        ASSIGN name
+        CREATE NameExpression
+    <Primitive> => Primitive.2
+        ASSIGN expression
+    <Primitive> => Primitive.3
+        ASSIGN expression
+
+<Primitive>: NAME : name as NameExpression@
+<Primitive>: Primitive : expression "<" [ Exp : arguments { "," Exp : arguments } ] ">" as GenericExpression@
+<Primitive>: Primitive : expression "." NAME : name as MemberExpression@
+STATE Primitive.1
+    EPSILON => Primitive.4
+
+<Primitive>: Primitive : expression@ "<" [ Exp : arguments { "," Exp : arguments } ] ">" as GenericExpression
+STATE Primitive.2
+    [LT "<"] => Primitive.5
+
+<Primitive>: Primitive : expression@ "." NAME : name as MemberExpression
+STATE Primitive.3
+    [MEMBER "."] => Primitive.6
+
+<Primitive>: NAME : name as NameExpression@
+<Primitive>: Primitive : expression "<" [ Exp : arguments { "," Exp : arguments } ] ">" as GenericExpression@
+<Primitive>: Primitive : expression "." NAME : name as MemberExpression@
+END STATE Primitive.4
+    TOKEN-FINISH => Primitive.RootEnd
+
+<Primitive>: Primitive : expression "<"@ [ Exp : arguments { "," Exp : arguments } ] ">" as GenericExpression
+STATE Primitive.5
+    [GT ">"] => Primitive.1
+        CREATE GenericExpression
+    <Exp> => Primitive.7
+        ASSIGN arguments
+
+<Primitive>: Primitive : expression "."@ NAME : name as MemberExpression
+STATE Primitive.6
+    [NAME] => Primitive.1
+        ASSIGN name
+        CREATE MemberExpression
+
+$<Primitive> @
+STATE Primitive.RootEnd
+
+<Primitive>: Primitive : expression "<" [ Exp : arguments@ { "," Exp : arguments } ] ">" as GenericExpression
+<Primitive>: Primitive : expression "<" [ Exp : arguments @{ "," Exp : arguments } ] ">" as GenericExpression
+STATE Primitive.7
+    [COMMA ","] => Primitive.10
+    [GT ">"] => Primitive.1
+        CREATE GenericExpression
+
+<Primitive>: Primitive : expression "<" [ Exp : arguments { ","@ Exp : arguments } ] ">" as GenericExpression
+STATE Primitive.10
+    <Exp> => Primitive.7
+        ASSIGN arguments
+
+--------------------------------
+@ $<Invoke>
+STATE Invoke.RootStart
+    TOKEN-BEGIN => Invoke.Start
+
+@ <Invoke>
+STATE Invoke.Start
+    <Primitive> => Invoke.1
+        USING 
+    <Invoke> => Invoke.2
+        ASSIGN function
+
+<Invoke>: !Primitive@
+<Invoke>: Invoke : function Primitive : argument as InvokeExpression@
+END STATE Invoke.1
+    TOKEN-FINISH => Invoke.RootEnd
+
+<Invoke>: Invoke : function@ Primitive : argument as InvokeExpression
+STATE Invoke.2
+    <Primitive> => Invoke.3
+        ASSIGN argument
+
+$<Invoke> @
+STATE Invoke.RootEnd
+
+<Invoke>: Invoke : function Primitive : argument as InvokeExpression@
+STATE Invoke.3
+    EPSILON => Invoke.1
+        CREATE InvokeExpression
+
+--------------------------------
+@ $<Exp>
+STATE Exp.RootStart
+    TOKEN-BEGIN => Exp.Start
+
+@ <Exp>
+STATE Exp.Start
+    <Invoke> => Exp.1
+        USING 
+    <Exp> => Exp.2
+        ASSIGN firstOperand
+
+<Exp>: !Invoke@
+<Exp>: Exp : firstOperand "<" Invoke : secondOperand as BinaryExpression with { binaryOperator = "LT" }@
+<Exp>: Exp : firstOperand ">" Invoke : secondOperand as BinaryExpression with { binaryOperator = "GT" }@
+END STATE Exp.1
+    TOKEN-FINISH => Exp.RootEnd
+
+<Exp>: Exp : firstOperand@ "<" Invoke : secondOperand as BinaryExpression with { binaryOperator = "LT" }
+<Exp>: Exp : firstOperand@ ">" Invoke : secondOperand as BinaryExpression with { binaryOperator = "GT" }
+STATE Exp.2
+    [LT "<"] => Exp.4
+        CREATE BinaryExpression
+        SET binaryOperator => LT
+    [GT ">"] => Exp.4
+        CREATE BinaryExpression
+        SET binaryOperator => GT
+
+$<Exp> @
+STATE Exp.RootEnd
+
+<Exp>: Exp : firstOperand "<"@ Invoke : secondOperand as BinaryExpression with { binaryOperator = "LT" }
+<Exp>: Exp : firstOperand ">"@ Invoke : secondOperand as BinaryExpression with { binaryOperator = "GT" }
+STATE Exp.4
+    <Invoke> => Exp.6
+        ASSIGN secondOperand
+
+<Exp>: Exp : firstOperand "<" Invoke : secondOperand as BinaryExpression@ with { binaryOperator = "LT" }
+<Exp>: Exp : firstOperand ">" Invoke : secondOperand as BinaryExpression@ with { binaryOperator = "GT" }
+STATE Exp.6
+    EPSILON => Exp.1
+
+--------------------------------

@@ -1,0 +1,151 @@
+﻿=============================================================
+Compacted Joint PDA
+=============================================================
+Root Rule Start: WorkflowType.RootStart
+Root Rule End: WorkflowType.RootEnd
+Rule Start: WorkflowType.Start
+Rule End: WorkflowType.7
+
+@ $<WorkflowType>
+STATE WorkflowType.RootStart
+    TOKEN-BEGIN => WorkflowType.Start
+
+@ <WorkflowType>
+STATE WorkflowType.Start
+    [NAME] => WorkflowType.1
+        ASSIGN name
+        CREATE ReferenceType
+    [KEYWORD_FUNC "func"] => WorkflowType.2
+    EPSILON [LEFT-RECURSIVE] => WorkflowType.Start
+        SHIFT [WorkflowType.Start => WorkflowType.3] 
+    EPSILON [LEFT-RECURSIVE] => WorkflowType.Start
+        SHIFT [WorkflowType.Start => WorkflowType.4] 
+    EPSILON [LEFT-RECURSIVE] => WorkflowType.Start
+        SHIFT [WorkflowType.Start => WorkflowType.5] 
+    EPSILON [LEFT-RECURSIVE] => WorkflowType.Start
+        SHIFT [WorkflowType.Start => WorkflowType.6] 
+
+<WorkflowType>: NAME : name as ReferenceType@
+<WorkflowType>: "func" "(" [ WorkflowType : arguments { "," WorkflowType : arguments } ] ")" ":" WorkflowType : result as FunctionType@
+<WorkflowType>: WorkflowType : element "^" as SharedPointerType@
+<WorkflowType>: WorkflowType : element "{" "}" as EnumerableType@
+<WorkflowType>: WorkflowType : value "[" [ WorkflowType : key ] "]" as MapType@
+<WorkflowType>: WorkflowType : parent "::" NAME : name as ChildType@
+STATE WorkflowType.1
+    NORMAL-REDUCE [SHIFT-REDUCE-COMPACTED] => WorkflowType.3
+        REDUCE [WorkflowType.Start => WorkflowType.3] 
+        ASSIGN element
+    NORMAL-REDUCE [SHIFT-REDUCE-COMPACTED] => WorkflowType.4
+        REDUCE [WorkflowType.Start => WorkflowType.4] 
+        ASSIGN element
+    NORMAL-REDUCE [SHIFT-REDUCE-COMPACTED] => WorkflowType.5
+        REDUCE [WorkflowType.Start => WorkflowType.5] 
+        ASSIGN value
+    NORMAL-REDUCE [SHIFT-REDUCE-COMPACTED] => WorkflowType.6
+        REDUCE [WorkflowType.Start => WorkflowType.6] 
+        ASSIGN parent
+    TOKEN-FINISH [SHIFT-REDUCE-COMPACTED] => WorkflowType.RootEnd
+    NORMAL-REDUCE [SHIFT-REDUCE-COMPACTED] => WorkflowType.12
+        REDUCE [WorkflowType.8 => WorkflowType.12] 
+        ASSIGN arguments
+    NORMAL-REDUCE [SHIFT-REDUCE-COMPACTED] => WorkflowType.14
+        REDUCE [WorkflowType.10 => WorkflowType.14] 
+        ASSIGN key
+    NORMAL-REDUCE [SHIFT-REDUCE-COMPACTED] => WorkflowType.1
+        REDUCE [WorkflowType.16 => WorkflowType.1] 
+        ASSIGN result
+        CREATE FunctionType
+    NORMAL-REDUCE [SHIFT-REDUCE-COMPACTED] => WorkflowType.12
+        REDUCE [WorkflowType.15 => WorkflowType.12] 
+        ASSIGN arguments
+
+<WorkflowType>: "func"@ "(" [ WorkflowType : arguments { "," WorkflowType : arguments } ] ")" ":" WorkflowType : result as FunctionType
+STATE WorkflowType.2
+    [OPEN_BRACKET "("] => WorkflowType.8
+
+<WorkflowType>: WorkflowType : element@ "^" as SharedPointerType
+STATE WorkflowType.3
+    [EXP "^"] => WorkflowType.1
+        CREATE SharedPointerType
+
+<WorkflowType>: WorkflowType : element@ "{" "}" as EnumerableType
+STATE WorkflowType.4
+    [OPEN_BRACE "{"] => WorkflowType.9
+
+<WorkflowType>: WorkflowType : value@ "[" [ WorkflowType : key ] "]" as MapType
+STATE WorkflowType.5
+    [OPEN_ARRAY "["] => WorkflowType.10
+
+<WorkflowType>: WorkflowType : parent@ "::" NAME : name as ChildType
+STATE WorkflowType.6
+    [SCOPE_DELIMITER "::"] => WorkflowType.11
+
+$<WorkflowType> @
+STATE WorkflowType.RootEnd
+
+<WorkflowType>: "func" "(" [ WorkflowType : arguments@ { "," WorkflowType : arguments } ] ")" ":" WorkflowType : result as FunctionType
+<WorkflowType>: "func" "(" [ WorkflowType : arguments @{ "," WorkflowType : arguments } ] ")" ":" WorkflowType : result as FunctionType
+STATE WorkflowType.12
+    [CLOSE_BRACKET ")"] => WorkflowType.13
+    [COMMA ","] => WorkflowType.15
+
+<WorkflowType>: WorkflowType : value "[" [ WorkflowType : key ]@ "]" as MapType
+STATE WorkflowType.14
+    [CLOSE_ARRAY "]"] => WorkflowType.1
+        CREATE MapType
+
+<WorkflowType>: "func" "("@ [ WorkflowType : arguments { "," WorkflowType : arguments } ] ")" ":" WorkflowType : result as FunctionType
+STATE WorkflowType.8
+    [CLOSE_BRACKET ")"] => WorkflowType.13
+    [NAME] [SHIFT-REDUCE-COMPACTED] => WorkflowType.1
+        SHIFT [WorkflowType.8 => WorkflowType.12] 
+        ASSIGN name
+        CREATE ReferenceType
+    [KEYWORD_FUNC "func"] [SHIFT-REDUCE-COMPACTED] => WorkflowType.2
+        SHIFT [WorkflowType.8 => WorkflowType.12] 
+
+<WorkflowType>: WorkflowType : element "{"@ "}" as EnumerableType
+STATE WorkflowType.9
+    [CLOSE_BRACE "}"] => WorkflowType.1
+        CREATE EnumerableType
+
+<WorkflowType>: WorkflowType : value "["@ [ WorkflowType : key ] "]" as MapType
+STATE WorkflowType.10
+    [CLOSE_ARRAY "]"] => WorkflowType.1
+        CREATE MapType
+    [NAME] [SHIFT-REDUCE-COMPACTED] => WorkflowType.1
+        SHIFT [WorkflowType.10 => WorkflowType.14] 
+        ASSIGN name
+        CREATE ReferenceType
+    [KEYWORD_FUNC "func"] [SHIFT-REDUCE-COMPACTED] => WorkflowType.2
+        SHIFT [WorkflowType.10 => WorkflowType.14] 
+
+<WorkflowType>: WorkflowType : parent "::"@ NAME : name as ChildType
+STATE WorkflowType.11
+    [NAME] => WorkflowType.1
+        ASSIGN name
+        CREATE ChildType
+
+<WorkflowType>: "func" "(" [ WorkflowType : arguments { "," WorkflowType : arguments } ] ")"@ ":" WorkflowType : result as FunctionType
+STATE WorkflowType.13
+    [COLON ":"] => WorkflowType.16
+
+<WorkflowType>: "func" "(" [ WorkflowType : arguments { ","@ WorkflowType : arguments } ] ")" ":" WorkflowType : result as FunctionType
+STATE WorkflowType.15
+    [NAME] [SHIFT-REDUCE-COMPACTED] => WorkflowType.1
+        SHIFT [WorkflowType.15 => WorkflowType.12] 
+        ASSIGN name
+        CREATE ReferenceType
+    [KEYWORD_FUNC "func"] [SHIFT-REDUCE-COMPACTED] => WorkflowType.2
+        SHIFT [WorkflowType.15 => WorkflowType.12] 
+
+<WorkflowType>: "func" "(" [ WorkflowType : arguments { "," WorkflowType : arguments } ] ")" ":"@ WorkflowType : result as FunctionType
+STATE WorkflowType.16
+    [NAME] [SHIFT-REDUCE-COMPACTED] => WorkflowType.1
+        SHIFT [WorkflowType.16 => WorkflowType.1] 
+        ASSIGN name
+        CREATE ReferenceType
+    [KEYWORD_FUNC "func"] [SHIFT-REDUCE-COMPACTED] => WorkflowType.2
+        SHIFT [WorkflowType.16 => WorkflowType.1] 
+
+--------------------------------

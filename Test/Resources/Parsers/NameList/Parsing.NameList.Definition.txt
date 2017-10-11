@@ -1,0 +1,23 @@
+﻿=============================================================
+Grammar Definition
+=============================================================
+class NameItemExpression
+{
+    token name (UnescapingName);
+}
+
+class NameListExpression
+{
+    NameItemExpression[] names;
+}
+
+token NAME = "[a-zA-Z_]/w*";
+token COMMA = ",";
+discardtoken SPACE = "/s+";
+
+rule NameItemExpression Name
+        = NAME : name as NameItemExpression
+        ;
+rule NameListExpression NameList
+        = Name : names { "," Name : names } as NameListExpression
+        ;

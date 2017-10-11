@@ -1,0 +1,255 @@
+﻿=============================================================
+Joint PDA
+=============================================================
+Root Rule Start: JLiteral.RootStart
+Root Rule End: JLiteral.RootEnd
+Rule Start: JLiteral.Start
+Rule End: JLiteral.2
+
+Root Rule Start: JField.RootStart
+Root Rule End: JField.RootEnd
+Rule Start: JField.Start
+Rule End: JField.4
+
+Root Rule Start: JObject.RootStart
+Root Rule End: JObject.RootEnd
+Rule Start: JObject.Start
+Rule End: JObject.5
+
+Root Rule Start: JArray.RootStart
+Root Rule End: JArray.RootEnd
+Rule Start: JArray.Start
+Rule End: JArray.5
+
+Root Rule Start: JValue.RootStart
+Root Rule End: JValue.RootEnd
+Rule Start: JValue.Start
+Rule End: JValue.1
+
+Root Rule Start: JRoot.RootStart
+Root Rule End: JRoot.RootEnd
+Rule Start: JRoot.Start
+Rule End: JRoot.1
+
+@ $<JLiteral>
+STATE JLiteral.RootStart
+    TOKEN-BEGIN => JLiteral.Start
+
+@ <JLiteral>
+STATE JLiteral.Start
+    [STRING] => JLiteral.1
+        ASSIGN content
+        CREATE String
+    [NUMBER] => JLiteral.1
+        ASSIGN content
+        CREATE Number
+    [TRUEVALUE "true"] => JLiteral.1
+        SET value => True
+        CREATE Literal
+    [FALSEVALUE "false"] => JLiteral.1
+        SET value => False
+        CREATE Literal
+    [NULLVALUE "null"] => JLiteral.1
+        SET value => Null
+        CREATE Literal
+
+<JLiteral>: STRING : content as String@
+<JLiteral>: NUMBER : content as Number@
+<JLiteral>: "true" as Literal@ with { value = "True" }
+<JLiteral>: "false" as Literal@ with { value = "False" }
+<JLiteral>: "null" as Literal@ with { value = "Null" }
+STATE JLiteral.1
+    EPSILON => JLiteral.2
+
+<JLiteral>: STRING : content as String@
+<JLiteral>: NUMBER : content as Number@
+<JLiteral>: "true" as Literal with { value = "True" }@
+<JLiteral>: "false" as Literal with { value = "False" }@
+<JLiteral>: "null" as Literal with { value = "Null" }@
+END STATE JLiteral.2
+    TOKEN-FINISH => JLiteral.RootEnd
+    NORMAL-REDUCE => JValue.1
+        REDUCE [JValue.Start => JValue.1] 
+        USING 
+
+$<JLiteral> @
+STATE JLiteral.RootEnd
+
+<JValue>: !JLiteral@
+<JValue>: !JObject@
+<JValue>: !JArray@
+END STATE JValue.1
+    NORMAL-REDUCE => JField.3
+        REDUCE [JField.2 => JField.3] 
+        ASSIGN value
+    NORMAL-REDUCE => JArray.2
+        REDUCE [JArray.1 => JArray.2] 
+        ASSIGN items
+    NORMAL-REDUCE => JArray.2
+        REDUCE [JArray.4 => JArray.2] 
+        ASSIGN items
+    TOKEN-FINISH => JValue.RootEnd
+
+<JField>: STRING : name ":" JValue : value as ObjectField@
+STATE JField.3
+    EPSILON => JField.4
+        CREATE ObjectField
+
+<JArray>: "[" [ JValue : items@ { "," JValue : items } ] "]" as Array
+<JArray>: "[" [ JValue : items @{ "," JValue : items } ] "]" as Array
+STATE JArray.2
+    [ARRCLOSE "]"] => JArray.3
+    [COMMA ","] => JArray.4
+
+$<JValue> @
+STATE JValue.RootEnd
+
+<JField>: STRING : name ":" JValue : value as ObjectField@
+END STATE JField.4
+    TOKEN-FINISH => JField.RootEnd
+    NORMAL-REDUCE => JObject.2
+        REDUCE [JObject.1 => JObject.2] 
+        ASSIGN fields
+    NORMAL-REDUCE => JObject.2
+        REDUCE [JObject.4 => JObject.2] 
+        ASSIGN fields
+
+<JArray>: "[" [ JValue : items { "," JValue : items } ] "]" as Array@
+STATE JArray.3
+    EPSILON => JArray.5
+        CREATE Array
+
+<JArray>: "[" [ JValue : items { ","@ JValue : items } ] "]" as Array
+STATE JArray.4
+    EPSILON => JValue.Start
+        SHIFT [JArray.4 => JArray.2] 
+
+$<JField> @
+STATE JField.RootEnd
+
+<JObject>: "{" [ JField : fields@ { "," JField : fields } ] "}" as Object
+<JObject>: "{" [ JField : fields @{ "," JField : fields } ] "}" as Object
+STATE JObject.2
+    [COMMA ","] => JObject.4
+    [OBJCLOSE "}"] => JObject.3
+
+<JArray>: "[" [ JValue : items { "," JValue : items } ] "]" as Array@
+END STATE JArray.5
+    TOKEN-FINISH => JArray.RootEnd
+    NORMAL-REDUCE => JValue.1
+        REDUCE [JValue.Start => JValue.1] 
+        USING 
+    NORMAL-REDUCE => JRoot.1
+        REDUCE [JRoot.Start => JRoot.1] 
+        USING 
+
+@ <JValue>
+STATE JValue.Start
+    EPSILON => JLiteral.Start
+        SHIFT [JValue.Start => JValue.1] 
+    EPSILON => JObject.Start
+        SHIFT [JValue.Start => JValue.1] 
+    EPSILON => JArray.Start
+        SHIFT [JValue.Start => JValue.1] 
+
+<JObject>: "{" [ JField : fields { ","@ JField : fields } ] "}" as Object
+STATE JObject.4
+    EPSILON => JField.Start
+        SHIFT [JObject.4 => JObject.2] 
+
+<JObject>: "{" [ JField : fields { "," JField : fields } ] "}" as Object@
+STATE JObject.3
+    EPSILON => JObject.5
+        CREATE Object
+
+$<JArray> @
+STATE JArray.RootEnd
+
+<JRoot>: !JObject@
+<JRoot>: !JArray@
+END STATE JRoot.1
+    TOKEN-FINISH => JRoot.RootEnd
+
+@ <JObject>
+STATE JObject.Start
+    [OBJOPEN "{"] => JObject.1
+
+@ <JArray>
+STATE JArray.Start
+    [ARROPEN "["] => JArray.1
+
+@ <JField>
+STATE JField.Start
+    [STRING] => JField.1
+        ASSIGN name
+
+<JObject>: "{" [ JField : fields { "," JField : fields } ] "}" as Object@
+END STATE JObject.5
+    TOKEN-FINISH => JObject.RootEnd
+    NORMAL-REDUCE => JValue.1
+        REDUCE [JValue.Start => JValue.1] 
+        USING 
+    NORMAL-REDUCE => JRoot.1
+        REDUCE [JRoot.Start => JRoot.1] 
+        USING 
+
+$<JRoot> @
+STATE JRoot.RootEnd
+
+<JObject>: "{"@ [ JField : fields { "," JField : fields } ] "}" as Object
+STATE JObject.1
+    [OBJCLOSE "}"] => JObject.3
+    EPSILON => JField.Start
+        SHIFT [JObject.1 => JObject.2] 
+
+<JArray>: "["@ [ JValue : items { "," JValue : items } ] "]" as Array
+STATE JArray.1
+    [ARRCLOSE "]"] => JArray.3
+    EPSILON => JValue.Start
+        SHIFT [JArray.1 => JArray.2] 
+
+<JField>: STRING : name@ ":" JValue : value as ObjectField
+STATE JField.1
+    [COLON ":"] => JField.2
+
+$<JObject> @
+STATE JObject.RootEnd
+
+<JField>: STRING : name ":"@ JValue : value as ObjectField
+STATE JField.2
+    EPSILON => JValue.Start
+        SHIFT [JField.2 => JField.3] 
+
+--------------------------------
+@ $<JField>
+STATE JField.RootStart
+    TOKEN-BEGIN => JField.Start
+
+--------------------------------
+@ $<JObject>
+STATE JObject.RootStart
+    TOKEN-BEGIN => JObject.Start
+
+--------------------------------
+@ $<JArray>
+STATE JArray.RootStart
+    TOKEN-BEGIN => JArray.Start
+
+--------------------------------
+@ $<JValue>
+STATE JValue.RootStart
+    TOKEN-BEGIN => JValue.Start
+
+--------------------------------
+@ $<JRoot>
+STATE JRoot.RootStart
+    TOKEN-BEGIN => JRoot.Start
+
+@ <JRoot>
+STATE JRoot.Start
+    EPSILON => JObject.Start
+        SHIFT [JRoot.Start => JRoot.1] 
+    EPSILON => JArray.Start
+        SHIFT [JRoot.Start => JRoot.1] 
+
+--------------------------------

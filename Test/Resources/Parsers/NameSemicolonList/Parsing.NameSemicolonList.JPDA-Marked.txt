@@ -1,0 +1,73 @@
+﻿=============================================================
+Compacted Joint PDA
+=============================================================
+Root Rule Start: NameMap.RootStart
+Root Rule End: NameMap.RootEnd
+Rule Start: NameMap.Start
+Rule End: NameMap.3
+
+Root Rule Start: NameTable.RootStart
+Root Rule End: NameTable.RootEnd
+Rule Start: NameTable.Start
+Rule End: NameTable.2
+
+@ $<NameMap>
+STATE NameMap.RootStart
+    TOKEN-BEGIN => NameMap.Start
+
+@ <NameMap>
+STATE NameMap.Start
+    [NAME] => NameMap.1
+        ASSIGN key
+
+<NameMap>: NAME : key@ "=" { NAME : names ";" } as NameMapExpression
+STATE NameMap.1
+    [DEFINE "="] => NameMap.2
+
+<NameMap>: NAME : key "="@ { NAME : names ";" } as NameMapExpression
+<NameMap>: NAME : key "=" @{ NAME : names ";" } as NameMapExpression
+STATE NameMap.2
+    [NAME] => NameMap.4
+        ASSIGN names
+    TOKEN-FINISH [SHIFT-REDUCE-COMPACTED] => NameMap.RootEnd
+        CREATE NameMapExpression
+    NORMAL-REDUCE [SHIFT-REDUCE-COMPACTED] => NameTable.1
+        CREATE NameMapExpression
+        REDUCE [NameTable.Start => NameTable.1] 
+        ASSIGN maps
+    NORMAL-REDUCE [SHIFT-REDUCE-COMPACTED] => NameTable.1
+        CREATE NameMapExpression
+        REDUCE [NameTable.1 => NameTable.1] 
+        ASSIGN maps
+
+<NameMap>: NAME : key "=" { NAME : names@ ";" } as NameMapExpression
+STATE NameMap.4
+    [SEMICOLON ";"] => NameMap.2
+
+$<NameMap> @
+STATE NameMap.RootEnd
+
+<NameTable>: NameMap : maps@ { NameMap : maps } as NameTableExpression
+<NameTable>: NameMap : maps @{ NameMap : maps } as NameTableExpression
+STATE NameTable.1
+    TOKEN-FINISH [SHIFT-REDUCE-COMPACTED] => NameTable.RootEnd
+        CREATE NameTableExpression
+    [NAME] [SHIFT-REDUCE-COMPACTED] => NameMap.1
+        SHIFT [NameTable.1 => NameTable.1] 
+        ASSIGN key
+
+$<NameTable> @
+STATE NameTable.RootEnd
+
+--------------------------------
+@ $<NameTable>
+STATE NameTable.RootStart
+    TOKEN-BEGIN => NameTable.Start
+
+@ <NameTable>
+STATE NameTable.Start
+    [NAME] [SHIFT-REDUCE-COMPACTED] => NameMap.1
+        SHIFT [NameTable.Start => NameTable.1] 
+        ASSIGN key
+
+--------------------------------

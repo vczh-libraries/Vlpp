@@ -1,0 +1,326 @@
+﻿=============================================================
+Joint PDA
+=============================================================
+Root Rule Start: XAttribute.RootStart
+Root Rule End: XAttribute.RootEnd
+Rule Start: XAttribute.Start
+Rule End: XAttribute.4
+
+Root Rule Start: XText.RootStart
+Root Rule End: XText.RootEnd
+Rule Start: XText.Start
+Rule End: XText.2
+
+Root Rule Start: XCData.RootStart
+Root Rule End: XCData.RootEnd
+Rule Start: XCData.Start
+Rule End: XCData.2
+
+Root Rule Start: XComment.RootStart
+Root Rule End: XComment.RootEnd
+Rule Start: XComment.Start
+Rule End: XComment.2
+
+Root Rule Start: XElement.RootStart
+Root Rule End: XElement.RootEnd
+Rule Start: XElement.Start
+Rule End: XElement.5
+
+Root Rule Start: XSubNode.RootStart
+Root Rule End: XSubNode.RootEnd
+Rule Start: XSubNode.Start
+Rule End: XSubNode.1
+
+Root Rule Start: XInstruction.RootStart
+Root Rule End: XInstruction.RootEnd
+Rule Start: XInstruction.Start
+Rule End: XInstruction.4
+
+Root Rule Start: XDocument.RootStart
+Root Rule End: XDocument.RootEnd
+Rule Start: XDocument.Start
+Rule End: XDocument.3
+
+@ $<XAttribute>
+STATE XAttribute.RootStart
+    TOKEN-BEGIN => XAttribute.Start
+
+@ <XAttribute>
+STATE XAttribute.Start
+    [NAME] => XAttribute.1
+        ASSIGN name
+
+<XAttribute>: NAME : name@ "=" ATTVALUE : value as Attribute
+STATE XAttribute.1
+    [EQUAL "="] => XAttribute.2
+
+<XAttribute>: NAME : name "="@ ATTVALUE : value as Attribute
+STATE XAttribute.2
+    [ATTVALUE] => XAttribute.3
+        ASSIGN value
+
+<XAttribute>: NAME : name "=" ATTVALUE : value as Attribute@
+STATE XAttribute.3
+    EPSILON => XAttribute.4
+        CREATE Attribute
+
+<XAttribute>: NAME : name "=" ATTVALUE : value as Attribute@
+END STATE XAttribute.4
+    TOKEN-FINISH => XAttribute.RootEnd
+    NORMAL-REDUCE => XElement.2
+        REDUCE [XElement.2 => XElement.2] 
+        ASSIGN attributes
+    NORMAL-REDUCE => XInstruction.2
+        REDUCE [XInstruction.2 => XInstruction.2] 
+        ASSIGN attributes
+
+$<XAttribute> @
+STATE XAttribute.RootEnd
+
+<XElement>: "<" NAME : name@ { XAttribute : attributes } ( "/>" | ">" { XSubNode : subNodes } "</" NAME : closingName ">" ) as Element
+<XElement>: "<" NAME : name @{ XAttribute : attributes } ( "/>" | ">" { XSubNode : subNodes } "</" NAME : closingName ">" ) as Element
+STATE XElement.2
+    [ELEMENT_CLOSE ">"] => XElement.4
+    [SINGLE_ELEMENT_CLOSE "/>"] => XElement.3
+    EPSILON => XAttribute.Start
+        SHIFT [XElement.2 => XElement.2] 
+
+<XInstruction>: "<?" NAME : name@ { XAttribute : attributes } "?>" as Instruction
+<XInstruction>: "<?" NAME : name @{ XAttribute : attributes } "?>" as Instruction
+STATE XInstruction.2
+    [INSTRUCTION_CLOSE "?>"] => XInstruction.3
+    EPSILON => XAttribute.Start
+        SHIFT [XInstruction.2 => XInstruction.2] 
+
+<XElement>: "<" NAME : name { XAttribute : attributes } ( "/>" | ">"@ { XSubNode : subNodes } "</" NAME : closingName ">" ) as Element
+<XElement>: "<" NAME : name { XAttribute : attributes } ( "/>" | ">" @{ XSubNode : subNodes } "</" NAME : closingName ">" ) as Element
+STATE XElement.4
+    [COMPLEX_ELEMENT_OPEN "</"] => XElement.6
+    EPSILON => XSubNode.Start
+        SHIFT [XElement.4 => XElement.4] 
+
+<XElement>: "<" NAME : name { XAttribute : attributes } ( "/>" | ">" { XSubNode : subNodes } "</" NAME : closingName ">" ) as Element@
+STATE XElement.3
+    EPSILON => XElement.5
+        CREATE Element
+
+<XInstruction>: "<?" NAME : name { XAttribute : attributes } "?>" as Instruction@
+STATE XInstruction.3
+    EPSILON => XInstruction.4
+        CREATE Instruction
+
+<XElement>: "<" NAME : name { XAttribute : attributes } ( "/>" | ">" { XSubNode : subNodes } "</"@ NAME : closingName ">" ) as Element
+STATE XElement.6
+    [NAME] => XElement.7
+        ASSIGN closingName
+
+@ <XSubNode>
+STATE XSubNode.Start
+    EPSILON => XText.Start
+        SHIFT [XSubNode.Start => XSubNode.1] 
+    EPSILON => XCData.Start
+        SHIFT [XSubNode.Start => XSubNode.1] 
+    EPSILON => XComment.Start
+        SHIFT [XSubNode.Start => XSubNode.1] 
+    EPSILON => XElement.Start
+        SHIFT [XSubNode.Start => XSubNode.1] 
+
+<XElement>: "<" NAME : name { XAttribute : attributes } ( "/>" | ">" { XSubNode : subNodes } "</" NAME : closingName ">" ) as Element@
+END STATE XElement.5
+    TOKEN-FINISH => XElement.RootEnd
+    NORMAL-REDUCE => XSubNode.1
+        REDUCE [XSubNode.Start => XSubNode.1] 
+        USING 
+    NORMAL-REDUCE => XDocument.1
+        REDUCE [XDocument.Start => XDocument.1] 
+        ASSIGN rootElement
+    NORMAL-REDUCE => XDocument.1
+        REDUCE [XDocument.2 => XDocument.1] 
+        ASSIGN rootElement
+
+<XInstruction>: "<?" NAME : name { XAttribute : attributes } "?>" as Instruction@
+END STATE XInstruction.4
+    TOKEN-FINISH => XInstruction.RootEnd
+    NORMAL-REDUCE => XDocument.2
+        REDUCE [XDocument.Start => XDocument.2] 
+        ASSIGN prologs
+    NORMAL-REDUCE => XDocument.2
+        REDUCE [XDocument.2 => XDocument.2] 
+        ASSIGN prologs
+
+<XElement>: "<" NAME : name { XAttribute : attributes } ( "/>" | ">" { XSubNode : subNodes } "</" NAME : closingName@ ">" ) as Element
+STATE XElement.7
+    [ELEMENT_CLOSE ">"] => XElement.3
+
+@ <XText>
+STATE XText.Start
+    [NAME] => XText.1
+        ASSIGN content
+    [EQUAL "="] => XText.1
+        ASSIGN content
+    [ATTVALUE] => XText.1
+        ASSIGN content
+    [TEXT] => XText.1
+        ASSIGN content
+
+@ <XCData>
+STATE XCData.Start
+    [CDATA] => XCData.1
+        ASSIGN content
+
+@ <XComment>
+STATE XComment.Start
+    [COMMENT] => XComment.1
+        ASSIGN content
+
+@ <XElement>
+STATE XElement.Start
+    [ELEMENT_OPEN "<"] => XElement.1
+
+$<XElement> @
+STATE XElement.RootEnd
+
+<XSubNode>: !XText | !XCData | !XComment | !XElement@
+END STATE XSubNode.1
+    NORMAL-REDUCE => XElement.4
+        REDUCE [XElement.4 => XElement.4] 
+        ASSIGN subNodes
+    TOKEN-FINISH => XSubNode.RootEnd
+
+<XDocument>: { XInstruction : prologs | XComment : prologs } XElement : rootElement as Document@
+STATE XDocument.1
+    EPSILON => XDocument.3
+        CREATE Document
+
+$<XInstruction> @
+STATE XInstruction.RootEnd
+
+<XDocument>: @{ XInstruction : prologs | XComment : prologs } XElement : rootElement as Document
+STATE XDocument.2
+    EPSILON => XComment.Start
+        SHIFT [XDocument.2 => XDocument.2] 
+    EPSILON => XElement.Start
+        SHIFT [XDocument.2 => XDocument.1] 
+    EPSILON => XInstruction.Start
+        SHIFT [XDocument.2 => XDocument.2] 
+
+<XText>: NAME : content | EQUAL : content | ATTVALUE : content | TEXT : content as Text@
+STATE XText.1
+    EPSILON => XText.2
+        CREATE Text
+
+<XCData>: CDATA : content as CData@
+STATE XCData.1
+    EPSILON => XCData.2
+        CREATE CData
+
+<XComment>: COMMENT : content as Comment@
+STATE XComment.1
+    EPSILON => XComment.2
+        CREATE Comment
+
+<XElement>: "<"@ NAME : name { XAttribute : attributes } ( "/>" | ">" { XSubNode : subNodes } "</" NAME : closingName ">" ) as Element
+STATE XElement.1
+    [NAME] => XElement.2
+        ASSIGN name
+
+$<XSubNode> @
+STATE XSubNode.RootEnd
+
+<XDocument>: { XInstruction : prologs | XComment : prologs } XElement : rootElement as Document@
+END STATE XDocument.3
+    TOKEN-FINISH => XDocument.RootEnd
+
+@ <XInstruction>
+STATE XInstruction.Start
+    [INSTRUCTION_OPEN "<?"] => XInstruction.1
+
+<XText>: NAME : content | EQUAL : content | ATTVALUE : content | TEXT : content as Text@
+END STATE XText.2
+    TOKEN-FINISH => XText.RootEnd
+    NORMAL-REDUCE => XSubNode.1
+        REDUCE [XSubNode.Start => XSubNode.1] 
+        USING 
+
+<XCData>: CDATA : content as CData@
+END STATE XCData.2
+    TOKEN-FINISH => XCData.RootEnd
+    NORMAL-REDUCE => XSubNode.1
+        REDUCE [XSubNode.Start => XSubNode.1] 
+        USING 
+
+<XComment>: COMMENT : content as Comment@
+END STATE XComment.2
+    TOKEN-FINISH => XComment.RootEnd
+    NORMAL-REDUCE => XSubNode.1
+        REDUCE [XSubNode.Start => XSubNode.1] 
+        USING 
+    NORMAL-REDUCE => XDocument.2
+        REDUCE [XDocument.Start => XDocument.2] 
+        ASSIGN prologs
+    NORMAL-REDUCE => XDocument.2
+        REDUCE [XDocument.2 => XDocument.2] 
+        ASSIGN prologs
+
+$<XDocument> @
+STATE XDocument.RootEnd
+
+<XInstruction>: "<?"@ NAME : name { XAttribute : attributes } "?>" as Instruction
+STATE XInstruction.1
+    [NAME] => XInstruction.2
+        ASSIGN name
+
+$<XText> @
+STATE XText.RootEnd
+
+$<XCData> @
+STATE XCData.RootEnd
+
+$<XComment> @
+STATE XComment.RootEnd
+
+--------------------------------
+@ $<XText>
+STATE XText.RootStart
+    TOKEN-BEGIN => XText.Start
+
+--------------------------------
+@ $<XCData>
+STATE XCData.RootStart
+    TOKEN-BEGIN => XCData.Start
+
+--------------------------------
+@ $<XComment>
+STATE XComment.RootStart
+    TOKEN-BEGIN => XComment.Start
+
+--------------------------------
+@ $<XElement>
+STATE XElement.RootStart
+    TOKEN-BEGIN => XElement.Start
+
+--------------------------------
+@ $<XSubNode>
+STATE XSubNode.RootStart
+    TOKEN-BEGIN => XSubNode.Start
+
+--------------------------------
+@ $<XInstruction>
+STATE XInstruction.RootStart
+    TOKEN-BEGIN => XInstruction.Start
+
+--------------------------------
+@ $<XDocument>
+STATE XDocument.RootStart
+    TOKEN-BEGIN => XDocument.Start
+
+@ <XDocument>
+STATE XDocument.Start
+    EPSILON => XElement.Start
+        SHIFT [XDocument.Start => XDocument.1] 
+    EPSILON => XInstruction.Start
+        SHIFT [XDocument.Start => XDocument.2] 
+    EPSILON => XComment.Start
+        SHIFT [XDocument.Start => XDocument.2] 
+
+--------------------------------

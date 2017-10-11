@@ -1,0 +1,957 @@
+﻿=============================================================
+Joint PDA
+=============================================================
+Root Rule Start: Attribute.RootStart
+Root Rule End: Attribute.RootEnd
+Rule Start: Attribute.Start
+Rule End: Attribute.7
+
+Root Rule Start: Type.RootStart
+Root Rule End: Type.RootEnd
+Rule Start: Type.Start
+Rule End: Type.4
+
+Root Rule Start: EnumMember.RootStart
+Root Rule End: EnumMember.RootEnd
+Rule Start: EnumMember.Start
+Rule End: EnumMember.5
+
+Root Rule Start: Enum.RootStart
+Root Rule End: Enum.RootEnd
+Rule Start: Enum.Start
+Rule End: Enum.7
+
+Root Rule Start: ClassMember.RootStart
+Root Rule End: ClassMember.RootEnd
+Rule Start: ClassMember.Start
+Rule End: ClassMember.8
+
+Root Rule Start: Class.RootStart
+Root Rule End: Class.RootEnd
+Rule Start: Class.Start
+Rule End: Class.12
+
+Root Rule Start: TypeDecl.RootStart
+Root Rule End: TypeDecl.RootEnd
+Rule Start: TypeDecl.Start
+Rule End: TypeDecl.1
+
+Root Rule Start: PrimitiveGrammar.RootStart
+Root Rule End: PrimitiveGrammar.RootEnd
+Rule Start: PrimitiveGrammar.Start
+Rule End: PrimitiveGrammar.7
+
+Root Rule Start: SequenceGrammar.RootStart
+Root Rule End: SequenceGrammar.RootEnd
+Rule Start: SequenceGrammar.Start
+Rule End: SequenceGrammar.1
+
+Root Rule Start: AlternativeGrammar.RootStart
+Root Rule End: AlternativeGrammar.RootEnd
+Rule Start: AlternativeGrammar.Start
+Rule End: AlternativeGrammar.1
+
+Root Rule Start: Grammar.RootStart
+Root Rule End: Grammar.RootEnd
+Rule Start: Grammar.Start
+Rule End: Grammar.1
+
+Root Rule Start: TokenDecl.RootStart
+Root Rule End: TokenDecl.RootEnd
+Rule Start: TokenDecl.Start
+Rule End: TokenDecl.12
+
+Root Rule Start: RuleDecl.RootStart
+Root Rule End: RuleDecl.RootEnd
+Rule Start: RuleDecl.Start
+Rule End: RuleDecl.8
+
+Root Rule Start: ParserDecl.RootStart
+Root Rule End: ParserDecl.RootEnd
+Rule Start: ParserDecl.Start
+Rule End: ParserDecl.2
+
+@ $<Attribute>
+STATE Attribute.RootStart
+    TOKEN-BEGIN => Attribute.Start
+
+@ <Attribute>
+STATE Attribute.Start
+    [ATT "@"] => Attribute.1
+
+<Attribute>: "@"@ NAME : name "(" [ STRING : arguments { "," STRING : arguments } ] ")" as AttributeDef
+STATE Attribute.1
+    [NAME] => Attribute.2
+        ASSIGN name
+
+<Attribute>: "@" NAME : name@ "(" [ STRING : arguments { "," STRING : arguments } ] ")" as AttributeDef
+STATE Attribute.2
+    [PREOPEN "("] => Attribute.3
+
+<Attribute>: "@" NAME : name "("@ [ STRING : arguments { "," STRING : arguments } ] ")" as AttributeDef
+STATE Attribute.3
+    [PRECLOSE ")"] => Attribute.5
+    [STRING] => Attribute.4
+        ASSIGN arguments
+
+<Attribute>: "@" NAME : name "(" [ STRING : arguments { "," STRING : arguments } ] ")" as AttributeDef@
+STATE Attribute.5
+    EPSILON => Attribute.7
+        CREATE AttributeDef
+
+<Attribute>: "@" NAME : name "(" [ STRING : arguments@ { "," STRING : arguments } ] ")" as AttributeDef
+<Attribute>: "@" NAME : name "(" [ STRING : arguments @{ "," STRING : arguments } ] ")" as AttributeDef
+STATE Attribute.4
+    [COMMA ","] => Attribute.6
+    [PRECLOSE ")"] => Attribute.5
+
+<Attribute>: "@" NAME : name "(" [ STRING : arguments { "," STRING : arguments } ] ")" as AttributeDef@
+END STATE Attribute.7
+    TOKEN-FINISH => Attribute.RootEnd
+    NORMAL-REDUCE => EnumMember.2
+        REDUCE [EnumMember.1 => EnumMember.2] 
+        ASSIGN attributes
+    NORMAL-REDUCE => EnumMember.2
+        REDUCE [EnumMember.4 => EnumMember.2] 
+        ASSIGN attributes
+    NORMAL-REDUCE => Enum.3
+        REDUCE [Enum.2 => Enum.3] 
+        ASSIGN attributes
+    NORMAL-REDUCE => Enum.3
+        REDUCE [Enum.5 => Enum.3] 
+        ASSIGN attributes
+    NORMAL-REDUCE => ClassMember.4
+        REDUCE [ClassMember.2 => ClassMember.4] 
+        ASSIGN attributes
+    NORMAL-REDUCE => ClassMember.4
+        REDUCE [ClassMember.7 => ClassMember.4] 
+        ASSIGN attributes
+    NORMAL-REDUCE => ClassMember.4
+        REDUCE [ClassMember.9 => ClassMember.4] 
+        ASSIGN attributes
+    NORMAL-REDUCE => Class.5
+        REDUCE [Class.2 => Class.5] 
+        ASSIGN attributes
+    NORMAL-REDUCE => Class.5
+        REDUCE [Class.8 => Class.5] 
+        ASSIGN attributes
+    NORMAL-REDUCE => Class.5
+        REDUCE [Class.9 => Class.5] 
+        ASSIGN attributes
+    NORMAL-REDUCE => Class.5
+        REDUCE [Class.13 => Class.5] 
+        ASSIGN attributes
+    NORMAL-REDUCE => TokenDecl.9
+        REDUCE [TokenDecl.7 => TokenDecl.9] 
+        ASSIGN attributes
+    NORMAL-REDUCE => TokenDecl.9
+        REDUCE [TokenDecl.11 => TokenDecl.9] 
+        ASSIGN attributes
+    NORMAL-REDUCE => RuleDecl.4
+        REDUCE [RuleDecl.3 => RuleDecl.4] 
+        ASSIGN attributes
+    NORMAL-REDUCE => RuleDecl.4
+        REDUCE [RuleDecl.7 => RuleDecl.4] 
+        ASSIGN attributes
+
+<Attribute>: "@" NAME : name "(" [ STRING : arguments { ","@ STRING : arguments } ] ")" as AttributeDef
+STATE Attribute.6
+    [STRING] => Attribute.4
+        ASSIGN arguments
+
+$<Attribute> @
+STATE Attribute.RootEnd
+
+<EnumMember>: NAME : name [ Attribute : attributes@ { "," Attribute : attributes } ] "," as EnumMemberDef
+<EnumMember>: NAME : name [ Attribute : attributes @{ "," Attribute : attributes } ] "," as EnumMemberDef
+STATE EnumMember.2
+    [COMMA ","] => EnumMember.3
+    [COMMA ","] => EnumMember.4
+
+<Enum>: "enum" NAME : name [ Attribute : attributes@ { "," Attribute : attributes } ] "{" { EnumMember : members } "}" as EnumTypeDef
+<Enum>: "enum" NAME : name [ Attribute : attributes @{ "," Attribute : attributes } ] "{" { EnumMember : members } "}" as EnumTypeDef
+STATE Enum.3
+    [COMMA ","] => Enum.5
+    [OPEN "{"] => Enum.4
+
+<ClassMember>: Type : type NAME : name [ "(" NAME : unescapingFunction ")" ] [ Attribute : attributes@ { "," Attribute : attributes } ] ";" as ClassMemberDef
+<ClassMember>: Type : type NAME : name [ "(" NAME : unescapingFunction ")" ] [ Attribute : attributes @{ "," Attribute : attributes } ] ";" as ClassMemberDef
+STATE ClassMember.4
+    [COMMA ","] => ClassMember.7
+    [SEMICOLON ";"] => ClassMember.5
+
+<Class>: "class" NAME : name [ "ambiguous" "(" Type : ambiguousType ")" ] [ ":" Type : parentType ] [ Attribute : attributes@ { "," Attribute : attributes } ] "{" { ClassMember : members | TypeDecl : subTypes } "}" as ClassTypeDef
+<Class>: "class" NAME : name [ "ambiguous" "(" Type : ambiguousType ")" ] [ ":" Type : parentType ] [ Attribute : attributes @{ "," Attribute : attributes } ] "{" { ClassMember : members | TypeDecl : subTypes } "}" as ClassTypeDef
+STATE Class.5
+    [COMMA ","] => Class.9
+    [OPEN "{"] => Class.6
+
+<TokenDecl>: "token" NAME : name "=" STRING : regex [ Attribute : attributes@ { "," Attribute : attributes } ] ";" as TokenDef with { discard = "KeepToken" }
+<TokenDecl>: "token" NAME : name "=" STRING : regex [ Attribute : attributes @{ "," Attribute : attributes } ] ";" as TokenDef with { discard = "KeepToken" }
+STATE TokenDecl.9
+    [COMMA ","] => TokenDecl.11
+    [SEMICOLON ";"] => TokenDecl.10
+        SET discard => KeepToken
+        CREATE TokenDef
+
+<RuleDecl>: "rule" Type : type NAME : name [ Attribute : attributes@ { "," Attribute : attributes } ] { "=" Grammar : grammars } ";" as RuleDef
+<RuleDecl>: "rule" Type : type NAME : name [ Attribute : attributes @{ "," Attribute : attributes } ] { "=" Grammar : grammars } ";" as RuleDef
+STATE RuleDecl.4
+    [ASSIGN "="] => RuleDecl.6
+    [COMMA ","] => RuleDecl.7
+    [SEMICOLON ";"] => RuleDecl.5
+
+<EnumMember>: NAME : name [ Attribute : attributes { "," Attribute : attributes } ] "," as EnumMemberDef@
+STATE EnumMember.3
+    EPSILON => EnumMember.5
+        CREATE EnumMemberDef
+
+<EnumMember>: NAME : name [ Attribute : attributes { ","@ Attribute : attributes } ] "," as EnumMemberDef
+STATE EnumMember.4
+    EPSILON => Attribute.Start
+        SHIFT [EnumMember.4 => EnumMember.2] 
+
+<Enum>: "enum" NAME : name [ Attribute : attributes { ","@ Attribute : attributes } ] "{" { EnumMember : members } "}" as EnumTypeDef
+STATE Enum.5
+    EPSILON => Attribute.Start
+        SHIFT [Enum.5 => Enum.3] 
+
+<Enum>: "enum" NAME : name [ Attribute : attributes { "," Attribute : attributes } ] "{"@ { EnumMember : members } "}" as EnumTypeDef
+<Enum>: "enum" NAME : name [ Attribute : attributes { "," Attribute : attributes } ] "{" @{ EnumMember : members } "}" as EnumTypeDef
+STATE Enum.4
+    [CLOSE "}"] => Enum.6
+    EPSILON => EnumMember.Start
+        SHIFT [Enum.4 => Enum.4] 
+
+<ClassMember>: Type : type NAME : name [ "(" NAME : unescapingFunction ")" ] [ Attribute : attributes { ","@ Attribute : attributes } ] ";" as ClassMemberDef
+STATE ClassMember.7
+    EPSILON => Attribute.Start
+        SHIFT [ClassMember.7 => ClassMember.4] 
+
+<ClassMember>: Type : type NAME : name [ "(" NAME : unescapingFunction ")" ] [ Attribute : attributes { "," Attribute : attributes } ] ";" as ClassMemberDef@
+STATE ClassMember.5
+    EPSILON => ClassMember.8
+        CREATE ClassMemberDef
+
+<Class>: "class" NAME : name [ "ambiguous" "(" Type : ambiguousType ")" ] [ ":" Type : parentType ] [ Attribute : attributes { ","@ Attribute : attributes } ] "{" { ClassMember : members | TypeDecl : subTypes } "}" as ClassTypeDef
+STATE Class.9
+    EPSILON => Attribute.Start
+        SHIFT [Class.9 => Class.5] 
+
+<Class>: "class" NAME : name [ "ambiguous" "(" Type : ambiguousType ")" ] [ ":" Type : parentType ] [ Attribute : attributes { "," Attribute : attributes } ] "{"@ { ClassMember : members | TypeDecl : subTypes } "}" as ClassTypeDef
+<Class>: "class" NAME : name [ "ambiguous" "(" Type : ambiguousType ")" ] [ ":" Type : parentType ] [ Attribute : attributes { "," Attribute : attributes } ] "{" @{ ClassMember : members | TypeDecl : subTypes } "}" as ClassTypeDef
+STATE Class.6
+    [CLOSE "}"] => Class.10
+    EPSILON => ClassMember.Start
+        SHIFT [Class.6 => Class.6] 
+    EPSILON => TypeDecl.Start
+        SHIFT [Class.6 => Class.6] 
+
+<TokenDecl>: "token" NAME : name "=" STRING : regex [ Attribute : attributes { ","@ Attribute : attributes } ] ";" as TokenDef with { discard = "KeepToken" }
+STATE TokenDecl.11
+    EPSILON => Attribute.Start
+        SHIFT [TokenDecl.11 => TokenDecl.9] 
+
+<TokenDecl>: "token" NAME : name "=" STRING : regex [ Attribute : attributes { "," Attribute : attributes } ] ";" as TokenDef@ with { discard = "KeepToken" }
+<TokenDecl>: "discardtoken" NAME : name "=" STRING : regex ";" as TokenDef@ with { discard = "DiscardToken" }
+STATE TokenDecl.10
+    EPSILON => TokenDecl.12
+
+<RuleDecl>: "rule" Type : type NAME : name [ Attribute : attributes { "," Attribute : attributes } ] { "="@ Grammar : grammars } ";" as RuleDef
+STATE RuleDecl.6
+    EPSILON => Grammar.Start
+        SHIFT [RuleDecl.6 => RuleDecl.9] 
+
+<RuleDecl>: "rule" Type : type NAME : name [ Attribute : attributes { ","@ Attribute : attributes } ] { "=" Grammar : grammars } ";" as RuleDef
+STATE RuleDecl.7
+    EPSILON => Attribute.Start
+        SHIFT [RuleDecl.7 => RuleDecl.4] 
+
+<RuleDecl>: "rule" Type : type NAME : name [ Attribute : attributes { "," Attribute : attributes } ] { "=" Grammar : grammars } ";" as RuleDef@
+STATE RuleDecl.5
+    EPSILON => RuleDecl.8
+        CREATE RuleDef
+
+<EnumMember>: NAME : name [ Attribute : attributes { "," Attribute : attributes } ] "," as EnumMemberDef@
+END STATE EnumMember.5
+    TOKEN-FINISH => EnumMember.RootEnd
+    NORMAL-REDUCE => Enum.4
+        REDUCE [Enum.4 => Enum.4] 
+        ASSIGN members
+
+<Enum>: "enum" NAME : name [ Attribute : attributes { "," Attribute : attributes } ] "{" { EnumMember : members } "}" as EnumTypeDef@
+STATE Enum.6
+    EPSILON => Enum.7
+        CREATE EnumTypeDef
+
+@ <EnumMember>
+STATE EnumMember.Start
+    [NAME] => EnumMember.1
+        ASSIGN name
+
+<ClassMember>: Type : type NAME : name [ "(" NAME : unescapingFunction ")" ] [ Attribute : attributes { "," Attribute : attributes } ] ";" as ClassMemberDef@
+END STATE ClassMember.8
+    TOKEN-FINISH => ClassMember.RootEnd
+    NORMAL-REDUCE => Class.6
+        REDUCE [Class.6 => Class.6] 
+        ASSIGN members
+
+<Class>: "class" NAME : name [ "ambiguous" "(" Type : ambiguousType ")" ] [ ":" Type : parentType ] [ Attribute : attributes { "," Attribute : attributes } ] "{" { ClassMember : members | TypeDecl : subTypes } "}" as ClassTypeDef@
+STATE Class.10
+    EPSILON => Class.12
+        CREATE ClassTypeDef
+
+@ <ClassMember>
+STATE ClassMember.Start
+    EPSILON => Type.Start
+        SHIFT [ClassMember.Start => ClassMember.1] 
+
+@ <TypeDecl>
+STATE TypeDecl.Start
+    EPSILON => Enum.Start
+        SHIFT [TypeDecl.Start => TypeDecl.1] 
+    EPSILON => Class.Start
+        SHIFT [TypeDecl.Start => TypeDecl.1] 
+
+<TokenDecl>: "token" NAME : name "=" STRING : regex [ Attribute : attributes { "," Attribute : attributes } ] ";" as TokenDef with { discard = "KeepToken" }@
+<TokenDecl>: "discardtoken" NAME : name "=" STRING : regex ";" as TokenDef with { discard = "DiscardToken" }@
+END STATE TokenDecl.12
+    TOKEN-FINISH => TokenDecl.RootEnd
+    NORMAL-REDUCE => ParserDecl.1
+        REDUCE [ParserDecl.Start => ParserDecl.1] 
+        ASSIGN definitions
+    NORMAL-REDUCE => ParserDecl.1
+        REDUCE [ParserDecl.1 => ParserDecl.1] 
+        ASSIGN definitions
+
+@ <Grammar>
+STATE Grammar.Start
+    EPSILON => AlternativeGrammar.Start
+        SHIFT [Grammar.Start => Grammar.1] 
+    EPSILON => Grammar.Start
+        SHIFT [Grammar.Start => Grammar.2] 
+    EPSILON => Grammar.Start
+        SHIFT [Grammar.Start => Grammar.3] 
+
+<RuleDecl>: "rule" Type : type NAME : name [ Attribute : attributes { "," Attribute : attributes } ] { "=" Grammar : grammars } ";" as RuleDef@
+END STATE RuleDecl.8
+    TOKEN-FINISH => RuleDecl.RootEnd
+    NORMAL-REDUCE => ParserDecl.1
+        REDUCE [ParserDecl.Start => ParserDecl.1] 
+        ASSIGN definitions
+    NORMAL-REDUCE => ParserDecl.1
+        REDUCE [ParserDecl.1 => ParserDecl.1] 
+        ASSIGN definitions
+
+$<EnumMember> @
+STATE EnumMember.RootEnd
+
+<Enum>: "enum" NAME : name [ Attribute : attributes { "," Attribute : attributes } ] "{" { EnumMember : members } "}" as EnumTypeDef@
+END STATE Enum.7
+    TOKEN-FINISH => Enum.RootEnd
+    NORMAL-REDUCE => TypeDecl.1
+        REDUCE [TypeDecl.Start => TypeDecl.1] 
+        USING 
+
+<EnumMember>: NAME : name@ [ Attribute : attributes { "," Attribute : attributes } ] "," as EnumMemberDef
+STATE EnumMember.1
+    [COMMA ","] => EnumMember.3
+    EPSILON => Attribute.Start
+        SHIFT [EnumMember.1 => EnumMember.2] 
+
+$<ClassMember> @
+STATE ClassMember.RootEnd
+
+<Class>: "class" NAME : name [ "ambiguous" "(" Type : ambiguousType ")" ] [ ":" Type : parentType ] [ Attribute : attributes { "," Attribute : attributes } ] "{" { ClassMember : members | TypeDecl : subTypes } "}" as ClassTypeDef@
+END STATE Class.12
+    TOKEN-FINISH => Class.RootEnd
+    NORMAL-REDUCE => TypeDecl.1
+        REDUCE [TypeDecl.Start => TypeDecl.1] 
+        USING 
+
+@ <Type>
+STATE Type.Start
+    [NAME] => Type.1
+        ASSIGN name
+        CREATE PrimitiveTypeObj
+    [TOKEN "token"] => Type.1
+        CREATE TokenTypeObj
+    EPSILON => Type.Start
+        SHIFT [Type.Start => Type.2] 
+    EPSILON => Type.Start
+        SHIFT [Type.Start => Type.3] 
+
+@ <Enum>
+STATE Enum.Start
+    [ENUM "enum"] => Enum.1
+
+@ <Class>
+STATE Class.Start
+    [CLASS "class"] => Class.1
+
+$<TokenDecl> @
+STATE TokenDecl.RootEnd
+
+<ParserDecl>: { TypeDecl : definitions | TokenDecl : definitions | RuleDecl : definitions } ( TypeDecl : definitions | TokenDecl : definitions | RuleDecl : definitions ) as ParserDef@
+<ParserDecl>: @{ TypeDecl : definitions | TokenDecl : definitions | RuleDecl : definitions } ( TypeDecl : definitions | TokenDecl : definitions | RuleDecl : definitions ) as ParserDef
+STATE ParserDecl.1
+    EPSILON => ParserDecl.2
+        CREATE ParserDef
+    EPSILON => TypeDecl.Start
+        SHIFT [ParserDecl.1 => ParserDecl.1] 
+    EPSILON => TokenDecl.Start
+        SHIFT [ParserDecl.1 => ParserDecl.1] 
+    EPSILON => RuleDecl.Start
+        SHIFT [ParserDecl.1 => ParserDecl.1] 
+
+@ <AlternativeGrammar>
+STATE AlternativeGrammar.Start
+    EPSILON => SequenceGrammar.Start
+        SHIFT [AlternativeGrammar.Start => AlternativeGrammar.1] 
+    EPSILON => AlternativeGrammar.Start
+        SHIFT [AlternativeGrammar.Start => AlternativeGrammar.2] 
+
+$<RuleDecl> @
+STATE RuleDecl.RootEnd
+
+$<Enum> @
+STATE Enum.RootEnd
+
+<TypeDecl>: !Enum | !Class@
+END STATE TypeDecl.1
+    NORMAL-REDUCE => Class.6
+        REDUCE [Class.6 => Class.6] 
+        ASSIGN subTypes
+    TOKEN-FINISH => TypeDecl.RootEnd
+    NORMAL-REDUCE => ParserDecl.1
+        REDUCE [ParserDecl.Start => ParserDecl.1] 
+        ASSIGN definitions
+    NORMAL-REDUCE => ParserDecl.1
+        REDUCE [ParserDecl.1 => ParserDecl.1] 
+        ASSIGN definitions
+
+$<Class> @
+STATE Class.RootEnd
+
+<Type>: NAME : name as PrimitiveTypeObj@
+<Type>: "token" as TokenTypeObj@
+<Type>: Type : parentType "." NAME : name as SubTypeObj@
+<Type>: Type : elementType "[" "]" as ArrayTypeObj@
+STATE Type.1
+    EPSILON => Type.4
+
+<Enum>: "enum"@ NAME : name [ Attribute : attributes { "," Attribute : attributes } ] "{" { EnumMember : members } "}" as EnumTypeDef
+STATE Enum.1
+    [NAME] => Enum.2
+        ASSIGN name
+
+<Class>: "class"@ NAME : name [ "ambiguous" "(" Type : ambiguousType ")" ] [ ":" Type : parentType ] [ Attribute : attributes { "," Attribute : attributes } ] "{" { ClassMember : members | TypeDecl : subTypes } "}" as ClassTypeDef
+STATE Class.1
+    [NAME] => Class.2
+        ASSIGN name
+
+<ParserDecl>: { TypeDecl : definitions | TokenDecl : definitions | RuleDecl : definitions } ( TypeDecl : definitions | TokenDecl : definitions | RuleDecl : definitions ) as ParserDef@
+END STATE ParserDecl.2
+    TOKEN-FINISH => ParserDecl.RootEnd
+
+@ <TokenDecl>
+STATE TokenDecl.Start
+    [TOKEN "token"] => TokenDecl.1
+    [DISCARDTOKEN "discardtoken"] => TokenDecl.2
+
+@ <RuleDecl>
+STATE RuleDecl.Start
+    [RULE "rule"] => RuleDecl.1
+
+@ <SequenceGrammar>
+STATE SequenceGrammar.Start
+    EPSILON => PrimitiveGrammar.Start
+        SHIFT [SequenceGrammar.Start => SequenceGrammar.1] 
+    EPSILON => SequenceGrammar.Start
+        SHIFT [SequenceGrammar.Start => SequenceGrammar.2] 
+
+$<TypeDecl> @
+STATE TypeDecl.RootEnd
+
+<Type>: NAME : name as PrimitiveTypeObj@
+<Type>: "token" as TokenTypeObj@
+<Type>: Type : parentType "." NAME : name as SubTypeObj@
+<Type>: Type : elementType "[" "]" as ArrayTypeObj@
+END STATE Type.4
+    NORMAL-REDUCE => Type.2
+        REDUCE [Type.Start => Type.2] 
+        ASSIGN parentType
+    NORMAL-REDUCE => Type.3
+        REDUCE [Type.Start => Type.3] 
+        ASSIGN elementType
+    TOKEN-FINISH => Type.RootEnd
+    NORMAL-REDUCE => ClassMember.1
+        REDUCE [ClassMember.Start => ClassMember.1] 
+        ASSIGN type
+    NORMAL-REDUCE => Class.8
+        REDUCE [Class.4 => Class.8] 
+        ASSIGN parentType
+    NORMAL-REDUCE => Class.11
+        REDUCE [Class.7 => Class.11] 
+        ASSIGN ambiguousType
+    NORMAL-REDUCE => Grammar.6
+        REDUCE [Grammar.4 => Grammar.6] 
+        ASSIGN type
+        CREATE CreateGrammarDef
+    NORMAL-REDUCE => RuleDecl.2
+        REDUCE [RuleDecl.1 => RuleDecl.2] 
+        ASSIGN type
+
+<Enum>: "enum" NAME : name@ [ Attribute : attributes { "," Attribute : attributes } ] "{" { EnumMember : members } "}" as EnumTypeDef
+STATE Enum.2
+    [OPEN "{"] => Enum.4
+    EPSILON => Attribute.Start
+        SHIFT [Enum.2 => Enum.3] 
+
+<Class>: "class" NAME : name@ [ "ambiguous" "(" Type : ambiguousType ")" ] [ ":" Type : parentType ] [ Attribute : attributes { "," Attribute : attributes } ] "{" { ClassMember : members | TypeDecl : subTypes } "}" as ClassTypeDef
+STATE Class.2
+    [AMBIGUOUS "ambiguous"] => Class.3
+    [COLON ":"] => Class.4
+    [OPEN "{"] => Class.6
+    EPSILON => Attribute.Start
+        SHIFT [Class.2 => Class.5] 
+
+$<ParserDecl> @
+STATE ParserDecl.RootEnd
+
+<TokenDecl>: "token"@ NAME : name "=" STRING : regex [ Attribute : attributes { "," Attribute : attributes } ] ";" as TokenDef with { discard = "KeepToken" }
+STATE TokenDecl.1
+    [NAME] => TokenDecl.3
+        ASSIGN name
+
+<TokenDecl>: "discardtoken"@ NAME : name "=" STRING : regex ";" as TokenDef with { discard = "DiscardToken" }
+STATE TokenDecl.2
+    [NAME] => TokenDecl.4
+        ASSIGN name
+
+<RuleDecl>: "rule"@ Type : type NAME : name [ Attribute : attributes { "," Attribute : attributes } ] { "=" Grammar : grammars } ";" as RuleDef
+STATE RuleDecl.1
+    EPSILON => Type.Start
+        SHIFT [RuleDecl.1 => RuleDecl.2] 
+
+@ <PrimitiveGrammar>
+STATE PrimitiveGrammar.Start
+    [NAME] => PrimitiveGrammar.1
+        ASSIGN name
+        CREATE PrimitiveGrammarDef
+    [STRING] => PrimitiveGrammar.1
+        ASSIGN text
+        CREATE TextGrammarDef
+    EPSILON => PrimitiveGrammar.Start
+        SHIFT [PrimitiveGrammar.Start => PrimitiveGrammar.2] 
+    [USING "!"] => PrimitiveGrammar.3
+    [OPTOPEN "["] => PrimitiveGrammar.4
+    [OPEN "{"] => PrimitiveGrammar.5
+    [PREOPEN "("] => PrimitiveGrammar.6
+
+<Type>: Type : parentType@ "." NAME : name as SubTypeObj
+STATE Type.2
+    [DOT "."] => Type.5
+
+<Type>: Type : elementType@ "[" "]" as ArrayTypeObj
+STATE Type.3
+    [OPTOPEN "["] => Type.6
+
+$<Type> @
+STATE Type.RootEnd
+
+<ClassMember>: Type : type@ NAME : name [ "(" NAME : unescapingFunction ")" ] [ Attribute : attributes { "," Attribute : attributes } ] ";" as ClassMemberDef
+STATE ClassMember.1
+    [NAME] => ClassMember.2
+        ASSIGN name
+
+<Class>: "class" NAME : name [ "ambiguous" "(" Type : ambiguousType ")" ] [ ":" Type : parentType ]@ [ Attribute : attributes { "," Attribute : attributes } ] "{" { ClassMember : members | TypeDecl : subTypes } "}" as ClassTypeDef
+STATE Class.8
+    [OPEN "{"] => Class.6
+    EPSILON => Attribute.Start
+        SHIFT [Class.8 => Class.5] 
+
+<Class>: "class" NAME : name [ "ambiguous" "(" Type : ambiguousType@ ")" ] [ ":" Type : parentType ] [ Attribute : attributes { "," Attribute : attributes } ] "{" { ClassMember : members | TypeDecl : subTypes } "}" as ClassTypeDef
+STATE Class.11
+    [PRECLOSE ")"] => Class.13
+
+<Grammar>: Grammar : grammar "as" Type : type as CreateGrammarDef@
+<Grammar>: Grammar : grammar "with" "{" NAME : memberName "=" STRING : value "}" as SetterGrammarDef@
+STATE Grammar.6
+    EPSILON => Grammar.1
+
+<RuleDecl>: "rule" Type : type@ NAME : name [ Attribute : attributes { "," Attribute : attributes } ] { "=" Grammar : grammars } ";" as RuleDef
+STATE RuleDecl.2
+    [NAME] => RuleDecl.3
+        ASSIGN name
+
+<Class>: "class" NAME : name [ "ambiguous"@ "(" Type : ambiguousType ")" ] [ ":" Type : parentType ] [ Attribute : attributes { "," Attribute : attributes } ] "{" { ClassMember : members | TypeDecl : subTypes } "}" as ClassTypeDef
+STATE Class.3
+    [PREOPEN "("] => Class.7
+
+<Class>: "class" NAME : name [ "ambiguous" "(" Type : ambiguousType ")" ] [ ":"@ Type : parentType ] [ Attribute : attributes { "," Attribute : attributes } ] "{" { ClassMember : members | TypeDecl : subTypes } "}" as ClassTypeDef
+STATE Class.4
+    EPSILON => Type.Start
+        SHIFT [Class.4 => Class.8] 
+
+<TokenDecl>: "token" NAME : name@ "=" STRING : regex [ Attribute : attributes { "," Attribute : attributes } ] ";" as TokenDef with { discard = "KeepToken" }
+STATE TokenDecl.3
+    [ASSIGN "="] => TokenDecl.5
+
+<TokenDecl>: "discardtoken" NAME : name@ "=" STRING : regex ";" as TokenDef with { discard = "DiscardToken" }
+STATE TokenDecl.4
+    [ASSIGN "="] => TokenDecl.6
+
+<PrimitiveGrammar>: NAME : name as PrimitiveGrammarDef@
+<PrimitiveGrammar>: STRING : text as TextGrammarDef@
+<PrimitiveGrammar>: PrimitiveGrammar : grammar ":" NAME : memberName as AssignGrammarDef@
+<PrimitiveGrammar>: "!" PrimitiveGrammar : grammar as UseGrammarDef@
+<PrimitiveGrammar>: "[" Grammar : grammar "]" as OptionalGrammarDef@
+<PrimitiveGrammar>: "{" Grammar : grammar "}" as LoopGrammarDef@
+STATE PrimitiveGrammar.1
+    EPSILON => PrimitiveGrammar.7
+
+<PrimitiveGrammar>: "!"@ PrimitiveGrammar : grammar as UseGrammarDef
+STATE PrimitiveGrammar.3
+    EPSILON => PrimitiveGrammar.Start
+        SHIFT [PrimitiveGrammar.3 => PrimitiveGrammar.1] 
+
+<PrimitiveGrammar>: "["@ Grammar : grammar "]" as OptionalGrammarDef
+STATE PrimitiveGrammar.4
+    EPSILON => Grammar.Start
+        SHIFT [PrimitiveGrammar.4 => PrimitiveGrammar.9] 
+
+<PrimitiveGrammar>: "{"@ Grammar : grammar "}" as LoopGrammarDef
+STATE PrimitiveGrammar.5
+    EPSILON => Grammar.Start
+        SHIFT [PrimitiveGrammar.5 => PrimitiveGrammar.10] 
+
+<PrimitiveGrammar>: "("@ !Grammar ")"
+STATE PrimitiveGrammar.6
+    EPSILON => Grammar.Start
+        SHIFT [PrimitiveGrammar.6 => PrimitiveGrammar.11] 
+
+<Type>: Type : parentType "."@ NAME : name as SubTypeObj
+STATE Type.5
+    [NAME] => Type.1
+        ASSIGN name
+        CREATE SubTypeObj
+
+<Type>: Type : elementType "["@ "]" as ArrayTypeObj
+STATE Type.6
+    [OPTCLOSE "]"] => Type.1
+        CREATE ArrayTypeObj
+
+<ClassMember>: Type : type NAME : name@ [ "(" NAME : unescapingFunction ")" ] [ Attribute : attributes { "," Attribute : attributes } ] ";" as ClassMemberDef
+STATE ClassMember.2
+    [PREOPEN "("] => ClassMember.3
+    [SEMICOLON ";"] => ClassMember.5
+    EPSILON => Attribute.Start
+        SHIFT [ClassMember.2 => ClassMember.4] 
+
+<Class>: "class" NAME : name [ "ambiguous" "(" Type : ambiguousType ")" ]@ [ ":" Type : parentType ] [ Attribute : attributes { "," Attribute : attributes } ] "{" { ClassMember : members | TypeDecl : subTypes } "}" as ClassTypeDef
+STATE Class.13
+    [COLON ":"] => Class.4
+    [OPEN "{"] => Class.6
+    EPSILON => Attribute.Start
+        SHIFT [Class.13 => Class.5] 
+
+<Grammar>: !AlternativeGrammar@
+<Grammar>: Grammar : grammar "as" Type : type as CreateGrammarDef@
+<Grammar>: Grammar : grammar "with" "{" NAME : memberName "=" STRING : value "}" as SetterGrammarDef@
+END STATE Grammar.1
+    NORMAL-REDUCE => PrimitiveGrammar.9
+        REDUCE [PrimitiveGrammar.4 => PrimitiveGrammar.9] 
+        ASSIGN grammar
+    NORMAL-REDUCE => PrimitiveGrammar.10
+        REDUCE [PrimitiveGrammar.5 => PrimitiveGrammar.10] 
+        ASSIGN grammar
+    NORMAL-REDUCE => PrimitiveGrammar.11
+        REDUCE [PrimitiveGrammar.6 => PrimitiveGrammar.11] 
+        USING 
+    NORMAL-REDUCE => Grammar.2
+        REDUCE [Grammar.Start => Grammar.2] 
+        ASSIGN grammar
+    NORMAL-REDUCE => Grammar.3
+        REDUCE [Grammar.Start => Grammar.3] 
+        ASSIGN grammar
+    TOKEN-FINISH => Grammar.RootEnd
+    NORMAL-REDUCE => RuleDecl.9
+        REDUCE [RuleDecl.6 => RuleDecl.9] 
+        ASSIGN grammars
+
+<RuleDecl>: "rule" Type : type NAME : name@ [ Attribute : attributes { "," Attribute : attributes } ] { "=" Grammar : grammars } ";" as RuleDef
+STATE RuleDecl.3
+    [ASSIGN "="] => RuleDecl.6
+    [SEMICOLON ";"] => RuleDecl.5
+    EPSILON => Attribute.Start
+        SHIFT [RuleDecl.3 => RuleDecl.4] 
+
+<Class>: "class" NAME : name [ "ambiguous" "("@ Type : ambiguousType ")" ] [ ":" Type : parentType ] [ Attribute : attributes { "," Attribute : attributes } ] "{" { ClassMember : members | TypeDecl : subTypes } "}" as ClassTypeDef
+STATE Class.7
+    EPSILON => Type.Start
+        SHIFT [Class.7 => Class.11] 
+
+<TokenDecl>: "token" NAME : name "="@ STRING : regex [ Attribute : attributes { "," Attribute : attributes } ] ";" as TokenDef with { discard = "KeepToken" }
+STATE TokenDecl.5
+    [STRING] => TokenDecl.7
+        ASSIGN regex
+
+<TokenDecl>: "discardtoken" NAME : name "="@ STRING : regex ";" as TokenDef with { discard = "DiscardToken" }
+STATE TokenDecl.6
+    [STRING] => TokenDecl.8
+        ASSIGN regex
+
+<PrimitiveGrammar>: NAME : name as PrimitiveGrammarDef@
+<PrimitiveGrammar>: STRING : text as TextGrammarDef@
+<PrimitiveGrammar>: PrimitiveGrammar : grammar ":" NAME : memberName as AssignGrammarDef@
+<PrimitiveGrammar>: "!" PrimitiveGrammar : grammar as UseGrammarDef@
+<PrimitiveGrammar>: "[" Grammar : grammar "]" as OptionalGrammarDef@
+<PrimitiveGrammar>: "{" Grammar : grammar "}" as LoopGrammarDef@
+<PrimitiveGrammar>: "(" !Grammar ")"@
+END STATE PrimitiveGrammar.7
+    NORMAL-REDUCE => PrimitiveGrammar.2
+        REDUCE [PrimitiveGrammar.Start => PrimitiveGrammar.2] 
+        ASSIGN grammar
+    NORMAL-REDUCE => PrimitiveGrammar.1
+        REDUCE [PrimitiveGrammar.3 => PrimitiveGrammar.1] 
+        ASSIGN grammar
+        CREATE UseGrammarDef
+    TOKEN-FINISH => PrimitiveGrammar.RootEnd
+    NORMAL-REDUCE => SequenceGrammar.1
+        REDUCE [SequenceGrammar.Start => SequenceGrammar.1] 
+        USING 
+    NORMAL-REDUCE => SequenceGrammar.3
+        REDUCE [SequenceGrammar.2 => SequenceGrammar.3] 
+        ASSIGN second
+
+<ClassMember>: Type : type NAME : name [ "("@ NAME : unescapingFunction ")" ] [ Attribute : attributes { "," Attribute : attributes } ] ";" as ClassMemberDef
+STATE ClassMember.3
+    [NAME] => ClassMember.6
+        ASSIGN unescapingFunction
+
+<PrimitiveGrammar>: "[" Grammar : grammar@ "]" as OptionalGrammarDef
+STATE PrimitiveGrammar.9
+    [OPTCLOSE "]"] => PrimitiveGrammar.1
+        CREATE OptionalGrammarDef
+
+<PrimitiveGrammar>: "{" Grammar : grammar@ "}" as LoopGrammarDef
+STATE PrimitiveGrammar.10
+    [CLOSE "}"] => PrimitiveGrammar.1
+        CREATE LoopGrammarDef
+
+<PrimitiveGrammar>: "(" !Grammar@ ")"
+STATE PrimitiveGrammar.11
+    [PRECLOSE ")"] => PrimitiveGrammar.7
+
+<Grammar>: Grammar : grammar@ "as" Type : type as CreateGrammarDef
+STATE Grammar.2
+    [AS "as"] => Grammar.4
+
+<Grammar>: Grammar : grammar@ "with" "{" NAME : memberName "=" STRING : value "}" as SetterGrammarDef
+STATE Grammar.3
+    [WITH "with"] => Grammar.5
+
+$<Grammar> @
+STATE Grammar.RootEnd
+
+<RuleDecl>: "rule" Type : type NAME : name [ Attribute : attributes { "," Attribute : attributes } ] @{ "=" Grammar : grammars } ";" as RuleDef
+STATE RuleDecl.9
+    [ASSIGN "="] => RuleDecl.6
+    [SEMICOLON ";"] => RuleDecl.5
+
+<TokenDecl>: "token" NAME : name "=" STRING : regex@ [ Attribute : attributes { "," Attribute : attributes } ] ";" as TokenDef with { discard = "KeepToken" }
+STATE TokenDecl.7
+    [SEMICOLON ";"] => TokenDecl.10
+        SET discard => KeepToken
+        CREATE TokenDef
+    EPSILON => Attribute.Start
+        SHIFT [TokenDecl.7 => TokenDecl.9] 
+
+<TokenDecl>: "discardtoken" NAME : name "=" STRING : regex@ ";" as TokenDef with { discard = "DiscardToken" }
+STATE TokenDecl.8
+    [SEMICOLON ";"] => TokenDecl.10
+        SET discard => DiscardToken
+        CREATE TokenDef
+
+<PrimitiveGrammar>: PrimitiveGrammar : grammar@ ":" NAME : memberName as AssignGrammarDef
+STATE PrimitiveGrammar.2
+    [COLON ":"] => PrimitiveGrammar.8
+
+$<PrimitiveGrammar> @
+STATE PrimitiveGrammar.RootEnd
+
+<SequenceGrammar>: !PrimitiveGrammar@
+<SequenceGrammar>: SequenceGrammar : first PrimitiveGrammar : second as SequenceGrammarDef@
+END STATE SequenceGrammar.1
+    NORMAL-REDUCE => SequenceGrammar.2
+        REDUCE [SequenceGrammar.Start => SequenceGrammar.2] 
+        ASSIGN first
+    TOKEN-FINISH => SequenceGrammar.RootEnd
+    NORMAL-REDUCE => AlternativeGrammar.1
+        REDUCE [AlternativeGrammar.Start => AlternativeGrammar.1] 
+        USING 
+    NORMAL-REDUCE => AlternativeGrammar.4
+        REDUCE [AlternativeGrammar.3 => AlternativeGrammar.4] 
+        ASSIGN second
+
+<SequenceGrammar>: SequenceGrammar : first PrimitiveGrammar : second as SequenceGrammarDef@
+STATE SequenceGrammar.3
+    EPSILON => SequenceGrammar.1
+        CREATE SequenceGrammarDef
+
+<ClassMember>: Type : type NAME : name [ "(" NAME : unescapingFunction@ ")" ] [ Attribute : attributes { "," Attribute : attributes } ] ";" as ClassMemberDef
+STATE ClassMember.6
+    [PRECLOSE ")"] => ClassMember.9
+
+<Grammar>: Grammar : grammar "as"@ Type : type as CreateGrammarDef
+STATE Grammar.4
+    EPSILON => Type.Start
+        SHIFT [Grammar.4 => Grammar.6] 
+
+<Grammar>: Grammar : grammar "with"@ "{" NAME : memberName "=" STRING : value "}" as SetterGrammarDef
+STATE Grammar.5
+    [OPEN "{"] => Grammar.7
+
+<PrimitiveGrammar>: PrimitiveGrammar : grammar ":"@ NAME : memberName as AssignGrammarDef
+STATE PrimitiveGrammar.8
+    [NAME] => PrimitiveGrammar.1
+        ASSIGN memberName
+        CREATE AssignGrammarDef
+
+<SequenceGrammar>: SequenceGrammar : first@ PrimitiveGrammar : second as SequenceGrammarDef
+STATE SequenceGrammar.2
+    EPSILON => PrimitiveGrammar.Start
+        SHIFT [SequenceGrammar.2 => SequenceGrammar.3] 
+
+$<SequenceGrammar> @
+STATE SequenceGrammar.RootEnd
+
+<AlternativeGrammar>: !SequenceGrammar@
+<AlternativeGrammar>: AlternativeGrammar : first "|" SequenceGrammar : second as AlternativeGrammarDef@
+END STATE AlternativeGrammar.1
+    NORMAL-REDUCE => AlternativeGrammar.2
+        REDUCE [AlternativeGrammar.Start => AlternativeGrammar.2] 
+        ASSIGN first
+    TOKEN-FINISH => AlternativeGrammar.RootEnd
+    NORMAL-REDUCE => Grammar.1
+        REDUCE [Grammar.Start => Grammar.1] 
+        USING 
+
+<AlternativeGrammar>: AlternativeGrammar : first "|" SequenceGrammar : second as AlternativeGrammarDef@
+STATE AlternativeGrammar.4
+    EPSILON => AlternativeGrammar.1
+        CREATE AlternativeGrammarDef
+
+<ClassMember>: Type : type NAME : name [ "(" NAME : unescapingFunction ")" ]@ [ Attribute : attributes { "," Attribute : attributes } ] ";" as ClassMemberDef
+STATE ClassMember.9
+    [SEMICOLON ";"] => ClassMember.5
+    EPSILON => Attribute.Start
+        SHIFT [ClassMember.9 => ClassMember.4] 
+
+<Grammar>: Grammar : grammar "with" "{"@ NAME : memberName "=" STRING : value "}" as SetterGrammarDef
+STATE Grammar.7
+    [NAME] => Grammar.8
+        ASSIGN memberName
+
+<AlternativeGrammar>: AlternativeGrammar : first@ "|" SequenceGrammar : second as AlternativeGrammarDef
+STATE AlternativeGrammar.2
+    [OR "|"] => AlternativeGrammar.3
+
+$<AlternativeGrammar> @
+STATE AlternativeGrammar.RootEnd
+
+<Grammar>: Grammar : grammar "with" "{" NAME : memberName@ "=" STRING : value "}" as SetterGrammarDef
+STATE Grammar.8
+    [ASSIGN "="] => Grammar.9
+
+<AlternativeGrammar>: AlternativeGrammar : first "|"@ SequenceGrammar : second as AlternativeGrammarDef
+STATE AlternativeGrammar.3
+    EPSILON => SequenceGrammar.Start
+        SHIFT [AlternativeGrammar.3 => AlternativeGrammar.4] 
+
+<Grammar>: Grammar : grammar "with" "{" NAME : memberName "="@ STRING : value "}" as SetterGrammarDef
+STATE Grammar.9
+    [STRING] => Grammar.10
+        ASSIGN value
+
+<Grammar>: Grammar : grammar "with" "{" NAME : memberName "=" STRING : value@ "}" as SetterGrammarDef
+STATE Grammar.10
+    [CLOSE "}"] => Grammar.6
+        CREATE SetterGrammarDef
+
+--------------------------------
+@ $<Type>
+STATE Type.RootStart
+    TOKEN-BEGIN => Type.Start
+
+--------------------------------
+@ $<EnumMember>
+STATE EnumMember.RootStart
+    TOKEN-BEGIN => EnumMember.Start
+
+--------------------------------
+@ $<Enum>
+STATE Enum.RootStart
+    TOKEN-BEGIN => Enum.Start
+
+--------------------------------
+@ $<ClassMember>
+STATE ClassMember.RootStart
+    TOKEN-BEGIN => ClassMember.Start
+
+--------------------------------
+@ $<Class>
+STATE Class.RootStart
+    TOKEN-BEGIN => Class.Start
+
+--------------------------------
+@ $<TypeDecl>
+STATE TypeDecl.RootStart
+    TOKEN-BEGIN => TypeDecl.Start
+
+--------------------------------
+@ $<PrimitiveGrammar>
+STATE PrimitiveGrammar.RootStart
+    TOKEN-BEGIN => PrimitiveGrammar.Start
+
+--------------------------------
+@ $<SequenceGrammar>
+STATE SequenceGrammar.RootStart
+    TOKEN-BEGIN => SequenceGrammar.Start
+
+--------------------------------
+@ $<AlternativeGrammar>
+STATE AlternativeGrammar.RootStart
+    TOKEN-BEGIN => AlternativeGrammar.Start
+
+--------------------------------
+@ $<Grammar>
+STATE Grammar.RootStart
+    TOKEN-BEGIN => Grammar.Start
+
+--------------------------------
+@ $<TokenDecl>
+STATE TokenDecl.RootStart
+    TOKEN-BEGIN => TokenDecl.Start
+
+--------------------------------
+@ $<RuleDecl>
+STATE RuleDecl.RootStart
+    TOKEN-BEGIN => RuleDecl.Start
+
+--------------------------------
+@ $<ParserDecl>
+STATE ParserDecl.RootStart
+    TOKEN-BEGIN => ParserDecl.Start
+
+@ <ParserDecl>
+STATE ParserDecl.Start
+    EPSILON => TypeDecl.Start
+        SHIFT [ParserDecl.Start => ParserDecl.1] 
+    EPSILON => TokenDecl.Start
+        SHIFT [ParserDecl.Start => ParserDecl.1] 
+    EPSILON => RuleDecl.Start
+        SHIFT [ParserDecl.Start => ParserDecl.1] 
+
+--------------------------------

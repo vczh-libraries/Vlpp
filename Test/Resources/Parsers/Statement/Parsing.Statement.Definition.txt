@@ -1,0 +1,94 @@
+﻿=============================================================
+Grammar Definition
+=============================================================
+class ValueExpression
+{
+    token content;
+}
+
+class ConditionExpression
+{
+    enum ConditionOperator
+    {
+        LT,
+        LE,
+        GT,
+        GE,
+        EQ,
+        NE,
+    }
+
+    ValueExpression leftOperand;
+    ValueExpression rightOperand;
+    ConditionOperator conditionOperator;
+}
+
+class Statement
+{
+}
+
+class IfElseStatement : Statement
+{
+    ConditionExpression condition;
+    Statement trueStatement;
+    Statement falseStatement;
+}
+
+class AssignStatement : Statement
+{
+    ValueExpression leftOperand;
+    ValueExpression rightOperand;
+}
+
+class ReturnStatement : Statement
+{
+    ValueExpression result;
+}
+
+class BlockStatement : Statement
+{
+    Statement[] statements;
+}
+
+token IF = "if";
+token THEN = "then";
+token ELSE = "else";
+token RETURN = "return";
+token OPEN = "/{";
+token CLOSE = "/}";
+token LT = "/<";
+token LE = "/</=";
+token GT = "/>";
+token GE = "/>/=";
+token EQ = "/=/=";
+token NE = "/!/=";
+token ASSIGN = "/=";
+token VALUE = "[a-zA-Z_]/w*";
+discardtoken SPACE = "/s+";
+
+rule ValueExpression Value
+        = VALUE : content as ValueExpression
+        ;
+rule ConditionExpression Condition
+        = Value : leftOperand "<" Value : rightOperand as ConditionExpression with { conditionOperator = "LT" }
+        = Value : leftOperand "<=" Value : rightOperand as ConditionExpression with { conditionOperator = "LE" }
+        = Value : leftOperand ">" Value : rightOperand as ConditionExpression with { conditionOperator = "GT" }
+        = Value : leftOperand ">=" Value : rightOperand as ConditionExpression with { conditionOperator = "GE" }
+        = Value : leftOperand "==" Value : rightOperand as ConditionExpression with { conditionOperator = "EQ" }
+        = Value : leftOperand "!=" Value : rightOperand as ConditionExpression with { conditionOperator = "NE" }
+        ;
+rule AssignStatement Assign
+        = Value : leftOperand "=" Value : rightOperand as AssignStatement
+        ;
+rule ReturnStatement Return
+        = "return" Value : result as ReturnStatement
+        ;
+rule BlockStatement Block
+        = "{" { Stat : statements } "}" as BlockStatement
+        ;
+rule IfElseStatement IfElse
+        = "if" Condition : condition "then" Stat : trueStatement [ "else" Stat : falseStatement ] as IfElseStatement
+        ;
+rule Statement Stat
+        = !Assign | !Return | !Block | !IfElse
+        ;

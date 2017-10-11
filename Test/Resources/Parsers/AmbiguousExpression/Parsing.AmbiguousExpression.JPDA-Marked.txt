@@ -1,0 +1,208 @@
+﻿=============================================================
+Compacted Joint PDA
+=============================================================
+Root Rule Start: Primitive.RootStart
+Root Rule End: Primitive.RootEnd
+Rule Start: Primitive.Start
+Rule End: Primitive.4
+
+Root Rule Start: Invoke.RootStart
+Root Rule End: Invoke.RootEnd
+Rule Start: Invoke.Start
+Rule End: Invoke.1
+
+Root Rule Start: Exp.RootStart
+Root Rule End: Exp.RootEnd
+Rule Start: Exp.Start
+Rule End: Exp.1
+
+@ $<Primitive>
+STATE Primitive.RootStart
+    TOKEN-BEGIN => Primitive.Start
+
+@ <Primitive>
+STATE Primitive.Start
+    [NAME] => Primitive.1
+        ASSIGN name
+        CREATE NameExpression
+
+<Primitive>: NAME : name as NameExpression@
+<Primitive>: Primitive : expression "<" [ Exp : arguments { "," Exp : arguments } ] ">" as GenericExpression@
+<Primitive>: Primitive : expression "." NAME : name as MemberExpression@
+STATE Primitive.1
+    LREC-REDUCE [SHIFT-REDUCE-COMPACTED] => Primitive.2
+        LR-REDUCE [Primitive.Start => Primitive.2] 
+        ASSIGN expression
+    LREC-REDUCE [SHIFT-REDUCE-COMPACTED] => Primitive.3
+        LR-REDUCE [Primitive.Start => Primitive.3] 
+        ASSIGN expression
+    TOKEN-FINISH [SHIFT-REDUCE-COMPACTED] => Primitive.RootEnd
+    NORMAL-REDUCE [SHIFT-REDUCE-COMPACTED] => Invoke.1
+        REDUCE [Invoke.Start => Invoke.1] 
+        USING 
+    NORMAL-REDUCE [SHIFT-REDUCE-COMPACTED] => Invoke.3
+        REDUCE [Invoke.2 => Invoke.3] 
+        ASSIGN argument
+
+<Primitive>: Primitive : expression@ "<" [ Exp : arguments { "," Exp : arguments } ] ">" as GenericExpression
+STATE Primitive.2
+    [LT "<"] => Primitive.5
+
+<Primitive>: Primitive : expression@ "." NAME : name as MemberExpression
+STATE Primitive.3
+    [MEMBER "."] => Primitive.6
+
+$<Primitive> @
+STATE Primitive.RootEnd
+
+<Invoke>: !Primitive@
+<Invoke>: Invoke : function Primitive : argument as InvokeExpression@
+END STATE Invoke.1
+    LREC-REDUCE => Invoke.2
+        LR-REDUCE [Invoke.Start => Invoke.2] 
+        ASSIGN function
+    TOKEN-FINISH => Invoke.RootEnd
+    NORMAL-REDUCE => Exp.1
+        REDUCE [Exp.Start => Exp.1] 
+        USING 
+    NORMAL-REDUCE => Exp.4
+        REDUCE [Exp.3 => Exp.4] 
+        ASSIGN secondOperand
+
+<Invoke>: Invoke : function Primitive : argument as InvokeExpression@
+STATE Invoke.3
+    LREC-REDUCE [SHIFT-REDUCE-COMPACTED] => Invoke.2
+        CREATE InvokeExpression
+        LR-REDUCE [Invoke.Start => Invoke.2] 
+        ASSIGN function
+    TOKEN-FINISH [SHIFT-REDUCE-COMPACTED] => Invoke.RootEnd
+        CREATE InvokeExpression
+    NORMAL-REDUCE [SHIFT-REDUCE-COMPACTED] => Exp.1
+        CREATE InvokeExpression
+        REDUCE [Exp.Start => Exp.1] 
+        USING 
+    NORMAL-REDUCE [SHIFT-REDUCE-COMPACTED] => Exp.4
+        CREATE InvokeExpression
+        REDUCE [Exp.3 => Exp.4] 
+        ASSIGN secondOperand
+
+<Primitive>: Primitive : expression "<"@ [ Exp : arguments { "," Exp : arguments } ] ">" as GenericExpression
+STATE Primitive.5
+    [GT ">"] => Primitive.1
+        CREATE GenericExpression
+    [NAME] [SHIFT-REDUCE-COMPACTED] => Primitive.1
+        SHIFT [Primitive.5 => Primitive.7] 
+        SHIFT [Exp.Start => Exp.1] 
+        SHIFT [Invoke.Start => Invoke.1] 
+        ASSIGN name
+        CREATE NameExpression
+
+<Primitive>: Primitive : expression "."@ NAME : name as MemberExpression
+STATE Primitive.6
+    [NAME] => Primitive.1
+        ASSIGN name
+        CREATE MemberExpression
+
+<Invoke>: Invoke : function@ Primitive : argument as InvokeExpression
+STATE Invoke.2
+    [NAME] [SHIFT-REDUCE-COMPACTED] => Primitive.1
+        SHIFT [Invoke.2 => Invoke.3] 
+        ASSIGN name
+        CREATE NameExpression
+
+$<Invoke> @
+STATE Invoke.RootEnd
+
+<Exp>: !Invoke@
+<Exp>: Exp : firstOperand "<" Invoke : secondOperand as BinaryExpression with { binaryOperator = "LT" }@
+<Exp>: Exp : firstOperand ">" Invoke : secondOperand as BinaryExpression with { binaryOperator = "GT" }@
+END STATE Exp.1
+    NORMAL-REDUCE => Primitive.7
+        REDUCE [Primitive.5 => Primitive.7] 
+        ASSIGN arguments
+    NORMAL-REDUCE => Primitive.7
+        REDUCE [Primitive.8 => Primitive.7] 
+        ASSIGN arguments
+    LREC-REDUCE => Exp.2
+        LR-REDUCE [Exp.Start => Exp.2] 
+        ASSIGN firstOperand
+    TOKEN-FINISH => Exp.RootEnd
+
+<Exp>: Exp : firstOperand "<" Invoke : secondOperand as BinaryExpression@ with { binaryOperator = "LT" }
+<Exp>: Exp : firstOperand ">" Invoke : secondOperand as BinaryExpression@ with { binaryOperator = "GT" }
+STATE Exp.4
+    NORMAL-REDUCE [SHIFT-REDUCE-COMPACTED] => Primitive.7
+        REDUCE [Primitive.5 => Primitive.7] 
+        ASSIGN arguments
+    NORMAL-REDUCE [SHIFT-REDUCE-COMPACTED] => Primitive.7
+        REDUCE [Primitive.8 => Primitive.7] 
+        ASSIGN arguments
+    LREC-REDUCE [SHIFT-REDUCE-COMPACTED] => Exp.2
+        LR-REDUCE [Exp.Start => Exp.2] 
+        ASSIGN firstOperand
+    TOKEN-FINISH [SHIFT-REDUCE-COMPACTED] => Exp.RootEnd
+
+<Primitive>: Primitive : expression "<" [ Exp : arguments@ { "," Exp : arguments } ] ">" as GenericExpression
+<Primitive>: Primitive : expression "<" [ Exp : arguments @{ "," Exp : arguments } ] ">" as GenericExpression
+STATE Primitive.7
+    [COMMA ","] => Primitive.8
+    [GT ">"] => Primitive.1
+        CREATE GenericExpression
+
+<Exp>: Exp : firstOperand@ "<" Invoke : secondOperand as BinaryExpression with { binaryOperator = "LT" }
+<Exp>: Exp : firstOperand@ ">" Invoke : secondOperand as BinaryExpression with { binaryOperator = "GT" }
+STATE Exp.2
+    [LT "<"] => Exp.3
+        CREATE BinaryExpression
+        SET binaryOperator => LT
+    [GT ">"] => Exp.3
+        CREATE BinaryExpression
+        SET binaryOperator => GT
+
+$<Exp> @
+STATE Exp.RootEnd
+
+<Primitive>: Primitive : expression "<" [ Exp : arguments { ","@ Exp : arguments } ] ">" as GenericExpression
+STATE Primitive.8
+    [NAME] [SHIFT-REDUCE-COMPACTED] => Primitive.1
+        SHIFT [Primitive.8 => Primitive.7] 
+        SHIFT [Exp.Start => Exp.1] 
+        SHIFT [Invoke.Start => Invoke.1] 
+        ASSIGN name
+        CREATE NameExpression
+
+<Exp>: Exp : firstOperand "<"@ Invoke : secondOperand as BinaryExpression with { binaryOperator = "LT" }
+<Exp>: Exp : firstOperand ">"@ Invoke : secondOperand as BinaryExpression with { binaryOperator = "GT" }
+STATE Exp.3
+    [NAME] [SHIFT-REDUCE-COMPACTED] => Primitive.1
+        SHIFT [Exp.3 => Exp.4] 
+        SHIFT [Invoke.Start => Invoke.1] 
+        ASSIGN name
+        CREATE NameExpression
+
+--------------------------------
+@ $<Invoke>
+STATE Invoke.RootStart
+    TOKEN-BEGIN => Invoke.Start
+
+@ <Invoke>
+STATE Invoke.Start
+    [NAME] [SHIFT-REDUCE-COMPACTED] => Primitive.1
+        SHIFT [Invoke.Start => Invoke.1] 
+        ASSIGN name
+        CREATE NameExpression
+
+--------------------------------
+@ $<Exp>
+STATE Exp.RootStart
+    TOKEN-BEGIN => Exp.Start
+
+@ <Exp>
+STATE Exp.Start
+    [NAME] [SHIFT-REDUCE-COMPACTED] => Primitive.1
+        SHIFT [Exp.Start => Exp.1] 
+        SHIFT [Invoke.Start => Invoke.1] 
+        ASSIGN name
+        CREATE NameExpression
+
+--------------------------------

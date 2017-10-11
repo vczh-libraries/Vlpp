@@ -1,0 +1,343 @@
+﻿=============================================================
+Epsilon PDA
+=============================================================
+Root Rule Start: JLiteral.RootStart
+Root Rule End: JLiteral.RootEnd
+Rule Start: JLiteral.Start
+Rule End: JLiteral.2.End
+Rule End: JLiteral.5.End
+Rule End: JLiteral.8.End
+Rule End: JLiteral.12.End
+Rule End: JLiteral.16.End
+
+Root Rule Start: JField.RootStart
+Root Rule End: JField.RootEnd
+Rule Start: JField.Start
+Rule End: JField.2.End
+
+Root Rule Start: JObject.RootStart
+Root Rule End: JObject.RootEnd
+Rule Start: JObject.Start
+Rule End: JObject.2.End
+
+Root Rule Start: JArray.RootStart
+Root Rule End: JArray.RootEnd
+Rule Start: JArray.Start
+Rule End: JArray.2.End
+
+Root Rule Start: JValue.RootStart
+Root Rule End: JValue.RootEnd
+Rule Start: JValue.Start
+Rule End: JValue.2.End
+Rule End: JValue.4.End
+Rule End: JValue.6.End
+
+Root Rule Start: JRoot.RootStart
+Root Rule End: JRoot.RootEnd
+Rule Start: JRoot.Start
+Rule End: JRoot.2.End
+Rule End: JRoot.4.End
+
+@ $<JLiteral>
+STATE JLiteral.RootStart
+    TOKEN-BEGIN => JLiteral.Start
+
+@ <JLiteral>
+STATE JLiteral.Start
+    EPSILON => JLiteral.1
+    EPSILON => JLiteral.4
+    EPSILON => JLiteral.7
+    EPSILON => JLiteral.11
+    EPSILON => JLiteral.15
+
+<JLiteral>: @STRING : content as String
+STATE JLiteral.1
+    [STRING] => JLiteral.3
+        ASSIGN content
+
+<JLiteral>: @NUMBER : content as Number
+STATE JLiteral.4
+    [NUMBER] => JLiteral.6
+        ASSIGN content
+
+<JLiteral>: @"true" as Literal with { value = "True" }
+STATE JLiteral.7
+    [TRUEVALUE "true"] => JLiteral.10
+
+<JLiteral>: @"false" as Literal with { value = "False" }
+STATE JLiteral.11
+    [FALSEVALUE "false"] => JLiteral.14
+
+<JLiteral>: @"null" as Literal with { value = "Null" }
+STATE JLiteral.15
+    [NULLVALUE "null"] => JLiteral.18
+
+<JLiteral>: STRING : content as String@
+STATE JLiteral.3
+    EPSILON => JLiteral.2.End
+        CREATE String
+
+<JLiteral>: NUMBER : content as Number@
+STATE JLiteral.6
+    EPSILON => JLiteral.5.End
+        CREATE Number
+
+<JLiteral>: "true" as Literal@ with { value = "True" }
+STATE JLiteral.10
+    EPSILON => JLiteral.9
+        CREATE Literal
+
+<JLiteral>: "false" as Literal@ with { value = "False" }
+STATE JLiteral.14
+    EPSILON => JLiteral.13
+        CREATE Literal
+
+<JLiteral>: "null" as Literal@ with { value = "Null" }
+STATE JLiteral.18
+    EPSILON => JLiteral.17
+        CREATE Literal
+
+<JLiteral>: STRING : content as String@
+END STATE JLiteral.2.End
+    TOKEN-FINISH => JLiteral.RootEnd
+
+<JLiteral>: NUMBER : content as Number@
+END STATE JLiteral.5.End
+    TOKEN-FINISH => JLiteral.RootEnd
+
+<JLiteral>: "true" as Literal@ with { value = "True" }
+STATE JLiteral.9
+    EPSILON => JLiteral.8.End
+        SET value => True
+
+<JLiteral>: "false" as Literal@ with { value = "False" }
+STATE JLiteral.13
+    EPSILON => JLiteral.12.End
+        SET value => False
+
+<JLiteral>: "null" as Literal@ with { value = "Null" }
+STATE JLiteral.17
+    EPSILON => JLiteral.16.End
+        SET value => Null
+
+$<JLiteral> @
+STATE JLiteral.RootEnd
+
+<JLiteral>: "true" as Literal with { value = "True" }@
+END STATE JLiteral.8.End
+    TOKEN-FINISH => JLiteral.RootEnd
+
+<JLiteral>: "false" as Literal with { value = "False" }@
+END STATE JLiteral.12.End
+    TOKEN-FINISH => JLiteral.RootEnd
+
+<JLiteral>: "null" as Literal with { value = "Null" }@
+END STATE JLiteral.16.End
+    TOKEN-FINISH => JLiteral.RootEnd
+
+--------------------------------
+@ $<JField>
+STATE JField.RootStart
+    TOKEN-BEGIN => JField.Start
+
+@ <JField>
+STATE JField.Start
+    EPSILON => JField.1
+
+<JField>: @STRING : name ":" JValue : value as ObjectField
+STATE JField.1
+    [STRING] => JField.5
+        ASSIGN name
+
+<JField>: STRING : name@ ":" JValue : value as ObjectField
+STATE JField.5
+    [COLON ":"] => JField.4
+
+<JField>: STRING : name ":"@ JValue : value as ObjectField
+STATE JField.4
+    <JValue> => JField.3
+        ASSIGN value
+
+<JField>: STRING : name ":" JValue : value as ObjectField@
+STATE JField.3
+    EPSILON => JField.2.End
+        CREATE ObjectField
+
+<JField>: STRING : name ":" JValue : value as ObjectField@
+END STATE JField.2.End
+    TOKEN-FINISH => JField.RootEnd
+
+$<JField> @
+STATE JField.RootEnd
+
+--------------------------------
+@ $<JObject>
+STATE JObject.RootStart
+    TOKEN-BEGIN => JObject.Start
+
+@ <JObject>
+STATE JObject.Start
+    EPSILON => JObject.1
+
+<JObject>: @"{" [ JField : fields { "," JField : fields } ] "}" as Object
+STATE JObject.1
+    [OBJOPEN "{"] => JObject.5
+
+<JObject>: "{"@ [ JField : fields { "," JField : fields } ] "}" as Object
+STATE JObject.5
+    <JField> => JObject.6
+        ASSIGN fields
+    EPSILON => JObject.4
+
+<JObject>: "{" [ JField : fields@ { "," JField : fields } ] "}" as Object
+STATE JObject.6
+    EPSILON => JObject.7
+
+<JObject>: "{" [ JField : fields { "," JField : fields } ]@ "}" as Object
+STATE JObject.4
+    [OBJCLOSE "}"] => JObject.3
+
+<JObject>: "{" [ JField : fields @{ "," JField : fields } ] "}" as Object
+STATE JObject.7
+    EPSILON => JObject.4
+    [COMMA ","] => JObject.8
+
+<JObject>: "{" [ JField : fields { "," JField : fields } ] "}" as Object@
+STATE JObject.3
+    EPSILON => JObject.2.End
+        CREATE Object
+
+<JObject>: "{" [ JField : fields { ","@ JField : fields } ] "}" as Object
+STATE JObject.8
+    <JField> => JObject.7
+        ASSIGN fields
+
+<JObject>: "{" [ JField : fields { "," JField : fields } ] "}" as Object@
+END STATE JObject.2.End
+    TOKEN-FINISH => JObject.RootEnd
+
+$<JObject> @
+STATE JObject.RootEnd
+
+--------------------------------
+@ $<JArray>
+STATE JArray.RootStart
+    TOKEN-BEGIN => JArray.Start
+
+@ <JArray>
+STATE JArray.Start
+    EPSILON => JArray.1
+
+<JArray>: @"[" [ JValue : items { "," JValue : items } ] "]" as Array
+STATE JArray.1
+    [ARROPEN "["] => JArray.5
+
+<JArray>: "["@ [ JValue : items { "," JValue : items } ] "]" as Array
+STATE JArray.5
+    <JValue> => JArray.6
+        ASSIGN items
+    EPSILON => JArray.4
+
+<JArray>: "[" [ JValue : items@ { "," JValue : items } ] "]" as Array
+STATE JArray.6
+    EPSILON => JArray.7
+
+<JArray>: "[" [ JValue : items { "," JValue : items } ]@ "]" as Array
+STATE JArray.4
+    [ARRCLOSE "]"] => JArray.3
+
+<JArray>: "[" [ JValue : items @{ "," JValue : items } ] "]" as Array
+STATE JArray.7
+    EPSILON => JArray.4
+    [COMMA ","] => JArray.8
+
+<JArray>: "[" [ JValue : items { "," JValue : items } ] "]" as Array@
+STATE JArray.3
+    EPSILON => JArray.2.End
+        CREATE Array
+
+<JArray>: "[" [ JValue : items { ","@ JValue : items } ] "]" as Array
+STATE JArray.8
+    <JValue> => JArray.7
+        ASSIGN items
+
+<JArray>: "[" [ JValue : items { "," JValue : items } ] "]" as Array@
+END STATE JArray.2.End
+    TOKEN-FINISH => JArray.RootEnd
+
+$<JArray> @
+STATE JArray.RootEnd
+
+--------------------------------
+@ $<JValue>
+STATE JValue.RootStart
+    TOKEN-BEGIN => JValue.Start
+
+@ <JValue>
+STATE JValue.Start
+    EPSILON => JValue.1
+    EPSILON => JValue.3
+    EPSILON => JValue.5
+
+<JValue>: @!JLiteral
+STATE JValue.1
+    <JLiteral> => JValue.2.End
+        USING 
+
+<JValue>: @!JObject
+STATE JValue.3
+    <JObject> => JValue.4.End
+        USING 
+
+<JValue>: @!JArray
+STATE JValue.5
+    <JArray> => JValue.6.End
+        USING 
+
+<JValue>: !JLiteral@
+END STATE JValue.2.End
+    TOKEN-FINISH => JValue.RootEnd
+
+<JValue>: !JObject@
+END STATE JValue.4.End
+    TOKEN-FINISH => JValue.RootEnd
+
+<JValue>: !JArray@
+END STATE JValue.6.End
+    TOKEN-FINISH => JValue.RootEnd
+
+$<JValue> @
+STATE JValue.RootEnd
+
+--------------------------------
+@ $<JRoot>
+STATE JRoot.RootStart
+    TOKEN-BEGIN => JRoot.Start
+
+@ <JRoot>
+STATE JRoot.Start
+    EPSILON => JRoot.1
+    EPSILON => JRoot.3
+
+<JRoot>: @!JObject
+STATE JRoot.1
+    <JObject> => JRoot.2.End
+        USING 
+
+<JRoot>: @!JArray
+STATE JRoot.3
+    <JArray> => JRoot.4.End
+        USING 
+
+<JRoot>: !JObject@
+END STATE JRoot.2.End
+    TOKEN-FINISH => JRoot.RootEnd
+
+<JRoot>: !JArray@
+END STATE JRoot.4.End
+    TOKEN-FINISH => JRoot.RootEnd
+
+$<JRoot> @
+STATE JRoot.RootEnd
+
+--------------------------------

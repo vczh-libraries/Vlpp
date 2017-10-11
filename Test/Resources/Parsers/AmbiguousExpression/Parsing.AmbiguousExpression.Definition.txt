@@ -1,0 +1,69 @@
+﻿=============================================================
+Grammar Definition
+=============================================================
+class Expression ambiguous(AmbiguousExpression)
+{
+}
+
+class AmbiguousExpression : Expression
+{
+    Expression[] items;
+}
+
+class NameExpression : Expression
+{
+    token name;
+}
+
+class BinaryExpression : Expression
+{
+    enum BinaryOperator
+    {
+        LT,
+        GT,
+    }
+
+    Expression firstOperand;
+    Expression secondOperand;
+    BinaryOperator binaryOperator;
+}
+
+class MemberExpression : Expression
+{
+    Expression expression;
+    token name;
+}
+
+class InvokeExpression : Expression
+{
+    Expression function;
+    Expression argument;
+}
+
+class GenericExpression : Expression
+{
+    Expression expression;
+    Expression[] arguments;
+}
+
+token NAME = "[a-zA-Z_]/w*";
+token LT = "/<";
+token GT = "/>";
+token COMMA = ",";
+token MEMBER = ".";
+discardtoken SPACE = "/s+";
+
+rule Expression Primitive
+        = NAME : name as NameExpression
+        = Primitive : expression "<" [ Exp : arguments { "," Exp : arguments } ] ">" as GenericExpression
+        = Primitive : expression "." NAME : name as MemberExpression
+        ;
+rule Expression Invoke
+        = !Primitive
+        = Invoke : function Primitive : argument as InvokeExpression
+        ;
+rule Expression Exp
+        = !Invoke
+        = Exp : firstOperand "<" Invoke : secondOperand as BinaryExpression with { binaryOperator = "LT" }
+        = Exp : firstOperand ">" Invoke : secondOperand as BinaryExpression with { binaryOperator = "GT" }
+        ;

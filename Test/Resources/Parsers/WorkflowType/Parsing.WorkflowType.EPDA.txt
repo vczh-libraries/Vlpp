@@ -1,0 +1,185 @@
+﻿=============================================================
+Epsilon PDA
+=============================================================
+Root Rule Start: WorkflowType.RootStart
+Root Rule End: WorkflowType.RootEnd
+Rule Start: WorkflowType.Start
+Rule End: WorkflowType.2.End
+Rule End: WorkflowType.5.End
+Rule End: WorkflowType.16.End
+Rule End: WorkflowType.20.End
+Rule End: WorkflowType.25.End
+Rule End: WorkflowType.31.End
+
+@ $<WorkflowType>
+STATE WorkflowType.RootStart
+    TOKEN-BEGIN => WorkflowType.Start
+
+@ <WorkflowType>
+STATE WorkflowType.Start
+    EPSILON => WorkflowType.1
+    EPSILON => WorkflowType.4
+    EPSILON => WorkflowType.15
+    EPSILON => WorkflowType.19
+    EPSILON => WorkflowType.24
+    EPSILON => WorkflowType.30
+
+<WorkflowType>: @NAME : name as ReferenceType
+STATE WorkflowType.1
+    [NAME] => WorkflowType.3
+        ASSIGN name
+
+<WorkflowType>: @"func" "(" [ WorkflowType : arguments { "," WorkflowType : arguments } ] ")" ":" WorkflowType : result as FunctionType
+STATE WorkflowType.4
+    [KEYWORD_FUNC "func"] => WorkflowType.11
+
+<WorkflowType>: @WorkflowType : element "^" as SharedPointerType
+STATE WorkflowType.15
+    <WorkflowType> => WorkflowType.18
+        ASSIGN element
+
+<WorkflowType>: @WorkflowType : element "{" "}" as EnumerableType
+STATE WorkflowType.19
+    <WorkflowType> => WorkflowType.23
+        ASSIGN element
+
+<WorkflowType>: @WorkflowType : value "[" [ WorkflowType : key ] "]" as MapType
+STATE WorkflowType.24
+    <WorkflowType> => WorkflowType.29
+        ASSIGN value
+
+<WorkflowType>: @WorkflowType : parent "::" NAME : name as ChildType
+STATE WorkflowType.30
+    <WorkflowType> => WorkflowType.34
+        ASSIGN parent
+
+<WorkflowType>: NAME : name as ReferenceType@
+STATE WorkflowType.3
+    EPSILON => WorkflowType.2.End
+        CREATE ReferenceType
+
+<WorkflowType>: "func"@ "(" [ WorkflowType : arguments { "," WorkflowType : arguments } ] ")" ":" WorkflowType : result as FunctionType
+STATE WorkflowType.11
+    [OPEN_BRACKET "("] => WorkflowType.10
+
+<WorkflowType>: WorkflowType : element@ "^" as SharedPointerType
+STATE WorkflowType.18
+    [EXP "^"] => WorkflowType.17
+
+<WorkflowType>: WorkflowType : element@ "{" "}" as EnumerableType
+STATE WorkflowType.23
+    [OPEN_BRACE "{"] => WorkflowType.22
+
+<WorkflowType>: WorkflowType : value@ "[" [ WorkflowType : key ] "]" as MapType
+STATE WorkflowType.29
+    [OPEN_ARRAY "["] => WorkflowType.28
+
+<WorkflowType>: WorkflowType : parent@ "::" NAME : name as ChildType
+STATE WorkflowType.34
+    [SCOPE_DELIMITER "::"] => WorkflowType.33
+
+<WorkflowType>: NAME : name as ReferenceType@
+END STATE WorkflowType.2.End
+    TOKEN-FINISH => WorkflowType.RootEnd
+
+<WorkflowType>: "func" "("@ [ WorkflowType : arguments { "," WorkflowType : arguments } ] ")" ":" WorkflowType : result as FunctionType
+STATE WorkflowType.10
+    <WorkflowType> => WorkflowType.12
+        ASSIGN arguments
+    EPSILON => WorkflowType.9
+
+<WorkflowType>: WorkflowType : element "^" as SharedPointerType@
+STATE WorkflowType.17
+    EPSILON => WorkflowType.16.End
+        CREATE SharedPointerType
+
+<WorkflowType>: WorkflowType : element "{"@ "}" as EnumerableType
+STATE WorkflowType.22
+    [CLOSE_BRACE "}"] => WorkflowType.21
+
+<WorkflowType>: WorkflowType : value "["@ [ WorkflowType : key ] "]" as MapType
+STATE WorkflowType.28
+    <WorkflowType> => WorkflowType.27
+        ASSIGN key
+    EPSILON => WorkflowType.27
+
+<WorkflowType>: WorkflowType : parent "::"@ NAME : name as ChildType
+STATE WorkflowType.33
+    [NAME] => WorkflowType.32
+        ASSIGN name
+
+$<WorkflowType> @
+STATE WorkflowType.RootEnd
+
+<WorkflowType>: "func" "(" [ WorkflowType : arguments@ { "," WorkflowType : arguments } ] ")" ":" WorkflowType : result as FunctionType
+STATE WorkflowType.12
+    EPSILON => WorkflowType.13
+
+<WorkflowType>: "func" "(" [ WorkflowType : arguments { "," WorkflowType : arguments } ]@ ")" ":" WorkflowType : result as FunctionType
+STATE WorkflowType.9
+    [CLOSE_BRACKET ")"] => WorkflowType.8
+
+<WorkflowType>: WorkflowType : element "^" as SharedPointerType@
+END STATE WorkflowType.16.End
+    TOKEN-FINISH => WorkflowType.RootEnd
+
+<WorkflowType>: WorkflowType : element "{" "}" as EnumerableType@
+STATE WorkflowType.21
+    EPSILON => WorkflowType.20.End
+        CREATE EnumerableType
+
+<WorkflowType>: WorkflowType : value "[" [ WorkflowType : key ]@ "]" as MapType
+STATE WorkflowType.27
+    [CLOSE_ARRAY "]"] => WorkflowType.26
+
+<WorkflowType>: WorkflowType : parent "::" NAME : name as ChildType@
+STATE WorkflowType.32
+    EPSILON => WorkflowType.31.End
+        CREATE ChildType
+
+<WorkflowType>: "func" "(" [ WorkflowType : arguments @{ "," WorkflowType : arguments } ] ")" ":" WorkflowType : result as FunctionType
+STATE WorkflowType.13
+    EPSILON => WorkflowType.9
+    [COMMA ","] => WorkflowType.14
+
+<WorkflowType>: "func" "(" [ WorkflowType : arguments { "," WorkflowType : arguments } ] ")"@ ":" WorkflowType : result as FunctionType
+STATE WorkflowType.8
+    [COLON ":"] => WorkflowType.7
+
+<WorkflowType>: WorkflowType : element "{" "}" as EnumerableType@
+END STATE WorkflowType.20.End
+    TOKEN-FINISH => WorkflowType.RootEnd
+
+<WorkflowType>: WorkflowType : value "[" [ WorkflowType : key ] "]" as MapType@
+STATE WorkflowType.26
+    EPSILON => WorkflowType.25.End
+        CREATE MapType
+
+<WorkflowType>: WorkflowType : parent "::" NAME : name as ChildType@
+END STATE WorkflowType.31.End
+    TOKEN-FINISH => WorkflowType.RootEnd
+
+<WorkflowType>: "func" "(" [ WorkflowType : arguments { ","@ WorkflowType : arguments } ] ")" ":" WorkflowType : result as FunctionType
+STATE WorkflowType.14
+    <WorkflowType> => WorkflowType.13
+        ASSIGN arguments
+
+<WorkflowType>: "func" "(" [ WorkflowType : arguments { "," WorkflowType : arguments } ] ")" ":"@ WorkflowType : result as FunctionType
+STATE WorkflowType.7
+    <WorkflowType> => WorkflowType.6
+        ASSIGN result
+
+<WorkflowType>: WorkflowType : value "[" [ WorkflowType : key ] "]" as MapType@
+END STATE WorkflowType.25.End
+    TOKEN-FINISH => WorkflowType.RootEnd
+
+<WorkflowType>: "func" "(" [ WorkflowType : arguments { "," WorkflowType : arguments } ] ")" ":" WorkflowType : result as FunctionType@
+STATE WorkflowType.6
+    EPSILON => WorkflowType.5.End
+        CREATE FunctionType
+
+<WorkflowType>: "func" "(" [ WorkflowType : arguments { "," WorkflowType : arguments } ] ")" ":" WorkflowType : result as FunctionType@
+END STATE WorkflowType.5.End
+    TOKEN-FINISH => WorkflowType.RootEnd
+
+--------------------------------

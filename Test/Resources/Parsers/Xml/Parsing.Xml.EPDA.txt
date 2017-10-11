@@ -1,0 +1,339 @@
+﻿=============================================================
+Epsilon PDA
+=============================================================
+Root Rule Start: XAttribute.RootStart
+Root Rule End: XAttribute.RootEnd
+Rule Start: XAttribute.Start
+Rule End: XAttribute.2.End
+
+Root Rule Start: XText.RootStart
+Root Rule End: XText.RootEnd
+Rule Start: XText.Start
+Rule End: XText.2.End
+
+Root Rule Start: XCData.RootStart
+Root Rule End: XCData.RootEnd
+Rule Start: XCData.Start
+Rule End: XCData.2.End
+
+Root Rule Start: XComment.RootStart
+Root Rule End: XComment.RootEnd
+Rule Start: XComment.Start
+Rule End: XComment.2.End
+
+Root Rule Start: XElement.RootStart
+Root Rule End: XElement.RootEnd
+Rule Start: XElement.Start
+Rule End: XElement.2.End
+
+Root Rule Start: XSubNode.RootStart
+Root Rule End: XSubNode.RootEnd
+Rule Start: XSubNode.Start
+Rule End: XSubNode.2.End
+
+Root Rule Start: XInstruction.RootStart
+Root Rule End: XInstruction.RootEnd
+Rule Start: XInstruction.Start
+Rule End: XInstruction.2.End
+
+Root Rule Start: XDocument.RootStart
+Root Rule End: XDocument.RootEnd
+Rule Start: XDocument.Start
+Rule End: XDocument.2.End
+
+@ $<XAttribute>
+STATE XAttribute.RootStart
+    TOKEN-BEGIN => XAttribute.Start
+
+@ <XAttribute>
+STATE XAttribute.Start
+    EPSILON => XAttribute.1
+
+<XAttribute>: @NAME : name "=" ATTVALUE : value as Attribute
+STATE XAttribute.1
+    [NAME] => XAttribute.5
+        ASSIGN name
+
+<XAttribute>: NAME : name@ "=" ATTVALUE : value as Attribute
+STATE XAttribute.5
+    [EQUAL "="] => XAttribute.4
+
+<XAttribute>: NAME : name "="@ ATTVALUE : value as Attribute
+STATE XAttribute.4
+    [ATTVALUE] => XAttribute.3
+        ASSIGN value
+
+<XAttribute>: NAME : name "=" ATTVALUE : value as Attribute@
+STATE XAttribute.3
+    EPSILON => XAttribute.2.End
+        CREATE Attribute
+
+<XAttribute>: NAME : name "=" ATTVALUE : value as Attribute@
+END STATE XAttribute.2.End
+    TOKEN-FINISH => XAttribute.RootEnd
+
+$<XAttribute> @
+STATE XAttribute.RootEnd
+
+--------------------------------
+@ $<XText>
+STATE XText.RootStart
+    TOKEN-BEGIN => XText.Start
+
+@ <XText>
+STATE XText.Start
+    EPSILON => XText.1
+
+<XText>: @NAME : content | EQUAL : content | ATTVALUE : content | TEXT : content as Text
+STATE XText.1
+    [NAME] => XText.3
+        ASSIGN content
+    [EQUAL "="] => XText.3
+        ASSIGN content
+    [ATTVALUE] => XText.3
+        ASSIGN content
+    [TEXT] => XText.3
+        ASSIGN content
+
+<XText>: NAME : content | EQUAL : content | ATTVALUE : content | TEXT : content as Text@
+STATE XText.3
+    EPSILON => XText.2.End
+        CREATE Text
+
+<XText>: NAME : content | EQUAL : content | ATTVALUE : content | TEXT : content as Text@
+END STATE XText.2.End
+    TOKEN-FINISH => XText.RootEnd
+
+$<XText> @
+STATE XText.RootEnd
+
+--------------------------------
+@ $<XCData>
+STATE XCData.RootStart
+    TOKEN-BEGIN => XCData.Start
+
+@ <XCData>
+STATE XCData.Start
+    EPSILON => XCData.1
+
+<XCData>: @CDATA : content as CData
+STATE XCData.1
+    [CDATA] => XCData.3
+        ASSIGN content
+
+<XCData>: CDATA : content as CData@
+STATE XCData.3
+    EPSILON => XCData.2.End
+        CREATE CData
+
+<XCData>: CDATA : content as CData@
+END STATE XCData.2.End
+    TOKEN-FINISH => XCData.RootEnd
+
+$<XCData> @
+STATE XCData.RootEnd
+
+--------------------------------
+@ $<XComment>
+STATE XComment.RootStart
+    TOKEN-BEGIN => XComment.Start
+
+@ <XComment>
+STATE XComment.Start
+    EPSILON => XComment.1
+
+<XComment>: @COMMENT : content as Comment
+STATE XComment.1
+    [COMMENT] => XComment.3
+        ASSIGN content
+
+<XComment>: COMMENT : content as Comment@
+STATE XComment.3
+    EPSILON => XComment.2.End
+        CREATE Comment
+
+<XComment>: COMMENT : content as Comment@
+END STATE XComment.2.End
+    TOKEN-FINISH => XComment.RootEnd
+
+$<XComment> @
+STATE XComment.RootEnd
+
+--------------------------------
+@ $<XElement>
+STATE XElement.RootStart
+    TOKEN-BEGIN => XElement.Start
+
+@ <XElement>
+STATE XElement.Start
+    EPSILON => XElement.1
+
+<XElement>: @"<" NAME : name { XAttribute : attributes } ( "/>" | ">" { XSubNode : subNodes } "</" NAME : closingName ">" ) as Element
+STATE XElement.1
+    [ELEMENT_OPEN "<"] => XElement.6
+
+<XElement>: "<"@ NAME : name { XAttribute : attributes } ( "/>" | ">" { XSubNode : subNodes } "</" NAME : closingName ">" ) as Element
+STATE XElement.6
+    [NAME] => XElement.5
+        ASSIGN name
+
+<XElement>: "<" NAME : name@ { XAttribute : attributes } ( "/>" | ">" { XSubNode : subNodes } "</" NAME : closingName ">" ) as Element
+STATE XElement.5
+    EPSILON => XElement.7
+
+<XElement>: "<" NAME : name @{ XAttribute : attributes } ( "/>" | ">" { XSubNode : subNodes } "</" NAME : closingName ">" ) as Element
+STATE XElement.7
+    EPSILON => XElement.4
+    <XAttribute> => XElement.7
+        ASSIGN attributes
+
+<XElement>: "<" NAME : name { XAttribute : attributes }@ ( "/>" | ">" { XSubNode : subNodes } "</" NAME : closingName ">" ) as Element
+STATE XElement.4
+    [SINGLE_ELEMENT_CLOSE "/>"] => XElement.3
+    [ELEMENT_CLOSE ">"] => XElement.11
+
+<XElement>: "<" NAME : name { XAttribute : attributes } ( "/>" | ">" { XSubNode : subNodes } "</" NAME : closingName ">" ) as Element@
+STATE XElement.3
+    EPSILON => XElement.2.End
+        CREATE Element
+
+<XElement>: "<" NAME : name { XAttribute : attributes } ( "/>" | ">"@ { XSubNode : subNodes } "</" NAME : closingName ">" ) as Element
+STATE XElement.11
+    EPSILON => XElement.12
+
+<XElement>: "<" NAME : name { XAttribute : attributes } ( "/>" | ">" { XSubNode : subNodes } "</" NAME : closingName ">" ) as Element@
+END STATE XElement.2.End
+    TOKEN-FINISH => XElement.RootEnd
+
+<XElement>: "<" NAME : name { XAttribute : attributes } ( "/>" | ">" @{ XSubNode : subNodes } "</" NAME : closingName ">" ) as Element
+STATE XElement.12
+    EPSILON => XElement.10
+    <XSubNode> => XElement.12
+        ASSIGN subNodes
+
+$<XElement> @
+STATE XElement.RootEnd
+
+<XElement>: "<" NAME : name { XAttribute : attributes } ( "/>" | ">" { XSubNode : subNodes }@ "</" NAME : closingName ">" ) as Element
+STATE XElement.10
+    [COMPLEX_ELEMENT_OPEN "</"] => XElement.9
+
+<XElement>: "<" NAME : name { XAttribute : attributes } ( "/>" | ">" { XSubNode : subNodes } "</"@ NAME : closingName ">" ) as Element
+STATE XElement.9
+    [NAME] => XElement.8
+        ASSIGN closingName
+
+<XElement>: "<" NAME : name { XAttribute : attributes } ( "/>" | ">" { XSubNode : subNodes } "</" NAME : closingName@ ">" ) as Element
+STATE XElement.8
+    [ELEMENT_CLOSE ">"] => XElement.3
+
+--------------------------------
+@ $<XSubNode>
+STATE XSubNode.RootStart
+    TOKEN-BEGIN => XSubNode.Start
+
+@ <XSubNode>
+STATE XSubNode.Start
+    EPSILON => XSubNode.1
+
+<XSubNode>: @!XText | !XCData | !XComment | !XElement
+STATE XSubNode.1
+    <XText> => XSubNode.2.End
+        USING 
+    <XCData> => XSubNode.2.End
+        USING 
+    <XComment> => XSubNode.2.End
+        USING 
+    <XElement> => XSubNode.2.End
+        USING 
+
+<XSubNode>: !XText | !XCData | !XComment | !XElement@
+END STATE XSubNode.2.End
+    TOKEN-FINISH => XSubNode.RootEnd
+
+$<XSubNode> @
+STATE XSubNode.RootEnd
+
+--------------------------------
+@ $<XInstruction>
+STATE XInstruction.RootStart
+    TOKEN-BEGIN => XInstruction.Start
+
+@ <XInstruction>
+STATE XInstruction.Start
+    EPSILON => XInstruction.1
+
+<XInstruction>: @"<?" NAME : name { XAttribute : attributes } "?>" as Instruction
+STATE XInstruction.1
+    [INSTRUCTION_OPEN "<?"] => XInstruction.6
+
+<XInstruction>: "<?"@ NAME : name { XAttribute : attributes } "?>" as Instruction
+STATE XInstruction.6
+    [NAME] => XInstruction.5
+        ASSIGN name
+
+<XInstruction>: "<?" NAME : name@ { XAttribute : attributes } "?>" as Instruction
+STATE XInstruction.5
+    EPSILON => XInstruction.7
+
+<XInstruction>: "<?" NAME : name @{ XAttribute : attributes } "?>" as Instruction
+STATE XInstruction.7
+    EPSILON => XInstruction.4
+    <XAttribute> => XInstruction.7
+        ASSIGN attributes
+
+<XInstruction>: "<?" NAME : name { XAttribute : attributes }@ "?>" as Instruction
+STATE XInstruction.4
+    [INSTRUCTION_CLOSE "?>"] => XInstruction.3
+
+<XInstruction>: "<?" NAME : name { XAttribute : attributes } "?>" as Instruction@
+STATE XInstruction.3
+    EPSILON => XInstruction.2.End
+        CREATE Instruction
+
+<XInstruction>: "<?" NAME : name { XAttribute : attributes } "?>" as Instruction@
+END STATE XInstruction.2.End
+    TOKEN-FINISH => XInstruction.RootEnd
+
+$<XInstruction> @
+STATE XInstruction.RootEnd
+
+--------------------------------
+@ $<XDocument>
+STATE XDocument.RootStart
+    TOKEN-BEGIN => XDocument.Start
+
+@ <XDocument>
+STATE XDocument.Start
+    EPSILON => XDocument.1
+
+<XDocument>: @{ XInstruction : prologs | XComment : prologs } XElement : rootElement as Document
+STATE XDocument.1
+    EPSILON => XDocument.5
+
+<XDocument>: @{ XInstruction : prologs | XComment : prologs } XElement : rootElement as Document
+STATE XDocument.5
+    EPSILON => XDocument.4
+    <XInstruction> => XDocument.5
+        ASSIGN prologs
+    <XComment> => XDocument.5
+        ASSIGN prologs
+
+<XDocument>: { XInstruction : prologs | XComment : prologs }@ XElement : rootElement as Document
+STATE XDocument.4
+    <XElement> => XDocument.3
+        ASSIGN rootElement
+
+<XDocument>: { XInstruction : prologs | XComment : prologs } XElement : rootElement as Document@
+STATE XDocument.3
+    EPSILON => XDocument.2.End
+        CREATE Document
+
+<XDocument>: { XInstruction : prologs | XComment : prologs } XElement : rootElement as Document@
+END STATE XDocument.2.End
+    TOKEN-FINISH => XDocument.RootEnd
+
+$<XDocument> @
+STATE XDocument.RootEnd
+
+--------------------------------

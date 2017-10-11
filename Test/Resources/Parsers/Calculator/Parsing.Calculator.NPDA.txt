@@ -1,0 +1,235 @@
+﻿=============================================================
+Non-deterministic PDA
+=============================================================
+Root Rule Start: Number.RootStart
+Root Rule End: Number.RootEnd
+Rule Start: Number.Start
+Rule End: Number.2
+
+Root Rule Start: Call.RootStart
+Root Rule End: Call.RootEnd
+Rule Start: Call.Start
+Rule End: Call.6
+
+Root Rule Start: Factor.RootStart
+Root Rule End: Factor.RootEnd
+Rule Start: Factor.Start
+Rule End: Factor.1
+
+Root Rule Start: Term.RootStart
+Root Rule End: Term.RootEnd
+Rule Start: Term.Start
+Rule End: Term.1
+
+Root Rule Start: Exp.RootStart
+Root Rule End: Exp.RootEnd
+Rule Start: Exp.Start
+Rule End: Exp.1
+
+Root Rule Start: Exec.RootStart
+Root Rule End: Exec.RootEnd
+Rule Start: Exec.Start
+Rule End: Exec.2
+
+@ $<Number>
+STATE Number.RootStart
+    TOKEN-BEGIN => Number.Start
+
+@ <Number>
+STATE Number.Start
+    [NUMBER] => Number.1
+        ASSIGN value
+
+<Number>: NUMBER : value as NumberExpression@
+STATE Number.1
+    EPSILON => Number.2
+        CREATE NumberExpression
+
+<Number>: NUMBER : value as NumberExpression@
+END STATE Number.2
+    TOKEN-FINISH => Number.RootEnd
+
+$<Number> @
+STATE Number.RootEnd
+
+--------------------------------
+@ $<Call>
+STATE Call.RootStart
+    TOKEN-BEGIN => Call.Start
+
+@ <Call>
+STATE Call.Start
+    [NAME] => Call.1
+        ASSIGN functionName
+
+<Call>: NAME : functionName@ "(" [ Exp : arguments { "," Exp : arguments } ] ")" as FunctionExpression
+STATE Call.1
+    [LEFT "("] => Call.2
+
+<Call>: NAME : functionName "("@ [ Exp : arguments { "," Exp : arguments } ] ")" as FunctionExpression
+STATE Call.2
+    [RIGHT ")"] => Call.4
+    <Exp> => Call.3
+        ASSIGN arguments
+
+<Call>: NAME : functionName "(" [ Exp : arguments { "," Exp : arguments } ] ")" as FunctionExpression@
+STATE Call.4
+    EPSILON => Call.6
+        CREATE FunctionExpression
+
+<Call>: NAME : functionName "(" [ Exp : arguments@ { "," Exp : arguments } ] ")" as FunctionExpression
+<Call>: NAME : functionName "(" [ Exp : arguments @{ "," Exp : arguments } ] ")" as FunctionExpression
+STATE Call.3
+    [COMMA ","] => Call.5
+    [RIGHT ")"] => Call.4
+
+<Call>: NAME : functionName "(" [ Exp : arguments { "," Exp : arguments } ] ")" as FunctionExpression@
+END STATE Call.6
+    TOKEN-FINISH => Call.RootEnd
+
+<Call>: NAME : functionName "(" [ Exp : arguments { ","@ Exp : arguments } ] ")" as FunctionExpression
+STATE Call.5
+    <Exp> => Call.3
+        ASSIGN arguments
+
+$<Call> @
+STATE Call.RootEnd
+
+--------------------------------
+@ $<Factor>
+STATE Factor.RootStart
+    TOKEN-BEGIN => Factor.Start
+
+@ <Factor>
+STATE Factor.Start
+    <Number> => Factor.1
+        USING 
+    <Call> => Factor.1
+        USING 
+    [LEFT "("] => Factor.2
+
+<Factor>: !Number | !Call@
+<Factor>: "(" !Exp ")"@
+END STATE Factor.1
+    TOKEN-FINISH => Factor.RootEnd
+
+<Factor>: "("@ !Exp ")"
+STATE Factor.2
+    <Exp> => Factor.3
+        USING 
+
+$<Factor> @
+STATE Factor.RootEnd
+
+<Factor>: "(" !Exp@ ")"
+STATE Factor.3
+    [RIGHT ")"] => Factor.1
+
+--------------------------------
+@ $<Term>
+STATE Term.RootStart
+    TOKEN-BEGIN => Term.Start
+
+@ <Term>
+STATE Term.Start
+    <Factor> => Term.1
+        USING 
+    <Term> => Term.2
+        ASSIGN firstOperand
+
+<Term>: !Factor@
+<Term>: Term : firstOperand "*" Factor : secondOperand as BinaryExpression with { binaryOperator = "Mul" }@
+<Term>: Term : firstOperand "/" Factor : secondOperand as BinaryExpression with { binaryOperator = "Div" }@
+END STATE Term.1
+    TOKEN-FINISH => Term.RootEnd
+
+<Term>: Term : firstOperand@ "*" Factor : secondOperand as BinaryExpression with { binaryOperator = "Mul" }
+<Term>: Term : firstOperand@ "/" Factor : secondOperand as BinaryExpression with { binaryOperator = "Div" }
+STATE Term.2
+    [MUL "*"] => Term.4
+        CREATE BinaryExpression
+        SET binaryOperator => Mul
+    [DIV "/"] => Term.4
+        CREATE BinaryExpression
+        SET binaryOperator => Div
+
+$<Term> @
+STATE Term.RootEnd
+
+<Term>: Term : firstOperand "*"@ Factor : secondOperand as BinaryExpression with { binaryOperator = "Mul" }
+<Term>: Term : firstOperand "/"@ Factor : secondOperand as BinaryExpression with { binaryOperator = "Div" }
+STATE Term.4
+    <Factor> => Term.6
+        ASSIGN secondOperand
+
+<Term>: Term : firstOperand "*" Factor : secondOperand as BinaryExpression@ with { binaryOperator = "Mul" }
+<Term>: Term : firstOperand "/" Factor : secondOperand as BinaryExpression@ with { binaryOperator = "Div" }
+STATE Term.6
+    EPSILON => Term.1
+
+--------------------------------
+@ $<Exp>
+STATE Exp.RootStart
+    TOKEN-BEGIN => Exp.Start
+
+@ <Exp>
+STATE Exp.Start
+    <Term> => Exp.1
+        USING 
+    <Exp> => Exp.2
+        ASSIGN firstOperand
+
+<Exp>: !Term@
+<Exp>: Exp : firstOperand "+" Term : secondOperand as BinaryExpression with { binaryOperator = "Add" }@
+<Exp>: Exp : firstOperand "-" Term : secondOperand as BinaryExpression with { binaryOperator = "Sub" }@
+END STATE Exp.1
+    TOKEN-FINISH => Exp.RootEnd
+
+<Exp>: Exp : firstOperand@ "+" Term : secondOperand as BinaryExpression with { binaryOperator = "Add" }
+<Exp>: Exp : firstOperand@ "-" Term : secondOperand as BinaryExpression with { binaryOperator = "Sub" }
+STATE Exp.2
+    [ADD "+"] => Exp.4
+        CREATE BinaryExpression
+        SET binaryOperator => Add
+    [SUB "-"] => Exp.4
+        CREATE BinaryExpression
+        SET binaryOperator => Sub
+
+$<Exp> @
+STATE Exp.RootEnd
+
+<Exp>: Exp : firstOperand "+"@ Term : secondOperand as BinaryExpression with { binaryOperator = "Add" }
+<Exp>: Exp : firstOperand "-"@ Term : secondOperand as BinaryExpression with { binaryOperator = "Sub" }
+STATE Exp.4
+    <Term> => Exp.6
+        ASSIGN secondOperand
+
+<Exp>: Exp : firstOperand "+" Term : secondOperand as BinaryExpression@ with { binaryOperator = "Add" }
+<Exp>: Exp : firstOperand "-" Term : secondOperand as BinaryExpression@ with { binaryOperator = "Sub" }
+STATE Exp.6
+    EPSILON => Exp.1
+
+--------------------------------
+@ $<Exec>
+STATE Exec.RootStart
+    TOKEN-BEGIN => Exec.Start
+
+@ <Exec>
+STATE Exec.Start
+    [EXEC "exec"] => Exec.1
+    <Exp> => Exec.2
+        USING 
+
+<Exec>: [ EXEC ]@ !Exp
+STATE Exec.1
+    <Exp> => Exec.2
+        USING 
+
+<Exec>: [ EXEC ] !Exp@
+END STATE Exec.2
+    TOKEN-FINISH => Exec.RootEnd
+
+$<Exec> @
+STATE Exec.RootEnd
+
+--------------------------------
