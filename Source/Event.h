@@ -100,7 +100,7 @@ namespace vl
 		{
 			for(vint i = 0; i < handlers.Count(); i++)
 			{
-				handlers[i]->function(ForwardValue<TArgs>(args)...);
+				handlers[i]->function(args...);
 			}
 		}
 	};
