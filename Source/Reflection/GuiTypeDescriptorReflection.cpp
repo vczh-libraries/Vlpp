@@ -293,6 +293,7 @@ TypedValueSerializerProvider
 			bool TypedValueSerializerProvider<float>::Serialize(const float& input, WString& output)
 			{
 				output = ftow(input);
+				if (output == L"-0") output = L"0";
 				return true;
 			}
 
@@ -316,6 +317,7 @@ TypedValueSerializerProvider
 			bool TypedValueSerializerProvider<double>::Serialize(const double& input, WString& output)
 			{
 				output = ftow(input);
+				if (output == L"-0") output = L"0";
 				return true;
 			}
 
