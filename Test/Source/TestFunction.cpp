@@ -39,6 +39,24 @@ public:
 	}
 };
 
+TEST_CASE(TestEmptyFunction)
+{
+	Func<vint(vint, vint)> add1;
+	Func<void(vint, vint)> add2 = add1;
+	TEST_ASSERT(!add1);
+	TEST_ASSERT(!add2);
+
+	add1 = Add1;
+	add2 = add1;
+	TEST_ASSERT(add1);
+	TEST_ASSERT(add2);
+
+	add1 = {};
+	add2 = add1;
+	TEST_ASSERT(!add1);
+	TEST_ASSERT(!add2);
+}
+
 TEST_CASE(TestFunction)
 {
 	Add2 add;

@@ -127,6 +127,7 @@ vl::Func<R(TArgs...)>
 	{
 	protected:
 		Ptr<internal_invokers::Invoker<R, TArgs...>>		invoker;
+
 	public:
 		typedef R FunctionType(TArgs...);
 		typedef R ResultType;
@@ -159,6 +160,19 @@ vl::Func<R(TArgs...)>
 		{
 			invoker=new internal_invokers::MemberInvoker<C, R, TArgs...>(sender, function);
 		}
+
+		/// <summary>Create a reference using a function object.</summary>
+		/// <typeparam name="R2">Return type of the function object.</typeparam>
+		/// <typeparam name="TArgs2">Argument types of the function object.</typeparam>
+		/// <param name="function">The function object.</param>
+		template<typename R2, typename ...TArgs2>
+		Func(const Func<R2(TArgs2...)>& function)
+		{
+			if (function)
+			{
+				invoker = new internal_invokers::ObjectInvoker<Func<R2(TArgs2...)>, R, TArgs...>(function);
+			}
+		}
 		
 		/// <summary>Create a reference using a function object.</summary>
 		/// <typeparam name="C">Type of the function object.</typeparam>
@@ -166,7 +180,7 @@ vl::Func<R(TArgs...)>
 		template<typename C>
 		Func(const C& function)
 		{
-			invoker=new internal_invokers::ObjectInvoker<C, R, TArgs...>(function);
+			invoker = new internal_invokers::ObjectInvoker<C, R, TArgs...>(function);
 		}
 
 		/// <summary>Invoke the function.</summary>
