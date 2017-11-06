@@ -61,6 +61,7 @@ TypeName
 			IMPL_TYPE_INFO_RENAME(vl::reflection::description::EnumerableCoroutine::IImpl, system::EnumerableCoroutine::IImpl)
 			IMPL_TYPE_INFO_RENAME(vl::reflection::description::EnumerableCoroutine, system::EnumerableCoroutine)
 			IMPL_TYPE_INFO_RENAME(vl::reflection::description::AsyncStatus, system::AsyncStatus)
+			IMPL_TYPE_INFO_RENAME(vl::reflection::description::AsyncContext, system::AsyncContext)
 			IMPL_TYPE_INFO_RENAME(vl::reflection::description::IAsync, system::Async)
 			IMPL_TYPE_INFO_RENAME(vl::reflection::description::IPromise, system::Promise)
 			IMPL_TYPE_INFO_RENAME(vl::reflection::description::IFuture, system::Future)
@@ -757,9 +758,16 @@ LoadPredefinedTypes
 				ENUM_CLASS_ITEM(Stopped)
 			END_ENUM_ITEM(AsyncStatus)
 
+			BEGIN_CLASS_MEMBER(AsyncContext)
+				CLASS_MEMBER_CONSTRUCTOR(Ptr<AsyncContext>(const Value&), {L"context"})
+				CLASS_MEMBER_METHOD(IsCancelled, NO_PARAMETER)
+				CLASS_MEMBER_METHOD(Cancel, NO_PARAMETER)
+				CLASS_MEMBER_PROPERTY_FAST(Context)
+			END_CLASS_MEMBER(AsyncContext)
+
 			BEGIN_INTERFACE_MEMBER(IAsync)
 				CLASS_MEMBER_PROPERTY_READONLY_FAST(Status)
-				CLASS_MEMBER_METHOD(Execute, { L"callback" })
+				CLASS_MEMBER_METHOD(Execute, { L"callback" _ L"context" })
 				CLASS_MEMBER_STATIC_METHOD(Delay, { L"milliseconds" })
 			END_INTERFACE_MEMBER(IAsync)
 

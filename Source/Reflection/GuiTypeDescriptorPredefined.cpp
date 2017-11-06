@@ -290,7 +290,57 @@ EnumerableCoroutine
 			}
 
 /***********************************************************************
-IAsync
+AsyncContext
+***********************************************************************/
+
+			AsyncContext::AsyncContext(const Value& _context)
+				:context(_context)
+			{
+			}
+
+			AsyncContext::~AsyncContext()
+			{
+			}
+
+			bool AsyncContext::IsCancelled()
+			{
+				SPIN_LOCK(lock)
+				{
+					return cancelled;
+				}
+				CHECK_FAIL(L"Not reachable");
+			}
+
+			bool AsyncContext::Cancel()
+			{
+				SPIN_LOCK(lock)
+				{
+					if (cancelled) return false;
+					cancelled = true;
+					return true;
+				}
+				CHECK_FAIL(L"Not reachable");
+			}
+
+			const description::Value& AsyncContext::GetContext()
+			{
+				SPIN_LOCK(lock)
+				{
+					return context;
+				}
+				CHECK_FAIL(L"Not reachable");
+			}
+
+			void AsyncContext::SetContext(const description::Value& value)
+			{
+				SPIN_LOCK(lock)
+				{
+					context = value;
+				}
+			}
+
+/***********************************************************************
+DelayAsync
 ***********************************************************************/
 
 			class DelayAsync : public Object, public virtual IAsync, public Description<DelayAsync>
@@ -311,7 +361,7 @@ IAsync
 					return status;
 				}
 
-				bool Execute(const Func<void(Ptr<CoroutineResult>)>& _callback)override
+				bool Execute(const Func<void(Ptr<CoroutineResult>)>& _callback, Ptr<AsyncContext> context)override
 				{
 					SPIN_LOCK(lock)
 					{
@@ -335,7 +385,7 @@ IAsync
 			}
 
 /***********************************************************************
-IFuture
+FutureAndPromiseAsync
 ***********************************************************************/
 
 			class FutureAndPromiseAsync : public virtual IFuture, public virtual IPromise, public Description<FutureAndPromiseAsync>
@@ -378,7 +428,7 @@ IFuture
 					return status;
 				}
 
-				bool Execute(const Func<void(Ptr<CoroutineResult>)>& _callback)override
+				bool Execute(const Func<void(Ptr<CoroutineResult>)>& _callback, Ptr<AsyncContext> context)override
 				{
 					SPIN_LOCK(lock)
 					{
@@ -538,6 +588,7 @@ AsyncCoroutine
 				AsyncCoroutine::Creator				creator;
 				Ptr<IAsyncScheduler>				scheduler;
 				Func<void(Ptr<CoroutineResult>)>	callback;
+				Ptr<AsyncContext>					context;
 				Value								result;
 
 			public:
@@ -562,11 +613,12 @@ AsyncCoroutine
 					}
 				}
 
-				bool Execute(const Func<void(Ptr<CoroutineResult>)>& _callback)override
+				bool Execute(const Func<void(Ptr<CoroutineResult>)>& _callback, Ptr<AsyncContext> _context)override
 				{
 					if (coroutine) return false;
 					scheduler = IAsyncScheduler::GetSchedulerForCurrentThread();
 					callback = _callback;
+					context = _context;
 					coroutine = creator(this);
 					OnContinue(nullptr);
 					return true;
@@ -575,6 +627,11 @@ AsyncCoroutine
 				Ptr<IAsyncScheduler> GetScheduler()override
 				{
 					return scheduler;
+				}
+
+				Ptr<AsyncContext> GetContext()override
+				{
+					return context;
 				}
 
 				void OnContinue(Ptr<CoroutineResult> output)override
@@ -609,7 +666,7 @@ AsyncCoroutine
 				value->Execute([async = Ptr<IImpl>(impl)](auto output)
 				{
 					async->OnContinue(output);
-				});
+				}, impl->GetContext());
 			}
 
 			void AsyncCoroutine::ReturnAndExit(IImpl* impl, const Value& value)
@@ -635,7 +692,7 @@ AsyncCoroutine
 							throw Exception(cr->GetFailure()->GetMessage());
 #pragma pop_macro("GetMessage")
 						}
-					});
+					}, nullptr);
 			}
 
 /***********************************************************************

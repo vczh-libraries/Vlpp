@@ -11,6 +11,7 @@ Interfaces:
 
 #include <math.h>
 #include "GuiTypeDescriptor.h"
+#include "../Threading.h"
 
 namespace vl
 {
@@ -259,11 +260,29 @@ Coroutine (Async)
 				Stopped,
 			};
 
+			class AsyncContext : public virtual IDescriptable, public Description<AsyncContext>
+			{
+			protected:
+				SpinLock								lock;
+				bool									cancelled = false;
+				Value									context;
+
+			public:
+				AsyncContext(const Value& _context = {});
+				~AsyncContext();
+
+				bool									IsCancelled();
+				bool									Cancel();
+
+				const description::Value&				GetContext();
+				void									SetContext(const description::Value& value);
+			};
+
 			class IAsync : public virtual IDescriptable, public Description<IAsync>
 			{
 			public:
 				virtual AsyncStatus						GetStatus() = 0;
-				virtual bool							Execute(const Func<void(Ptr<CoroutineResult>)>& callback) = 0;
+				virtual bool							Execute(const Func<void(Ptr<CoroutineResult>)>& callback, Ptr<AsyncContext> context = nullptr) = 0;
 
 				static Ptr<IAsync>						Delay(vint milliseconds);
 			};
@@ -304,6 +323,7 @@ Coroutine (Async)
 				{
 				public:
 					virtual Ptr<IAsyncScheduler>		GetScheduler() = 0;
+					virtual Ptr<AsyncContext>			GetContext() = 0;
 					virtual void						OnContinue(Ptr<CoroutineResult> output) = 0;
 					virtual void						OnReturn(const Value& value) = 0;
 				};

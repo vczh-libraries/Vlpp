@@ -50,6 +50,7 @@ Predefined Types
 			F(EnumerableCoroutine::IImpl)	\
 			F(EnumerableCoroutine)			\
 			F(AsyncStatus)					\
+			F(AsyncContext)					\
 			F(IAsync)						\
 			F(IPromise)						\
 			F(IFuture)						\
@@ -277,9 +278,9 @@ Interface Implementation Proxy (Implement)
 					INVOKEGET_INTERFACE_PROXY_NOPARAMS(GetStatus);
 				}
 
-				bool Execute(const Func<void(Ptr<CoroutineResult>)>& callback)override
+				bool Execute(const Func<void(Ptr<CoroutineResult>)>& callback, Ptr<AsyncContext> context)override
 				{
-					INVOKEGET_INTERFACE_PROXY(Execute, callback);
+					INVOKEGET_INTERFACE_PROXY(Execute, callback, context);
 				}
 			END_INTERFACE_PROXY(IAsync)
 
