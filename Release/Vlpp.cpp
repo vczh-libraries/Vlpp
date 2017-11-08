@@ -12052,6 +12052,10 @@ AsyncCoroutine
 
 				Ptr<AsyncContext> GetContext()override
 				{
+					if (!context)
+					{
+						context = new AsyncContext;
+					}
 					return context;
 				}
 
@@ -12095,16 +12099,9 @@ AsyncCoroutine
 				impl->OnReturn(value);
 			}
 
-			bool AsyncCoroutine::QueryIsCancelled(IImpl* impl)
+			Ptr<AsyncContext> AsyncCoroutine::QueryContext(IImpl* impl)
 			{
-				if (auto context = impl->GetContext())
-				{
-					return context->IsCancelled();
-				}
-				else
-				{
-					return false;
-				}
+				return impl->GetContext();
 			}
 
 			Ptr<IAsync> AsyncCoroutine::Create(const Creator& creator)
@@ -13027,7 +13024,7 @@ LoadPredefinedTypes
 			BEGIN_CLASS_MEMBER(AsyncCoroutine)
 				CLASS_MEMBER_STATIC_METHOD(AwaitAndRead, { L"impl" _ L"value" })
 				CLASS_MEMBER_STATIC_METHOD(ReturnAndExit, { L"impl" _ L"value"})
-				CLASS_MEMBER_STATIC_METHOD(QueryIsCancelled, { L"impl" })
+				CLASS_MEMBER_STATIC_METHOD(QueryContext, { L"impl" })
 				CLASS_MEMBER_STATIC_METHOD(Create, { L"creator" })
 				CLASS_MEMBER_STATIC_METHOD(CreateAndRun, { L"creator" })
 			END_CLASS_MEMBER(AsyncCoroutine)

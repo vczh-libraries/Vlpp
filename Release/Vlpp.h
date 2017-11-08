@@ -14414,7 +14414,7 @@ Coroutine (Async)
 
 				static void								AwaitAndRead(IImpl* impl, Ptr<IAsync> value);
 				static void								ReturnAndExit(IImpl* impl, const Value& value);
-				static bool								QueryIsCancelled(IImpl* impl);
+				static Ptr<AsyncContext>				QueryContext(IImpl* impl);
 				static Ptr<IAsync>						Create(const Creator& creator);
 				static void								CreateAndRun(const Creator& creator);
 			};

@@ -631,6 +631,10 @@ AsyncCoroutine
 
 				Ptr<AsyncContext> GetContext()override
 				{
+					if (!context)
+					{
+						context = new AsyncContext;
+					}
 					return context;
 				}
 
@@ -674,16 +678,9 @@ AsyncCoroutine
 				impl->OnReturn(value);
 			}
 
-			bool AsyncCoroutine::QueryIsCancelled(IImpl* impl)
+			Ptr<AsyncContext> AsyncCoroutine::QueryContext(IImpl* impl)
 			{
-				if (auto context = impl->GetContext())
-				{
-					return context->IsCancelled();
-				}
-				else
-				{
-					return false;
-				}
+				return impl->GetContext();
 			}
 
 			Ptr<IAsync> AsyncCoroutine::Create(const Creator& creator)
