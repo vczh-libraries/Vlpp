@@ -674,6 +674,18 @@ AsyncCoroutine
 				impl->OnReturn(value);
 			}
 
+			bool AsyncCoroutine::QueryIsCancelled(IImpl* impl)
+			{
+				if (auto context = impl->GetContext())
+				{
+					return context->IsCancelled();
+				}
+				else
+				{
+					return false;
+				}
+			}
+
 			Ptr<IAsync> AsyncCoroutine::Create(const Creator& creator)
 			{
 				return new CoroutineAsync(creator);

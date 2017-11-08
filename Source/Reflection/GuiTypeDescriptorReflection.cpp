@@ -797,6 +797,7 @@ LoadPredefinedTypes
 			BEGIN_CLASS_MEMBER(AsyncCoroutine)
 				CLASS_MEMBER_STATIC_METHOD(AwaitAndRead, { L"impl" _ L"value" })
 				CLASS_MEMBER_STATIC_METHOD(ReturnAndExit, { L"impl" _ L"value"})
+				CLASS_MEMBER_STATIC_METHOD(QueryIsCancelled, { L"impl" })
 				CLASS_MEMBER_STATIC_METHOD(Create, { L"creator" })
 				CLASS_MEMBER_STATIC_METHOD(CreateAndRun, { L"creator" })
 			END_CLASS_MEMBER(AsyncCoroutine)
