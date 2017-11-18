@@ -14,8 +14,15 @@ void WriteGetParserTextBuffer(ParsingSymbolManager* manager, const WString& pref
 	writer.WriteString(prefix);
 	writer.WriteLine(L"{");
 
-	writer.WriteString(prefix);
-	writer.WriteLine(L"\treturn parserTextBuffer;");
+	writer.WriteString(prefix); writer.WriteLine(L"\tvl::collections::Array<wchar_t> textBuffer(lengthTextBufferTotal + 1);");
+	writer.WriteString(prefix); writer.WriteLine(L"\twchar_t* reading = &textBuffer[0];");
+	writer.WriteString(prefix); writer.WriteLine(L"\tfor(vint i = 0; i < sizeof(parserTextBuffer) / sizeof(*parserTextBuffer); i++)");
+	writer.WriteString(prefix); writer.WriteLine(L"\t{");
+	writer.WriteString(prefix); writer.WriteLine(L"\t\tmemcpy(reading, parserTextBuffer[i], lengthTextBuffer[i] * sizeof(wchar_t));");
+	writer.WriteString(prefix); writer.WriteLine(L"\t\treading += lengthTextBuffer[i];");
+	writer.WriteString(prefix); writer.WriteLine(L"\t}");
+	writer.WriteString(prefix); writer.WriteLine(L"\t*reading = 0;");
+	writer.WriteString(prefix); writer.WriteLine(L"\treturn &textBuffer[0];");
 
 	writer.WriteString(prefix);
 	writer.WriteLine(L"}");
@@ -28,18 +35,45 @@ WriteParserText
 
 void WriteParserText(const WString& parserText, TextWriter& writer)
 {
-	writer.WriteLine(L"const wchar_t parserTextBuffer[] = ");
+	writer.WriteLine(L"const wchar_t* const parserTextBuffer[] = {");
 	{
 		StringReader reader(parserText);
+		bool first = true;
 		while(!reader.IsEnd())
 		{
-			writer.WriteString(L"L\"\\r\\n\" ");
+			writer.WriteString(first ? L"  " : L", ");
+			first = false;
 			WString line=reader.ReadLine();
 			WriteCppString(line, writer);
+			writer.WriteLine(L" L\"\\r\\n\"");
+		}
+	}
+	writer.WriteLine(L"};");
+
+	vint totalLength = 0;
+	writer.WriteLine(L"const int lengthTextBuffer[] = {");
+	{
+		StringReader reader(parserText);
+		vint index = 0;
+		while (!reader.IsEnd())
+		{
+			writer.WriteString(index++ == 0 ? L"  " : L", ");
+			WString line = reader.ReadLine();
+			writer.WriteString(itow(line.Length() + 2));
+			totalLength += line.Length() + 2;
+			if (index % 32 == 0)
+			{
+				writer.WriteLine(L"");
+			}
+		}
+		if (index % 32 != 0)
+		{
 			writer.WriteLine(L"");
 		}
 	}
-	writer.WriteLine(L";");
+	writer.WriteLine(L"};");
+	
+	writer.WriteLine(L"const int lengthTextBufferTotal = " + itow(totalLength) + L";");
 }
 
 /***********************************************************************
@@ -66,7 +100,7 @@ void WriteSerializedTable(Ptr<ParsingTable> table, const WString& prefix, const 
 	writer.WriteLine(L"const vint parserBufferBlock = " + itow(block) + L";");
 	writer.WriteLine(L"const vint parserBufferRemain = " + itow(remain) + L";");
 	writer.WriteLine(L"const vint parserBufferRows = " + itow(rows) + L";");
-	writer.WriteLine(L"const char* parserBuffer[] = {");
+	writer.WriteLine(L"const char* const parserBuffer[] = {");
 	
 	char buffer[block];
 	const wchar_t* hex = L"0123456789ABCDEF";
