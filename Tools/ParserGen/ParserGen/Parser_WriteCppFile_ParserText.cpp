@@ -51,7 +51,7 @@ void WriteParserText(const WString& parserText, TextWriter& writer)
 	writer.WriteLine(L"};");
 
 	vint totalLength = 0;
-	writer.WriteLine(L"const int lengthTextBuffer[] = {");
+	writer.WriteLine(L"const vint lengthTextBuffer[] = {");
 	{
 		StringReader reader(parserText);
 		vint index = 0;
@@ -73,7 +73,7 @@ void WriteParserText(const WString& parserText, TextWriter& writer)
 	}
 	writer.WriteLine(L"};");
 	
-	writer.WriteLine(L"const int lengthTextBufferTotal = " + itow(totalLength) + L";");
+	writer.WriteLine(L"const vint lengthTextBufferTotal = " + itow(totalLength) + L";");
 }
 
 /***********************************************************************
