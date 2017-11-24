@@ -267,7 +267,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugNoReflection|Win32'">false</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="..\..\Source\TestCoroutine.cpp" />
     <ClCompile Include="..\..\Source\TestFileSystem.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
@@ -380,7 +379,6 @@
     <ClInclude Include="..\..\..\Source\Reflection\GuiTypeDescriptorBuilder_Container.h" />
     <ClInclude Include="..\..\..\Source\Reflection\GuiTypeDescriptorBuilder_Function.h" />
     <ClInclude Include="..\..\..\Source\Reflection\GuiTypeDescriptorBuilder_Struct.h" />
-    <ClInclude Include="..\..\..\Source\Reflection\GuiTypeDescriptorCppHelper.h" />
     <ClInclude Include="..\..\..\Source\Reflection\GuiTypeDescriptorMacros.h" />
     <ClInclude Include="..\..\..\Source\Reflection\GuiTypeDescriptorPredefined.h" />
     <ClInclude Include="..\..\..\Source\Reflection\GuiTypeDescriptorReflection.h" />

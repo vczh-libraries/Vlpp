@@ -14276,222 +14276,6 @@ Runtime Exception
 
 				static Ptr<IValueException>				Create(const WString& message);
 			};
-
-/***********************************************************************
-Coroutine
-***********************************************************************/
-
-			enum class CoroutineStatus
-			{
-				Waiting,
-				Executing,
-				Stopped,
-			};
-
-			class CoroutineResult : public virtual IDescriptable, public Description<CoroutineResult>
-			{
-			protected:
-				Value									result;
-				Ptr<IValueException>					failure;
-
-			public:
-				Value									GetResult();
-				void									SetResult(const Value& value);
-				Ptr<IValueException>					GetFailure();
-				void									SetFailure(Ptr<IValueException> value);
-			};
-
-			class ICoroutine : public virtual IDescriptable, public Description<ICoroutine>
-			{
-			public:
-				virtual void							Resume(bool raiseException, Ptr<CoroutineResult> output) = 0;
-				virtual Ptr<IValueException>			GetFailure() = 0;
-				virtual CoroutineStatus					GetStatus() = 0;
-			};
-
-/***********************************************************************
-Coroutine (Enumerable)
-***********************************************************************/
-
-			class EnumerableCoroutine : public Object, public Description<EnumerableCoroutine>
-			{
-			public:
-				class IImpl : public virtual IValueEnumerator, public Description<IImpl>
-				{
-				public:
-					virtual void						OnYield(const Value& value) = 0;
-					virtual void						OnJoin(Ptr<IValueEnumerable> value) = 0;
-				};
-
-				typedef Func<Ptr<ICoroutine>(IImpl*)>	Creator;
-
-				static void								YieldAndPause(IImpl* impl, const Value& value);
-				static void								JoinAndPause(IImpl* impl, Ptr<IValueEnumerable> value);
-				static void								ReturnAndExit(IImpl* impl);
-				static Ptr<IValueEnumerable>			Create(const Creator& creator);
-			};
-
-/***********************************************************************
-Coroutine (Async)
-***********************************************************************/
-
-			enum class AsyncStatus
-			{
-				Ready,
-				Executing,
-				Stopped,
-			};
-
-			class AsyncContext : public virtual IDescriptable, public Description<AsyncContext>
-			{
-			protected:
-				SpinLock								lock;
-				bool									cancelled = false;
-				Value									context;
-
-			public:
-				AsyncContext(const Value& _context = {});
-				~AsyncContext();
-
-				bool									IsCancelled();
-				bool									Cancel();
-
-				const description::Value&				GetContext();
-				void									SetContext(const description::Value& value);
-			};
-
-			class IAsync : public virtual IDescriptable, public Description<IAsync>
-			{
-			public:
-				virtual AsyncStatus						GetStatus() = 0;
-				virtual bool							Execute(const Func<void(Ptr<CoroutineResult>)>& callback, Ptr<AsyncContext> context = nullptr) = 0;
-
-				static Ptr<IAsync>						Delay(vint milliseconds);
-			};
-
-			class IPromise : public virtual IDescriptable, public Description<IPromise>
-			{
-			public:
-				virtual bool							SendResult(const Value& result) = 0;
-				virtual bool							SendFailure(Ptr<IValueException> failure) = 0;
-			};
-
-			class IFuture : public virtual IAsync, public Description<IFuture>
-			{
-			public:
-				virtual Ptr<IPromise>					GetPromise() = 0;
-
-				static Ptr<IFuture>						Create();
-			};
-
-			class IAsyncScheduler : public virtual IDescriptable, public Description<IAsyncScheduler>
-			{
-			public:
-				virtual void							Execute(const Func<void()>& callback) = 0;
-				virtual void							ExecuteInBackground(const Func<void()>& callback) = 0;
-				virtual void							DelayExecute(const Func<void()>& callback, vint milliseconds) = 0;
-
-				static void								RegisterDefaultScheduler(Ptr<IAsyncScheduler> scheduler);
-				static void								RegisterSchedulerForCurrentThread(Ptr<IAsyncScheduler> scheduler);
-				static Ptr<IAsyncScheduler>				UnregisterDefaultScheduler();
-				static Ptr<IAsyncScheduler>				UnregisterSchedulerForCurrentThread();
-				static Ptr<IAsyncScheduler>				GetSchedulerForCurrentThread();
-			};
-
-			class AsyncCoroutine : public Object, public Description<AsyncCoroutine>
-			{
-			public:
-				class IImpl : public virtual IAsync, public Description<IImpl>
-				{
-				public:
-					virtual Ptr<IAsyncScheduler>		GetScheduler() = 0;
-					virtual Ptr<AsyncContext>			GetContext() = 0;
-					virtual void						OnContinue(Ptr<CoroutineResult> output) = 0;
-					virtual void						OnReturn(const Value& value) = 0;
-				};
-
-				typedef Func<Ptr<ICoroutine>(IImpl*)>	Creator;
-
-				static void								AwaitAndRead(IImpl* impl, Ptr<IAsync> value);
-				static void								ReturnAndExit(IImpl* impl, const Value& value);
-				static Ptr<AsyncContext>				QueryContext(IImpl* impl);
-				static Ptr<IAsync>						Create(const Creator& creator);
-				static void								CreateAndRun(const Creator& creator);
-			};
-
-/***********************************************************************
-Libraries
-***********************************************************************/
-
-#define REFLECTION_PREDEFINED_PRIMITIVE_TYPES(F)\
-			F(vuint8_t)		\
-			F(vuint16_t)	\
-			F(vuint32_t)	\
-			F(vuint64_t)	\
-			F(vint8_t)		\
-			F(vint16_t)		\
-			F(vint32_t)		\
-			F(vint64_t)		\
-			F(float)		\
-			F(double)		\
-			F(bool)			\
-			F(wchar_t)		\
-			F(WString)		\
-			F(Locale)		\
-
-			class Sys : public Description<Sys>
-			{
-			public:
-				static vint			Len(const WString& value)							{ return value.Length(); }
-				static WString		Left(const WString& value, vint length)				{ return value.Left(length); }
-				static WString		Right(const WString& value, vint length)			{ return value.Right(length); }
-				static WString		Mid(const WString& value, vint start, vint length)	{ return value.Sub(start, length); }
-				static vint			Find(const WString& value, const WString& substr)	{ return INVLOC.FindFirst(value, substr, Locale::Normalization::None).key; }
-
-#define DEFINE_COMPARE(TYPE) static vint Compare(TYPE a, TYPE b);
-				REFLECTION_PREDEFINED_PRIMITIVE_TYPES(DEFINE_COMPARE)
-				DEFINE_COMPARE(DateTime)
-#undef DEFINE_COMPARE
-
-				static Ptr<IValueEnumerable>		ReverseEnumerable(Ptr<IValueEnumerable> value);
-			};
-
-			class Math : public Description<Math>
-			{
-			public:
-				static vint8_t		Abs(vint8_t value)				{ return value > 0 ? value : -value; }
-				static vint16_t		Abs(vint16_t value)				{ return value > 0 ? value : -value; }
-				static vint32_t		Abs(vint32_t value)				{ return value > 0 ? value : -value; }
-				static vint64_t		Abs(vint64_t value)				{ return value > 0 ? value : -value; }
-				static float		Abs(float value)				{ return value > 0 ? value : -value; }
-				static double		Abs(double value)				{ return value > 0 ? value : -value; }
-				
-#define DEFINE_MINMAX(TYPE)\
-				static TYPE Min(TYPE a, TYPE b);\
-				static TYPE Max(TYPE a, TYPE b);\
-
-				REFLECTION_PREDEFINED_PRIMITIVE_TYPES(DEFINE_MINMAX)
-				DEFINE_MINMAX(DateTime)
-#undef DEFINE_MINMAX
-
-				static double		Sin(double value)				{ return sin(value); }
-				static double		Cos(double value)				{ return cos(value); }
-				static double		Tan(double value)				{ return tan(value); }
-				static double		ASin(double value)				{ return asin(value); }
-				static double		ACos(double value)				{ return acos(value); }
-				static double		ATan(double value)				{ return atan(value); }
-				static double		ATan2(double x, double y)		{ return atan2(y, x); }
-
-				static double		Exp(double value)				{ return exp(value);  }
-				static double		LogN(double value)				{ return log(value); }
-				static double		Log10(double value)				{ return log10(value); }
-				static double		Log(double value, double base)	{ return log(value) / log(base); }
-				static double		Pow(double value, double power)	{ return pow(value, power); }
-				static double		Ceil(double value)				{ return ceil(value); }
-				static double		Floor(double value)				{ return floor(value); }
-				static double		Round(double value)				{ return round(value); }
-				static double		Trunc(double value)				{ return trunc(value); }
-			};
 		}
 	}
 }
@@ -16647,718 +16431,6 @@ ParameterAccessor<TContainer>
 #endif
 
 /***********************************************************************
-.\REFLECTION\GUITYPEDESCRIPTORBUILDER_STRUCT.H
-***********************************************************************/
-/***********************************************************************
-Vczh Library++ 3.0
-Developer: Zihan Chen(vczh)
-Framework::Reflection
-	
-Interfaces:
-***********************************************************************/
- 
-#ifndef VCZH_REFLECTION_GUITYPEDESCRIPTORBUILDER_STRUCT
-#define VCZH_REFLECTION_GUITYPEDESCRIPTORBUILDER_STRUCT
- 
- 
-namespace vl
-{
-	namespace reflection
-	{
-		namespace description
-		{
- 
-/***********************************************************************
-DetailTypeInfoRetriver<TStruct>
-***********************************************************************/
-
-			template<typename T>
-			struct DetailTypeInfoRetriver<T, TypeFlags::NonGenericType>
-			{
-				static const ITypeInfo::Decorator						Decorator=ITypeInfo::TypeDescriptor;
-				typedef T												Type;
-				typedef T												TempValueType;
-				typedef T&												ResultReferenceType;
-				typedef T												ResultNonReferenceType;
-
-#ifndef VCZH_DEBUG_NO_REFLECTION
-				static Ptr<ITypeInfo> CreateTypeInfo(TypeInfoHint hint)
-				{
-					return MakePtr<TypeDescriptorTypeInfo>(GetTypeDescriptor<Type>(), hint);
-				}
-#endif
-			};
-
-			template<typename T>
-			struct DetailTypeInfoRetriver<const T, TypeFlags::NonGenericType>
-			{
-				typedef DetailTypeInfoRetriver<T, TypeFlags::NonGenericType>	UpLevelRetriver;
-
-				static const ITypeInfo::Decorator								Decorator=UpLevelRetriver::Decorator;
-				typedef typename UpLevelRetriver::Type							Type;
-				typedef T														TempValueType;
-				typedef const T&												ResultReferenceType;
-				typedef const T													ResultNonReferenceType;
-
-#ifndef VCZH_DEBUG_NO_REFLECTION
-				static Ptr<ITypeInfo> CreateTypeInfo(TypeInfoHint hint)
-				{
-					return TypeInfoRetriver<T>::CreateTypeInfo();
-				}
-#endif
-			};
-
-			template<typename T>
-			struct DetailTypeInfoRetriver<volatile T, TypeFlags::NonGenericType>
-			{
-				typedef DetailTypeInfoRetriver<T, TypeFlags::NonGenericType>	UpLevelRetriver;
-
-				static const ITypeInfo::Decorator								Decorator=UpLevelRetriver::Decorator;
-				typedef typename UpLevelRetriver::Type							Type;
-				typedef T														TempValueType;
-				typedef T&														ResultReferenceType;
-				typedef T														ResultNonReferenceType;
-
-#ifndef VCZH_DEBUG_NO_REFLECTION
-				static Ptr<ITypeInfo> CreateTypeInfo(TypeInfoHint hint)
-				{
-					return TypeInfoRetriver<T>::CreateTypeInfo();
-				}
-#endif
-			};
-
-			template<typename T>
-			struct DetailTypeInfoRetriver<T*, TypeFlags::NonGenericType>
-			{
-				typedef DetailTypeInfoRetriver<T, TypeFlags::NonGenericType>	UpLevelRetriver;
-
-				static const ITypeInfo::Decorator								Decorator=ITypeInfo::RawPtr;
-				typedef typename UpLevelRetriver::Type							Type;
-				typedef T*														TempValueType;
-				typedef T*&														ResultReferenceType;
-				typedef T*														ResultNonReferenceType;
-
-#ifndef VCZH_DEBUG_NO_REFLECTION
-				static Ptr<ITypeInfo> CreateTypeInfo(TypeInfoHint hint)
-				{
-					return MakePtr<RawPtrTypeInfo>(TypeInfoRetriver<T>::CreateTypeInfo());
-				}
-#endif
-			};
-
-			template<typename T>
-			struct DetailTypeInfoRetriver<Ptr<T>, TypeFlags::NonGenericType>
-			{
-				typedef DetailTypeInfoRetriver<T, TypeFlags::NonGenericType>	UpLevelRetriver;
-
-				static const ITypeInfo::Decorator								Decorator=ITypeInfo::SharedPtr;
-				typedef typename UpLevelRetriver::Type							Type;
-				typedef Ptr<T>													TempValueType;
-				typedef Ptr<T>&													ResultReferenceType;
-				typedef Ptr<T>													ResultNonReferenceType;
-
-#ifndef VCZH_DEBUG_NO_REFLECTION
-				static Ptr<ITypeInfo> CreateTypeInfo(TypeInfoHint hint)
-				{
-					return MakePtr<SharedPtrTypeInfo>(TypeInfoRetriver<T>::CreateTypeInfo());
-				}
-#endif
-			};
-
-			template<typename T>
-			struct DetailTypeInfoRetriver<Nullable<T>, TypeFlags::NonGenericType>
-			{
-				typedef DetailTypeInfoRetriver<T, TypeFlags::NonGenericType>	UpLevelRetriver;
-
-				static const ITypeInfo::Decorator								Decorator=ITypeInfo::Nullable;
-				typedef typename UpLevelRetriver::Type							Type;
-				typedef Nullable<T>												TempValueType;
-				typedef Nullable<T>&											ResultReferenceType;
-				typedef Nullable<T>												ResultNonReferenceType;
-
-#ifndef VCZH_DEBUG_NO_REFLECTION
-				static Ptr<ITypeInfo> CreateTypeInfo(TypeInfoHint hint)
-				{
-					return MakePtr<NullableTypeInfo>(TypeInfoRetriver<T>::CreateTypeInfo());
-				}
-#endif
-			};
-
-			template<typename T>
-			struct DetailTypeInfoRetriver<T&, TypeFlags::NonGenericType>
-			{
-				typedef DetailTypeInfoRetriver<T, TypeFlags::NonGenericType>	UpLevelRetriver;
-
-				static const ITypeInfo::Decorator								Decorator=UpLevelRetriver::Decorator;
-				typedef typename UpLevelRetriver::Type							Type;
-				typedef typename UpLevelRetriver::TempValueType					TempValueType;
-				typedef T&														ResultReferenceType;
-				typedef T														ResultNonReferenceType;
-
-#ifndef VCZH_DEBUG_NO_REFLECTION
-				static Ptr<ITypeInfo> CreateTypeInfo(TypeInfoHint hint)
-				{
-					return TypeInfoRetriver<T>::CreateTypeInfo();
-				}
-#endif
-			};
-
-			template<>
-			struct TypeInfoRetriver<void> : public TypeInfoRetriver<VoidValue>
-			{
-			};
- 
-/***********************************************************************
-ParameterAccessor<TStruct>
-***********************************************************************/
-
-			template<typename T>
-			struct ParameterAccessor<T, TypeFlags::NonGenericType>
-			{
-				static Value BoxParameter(const T& object, ITypeDescriptor* typeDescriptor)
-				{
-					return BoxValue<T>(object, typeDescriptor);
-				}
-
-				static void UnboxParameter(const Value& value, T& result, ITypeDescriptor* typeDescriptor, const WString& valueName)
-				{
-					result=UnboxValue<T>(value, typeDescriptor, valueName);
-				}
-			};
-
-			template<typename T>
-			struct ValueAccessor<T*, ITypeInfo::RawPtr>
-			{
-				static Value BoxValue(T* object, ITypeDescriptor* typeDescriptor)
-				{
-					return Value::From(object);
-				}
-
-				static T* UnboxValue(const Value& value, ITypeDescriptor* typeDescriptor, const WString& valueName)
-				{
-					if(value.IsNull()) return nullptr;
-					T* result = nullptr;
-					if (value.GetRawPtr())
-					{
-						result = value.GetRawPtr()->SafeAggregationCast<T>();
-					}
-					if(!result)
-					{
-#ifndef VCZH_DEBUG_NO_REFLECTION
-						if(!typeDescriptor)
-						{
-							typeDescriptor=GetTypeDescriptor<T>();
-						}
-						throw ArgumentTypeMismtatchException(valueName, typeDescriptor, Value::RawPtr, value);
-#else
-						CHECK_FAIL(L"vl::reflection::description::UnboxValue()#Argument type mismatch.");
-#endif
-					}
-					return result;
-				}
-			};
-
-			template<typename T>
-			struct ValueAccessor<Ptr<T>, ITypeInfo::SharedPtr>
-			{
-				static Value BoxValue(Ptr<T> object, ITypeDescriptor* typeDescriptor)
-				{
-					return Value::From(object);
-				}
-
-				static Ptr<T> UnboxValue(const Value& value, ITypeDescriptor* typeDescriptor, const WString& valueName)
-				{
-					if (value.IsNull()) return nullptr;
-					Ptr<T> result;
-					if(value.GetValueType()==Value::RawPtr || value.GetValueType()==Value::SharedPtr)
-					{
-						result = value.GetRawPtr()->SafeAggregationCast<T>();
-					}
-					if(!result)
-					{
-#ifndef VCZH_DEBUG_NO_REFLECTION
-						if(!typeDescriptor)
-						{
-							typeDescriptor=GetTypeDescriptor<T>();
-						}
-						throw ArgumentTypeMismtatchException(valueName, typeDescriptor, Value::SharedPtr, value);
-#else
-						CHECK_FAIL(L"vl::reflection::description::UnboxValue()#Argument type mismatch.");
-#endif
-					}
-					return result;
-				}
-			};
-
-			template<typename T>
-			struct ValueAccessor<Nullable<T>, ITypeInfo::Nullable>
-			{
-				static Value BoxValue(Nullable<T> object, ITypeDescriptor* typeDescriptor)
-				{
-					return object?ValueAccessor<T, ITypeInfo::TypeDescriptor>::BoxValue(object.Value(), typeDescriptor):Value();
-				}
-
-				static Nullable<T> UnboxValue(const Value& value, ITypeDescriptor* typeDescriptor, const WString& valueName)
-				{
-					if(value.IsNull())
-					{
-						return Nullable<T>();
-					}
-					else
-					{
-						return ValueAccessor<T, ITypeInfo::TypeDescriptor>::UnboxValue(value, typeDescriptor, valueName);
-					}
-				}
-			};
-
-			template<typename T>
-			struct ValueAccessor<T, ITypeInfo::TypeDescriptor>
-			{
-				static Value BoxValue(const T& object, ITypeDescriptor* typeDescriptor)
-				{
-#ifndef VCZH_DEBUG_NO_REFLECTION
-					if(!typeDescriptor)
-					{
-						typeDescriptor = GetTypeDescriptor<typename TypeInfoRetriver<T>::Type>();
-					}
-#endif
-					using Type = typename vl::RemoveCVR<T>::Type;
-					return Value::From(new IValueType::TypedBox<Type>(object), typeDescriptor);
-				}
-
-				static T UnboxValue(const Value& value, ITypeDescriptor* typeDescriptor, const WString& valueName)
-				{
-					using Type = typename vl::RemoveCVR<T>::Type;
-					if (auto unboxedValue = value.GetBoxedValue().Cast<IValueType::TypedBox<Type>>())
-					{
-						return unboxedValue->value;
-					}
-					else
-					{
-#ifndef VCZH_DEBUG_NO_REFLECTION
-						if (!typeDescriptor)
-						{
-							typeDescriptor = GetTypeDescriptor<typename TypeInfoRetriver<T>::Type>();
-						}
-						throw ArgumentTypeMismtatchException(valueName, typeDescriptor, Value::BoxedValue, value);
-#else
-						CHECK_FAIL(L"vl::reflection::description::UnboxValue()#Argument type mismatch.");
-#endif
-					}
-				}
-			};
-
-			template<>
-			struct ValueAccessor<Value, ITypeInfo::TypeDescriptor>
-			{
-				static Value BoxValue(const Value& object, ITypeDescriptor* typeDescriptor)
-				{
-					return object;
-				}
-
-				static Value UnboxValue(const Value& value, ITypeDescriptor* typeDescriptor, const WString& valueName)
-				{
-					return value;
-				}
-			};
-
-			template<>
-			struct ValueAccessor<VoidValue, ITypeInfo::TypeDescriptor>
-			{
-				static Value BoxValue(const VoidValue& object, ITypeDescriptor* typeDescriptor)
-				{
-					return Value();
-				}
-
-				static VoidValue UnboxValue(const Value& value, ITypeDescriptor* typeDescriptor, const WString& valueName)
-				{
-					return VoidValue();
-				}
-			};
-		}
-	}
-}
-
-#endif
-
-/***********************************************************************
-.\REFLECTION\GUITYPEDESCRIPTORCPPHELPER.H
-***********************************************************************/
-/***********************************************************************
-Vczh Library++ 3.0
-Developer: Zihan Chen(vczh)
-Framework::Reflection
-
-Interfaces:
-***********************************************************************/
-
-#ifndef VCZH_REFLECTION_GUITYPEDESCRIPTORCPPHELPER
-#define VCZH_REFLECTION_GUITYPEDESCRIPTORCPPHELPER
-
-
-namespace vl
-{
-	namespace __vwsn
-	{
-		template<typename T>
-		struct RunOnExit
-		{
-			T* function;
-
-			RunOnExit(T* _function)
-				:function(_function)
-			{
-			}
-
-			~RunOnExit()
-			{
-				function->operator()();
-			}
-		};
-
-		template<typename T>
-		T* This(T* thisValue)
-		{
-			CHECK_ERROR(thisValue != nullptr, L"The this pointer cannot be null.");
-			return thisValue;
-		}
-
-		template<typename T>
-		T* Ensure(T* pointer)
-		{
-			CHECK_ERROR(pointer != nullptr, L"The pointer cannot be null.");
-			return pointer;
-		}
-
-		template<typename T>
-		Ptr<T>& Ensure(Ptr<T>& pointer)
-		{
-			CHECK_ERROR(pointer != nullptr, L"The pointer cannot be null.");
-			return pointer;
-		}
-
-		template<typename T>
-		Ptr<T> Ensure(Ptr<T>&& pointer)
-		{
-			CHECK_ERROR(pointer != nullptr, L"The pointer cannot be null.");
-			return MoveValue(pointer);
-		}
-
-		template<typename T>
-		Nullable<T> Ensure(Nullable<T>&& nullable)
-		{
-			CHECK_ERROR(nullable, L"The pointer cannot be null.");
-			return MoveValue(nullable);
-		}
-
-		template<typename T>
-		Nullable<T>& Ensure(Nullable<T>& nullable)
-		{
-			CHECK_ERROR(nullable, L"The pointer cannot be null.");
-			return nullable;
-		}
-
-		template<typename T>
-		WString ToString(const T& value)
-		{
-			using Type = typename RemoveCVR<T>::Type;
-			WString str;
-			CHECK_ERROR(reflection::description::TypedValueSerializerProvider<T>::Serialize(value, str), L"Failed to serialize.");
-			return str;
-		}
-
-		template<typename T>
-		T Parse(const WString& str)
-		{
-			using Type = typename RemoveCVR<T>::Type;
-			T value;
-			CHECK_ERROR(reflection::description::TypedValueSerializerProvider<T>::Deserialize(str, value), L"Failed to serialize.");
-			return value;
-		}
-
-		template<typename TTo, typename TFrom>
-		struct NullableCastHelper
-		{
-			static Nullable<TTo> Cast(Nullable<TFrom> nullable)
-			{
-				return Nullable<TTo>(static_cast<TTo>(nullable.Value()));
-			}
-		};
-
-		template<typename TFrom>
-		struct NullableCastHelper<WString, TFrom>
-		{
-			static Nullable<WString> Cast(Nullable<TFrom> nullable)
-			{
-				return Nullable<WString>(ToString(nullable.Value()));
-			}
-		};
-
-		template<typename TTo>
-		struct NullableCastHelper<TTo, WString>
-		{
-			static Nullable<TTo> Cast(Nullable<WString> nullable)
-			{
-				return Nullable<TTo>(Parse<TTo>(nullable.Value()));
-			}
-		};
-
-		template<typename TTo, typename TFrom>
-		Nullable<TTo> NullableCast(Nullable<TFrom> nullable)
-		{
-			if (!nullable) return Nullable<TTo>();
-			return NullableCastHelper<TTo, TFrom>::Cast(nullable);
-		}
-
-		template<typename TTo, typename TFrom>
-		TTo* RawPtrCast(TFrom* pointer)
-		{
-			if (!pointer) return nullptr;
-			return pointer->template SafeAggregationCast<TTo>();
-		}
-
-		template<typename TTo, typename TFrom>
-		Ptr<TTo> SharedPtrCast(TFrom* pointer)
-		{
-			if (!pointer) return nullptr;
-			return pointer->template SafeAggregationCast<TTo>();
-		}
-
-		template<typename T>
-		reflection::description::Value Box(const T& value)
-		{
-			using Type = typename RemoveCVR<T>::Type;
-			return reflection::description::BoxParameter<Type>(const_cast<T&>(value));
-		}
-
-		template<typename T>
-		T Unbox(const reflection::description::Value& value)
-		{
-			using Type = typename RemoveCVR<T>::Type;
-			T result;
-			reflection::description::UnboxParameter<Type>(value, result);
-			return result;
-		}
-
-		template<typename T>
-		struct UnboxWeakHelper
-		{
-		};
-
-		template<typename T>
-		struct UnboxWeakHelper<T*>
-		{
-			static T* Unbox(const reflection::description::Value& value)
-			{
-				if (value.IsNull()) return nullptr;
-				return value.GetRawPtr()->SafeAggregationCast<T>();
-			}
-		};
-
-		template<typename T>
-		struct UnboxWeakHelper<Ptr<T>>
-		{
-			static Ptr<T> Unbox(const reflection::description::Value& value)
-			{
-				if (value.IsNull()) return nullptr;
-				return value.GetRawPtr()->SafeAggregationCast<T>();
-			}
-		};
-
-		template<typename T>
-		struct UnboxWeakHelper<Nullable<T>>
-		{
-			static Nullable<T> Unbox(const reflection::description::Value& value)
-			{
-				if (value.IsNull()) return Nullable<T>();
-				auto boxed = value.GetBoxedValue().Cast<reflection::description::IValueType::TypedBox<T>>();
-				if (!boxed) return Nullable<T>();
-				return Nullable<T>(boxed->value);
-			}
-		};
-
-		template<typename T>
-		T UnboxWeak(const reflection::description::Value& value)
-		{
-			using Type = typename RemoveCVR<T>::Type;
-			return UnboxWeakHelper<Type>::Unbox(value);
-		}
-
-		template<typename T>
-		collections::LazyList<T> Range(T begin, T end)
-		{
-			return collections::Range<T>(begin, end - begin);
-		}
-
-		template<typename T>
-		bool InSet(const T& value, const collections::LazyList<T>& collection)
-		{
-			return collection.Any([&](const T& element) {return element == value; });
-		}
-
-		template<typename T>
-		bool InSet(const T& value, Ptr<reflection::description::IValueReadonlyList> collection)
-		{
-			return InSet<T>(value, reflection::description::GetLazyList<T>(collection));
-		}
-
-		template<typename T, typename U>
-		Ptr<T> UnboxCollection(U& value)
-		{
-			auto boxedValue = reflection::description::BoxParameter<U>(value);
-			Ptr<T> result;
-			reflection::description::UnboxParameter<Ptr<T>>(boxedValue, result);
-			return result;
-		}
-
-		template<typename T, typename U>
-		Ptr<T> UnboxCollection(const collections::LazyList<U>& value)
-		{
-			auto boxedValue = reflection::description::BoxParameter<collections::LazyList<U>>(const_cast<collections::LazyList<U>&>(value));
-			Ptr<T> result;
-			reflection::description::UnboxParameter<Ptr<T>>(boxedValue, result);
-			return result;
-		}
-
-		struct CreateList
-		{
-			using IValueList = reflection::description::IValueList;
-
-			Ptr<IValueList>			list;
-
-			CreateList()
-				:list(IValueList::Create())
-			{
-			}
-
-			CreateList(Ptr<IValueList> _list)
-				:list(_list)
-			{
-			}
-
-			template<typename T>
-			CreateList Add(const T& value)
-			{
-				list->Add(Box(value));
-				return{ list };
-			}
-		};
-
-		struct CreateObservableList
-		{
-			using IValueObservableList = reflection::description::IValueObservableList;
-
-			Ptr<IValueObservableList>			list;
-
-			CreateObservableList()
-				:list(IValueObservableList::Create())
-			{
-			}
-
-			CreateObservableList(Ptr<IValueObservableList> _list)
-				:list(_list)
-			{
-			}
-
-			template<typename T>
-			CreateObservableList Add(const T& value)
-			{
-				list->Add(Box(value));
-				return{ list };
-			}
-		};
-
-		struct CreateDictionary
-		{
-			using IValueDictionary = reflection::description::IValueDictionary;
-
-			Ptr<IValueDictionary>	dictionary;
-
-			CreateDictionary()
-				:dictionary(IValueDictionary::Create())
-			{
-			}
-
-			CreateDictionary(Ptr<IValueDictionary> _dictionary)
-				:dictionary(_dictionary)
-			{
-			}
-
-			template<typename K, typename V>
-			CreateDictionary Add(const K& key, const V& value)
-			{
-				dictionary->Set(Box(key), Box(value));
-				return{ dictionary };
-			}
-		};
-
-		template<typename T>
-		struct EventHelper
-		{
-		};
-
-		template<typename T>
-		Ptr<reflection::description::IEventHandler> EventAttach(T& e, typename EventHelper<T>::Handler handler)
-		{
-			return EventHelper<T>::Attach(e, handler);
-		}
-
-		template<typename T>
-		bool EventDetach(T& e, Ptr<reflection::description::IEventHandler> handler)
-		{
-			return EventHelper<T>::Detach(e, handler);
-		}
-
-		template<typename T>
-		decltype(auto) EventInvoke(T& e)
-		{
-			return EventHelper<T>::Invoke(e);
-		}
-
-		template<typename ...TArgs>
-		struct EventHelper<Event<void(TArgs...)>>
-		{
-			using Handler = const Func<void(TArgs...)>&;
-
-			class EventHandlerImpl : public Object, public reflection::description::IEventHandler
-			{
-			public:
-				Ptr<EventHandler> handler;
-
-				EventHandlerImpl(Ptr<EventHandler> _handler)
-					:handler(_handler)
-				{
-				}
-
-				bool IsAttached()override
-				{
-					return handler->IsAttached();
-				}
-			};
-
-			static Ptr<reflection::description::IEventHandler> Attach(Event<void(TArgs...)>& e, Handler handler)
-			{
-				return MakePtr<EventHandlerImpl>(e.Add(handler));
-			}
-
-			static bool Detach(Event<void(TArgs...)>& e, Ptr<reflection::description::IEventHandler> handler)
-			{
-				auto impl = handler.Cast<EventHandlerImpl>();
-				if (!impl) return false;
-				return e.Remove(impl->handler);
-			}
-
-			static Event<void(TArgs...)>& Invoke(Event<void(TArgs...)>& e)
-			{
-				return e;
-			}
-		};
-	}
-}
-
-#endif
-
-/***********************************************************************
 .\REFLECTION\GUITYPEDESCRIPTORBUILDER_FUNCTION.H
 ***********************************************************************/
 /***********************************************************************
@@ -17379,6 +16451,44 @@ namespace vl
 	{
 		namespace description
 		{
+			template<typename ...TArgs>
+			struct EventHelper
+			{
+				using Handler = const Func<void(TArgs...)>&;
+
+				class EventHandlerImpl : public Object, public reflection::description::IEventHandler
+				{
+				public:
+					Ptr<EventHandler> handler;
+
+					EventHandlerImpl(Ptr<EventHandler> _handler)
+						:handler(_handler)
+					{
+					}
+
+					bool IsAttached()override
+					{
+						return handler->IsAttached();
+					}
+				};
+
+				static Ptr<reflection::description::IEventHandler> Attach(Event<void(TArgs...)>& e, Handler handler)
+				{
+					return MakePtr<EventHandlerImpl>(e.Add(handler));
+				}
+
+				static bool Detach(Event<void(TArgs...)>& e, Ptr<reflection::description::IEventHandler> handler)
+				{
+					auto impl = handler.Cast<EventHandlerImpl>();
+					if (!impl) return false;
+					return e.Remove(impl->handler);
+				}
+
+				static Event<void(TArgs...)>& Invoke(Event<void(TArgs...)>& e)
+				{
+					return e;
+				}
+			};
 
 /***********************************************************************
 DetailTypeInfoRetriver<Func<R(TArgs...)>>
@@ -17912,14 +17022,14 @@ CustomEventInfoImpl<void(TArgs...)>
 							internal_helper::AddValueToList(arguments, ForwardValue<TArgs>(args)...);
 							handler->Invoke(arguments);
 						});
-					return __vwsn::EventAttach(eventObject, func);
+					return EventHelper<TArgs...>::Attach(eventObject, func);
 				}
 
 				bool DetachInternal(DescriptableObject* thisObject, Ptr<IEventHandler> handler)override
 				{
 					TClass* object = UnboxValue<TClass*>(Value::From(thisObject), GetOwnerTypeDescriptor(), L"thisObject");
 					Event<void(TArgs...)>& eventObject = object->*eventRef;
-					return __vwsn::EventDetach(eventObject, handler);
+					return EventHelper<TArgs...>::Detach(eventObject, handler);
 				}
 
 				void InvokeInternal(DescriptableObject* thisObject, Ptr<IValueList> arguments)override
@@ -17962,6 +17072,341 @@ CustomEventInfoImpl<void(TArgs...)>
 				typedef TEvent								Type;
 			};
 #endif
+		}
+	}
+}
+
+#endif
+
+/***********************************************************************
+.\REFLECTION\GUITYPEDESCRIPTORBUILDER_STRUCT.H
+***********************************************************************/
+/***********************************************************************
+Vczh Library++ 3.0
+Developer: Zihan Chen(vczh)
+Framework::Reflection
+	
+Interfaces:
+***********************************************************************/
+ 
+#ifndef VCZH_REFLECTION_GUITYPEDESCRIPTORBUILDER_STRUCT
+#define VCZH_REFLECTION_GUITYPEDESCRIPTORBUILDER_STRUCT
+ 
+ 
+namespace vl
+{
+	namespace reflection
+	{
+		namespace description
+		{
+ 
+/***********************************************************************
+DetailTypeInfoRetriver<TStruct>
+***********************************************************************/
+
+			template<typename T>
+			struct DetailTypeInfoRetriver<T, TypeFlags::NonGenericType>
+			{
+				static const ITypeInfo::Decorator						Decorator=ITypeInfo::TypeDescriptor;
+				typedef T												Type;
+				typedef T												TempValueType;
+				typedef T&												ResultReferenceType;
+				typedef T												ResultNonReferenceType;
+
+#ifndef VCZH_DEBUG_NO_REFLECTION
+				static Ptr<ITypeInfo> CreateTypeInfo(TypeInfoHint hint)
+				{
+					return MakePtr<TypeDescriptorTypeInfo>(GetTypeDescriptor<Type>(), hint);
+				}
+#endif
+			};
+
+			template<typename T>
+			struct DetailTypeInfoRetriver<const T, TypeFlags::NonGenericType>
+			{
+				typedef DetailTypeInfoRetriver<T, TypeFlags::NonGenericType>	UpLevelRetriver;
+
+				static const ITypeInfo::Decorator								Decorator=UpLevelRetriver::Decorator;
+				typedef typename UpLevelRetriver::Type							Type;
+				typedef T														TempValueType;
+				typedef const T&												ResultReferenceType;
+				typedef const T													ResultNonReferenceType;
+
+#ifndef VCZH_DEBUG_NO_REFLECTION
+				static Ptr<ITypeInfo> CreateTypeInfo(TypeInfoHint hint)
+				{
+					return TypeInfoRetriver<T>::CreateTypeInfo();
+				}
+#endif
+			};
+
+			template<typename T>
+			struct DetailTypeInfoRetriver<volatile T, TypeFlags::NonGenericType>
+			{
+				typedef DetailTypeInfoRetriver<T, TypeFlags::NonGenericType>	UpLevelRetriver;
+
+				static const ITypeInfo::Decorator								Decorator=UpLevelRetriver::Decorator;
+				typedef typename UpLevelRetriver::Type							Type;
+				typedef T														TempValueType;
+				typedef T&														ResultReferenceType;
+				typedef T														ResultNonReferenceType;
+
+#ifndef VCZH_DEBUG_NO_REFLECTION
+				static Ptr<ITypeInfo> CreateTypeInfo(TypeInfoHint hint)
+				{
+					return TypeInfoRetriver<T>::CreateTypeInfo();
+				}
+#endif
+			};
+
+			template<typename T>
+			struct DetailTypeInfoRetriver<T*, TypeFlags::NonGenericType>
+			{
+				typedef DetailTypeInfoRetriver<T, TypeFlags::NonGenericType>	UpLevelRetriver;
+
+				static const ITypeInfo::Decorator								Decorator=ITypeInfo::RawPtr;
+				typedef typename UpLevelRetriver::Type							Type;
+				typedef T*														TempValueType;
+				typedef T*&														ResultReferenceType;
+				typedef T*														ResultNonReferenceType;
+
+#ifndef VCZH_DEBUG_NO_REFLECTION
+				static Ptr<ITypeInfo> CreateTypeInfo(TypeInfoHint hint)
+				{
+					return MakePtr<RawPtrTypeInfo>(TypeInfoRetriver<T>::CreateTypeInfo());
+				}
+#endif
+			};
+
+			template<typename T>
+			struct DetailTypeInfoRetriver<Ptr<T>, TypeFlags::NonGenericType>
+			{
+				typedef DetailTypeInfoRetriver<T, TypeFlags::NonGenericType>	UpLevelRetriver;
+
+				static const ITypeInfo::Decorator								Decorator=ITypeInfo::SharedPtr;
+				typedef typename UpLevelRetriver::Type							Type;
+				typedef Ptr<T>													TempValueType;
+				typedef Ptr<T>&													ResultReferenceType;
+				typedef Ptr<T>													ResultNonReferenceType;
+
+#ifndef VCZH_DEBUG_NO_REFLECTION
+				static Ptr<ITypeInfo> CreateTypeInfo(TypeInfoHint hint)
+				{
+					return MakePtr<SharedPtrTypeInfo>(TypeInfoRetriver<T>::CreateTypeInfo());
+				}
+#endif
+			};
+
+			template<typename T>
+			struct DetailTypeInfoRetriver<Nullable<T>, TypeFlags::NonGenericType>
+			{
+				typedef DetailTypeInfoRetriver<T, TypeFlags::NonGenericType>	UpLevelRetriver;
+
+				static const ITypeInfo::Decorator								Decorator=ITypeInfo::Nullable;
+				typedef typename UpLevelRetriver::Type							Type;
+				typedef Nullable<T>												TempValueType;
+				typedef Nullable<T>&											ResultReferenceType;
+				typedef Nullable<T>												ResultNonReferenceType;
+
+#ifndef VCZH_DEBUG_NO_REFLECTION
+				static Ptr<ITypeInfo> CreateTypeInfo(TypeInfoHint hint)
+				{
+					return MakePtr<NullableTypeInfo>(TypeInfoRetriver<T>::CreateTypeInfo());
+				}
+#endif
+			};
+
+			template<typename T>
+			struct DetailTypeInfoRetriver<T&, TypeFlags::NonGenericType>
+			{
+				typedef DetailTypeInfoRetriver<T, TypeFlags::NonGenericType>	UpLevelRetriver;
+
+				static const ITypeInfo::Decorator								Decorator=UpLevelRetriver::Decorator;
+				typedef typename UpLevelRetriver::Type							Type;
+				typedef typename UpLevelRetriver::TempValueType					TempValueType;
+				typedef T&														ResultReferenceType;
+				typedef T														ResultNonReferenceType;
+
+#ifndef VCZH_DEBUG_NO_REFLECTION
+				static Ptr<ITypeInfo> CreateTypeInfo(TypeInfoHint hint)
+				{
+					return TypeInfoRetriver<T>::CreateTypeInfo();
+				}
+#endif
+			};
+
+			template<>
+			struct TypeInfoRetriver<void> : public TypeInfoRetriver<VoidValue>
+			{
+			};
+ 
+/***********************************************************************
+ParameterAccessor<TStruct>
+***********************************************************************/
+
+			template<typename T>
+			struct ParameterAccessor<T, TypeFlags::NonGenericType>
+			{
+				static Value BoxParameter(const T& object, ITypeDescriptor* typeDescriptor)
+				{
+					return BoxValue<T>(object, typeDescriptor);
+				}
+
+				static void UnboxParameter(const Value& value, T& result, ITypeDescriptor* typeDescriptor, const WString& valueName)
+				{
+					result=UnboxValue<T>(value, typeDescriptor, valueName);
+				}
+			};
+
+			template<typename T>
+			struct ValueAccessor<T*, ITypeInfo::RawPtr>
+			{
+				static Value BoxValue(T* object, ITypeDescriptor* typeDescriptor)
+				{
+					return Value::From(object);
+				}
+
+				static T* UnboxValue(const Value& value, ITypeDescriptor* typeDescriptor, const WString& valueName)
+				{
+					if(value.IsNull()) return nullptr;
+					T* result = nullptr;
+					if (value.GetRawPtr())
+					{
+						result = value.GetRawPtr()->SafeAggregationCast<T>();
+					}
+					if(!result)
+					{
+#ifndef VCZH_DEBUG_NO_REFLECTION
+						if(!typeDescriptor)
+						{
+							typeDescriptor=GetTypeDescriptor<T>();
+						}
+						throw ArgumentTypeMismtatchException(valueName, typeDescriptor, Value::RawPtr, value);
+#else
+						CHECK_FAIL(L"vl::reflection::description::UnboxValue()#Argument type mismatch.");
+#endif
+					}
+					return result;
+				}
+			};
+
+			template<typename T>
+			struct ValueAccessor<Ptr<T>, ITypeInfo::SharedPtr>
+			{
+				static Value BoxValue(Ptr<T> object, ITypeDescriptor* typeDescriptor)
+				{
+					return Value::From(object);
+				}
+
+				static Ptr<T> UnboxValue(const Value& value, ITypeDescriptor* typeDescriptor, const WString& valueName)
+				{
+					if (value.IsNull()) return nullptr;
+					Ptr<T> result;
+					if(value.GetValueType()==Value::RawPtr || value.GetValueType()==Value::SharedPtr)
+					{
+						result = value.GetRawPtr()->SafeAggregationCast<T>();
+					}
+					if(!result)
+					{
+#ifndef VCZH_DEBUG_NO_REFLECTION
+						if(!typeDescriptor)
+						{
+							typeDescriptor=GetTypeDescriptor<T>();
+						}
+						throw ArgumentTypeMismtatchException(valueName, typeDescriptor, Value::SharedPtr, value);
+#else
+						CHECK_FAIL(L"vl::reflection::description::UnboxValue()#Argument type mismatch.");
+#endif
+					}
+					return result;
+				}
+			};
+
+			template<typename T>
+			struct ValueAccessor<Nullable<T>, ITypeInfo::Nullable>
+			{
+				static Value BoxValue(Nullable<T> object, ITypeDescriptor* typeDescriptor)
+				{
+					return object?ValueAccessor<T, ITypeInfo::TypeDescriptor>::BoxValue(object.Value(), typeDescriptor):Value();
+				}
+
+				static Nullable<T> UnboxValue(const Value& value, ITypeDescriptor* typeDescriptor, const WString& valueName)
+				{
+					if(value.IsNull())
+					{
+						return Nullable<T>();
+					}
+					else
+					{
+						return ValueAccessor<T, ITypeInfo::TypeDescriptor>::UnboxValue(value, typeDescriptor, valueName);
+					}
+				}
+			};
+
+			template<typename T>
+			struct ValueAccessor<T, ITypeInfo::TypeDescriptor>
+			{
+				static Value BoxValue(const T& object, ITypeDescriptor* typeDescriptor)
+				{
+#ifndef VCZH_DEBUG_NO_REFLECTION
+					if(!typeDescriptor)
+					{
+						typeDescriptor = GetTypeDescriptor<typename TypeInfoRetriver<T>::Type>();
+					}
+#endif
+					using Type = typename vl::RemoveCVR<T>::Type;
+					return Value::From(new IValueType::TypedBox<Type>(object), typeDescriptor);
+				}
+
+				static T UnboxValue(const Value& value, ITypeDescriptor* typeDescriptor, const WString& valueName)
+				{
+					using Type = typename vl::RemoveCVR<T>::Type;
+					if (auto unboxedValue = value.GetBoxedValue().Cast<IValueType::TypedBox<Type>>())
+					{
+						return unboxedValue->value;
+					}
+					else
+					{
+#ifndef VCZH_DEBUG_NO_REFLECTION
+						if (!typeDescriptor)
+						{
+							typeDescriptor = GetTypeDescriptor<typename TypeInfoRetriver<T>::Type>();
+						}
+						throw ArgumentTypeMismtatchException(valueName, typeDescriptor, Value::BoxedValue, value);
+#else
+						CHECK_FAIL(L"vl::reflection::description::UnboxValue()#Argument type mismatch.");
+#endif
+					}
+				}
+			};
+
+			template<>
+			struct ValueAccessor<Value, ITypeInfo::TypeDescriptor>
+			{
+				static Value BoxValue(const Value& object, ITypeDescriptor* typeDescriptor)
+				{
+					return object;
+				}
+
+				static Value UnboxValue(const Value& value, ITypeDescriptor* typeDescriptor, const WString& valueName)
+				{
+					return value;
+				}
+			};
+
+			template<>
+			struct ValueAccessor<VoidValue, ITypeInfo::TypeDescriptor>
+			{
+				static Value BoxValue(const VoidValue& object, ITypeDescriptor* typeDescriptor)
+				{
+					return Value();
+				}
+
+				static VoidValue UnboxValue(const Value& value, ITypeDescriptor* typeDescriptor, const WString& valueName)
+				{
+					return VoidValue();
+				}
+			};
 		}
 	}
 }
@@ -18573,11 +18018,25 @@ namespace vl
 Predefined Types
 ***********************************************************************/
 
+#define REFLECTION_PREDEFINED_PRIMITIVE_TYPES(F)\
+			F(vuint8_t)		\
+			F(vuint16_t)	\
+			F(vuint32_t)	\
+			F(vuint64_t)	\
+			F(vint8_t)		\
+			F(vint16_t)		\
+			F(vint32_t)		\
+			F(vint64_t)		\
+			F(float)		\
+			F(double)		\
+			F(bool)			\
+			F(wchar_t)		\
+			F(WString)		\
+			F(Locale)		\
+
 #ifndef VCZH_DEBUG_NO_REFLECTION
 
 #define REFLECTION_PREDEFINED_COMPLEX_TYPES(F, VOID_TYPE)\
-			F(Sys)							\
-			F(Math)							\
 			F(VOID_TYPE)					\
 			F(VoidValue)					\
 			F(IDescriptable)				\
@@ -18595,19 +18054,6 @@ Predefined Types
 			F(IValueSubscription)			\
 			F(IValueCallStack)				\
 			F(IValueException)				\
-			F(CoroutineStatus)				\
-			F(CoroutineResult)				\
-			F(ICoroutine)					\
-			F(EnumerableCoroutine::IImpl)	\
-			F(EnumerableCoroutine)			\
-			F(AsyncStatus)					\
-			F(AsyncContext)					\
-			F(IAsync)						\
-			F(IPromise)						\
-			F(IFuture)						\
-			F(IAsyncScheduler)				\
-			F(AsyncCoroutine::IImpl)		\
-			F(AsyncCoroutine)				\
 			F(IBoxedValue)					\
 			F(IBoxedValue::CompareResult)	\
 			F(IValueType)					\
@@ -18803,37 +18249,6 @@ Interface Implementation Proxy (Implement)
 					INVOKEGET_INTERFACE_PROXY_NOPARAMS(Close);
 				}
 			END_INTERFACE_PROXY(IValueSubscription)
-
-			BEGIN_INTERFACE_PROXY_NOPARENT_SHAREDPTR(ICoroutine)
-
-				void Resume(bool raiseException, Ptr<CoroutineResult> output)override
-				{
-					INVOKE_INTERFACE_PROXY(Resume, raiseException, output);
-				}
-
-				Ptr<IValueException> GetFailure()override
-				{
-					INVOKEGET_INTERFACE_PROXY_NOPARAMS(GetFailure);
-				}
-
-				CoroutineStatus GetStatus()override
-				{
-					INVOKEGET_INTERFACE_PROXY_NOPARAMS(GetStatus);
-				}
-			END_INTERFACE_PROXY(ICoroutine)
-
-			BEGIN_INTERFACE_PROXY_NOPARENT_SHAREDPTR(IAsync)
-
-				AsyncStatus GetStatus()override
-				{
-					INVOKEGET_INTERFACE_PROXY_NOPARAMS(GetStatus);
-				}
-
-				bool Execute(const Func<void(Ptr<CoroutineResult>)>& callback, Ptr<AsyncContext> context)override
-				{
-					INVOKEGET_INTERFACE_PROXY(Execute, callback, context);
-				}
-			END_INTERFACE_PROXY(IAsync)
 
 #pragma warning(pop)
 

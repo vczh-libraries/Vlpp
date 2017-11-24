@@ -22,11 +22,25 @@ namespace vl
 Predefined Types
 ***********************************************************************/
 
+#define REFLECTION_PREDEFINED_PRIMITIVE_TYPES(F)\
+			F(vuint8_t)		\
+			F(vuint16_t)	\
+			F(vuint32_t)	\
+			F(vuint64_t)	\
+			F(vint8_t)		\
+			F(vint16_t)		\
+			F(vint32_t)		\
+			F(vint64_t)		\
+			F(float)		\
+			F(double)		\
+			F(bool)			\
+			F(wchar_t)		\
+			F(WString)		\
+			F(Locale)		\
+
 #ifndef VCZH_DEBUG_NO_REFLECTION
 
 #define REFLECTION_PREDEFINED_COMPLEX_TYPES(F, VOID_TYPE)\
-			F(Sys)							\
-			F(Math)							\
 			F(VOID_TYPE)					\
 			F(VoidValue)					\
 			F(IDescriptable)				\
@@ -44,19 +58,6 @@ Predefined Types
 			F(IValueSubscription)			\
 			F(IValueCallStack)				\
 			F(IValueException)				\
-			F(CoroutineStatus)				\
-			F(CoroutineResult)				\
-			F(ICoroutine)					\
-			F(EnumerableCoroutine::IImpl)	\
-			F(EnumerableCoroutine)			\
-			F(AsyncStatus)					\
-			F(AsyncContext)					\
-			F(IAsync)						\
-			F(IPromise)						\
-			F(IFuture)						\
-			F(IAsyncScheduler)				\
-			F(AsyncCoroutine::IImpl)		\
-			F(AsyncCoroutine)				\
 			F(IBoxedValue)					\
 			F(IBoxedValue::CompareResult)	\
 			F(IValueType)					\
@@ -252,37 +253,6 @@ Interface Implementation Proxy (Implement)
 					INVOKEGET_INTERFACE_PROXY_NOPARAMS(Close);
 				}
 			END_INTERFACE_PROXY(IValueSubscription)
-
-			BEGIN_INTERFACE_PROXY_NOPARENT_SHAREDPTR(ICoroutine)
-
-				void Resume(bool raiseException, Ptr<CoroutineResult> output)override
-				{
-					INVOKE_INTERFACE_PROXY(Resume, raiseException, output);
-				}
-
-				Ptr<IValueException> GetFailure()override
-				{
-					INVOKEGET_INTERFACE_PROXY_NOPARAMS(GetFailure);
-				}
-
-				CoroutineStatus GetStatus()override
-				{
-					INVOKEGET_INTERFACE_PROXY_NOPARAMS(GetStatus);
-				}
-			END_INTERFACE_PROXY(ICoroutine)
-
-			BEGIN_INTERFACE_PROXY_NOPARENT_SHAREDPTR(IAsync)
-
-				AsyncStatus GetStatus()override
-				{
-					INVOKEGET_INTERFACE_PROXY_NOPARAMS(GetStatus);
-				}
-
-				bool Execute(const Func<void(Ptr<CoroutineResult>)>& callback, Ptr<AsyncContext> context)override
-				{
-					INVOKEGET_INTERFACE_PROXY(Execute, callback, context);
-				}
-			END_INTERFACE_PROXY(IAsync)
 
 #pragma warning(pop)
 

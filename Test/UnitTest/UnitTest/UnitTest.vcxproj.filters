@@ -249,9 +249,6 @@
     <ClCompile Include="..\..\..\Source\Reflection\GuiTypeDescriptor_Log.cpp">
       <Filter>Common\Reflection</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\TestCoroutine.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\Source\Common.fpm">
@@ -459,9 +456,6 @@
     </ClInclude>
     <ClInclude Include="..\..\..\Source\UnitTest\UnitTest.h">
       <Filter>Common\UnitTest</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Source\Reflection\GuiTypeDescriptorCppHelper.h">
-      <Filter>Common\Reflection</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Source\Parsing\Json\ParsingJson_Ast.h">
       <Filter>Common\Parsing\Json</Filter>

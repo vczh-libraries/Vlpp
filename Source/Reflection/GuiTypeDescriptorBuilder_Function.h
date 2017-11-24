@@ -10,7 +10,6 @@ Interfaces:
 #define VCZH_REFLECTION_GUITYPEDESCRIPTORBUILDER_FUNCTION
  
 #include "GuiTypeDescriptorBuilder.h"
-#include "GuiTypeDescriptorCppHelper.h"
  
 namespace vl
 {
@@ -18,6 +17,44 @@ namespace vl
 	{
 		namespace description
 		{
+			template<typename ...TArgs>
+			struct EventHelper
+			{
+				using Handler = const Func<void(TArgs...)>&;
+
+				class EventHandlerImpl : public Object, public reflection::description::IEventHandler
+				{
+				public:
+					Ptr<EventHandler> handler;
+
+					EventHandlerImpl(Ptr<EventHandler> _handler)
+						:handler(_handler)
+					{
+					}
+
+					bool IsAttached()override
+					{
+						return handler->IsAttached();
+					}
+				};
+
+				static Ptr<reflection::description::IEventHandler> Attach(Event<void(TArgs...)>& e, Handler handler)
+				{
+					return MakePtr<EventHandlerImpl>(e.Add(handler));
+				}
+
+				static bool Detach(Event<void(TArgs...)>& e, Ptr<reflection::description::IEventHandler> handler)
+				{
+					auto impl = handler.Cast<EventHandlerImpl>();
+					if (!impl) return false;
+					return e.Remove(impl->handler);
+				}
+
+				static Event<void(TArgs...)>& Invoke(Event<void(TArgs...)>& e)
+				{
+					return e;
+				}
+			};
 
 /***********************************************************************
 DetailTypeInfoRetriver<Func<R(TArgs...)>>
@@ -551,14 +588,14 @@ CustomEventInfoImpl<void(TArgs...)>
 							internal_helper::AddValueToList(arguments, ForwardValue<TArgs>(args)...);
 							handler->Invoke(arguments);
 						});
-					return __vwsn::EventAttach(eventObject, func);
+					return EventHelper<TArgs...>::Attach(eventObject, func);
 				}
 
 				bool DetachInternal(DescriptableObject* thisObject, Ptr<IEventHandler> handler)override
 				{
 					TClass* object = UnboxValue<TClass*>(Value::From(thisObject), GetOwnerTypeDescriptor(), L"thisObject");
 					Event<void(TArgs...)>& eventObject = object->*eventRef;
-					return __vwsn::EventDetach(eventObject, handler);
+					return EventHelper<TArgs...>::Detach(eventObject, handler);
 				}
 
 				void InvokeInternal(DescriptableObject* thisObject, Ptr<IValueList> arguments)override

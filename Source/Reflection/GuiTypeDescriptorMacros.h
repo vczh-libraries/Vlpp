@@ -10,7 +10,6 @@ Interfaces:
 #define VCZH_REFLECTION_GUITYPEDESCRIPTORMACROS
 
 #include "GuiTypeDescriptorBuilder.h"
-#include "GuiTypeDescriptorCppHelper.h"
 #include "GuiTypeDescriptorBuilder_Container.h"
 #include "GuiTypeDescriptorBuilder_Function.h"
 #include "GuiTypeDescriptorBuilder_Struct.h"

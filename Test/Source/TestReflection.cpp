@@ -767,8 +767,6 @@ namespace reflection_test
 		TEST_ASSERT(GetTypeDescriptor<Locale>()->GetTypeDescriptorFlags() == TypeDescriptorFlags::Primitive);
 		TEST_ASSERT(GetTypeDescriptor<bool>()->GetTypeDescriptorFlags() == TypeDescriptorFlags::Primitive);
 		TEST_ASSERT(GetTypeDescriptor<DateTime>()->GetTypeDescriptorFlags() == TypeDescriptorFlags::Struct);
-		TEST_ASSERT(GetTypeDescriptor<Sys>()->GetTypeDescriptorFlags() == TypeDescriptorFlags::Class);
-		TEST_ASSERT(GetTypeDescriptor<Math>()->GetTypeDescriptorFlags() == TypeDescriptorFlags::Class);
 		TEST_ASSERT(GetTypeDescriptor<VoidValue>()->GetTypeDescriptorFlags() == TypeDescriptorFlags::Primitive);
 		TEST_ASSERT(GetTypeDescriptor<IDescriptable>()->GetTypeDescriptorFlags() == TypeDescriptorFlags::IDescriptable);
 		TEST_ASSERT(GetTypeDescriptor<DescriptableObject>()->GetTypeDescriptorFlags() == TypeDescriptorFlags::Class);
