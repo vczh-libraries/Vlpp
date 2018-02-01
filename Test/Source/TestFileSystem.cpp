@@ -5,6 +5,7 @@
 #include "../../Source/Stream/FileStream.h"
 #include "../../Source/Stream/CharFormat.h"
 #include "../../Source/Stream/Accessor.h"
+#include "../../Source/Threading.h"
 
 using namespace vl;
 using namespace vl::filesystem;
@@ -32,6 +33,7 @@ void ClearTestFolders()
 	if (folder.Exists())
 	{
 		TEST_ASSERT(folder.Delete(true) == true);
+		Thread::Sleep(100);
 	}
 	TEST_ASSERT(folder.Create(false) == true);
 	TEST_ASSERT(folder.Exists() == true);
