@@ -786,7 +786,7 @@ RegexLexer
 		RegexLexer::RegexLexer(const collections::IEnumerable<WString>& tokens)
 			:pure(0)
 		{
-			//构造所有DFA
+			// Build DFA for all tokens
 			List<Expression::Ref> expressions;
 			List<Automaton::Ref> dfas;
 			CharRange::List subsets;
@@ -812,7 +812,7 @@ RegexLexer
 				dfas.Add(dfa);
 			}
 
-			//为每一个DFA设置标记
+			// Mark all states in DFAs
 			for(vint i=0;i<dfas.Count();i++)
 			{
 				Automaton::Ref dfa=dfas[i];
@@ -829,7 +829,7 @@ RegexLexer
 				}
 			}
 
-			//将DFA组合成大的e-NFA
+			// Connect all DFAs to an e-NFA
 			Automaton::Ref bigEnfa=new Automaton;
 			for(vint i=0;i<dfas.Count();i++)
 			{
@@ -842,7 +842,7 @@ RegexLexer
 				bigEnfa->NewEpsilon(bigEnfa->startState, dfas[i]->startState);
 			}
 
-			//转换成DFA
+			// Build a single DFA out of the e-NFA
 			Dictionary<State*, State*> nfaStateMap;
 			Group<State*, State*> dfaStateMap;
 			Automaton::Ref bigNfa=EpsilonNfaToNfa(bigEnfa, PureEpsilonChecker, nfaStateMap);
@@ -866,7 +866,7 @@ RegexLexer
 				dfaStateMap.Keys()[i]->userData=userData;
 			}
 
-			//构造状态机
+			// Build state machine
 			pure=new PureInterpretor(bigDfa, subsets);
 			stateTokens.Resize(bigDfa->states.Count());
 			for(vint i=0;i<stateTokens.Count();i++)

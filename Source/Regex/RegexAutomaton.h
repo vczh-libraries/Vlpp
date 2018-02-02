@@ -4,13 +4,13 @@ Developer: Zihan Chen(vczh)
 Regex::RegexAutomaton
 
 Classes:
-	State						：状态
-	Transition					：转换
-	Automaton					：状态机
+	State						: State
+	Transition					: Transation
+	Automaton					: Automaton
 
 Functions:
-	EpsilonNfaToNfa				：去Epsilon
-	NfaToDfa					：NFA转DFA
+	EpsilonNfaToNfa				: Copy and remove epsilon states and transitions from an NFA
+	NfaToDfa					: Convert an NFA to a DFA
 ***********************************************************************/
 
 #ifndef VCZH_REGEX_REGEXAUTOMATON
@@ -30,17 +30,17 @@ namespace vl
 		public:
 			enum Type
 			{
-				Chars,				//range为字符范围
+				Chars,				// Character range transition
 				Epsilon,
 				BeginString,
 				EndString,
-				Nop,				//无动作（不可消除epsilon，用来控制优先级）
-				Capture,			//capture为捕获频道
-				Match,				//capture为捕获频道，index为匹配的位置，-1代表匹配频道下面的所有项目
-				Positive,			//正向匹配
-				Negative,			//反向匹配
-				NegativeFail,		//反向匹配失败
-				End					//Capture, Position, Negative
+				Nop,				// Non-epsilon transition with no input
+				Capture,			// Begin capture transition
+				Match,				// Capture matching transition
+				Positive,			// Begin positive lookahead
+				Negative,			// Begin negative lookahead
+				NegativeFail,		// Negative lookahead failure
+				End					// For Capture, Position, Negative
 			};
 
 			State*								source;

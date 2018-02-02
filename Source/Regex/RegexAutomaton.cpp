@@ -118,7 +118,7 @@ Automaton
 		}
 
 /***********************************************************************
-辅助函数
+Helpers
 ***********************************************************************/
 
 		bool PureEpsilonChecker(Transition* transition)
@@ -162,7 +162,7 @@ Automaton
 			}
 		}
 
-		//递归保证转换先后顺序
+		// Collect epsilon states and non-epsilon transitions, their order are maintained to match the e-NFA
 		void CollectEpsilon(State* targetState, State* sourceState, bool(*epsilonChecker)(Transition*), List<State*>& epsilonStates, List<Transition*>& transitions)
 		{
 			if(!epsilonStates.Contains(sourceState))
@@ -193,9 +193,9 @@ Automaton
 		Automaton::Ref EpsilonNfaToNfa(Automaton::Ref source, bool(*epsilonChecker)(Transition*), Dictionary<State*, State*>& nfaStateMap)
 		{
 			Automaton::Ref target=new Automaton;
-			Dictionary<State*, State*> stateMap;	//source->target
-			List<State*> epsilonStates;				//每次迭代当前状态的epsilon闭包
-			List<Transition*> transitions;			//每次迭代当前状态的epsilon闭包的转换集合
+			Dictionary<State*, State*> stateMap;	// source->target
+			List<State*> epsilonStates;				// current epsilon closure
+			List<Transition*> transitions;			// current non-epsilon transitions
 
 			stateMap.Add(source->startState, target->NewState());
 			nfaStateMap.Add(stateMap[source->startState], source->startState);
@@ -204,7 +204,7 @@ Automaton
 
 			for(vint i=0;i<target->states.Count();i++)
 			{
-				//清空epsilonStates并包含自己
+				// Clear cache
 				State* targetState=target->states[i].Obj();
 				State* sourceState=nfaStateMap[targetState];
 				if(sourceState->finalState)
@@ -214,20 +214,20 @@ Automaton
 				epsilonStates.Clear();
 				transitions.Clear();
 
-				//对所有产生的epsilonStates进行遍历，计算出该状态的一次epsilon直接目标加进去，并继续迭代
+				// Collect epsilon states and non-epsilon transitions
 				CollectEpsilon(targetState, sourceState, epsilonChecker, epsilonStates, transitions);
 
-				//遍历所有epsilon闭包转换
+				// Iterate through all non-epsilon transitions
 				for(vint j=0;j<transitions.Count();j++)
 				{
 					Transition* transition=transitions[j];
-					//寻找到一个非epsilon闭包的时候更新映射
+					// Create and map a new target state if a new non-epsilon state is found in the e-NFA
 					if(!stateMap.Keys().Contains(transition->target))
 					{
 						stateMap.Add(transition->target, target->NewState());
 						nfaStateMap.Add(stateMap[transition->target], transition->target);
 					}
-					//将该转换复制到新状态机里
+					// Copy transition to connect between two non-epsilon state
 					Transition* newTransition=target->NewTransition(targetState, stateMap[transition->target]);
 					newTransition->capture=transition->capture;
 					newTransition->index=transition->index;
@@ -242,7 +242,7 @@ Automaton
 		{
 			Automaton::Ref target=new Automaton;
 			Group<Transition*, Transition*> nfaTransitions;
-			List<Transition*> transitionClasses;//保证转换先后顺序不被nfaTransitions.Keys破坏
+			List<Transition*> transitionClasses; // Maintain order for nfaTransitions.Keys
 
 			CopyFrom(target->captureNames, source->captureNames);
 			State* startState=target->NewState();
@@ -260,16 +260,16 @@ Automaton
 				nfaTransitions.Clear();
 				transitionClasses.Clear();
 
-				//对该DFA状态的所有等价NFA状态进行遍历
+				// Iterate through all NFA states which represent the DFA state
 				const List<State*>& nfaStates=dfaStateMap[currentState];
 				for(vint j=0;j<nfaStates.Count();j++)
 				{
 					State* nfaState=nfaStates.Get(j);
-					//对每一个NFA状态的所有转换进行遍历
+					// Iterate through all transitions from those NFA states
 					for(vint k=0;k<nfaState->transitions.Count();k++)
 					{
 						Transition* nfaTransition=nfaState->transitions[k];
-						//检查该NFA转换类型是否已经具有已经被记录
+						// Check if there is any key in nfaTransitions that has the same input as the current transition
 						Transition* transitionClass=0;
 						for(vint l=0;l<nfaTransitions.Keys().Count();l++)
 						{
@@ -280,22 +280,22 @@ Automaton
 								break;
 							}
 						}
-						//不存在则创建一个转换类型
+						// Create a new key if not
 						if(transitionClass==0)
 						{
 							transitionClass=nfaTransition;
 							transitionClasses.Add(transitionClass);
 						}
-						//注册转换
+						// Group the transition
 						nfaTransitions.Add(transitionClass, nfaTransition);
 					}
 				}
 
-				//遍历所有种类的NFA转换
+				// Iterate through all key transition that represent all existing transition inputs from the same state
 				for(vint j=0;j<transitionClasses.Count();j++)
 				{
 					const List<Transition*>& transitionSet=nfaTransitions[transitionClasses[j]];
-					//对所有转换的NFA目标状态集合进行排序
+					// Sort all target states and keep unique
 					transitionTargets.Clear();
 					for(vint l=0;l<transitionSet.Count();l++)
 					{
@@ -305,13 +305,13 @@ Automaton
 							transitionTargets.Add(nfaState);
 						}
 					}
-					//判断转换类的所有转换的NFA目标状态组成的集合是否已经有一个对应的DFA状态
+					// Check if these NFA states represent a created DFA state
 					State* dfaState=0;
 					for(vint k=0;k<dfaStateMap.Count();k++)
 					{
-						//将DFA的等价NFA状态集合进行排序
+						// Sort NFA states for a certain DFA state
 						CopyFrom(relativeStates, dfaStateMap.GetByIndex(k));
-						//比较两者是否相等
+						// Compare two NFA states set
 						if(relativeStates.Count()==transitionTargets.Count())
 						{
 							bool equal=true;
@@ -330,7 +330,7 @@ Automaton
 							}
 						}
 					}
-					//不存在等价DFA状态则创建一个
+					// Create a new DFA state if there is not
 					if(!dfaState)
 					{
 						dfaState=target->NewState();
@@ -343,7 +343,7 @@ Automaton
 							}
 						}
 					}
-					//将该转换复制到新状态机里
+					// Create corresponding DFA transition
 					Transition* transitionClass=transitionClasses[j];
 					Transition* newTransition=target->NewTransition(currentState, dfaState);
 					newTransition->capture=transitionClass->capture;

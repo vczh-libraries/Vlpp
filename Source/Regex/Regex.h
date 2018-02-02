@@ -4,12 +4,12 @@ Developer: Zihan Chen(vczh)
 Regex::Regular Expression
 
 Classes:
-	RegexString						：字符串匹配结果
-	RegexMatch						：匹配结果
-	Regex							：正则表达式引擎
-	RegexToken						：词法记号
-	RegexTokens						：词法记号表
-	RegexLexer						：词法分析器
+	RegexString						: String Fragment
+	RegexMatch						: Match Result
+	Regex							: Regular Expression
+	RegexToken						: Token
+	RegexTokens						: Token Stream
+	RegexLexer						: Tokenizer
 ***********************************************************************/
 
 #ifndef VCZH_REGEX_REGEX
@@ -34,7 +34,7 @@ namespace vl
 	{
 
 /***********************************************************************
-正则表达式引擎数据结构
+Data Structure
 ***********************************************************************/
 
 		/// <summary>A type representing a fragment of the input string.</summary>
@@ -96,7 +96,7 @@ namespace vl
 		};
 
 /***********************************************************************
-正则表达式引擎
+Regex
 ***********************************************************************/
 
 		/// <summary><![CDATA[
@@ -202,7 +202,7 @@ namespace vl
 		};
 
 /***********************************************************************
-正则表达式词法分析器
+Tokenizer
 ***********************************************************************/
 
 		/// <summary>A token.</summary>
