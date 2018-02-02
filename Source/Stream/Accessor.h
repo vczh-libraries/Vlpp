@@ -4,12 +4,13 @@ Developer: Zihan Chen(vczh)
 Stream::Accessor
 
 Classes:
-	TextReader						£º×Ö·û´®ÔÄ¶ÁÆ÷
-	TextWriter						£º×Ö·û´®ÊéĞ´Æ÷
-	StreamReader					£ºÁ÷ÔÄ¶ÁÆ÷
-	StreamWriter					£ºÁ÷ÊéĞ´Æ÷
-	EncoderStream					£º±àÂëÁ÷
-	DecoderStream					£º½âÂëÁ÷
+	TextReader						: Text reader base class
+	TextWriter						: Text writer base class
+	StringReader					: Text reader from a string
+	StreamReader					: Text reader from a stream
+	StreamWriter					: Text writer to a stream
+	EncoderStream					: Stream that takes an encoder to translate another stream
+	DecoderStream					: Stream that takes a decoder to translate another stream
 ***********************************************************************/
 
 #ifndef VCZH_STREAM_ACCESSOR
@@ -25,7 +26,7 @@ namespace vl
 	{
 
 /***********************************************************************
-Á÷¿ØÖÆÆ÷
+Text Related
 ***********************************************************************/
 
 		/// <summary>Text reader. All line breaks are normalized to CRLF regardless the format in the source.</summary>
@@ -132,7 +133,7 @@ namespace vl
 		};
 
 /***********************************************************************
-±àÂë½âÂë
+Encoding Related
 ***********************************************************************/
 
 		/// <summary>Encoder stream, a writable stream using an [T:vl.stream.IEncoder] to transform content.</summary>

@@ -4,7 +4,7 @@ Developer: Zihan Chen(vczh)
 Stream::CacheStream
 
 Interfaces:
-	CacheStream						£º»º³åÁ÷
+	CacheStream						: Stream that provide a cache for reading and writing
 ***********************************************************************/
 
 #ifndef VCZH_STREAM_CACHESTREAM

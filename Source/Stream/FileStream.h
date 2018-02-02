@@ -4,7 +4,7 @@ Developer: Zihan Chen(vczh)
 Stream::FileStream
 
 Interfaces:
-	FileStream						£ºÎÄ¼þÁ÷
+	FileStream						: File stream
 ***********************************************************************/
 
 #ifndef VCZH_STREAM_FILESTREAM

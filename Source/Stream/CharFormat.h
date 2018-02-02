@@ -4,18 +4,18 @@ Developer: Zihan Chen(vczh)
 Stream::CharFormat
 
 Classes:
-	CharEncoder									：字符串编码器基类
-	CharDecoder									：字符串解码器基类
-	MbcsEncoder									：Mbcs编码器
-	MbcsDecoder									：Mbcs解码器
-	Utf16Encoder								：Utf16编码器
-	Utf16Decoder								：Utf16解码器
-	Utf16BEEncoder								：Utf16 Big Endian编码器
-	Utf16BEDecoder								：Utf16 Big Endian解码器
-	Utf8Encoder									：Utf8编码器
-	Utf8Decoder									：Utf8解码器
-	BomEncoder									：BOM相关编码器
-	BomDecoder									：BOM相关解码器
+	CharEncoder									: Encoder to translate from wchar_t to some specified format
+	CharDecoder									: Decoder to transate from some specified format to wchar_t
+	MbcsEncoder									: Mbcs encoder (using the code page of the current locale)
+	MbcsDecoder									: Mbcs decoder (using the code page of the current locale)
+	Utf16Encoder								: UTF-16 encoder
+	Utf16Decoder								: UTF-16 decoder
+	Utf16BEEncoder								: UTF-16 encoder with big endian
+	Utf16BEDecoder								: UTF-16 decoder with big endian
+	Utf8Encoder									: UTF-8 encoder
+	Utf8Decoder									: UTF-8 decoder
+	BomEncoder									: Character encoder which writes a BOM before the text
+	BomDecoder									: Character decoder which reads a BOM from the data to know the encoding
 ***********************************************************************/
 
 #ifndef VCZH_STREAM_CHARFORMAT
@@ -30,8 +30,8 @@ namespace vl
 	namespace stream
 	{
 
-		/*编码资料
-		UCS-4和UTF-8的对应关系:
+		/*
+		How UCS-4 translate to UTF-8
 		U-00000000 - U-0000007F:  0xxxxxxx
 		U-00000080 - U-000007FF:  110xxxxx 10xxxxxx
 		U-00000800 - U-0000FFFF:  1110xxxx 10xxxxxx 10xxxxxx
@@ -46,7 +46,7 @@ namespace vl
 		*/
 
 /***********************************************************************
-字符串编码解码基类
+Char Encoder and Decoder
 ***********************************************************************/
 
 		/// <summary>Base type of all character encoder.</summary>

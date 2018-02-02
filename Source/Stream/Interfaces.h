@@ -4,7 +4,7 @@ Developer: Zihan Chen(vczh)
 Stream::Interfaces
 
 Interfaces:
-	IStream							£ºÁ÷
+	IStream							: Stream
 ***********************************************************************/
 
 #ifndef VCZH_STREAM_INTERFACES

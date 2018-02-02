@@ -4,7 +4,7 @@ Developer: Zihan Chen(vczh)
 Stream::MemoryStream
 
 Interfaces:
-	MemoryStream					£ºÄÚ´æÁ÷
+	MemoryStream					: Memory stream
 ***********************************************************************/
 
 #ifndef VCZH_STREAM_MEMORYSTREAM

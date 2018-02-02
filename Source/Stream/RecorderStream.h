@@ -4,7 +4,7 @@ Developer: Zihan Chen(vczh)
 Stream::RecorderStream
 
 Interfaces:
-	RecorderStream					£º±¸·ÝÁ÷
+	RecorderStream					: A readable stream that will copy the data to another stream on the fly
 ***********************************************************************/
 
 #ifndef VCZH_STREAM_RECORDERSTREAM

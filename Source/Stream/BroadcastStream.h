@@ -4,7 +4,7 @@ Developer: Zihan Chen(vczh)
 Stream::BroadcastStream
 
 Interfaces:
-	BroadcastStream					£º¹ã²¥Á÷
+	BroadcastStream					: Stream that copy the written data to multiple streams
 ***********************************************************************/
 
 #ifndef VCZH_STREAM_BROADCASTSTREAM

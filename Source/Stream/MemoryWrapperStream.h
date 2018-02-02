@@ -4,7 +4,7 @@ Developer: Zihan Chen(vczh)
 Stream::MemoryWrapperStream
 
 Interfaces:
-	MemoryWrapperStream				：内存代理流
+	MemoryWrapperStream				: Memory stream which manipulate a given buffer
 ***********************************************************************/
 
 #ifndef VCZH_STREAM_MEMORYWRAPPERSTREAM
