@@ -4,7 +4,7 @@ Developer: Zihan Chen(vczh)
 Regex::RegexInterpretor
 
 Classes:
-	PureInterpretor					：正则表达式纯模拟器
+	PureInterpretor					: Pure regular expression interpretor
 ***********************************************************************/
 
 #ifndef VCZH_REGEX_REGEXPURE

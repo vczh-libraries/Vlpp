@@ -4,7 +4,7 @@ Developer: Zihan Chen(vczh)
 Regex::RegexInterpretor
 
 Classes:
-	RichInterpretor					：正则表达式完全模拟器
+	RichInterpretor					: Rich regular expression interpretor
 ***********************************************************************/
 
 #ifndef VCZH_REGEX_REGEXRICH

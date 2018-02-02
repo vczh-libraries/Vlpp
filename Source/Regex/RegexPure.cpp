@@ -18,7 +18,7 @@ PureInterpretor
 			charSetCount=subsets.Count()+1;
 			startState=dfa->states.IndexOf(dfa->startState);
 
-			//Ìî³ä×Ö·ûÓ³Éä±í
+			// Map char to input index (equivalent char class)
 			for(vint i=0;i<SupportedCharCount;i++)
 			{
 				charMap[i]=charSetCount-1;
@@ -32,7 +32,7 @@ PureInterpretor
 				}
 			}
 			
-			//¹¹Ôì×´Ì¬×ª»»±í
+			// Create transitions from DFA, using input index to represent input char
 			transition=new vint*[stateCount];
 			for(vint i=0;i<stateCount;i++)
 			{
@@ -64,7 +64,7 @@ PureInterpretor
 				}
 			}
 
-			//Ìî³äÖÕ½á×´Ì¬±í
+			// Mark final states
 			finalState=new bool[stateCount];
 			for(vint i=0;i<stateCount;i++)
 			{
