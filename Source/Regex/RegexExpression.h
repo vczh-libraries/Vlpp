@@ -4,23 +4,23 @@ Developer: Zihan Chen(vczh)
 Regex::RegexExpression
 
 Classes:
-	Expression						：表达式基类					|
-	CharSetExpression				：字符集表达式				| a, [a-b], [^a-b0_9], \.rnt\/()+*?{}[]<>^$!=SsDdLlWw, [\rnt-[]\/^$]
-	LoopExpression					：循环表达式					| a{3}, a{3,}, a{1,3}, a+, a*, a?, LOOP?
-	SequenceExpression				：顺序表达式					| ab
-	AlternateExpression				：选择表达式					| a|b
-	BeginExpression					：【非纯】字符串起始表达式	| ^
-	EndExpression					：【非纯】字符串末尾表达式	| $
-	CaptureExpression				：【非纯】捕获表达式			| (<name>expr), (?expr)
-	MatchExpression					：【非纯】匹配表达式			| (<$name>), (<$name;i>), (<$i>)
-	PositiveExpression				：【非纯】正向预查表达式		| (=expr)
-	NegativeExpression				：【非纯】反向预查表达式		| (!expr)
-	UsingExpression					：引用表达式					| (<#name1>expr)...(<&name1>)...
+	Expression						: Base class of expressions	|
+	CharSetExpression				: Character set				| a, [a-b], [^a-b0_9], \.rnt\/()+*?{}[]<>^$!=SsDdLlWw, [\rnt-[]\/^$]
+	LoopExpression					: Repeat					| a{3}, a{3,}, a{1,3}, a+, a*, a?, LOOP?
+	SequenceExpression				: Sequence of two regex		| ab
+	AlternateExpression				: Alternative of two regex	| a|b
+	BeginExpression					: <Rich> String begin		| ^
+	EndExpression					: <Rich> String end			| $
+	CaptureExpression				: <Rich> Capture			| (<name>expr), (?expr)
+	MatchExpression					: <Rich> Capture matching	| (<$name>), (<$name;i>), (<$i>)
+	PositiveExpression				: <Rich> Positive lookahead	| (=expr)
+	NegativeExpression				: <Rich> Negative lookahead	| (!expr)
+	UsingExpression					: refer a regex				| (<#name1>expr)...(<&name1>)...
 
-	RegexExpression					：正则表达式
+	RegexExpression					: Regular Expression
 
 Functions:
-	ParseRegexExpression			：将字符串分析为RegexExpression对象，如果语法有问题则抛异常
+	ParseRegexExpression			: Regex Syntax Analyzer
 ***********************************************************************/
 
 #ifndef VCZH_REGEX_REGEXEXPRESSION
@@ -36,7 +36,7 @@ namespace vl
 		class IRegexExpressionAlgorithm;
 
 /***********************************************************************
-正则表达式表达式树
+Regex Expression AST
 ***********************************************************************/
 
 		class Expression : public Object, private NotCopyable
@@ -68,10 +68,10 @@ namespace vl
 		class LoopExpression : public Expression
 		{
 		public:
-			Expression::Ref				expression;		//被循环表达式
-			vint							min;			//下限
-			vint							max;			//上限，-1代表无限
-			bool						preferLong;		//长匹配优先
+			Expression::Ref				expression;		// The regex to loop
+			vint						min;			// Minimum count of looping
+			vint						max;			// Maximum count of looping, -1 for infinite
+			bool						preferLong;		// Prefer longer matching
 
 			void						Apply(IRegexExpressionAlgorithm& algorithm);
 		};
@@ -79,8 +79,8 @@ namespace vl
 		class SequenceExpression : public Expression
 		{
 		public:
-			Expression::Ref				left;			//左表达式
-			Expression::Ref				right;			//右表达式
+			Expression::Ref				left;			// First regex to match
+			Expression::Ref				right;			// Last regex to match
 
 			void						Apply(IRegexExpressionAlgorithm& algorithm);
 		};
@@ -88,8 +88,8 @@ namespace vl
 		class AlternateExpression : public Expression
 		{
 		public:
-			Expression::Ref				left;			//左表达式
-			Expression::Ref				right;			//右表达式
+			Expression::Ref				left;			// First regex to match
+			Expression::Ref				right;			// Last regex to match
 
 			void						Apply(IRegexExpressionAlgorithm& algorithm);
 		};
@@ -111,8 +111,8 @@ namespace vl
 		class CaptureExpression : public Expression
 		{
 		public:
-			WString						name;			//捕获名，空代表缺省捕获
-			Expression::Ref				expression;		//被捕获表达式
+			WString						name;			// Capture name, empty for anonymous capture
+			Expression::Ref				expression;		// Regex to match
 
 			void						Apply(IRegexExpressionAlgorithm& algorithm);
 		};
@@ -120,8 +120,8 @@ namespace vl
 		class MatchExpression : public Expression
 		{
 		public:
-			WString						name;			//捕获名，空代表缺省捕获
-			vint							index;			//捕获序号，-1代表非空捕获的所有项
+			WString						name;			// Capture name, empty for anonymous
+			vint						index;			// The index of captured text to match associated the name, -1 for all of them
 
 			void						Apply(IRegexExpressionAlgorithm& algorithm);
 		};
@@ -129,7 +129,7 @@ namespace vl
 		class PositiveExpression : public Expression
 		{
 		public:
-			Expression::Ref				expression;		//正向匹配表达式
+			Expression::Ref				expression;		// Regex to match
 
 			void						Apply(IRegexExpressionAlgorithm& algorithm);
 		};
@@ -137,7 +137,7 @@ namespace vl
 		class NegativeExpression : public Expression
 		{
 		public:
-			Expression::Ref				expression;		//反向匹配表达式
+			Expression::Ref				expression;		// Regex to match
 
 			void						Apply(IRegexExpressionAlgorithm& algorithm);
 		};
@@ -145,7 +145,7 @@ namespace vl
 		class UsingExpression : public Expression
 		{
 		public:
-			WString						name;			//引用名
+			WString						name;			// Name of the regex to refer
 
 			void						Apply(IRegexExpressionAlgorithm& algorithm);
 		};
@@ -155,8 +155,8 @@ namespace vl
 		public:
 			typedef Ptr<RegexExpression>						Ref;
 
-			Expression::Map				definitions;	//命名子表达式
-			Expression::Ref				expression;		//主表达式
+			Expression::Map				definitions;	// Named regex to be referred
+			Expression::Ref				expression;		// Regex to match
 
 			Expression::Ref				Merge();
 		};
@@ -359,7 +359,7 @@ namespace vl
 		};
 
 /***********************************************************************
-辅助函数
+Helper Functions
 ***********************************************************************/
 
 		extern Ptr<LoopExpression>		ParseLoop(const wchar_t*& input);
