@@ -4,8 +4,8 @@ Developer: Zihan Chen(vczh)
 Data Structure::Interfaces
 
 Interfaces:
-	IEnumerator<T>									：枚举器
-	IEnumerable<T>									：可枚举对象
+	IEnumerator<T>									: Enumerator interface
+	IEnumerable<T>									: Enumerable object interface
 ***********************************************************************/
 
 #ifndef VCZH_COLLECTIONS_INTERFACES
@@ -21,7 +21,7 @@ namespace vl
 	{
 
 /***********************************************************************
-接口
+Interfaces
 ***********************************************************************/
 
 		/// <summary>Enumerator.</summary>
@@ -64,7 +64,7 @@ namespace vl
 		};
 
 /***********************************************************************
-随机存取
+Random Access
 ***********************************************************************/
 
 		namespace randomaccess_internal

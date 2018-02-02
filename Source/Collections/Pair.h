@@ -4,7 +4,7 @@ Developer: Zihan Chen(vczh)
 Data Structure::Pair
 
 Classes:
-	Pair<K, V>							ฃบถþิชื้
+	Pair<K, V>							: Pair
 ***********************************************************************/
 
 #ifndef VCZH_COLLECTIONS_PAIR

@@ -4,8 +4,8 @@ Developer: Zihan Chen(vczh)
 Data Structure::Dictionary
 
 Classes:
-	Dictionary<KT, VT, KK, VK>					：映射
-	Group<KT, VT, KK, VK>						：多重映射
+	Dictionary<KT, VT, KK, VK>					: One to one mapping
+	Group<KT, VT, KK, VK>						: One to many mapping
 ***********************************************************************/
 
 #ifndef VCZH_COLLECTIONS_DICTIONARY
@@ -482,7 +482,7 @@ namespace vl
 		};
 
 /***********************************************************************
-辅助函数
+GroupInnerJoin
 ***********************************************************************/
 
 		template<
@@ -559,7 +559,7 @@ namespace vl
 		}
 
 /***********************************************************************
-随机访问
+Random Access
 ***********************************************************************/
 		namespace randomaccess_internal
 		{

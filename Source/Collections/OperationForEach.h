@@ -3,11 +3,10 @@ Vczh Library++ 3.0
 Developer: Zihan Chen(vczh)
 Data Structure::Operations
 
-扩展：
-	实现一个函数重载IteratorType CreateForEachIterator(const CollectionType& collection);
-	CollectionType是所需要的容器类型
-	IteratorType继承自ForEachIterator<T>
-	必须写在vl::collections命名空间里
+In order to let a container support FOREACH and FOREACH_INDEXER：
+	Implement a global function overloading: IteratorType vl::collections::CreateForEachIterator(const CollectionType& collection);
+	CollectionType is the container type
+	IteratorType should inherit from ForEachIterator<T>
 ***********************************************************************/
 
 #ifndef VCZH_COLLECTIONS_FOREACH
@@ -22,7 +21,7 @@ namespace vl
 	{
 
 /***********************************************************************
-ForEach基础设施
+ForEachIterator
 ***********************************************************************/
 
 		template<typename T>
@@ -38,7 +37,7 @@ ForEach基础设施
 		};
 
 /***********************************************************************
-IEnumerable<T>支持
+ForEachIterator for IEnumerable
 ***********************************************************************/
 
 		template<typename T>
@@ -78,7 +77,7 @@ IEnumerable<T>支持
 		}
 
 /***********************************************************************
-ForEach宏
+FOREACH and FOREACH_INDEXER
 ***********************************************************************/
 
 #define FOREACH(TYPE, VARIABLE, COLLECTION)\

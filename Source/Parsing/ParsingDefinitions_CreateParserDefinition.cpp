@@ -9,7 +9,7 @@ namespace vl
 			using namespace collections;
 
 /***********************************************************************
-вт╬ы
+Bootstrap
 ***********************************************************************/
 
 			Ptr<ParsingDefinition> CreateParserDefinition()

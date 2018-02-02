@@ -20,7 +20,7 @@ namespace vl
 		{
 
 /***********************************************************************
-状态机
+Automaton
 ***********************************************************************/
 
 			class Action;
@@ -165,7 +165,7 @@ namespace vl
 			};
 
 /***********************************************************************
-辅助函数（搜索闭包）
+Helper: Closuer Searching
 ***********************************************************************/
 
 			struct ClosureItem
@@ -199,14 +199,14 @@ namespace vl
 			extern void												RemoveEpsilonTransitions(collections::Dictionary<State*, State*>& oldNewStateMap, collections::List<State*>& scanningStates, Ptr<Automaton> automaton);
 
 /***********************************************************************
-辅助函数（合并状态）
+Helper: State Merging
 ***********************************************************************/
 			
 			extern void												DeleteUnnecessaryStates(Ptr<Automaton> automaton, Ptr<RuleInfo> ruleInfo, collections::List<State*>& newStates);
 			extern void												MergeStates(Ptr<Automaton> automaton, Ptr<RuleInfo> ruleInfo, collections::List<State*>& newStates);
 
 /***********************************************************************
-辅助函数（创建状态机）
+Helper: Automaton Building
 ***********************************************************************/
 			
 			extern Ptr<Automaton>									CreateEpsilonPDA(Ptr<definitions::ParsingDefinition> definition, ParsingSymbolManager* manager);
@@ -216,7 +216,7 @@ namespace vl
 			extern void												MarkLeftRecursiveInJointPDA(Ptr<Automaton> jointPDA, collections::List<Ptr<ParsingError>>& errors);
 
 /***********************************************************************
-辅助函数（输出跳转表）
+Helper: Parsing Table Generating
 ***********************************************************************/
 
 			extern WString											GetTypeNameForCreateInstruction(ParsingSymbol* type);

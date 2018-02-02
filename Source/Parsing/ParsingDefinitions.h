@@ -19,7 +19,7 @@ namespace vl
 		{
 
 /***********************************************************************
-属性标记
+Attributes
 ***********************************************************************/
 
 			class ParsingDefinitionAttribute : public ParsingTreeCustomBase
@@ -37,7 +37,7 @@ namespace vl
 			};
 
 /***********************************************************************
-类型结构
+Type
 ***********************************************************************/
 
 			class ParsingDefinitionPrimitiveType;
@@ -93,7 +93,7 @@ namespace vl
 			};
 
 /***********************************************************************
-类型定义
+Type Definition
 ***********************************************************************/
 
 			class ParsingDefinitionClassMemberDefinition;
@@ -159,7 +159,7 @@ namespace vl
 			};
 
 /***********************************************************************
-文法规则
+Grammar
 ***********************************************************************/
 
 			class ParsingDefinitionPrimitiveGrammar;
@@ -281,7 +281,7 @@ namespace vl
 			};
 
 /***********************************************************************
-文法结构
+Token and Rule
 ***********************************************************************/
 
 			class ParsingDefinitionTokenDefinition : public ParsingDefinitionBase
@@ -309,7 +309,7 @@ namespace vl
 			};
 
 /***********************************************************************
-构造器（属性标记）
+Attribute Writer
 ***********************************************************************/
 
 			class ParsingDefinitionAttributeWriter : public Object
@@ -329,7 +329,7 @@ namespace vl
 			extern ParsingDefinitionAttributeWriter				Attribute(const WString& name);
 
 /***********************************************************************
-构造器（类型结构）
+Type Writer
 ***********************************************************************/
 
 			class ParsingDefinitionTypeWriter : public Object
@@ -353,7 +353,7 @@ namespace vl
 			extern ParsingDefinitionTypeWriter					TokenType();
 
 /***********************************************************************
-构造器（类型定义）
+Type Definition Writer
 ***********************************************************************/
 
 			class ParsingDefinitionTypeDefinitionWriter : public Object
@@ -401,7 +401,7 @@ namespace vl
 			extern ParsingDefinitionEnumDefinitionWriter		Enum(const WString& name);
 
 /***********************************************************************
-构造器（文法规则）
+Grammar Writer
 ***********************************************************************/
 
 			class ParsingDefinitionGrammarWriter : public Object
@@ -432,7 +432,7 @@ namespace vl
 			extern ParsingDefinitionGrammarWriter				Opt(const ParsingDefinitionGrammarWriter& writer);
 
 /***********************************************************************
-构造器（文法结构）
+Token and Rule Writer
 ***********************************************************************/
 
 			class ParsingDefinitionWriter;
@@ -480,7 +480,7 @@ namespace vl
 			};
 
 /***********************************************************************
-辅助函数
+Helper Functions
 ***********************************************************************/
 
 			extern WString										TypeToString(ParsingDefinitionType* type);
@@ -492,7 +492,7 @@ namespace vl
 			extern WString										SerializeString(const WString& value);
 
 /***********************************************************************
-自举
+Bootstrap
 ***********************************************************************/
 			
 			extern Ptr<ParsingDefinition>						CreateParserDefinition();

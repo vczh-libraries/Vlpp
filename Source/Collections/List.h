@@ -4,11 +4,11 @@ Developer: Zihan Chen(vczh)
 Data Structure::List
 
 Classes:
-	ListStore<T,PODType>				：列表存储复制算法
-	ListBase<T,K>						：列表基类
-	Array<T,K>							：数组
-	List<T,K>							：列表
-	SortedList<T,K>						：有序列表
+	ListStore<T,PODType>				: Array copy helper functions
+	ListBase<T,K>						: Base class for array
+	Array<T,K>							: Array
+	List<T,K>							: List
+	SortedList<T,K>						: List with item order maintained
 ***********************************************************************/
 
 #ifndef VCZH_COLLECTIONS_LIST

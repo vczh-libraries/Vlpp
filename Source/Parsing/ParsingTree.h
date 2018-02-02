@@ -372,7 +372,7 @@ General Syntax Tree
 		};
 
 /***********************************************************************
-语法树基础设施
+AST Building Block
 ***********************************************************************/
 
 		/// <summary>Base type of all strong typed syntax tree. Normally all strong typed syntax tree are generated from a grammar file using ParserGen.exe in Tools project. See [T:vl.parsing.tabling.ParsingTable] for details.</summary>
