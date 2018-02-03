@@ -4,7 +4,7 @@ Developer: Zihan Chen(vczh)
 Framework::Event
 
 Classes:
-	Event<function-type>									：事件对象
+	Event<function-type>									: Event object, which is a functor with no return value, executing multiple functors stored inside
 ***********************************************************************/
 #ifndef VCZH_EVENT
 #define VCZH_EVENT

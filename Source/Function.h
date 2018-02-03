@@ -4,11 +4,11 @@ Developer: Zihan Chen(vczh)
 Framework::Function
 
 Classes:
-	Func<function-type>									：函数对象
+	Func<function-type>									: Functor
 
 Functions:
-	Curry :: (A->B) -> A -> B							：参数拆分
-	Combine :: (A->B) -> (A->C) -> (B->C->D) -> (A->D)	：函数组合
+	Curry :: (A->B) -> A -> B							: Currying
+	Combine :: (A->B) -> (A->C) -> (B->C->D) -> (A->D)	: Combine multiple functors using an operator
 ***********************************************************************/
 #ifndef VCZH_FUNCTION
 #define VCZH_FUNCTION

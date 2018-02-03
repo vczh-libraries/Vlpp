@@ -4,7 +4,7 @@ Developer: Zihan Chen(vczh)
 Framework::Global Storage
 
 Classes:
-	GlobalStorage							：全局对象
+	GlobalStorage							: Global storage accessable by name, each storage will be initialized on the first access, and all storages will be released by FinalizeGlobalStorage
 
 ***********************************************************************/
 

@@ -4,8 +4,7 @@ Developer: Zihan Chen(vczh)
 Framework::Exception
 
 Classes:
-	Exception									：异常
-	ArgumentException							：预料的的参数错误
+	Exception									: Exception
 ***********************************************************************/
 
 #ifndef VCZH_EXCEPTION

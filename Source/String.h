@@ -4,8 +4,8 @@ Developer: Zihan Chen(vczh)
 Data Structure::String
 
 Classes:
-	AString										£ºMbcs×Ö·û´®
-	WString										£ºUtf-16×Ö·û´®
+	AString										: Mbcs using the code page of the current locale
+	WString										: UTF-16 (for Windows), or UTF-32 (for Linux and macOS)
 ***********************************************************************/
 
 #ifndef VCZH_STRING

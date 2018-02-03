@@ -4,12 +4,14 @@ Developer: Zihan Chen(vczh)
 Framework::Basic
 
 Classes:
-	NotCopyable									：不可复制对象
-	Error										：内部错误，检查到了不可出现的变量、参数或状态错误
-	Object										：对象基类
+	NotCopyable									: Object inherits from this type cannot be copied
+	Error										: Error, unlike exception, is not encouraged to catch
+	Object										: Base class of all classes
 
 Macros:
-	CHECK_ERROR(CONDITION,DESCRIPTION)			：检查内部错误
+	CHECK_ERROR(CONDITION,DESCRIPTION)			: Assert, throws an Error if failed
+	CHECK_FAIL(DESCRIPTION)						: Force an assert failure
+	SCOPE_VARIABLE(TYPE,VARIABLE,VALUE){ ... }	: Scoped variable
 ***********************************************************************/
 
 #ifndef VCZH_BASIC
@@ -71,7 +73,7 @@ namespace vl
 {
 
 /***********************************************************************
-32位/64位兼容
+x86 and x64 Compatbility
 ***********************************************************************/
 
 #if defined VCZH_MSVC
@@ -155,7 +157,7 @@ namespace vl
 #endif
 
 /***********************************************************************
-基础
+Basic Types
 ***********************************************************************/
 
 	class NotCopyable
@@ -191,7 +193,7 @@ namespace vl
 		for(TYPE VARIABLE = VALUE;__scope_variable_flag__;__scope_variable_flag__=false)
 
 /***********************************************************************
-类型计算
+Type Traits
 ***********************************************************************/
 	
 	template<typename T>
@@ -290,7 +292,7 @@ namespace vl
 	};
 
 /***********************************************************************
-基础
+Basic Types
 ***********************************************************************/
 
 	/// <summary>Base type of all classes.</summary>
@@ -552,7 +554,7 @@ namespace vl
 	};
 
 /***********************************************************************
-配置
+Type Traits
 ***********************************************************************/
 
 	/// <summary>Get the index type of a value for containers.</summary>
@@ -602,7 +604,7 @@ namespace vl
 	template<typename T>struct POD<const volatile T>{static const bool Result=POD<T>::Result;};
 
 /***********************************************************************
-时间
+Date and Time
 ***********************************************************************/
 
 	/// <summary>A type representing the combination of date and time.</summary>
@@ -670,7 +672,7 @@ namespace vl
 	};
 
 /***********************************************************************
-接口
+Interface
 ***********************************************************************/
 	
 	/// <summary>Base type of all interfaces. All interface types are encouraged to be virtual inherited.</summary>
@@ -681,7 +683,7 @@ namespace vl
 	};
 
 /***********************************************************************
-类型萃取
+Type Traits
 ***********************************************************************/
 
 	struct YesType{};

@@ -4,7 +4,7 @@ Developer: Zihan Chen(vczh)
 Data Structure::Smart Pointer
 
 Classes:
-	Ptr<T>							£∫÷«ƒ‹÷∏’Î
+	Ptr<T>							: Shared Pointer
 ***********************************************************************/
 
 #ifndef VCZH_POINTER

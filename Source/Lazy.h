@@ -4,7 +4,7 @@ Developer: Zihan Chen(vczh)
 Framework::Lazy Evaluation
 
 Classes:
-	Lazy<T>									£∫∂Ë–‘∂‘œÛ
+	Lazy<T>									: Object with lazy evaluation
 
 ***********************************************************************/
 
