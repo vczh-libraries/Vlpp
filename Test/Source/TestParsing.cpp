@@ -60,7 +60,7 @@ namespace test
 	Ptr<ParsingTable> CreateTable(Ptr<ParsingDefinition> definition, const WString& name, bool enableAmbiguity = false)
 	{
 		unittest::UnitTest::PrintInfo(L"Building parser <" + name + L">");
-		Folder outputFolder = GetTestOutputPath() + L"../Resources/Parsers/" + name;
+		Folder outputFolder(GetTestOutputPath() + L"../Resources/Parsers/" + name);
 		if (!outputFolder.Exists())
 		{
 			TEST_ASSERT(outputFolder.Create(false));
