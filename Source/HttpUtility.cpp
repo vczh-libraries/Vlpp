@@ -274,30 +274,32 @@ Utilities
 			}
 		}
 
-		// concatincate response body
-		vint totalSize=0;
-		FOREACH(BufferPair, p, availableBuffers)
 		{
-			totalSize+=p.length;
-		}
-		response.body.Resize(totalSize);
-		if(totalSize>0)
-		{
-			char* utf8=new char[totalSize];
+			// concatincate response body
+			vint totalSize = 0;
+			FOREACH(BufferPair, p, availableBuffers)
 			{
-				char* temp=utf8;
-				FOREACH(BufferPair, p, availableBuffers)
-				{
-					memcpy(temp, p.buffer, p.length);
-					temp+=p.length;
-				}
+				totalSize += p.length;
 			}
-			memcpy(&response.body[0], utf8, totalSize);
-			delete[] utf8;
-		}
-		FOREACH(BufferPair, p, availableBuffers)
-		{
-			delete[] p.buffer;
+			response.body.Resize(totalSize);
+			if (totalSize > 0)
+			{
+				char* utf8 = new char[totalSize];
+				{
+					char* temp = utf8;
+					FOREACH(BufferPair, p, availableBuffers)
+					{
+						memcpy(temp, p.buffer, p.length);
+						temp += p.length;
+					}
+				}
+				memcpy(&response.body[0], utf8, totalSize);
+				delete[] utf8;
+			}
+			FOREACH(BufferPair, p, availableBuffers)
+			{
+				delete[] p.buffer;
+			}
 		}
 	CLEANUP:
 		if(requestInternet) WinHttpCloseHandle(requestInternet);
