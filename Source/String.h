@@ -668,6 +668,15 @@ namespace vl
 	extern void					_wcslwr_s(wchar_t* buffer, size_t size);
 	extern void					_wcsupr_s(wchar_t* buffer, size_t size);
 #endif
+
+	enum class LoremIspumCasing
+	{
+		AllWordsLowerCase,
+		FirstWordUpperCase,
+		AllWordsUpperCase,
+	};
+
+	extern WString				LoremIspum(vint bestLength, LoremIspumCasing casing);
 }
 
 #endif

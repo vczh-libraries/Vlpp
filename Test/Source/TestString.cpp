@@ -200,3 +200,14 @@ TEST_CASE(StringCaser)
 		CheckString(d, "VCZH IS GENIUS");
 	}
 }
+
+TEST_CASE(TestLoremIpsum)
+{
+	for (vint i = 0; i < 10; i++)
+	{
+		auto s1 = LoremIspum(i * 3 + 1, LoremIspumCasing::AllWordsLowerCase);
+		auto s2 = LoremIspum(i * 3 + 2, LoremIspumCasing::FirstWordUpperCase);
+		auto s3 = LoremIspum(i * 3 + 3, LoremIspumCasing::AllWordsUpperCase);
+		unittest::UnitTest::PrintInfo(s1 + L"(" + itow(s1.Length()) + L"), " + s2 + L"(" + itow(s2.Length()) + L"), " + s3 + L"(" + itow(s3.Length()) + L")");
+	}
+}
