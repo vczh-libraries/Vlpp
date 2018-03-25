@@ -1,5 +1,4 @@
 #include <stdlib.h>
-#include <time.h>
 #include "String.h"
 #if defined VCZH_MSVC
 #include <Windows.h>
@@ -12,13 +11,14 @@
 #define _wcstoi64 wcstoll
 #define _wcstoui64 wcstoull
 #endif
+#include <time.h>
 
 namespace vl
 {
 #if defined VCZH_GCC
 	void _itoa_s(vint32_t value, char* buffer, size_t size, vint radix)
 	{
-		sprintf(buffer, L"%d", value);
+		sprintf(buffer, "%d", value);
 	}
 
 	void _itow_s(vint32_t value, wchar_t* buffer, size_t size, vint radix)
@@ -28,7 +28,7 @@ namespace vl
 
 	void _i64toa_s(vint64_t value, char* buffer, size_t size, vint radix)
 	{
-		sprintf(buffer, L"%ld", value);
+		sprintf(buffer, "%ld", value);
 	}
 
 	void _i64tow_s(vint64_t value, wchar_t* buffer, size_t size, vint radix)
@@ -38,7 +38,7 @@ namespace vl
 
 	void _uitoa_s(vuint32_t value, char* buffer, size_t size, vint radix)
 	{
-		sprintf(buffer, L"%u", value);
+		sprintf(buffer, "%u", value);
 	}
 
 	void _uitow_s(vuint32_t value, wchar_t* buffer, size_t size, vint radix)
@@ -48,7 +48,7 @@ namespace vl
 
 	void _ui64toa_s(vuint64_t value, char* buffer, size_t size, vint radix)
 	{
-		sprintf(buffer, L"%lu", value);
+		sprintf(buffer, "%lu", value);
 	}
 
 	void _ui64tow_s(vuint64_t value, wchar_t* buffer, size_t size, vint radix)
@@ -58,7 +58,7 @@ namespace vl
 
 	void _gcvt_s(char* buffer, size_t size, double value, vint numberOfDigits)
 	{
-		sprintf(buffer, L"%f", value);
+		sprintf(buffer, "%f", value);
 		char* point = strchr(buffer, '.');
 		if(!point) return;
 		char* zero = buffer + strlen(buffer);
@@ -103,6 +103,11 @@ namespace vl
 			*buffer=(char)towupper(*buffer);
 			buffer++;
 		}
+	}
+
+	void wcscpy_s(wchar_t* buffer, size_t size, const wchar_t* text)
+	{
+		wcscpy(buffer, text);
 	}
 #endif
 

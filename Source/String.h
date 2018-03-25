@@ -667,6 +667,7 @@ namespace vl
 	extern void					_strupr_s(char* buffer, size_t size);
 	extern void					_wcslwr_s(wchar_t* buffer, size_t size);
 	extern void					_wcsupr_s(wchar_t* buffer, size_t size);
+	extern void					wcscpy_s(wchar_t* buffer, size_t size, const wchar_t* text);
 #endif
 
 	enum class LoremIpsumCasing
