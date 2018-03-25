@@ -205,9 +205,22 @@ TEST_CASE(TestLoremIpsum)
 {
 	for (vint i = 0; i < 10; i++)
 	{
-		auto s1 = LoremIspum(i * 3 + 1, LoremIspumCasing::AllWordsLowerCase);
-		auto s2 = LoremIspum(i * 3 + 2, LoremIspumCasing::FirstWordUpperCase);
-		auto s3 = LoremIspum(i * 3 + 3, LoremIspumCasing::AllWordsUpperCase);
+		auto s1 = LoremIpsum(i * 3 + 1, LoremIpsumCasing::AllWordsLowerCase);
+		auto s2 = LoremIpsum(i * 3 + 2, LoremIpsumCasing::FirstWordUpperCase);
+		auto s3 = LoremIpsum(i * 3 + 3, LoremIpsumCasing::AllWordsUpperCase);
 		unittest::UnitTest::PrintInfo(s1 + L"(" + itow(s1.Length()) + L"), " + s2 + L"(" + itow(s2.Length()) + L"), " + s3 + L"(" + itow(s3.Length()) + L")");
+	}
+
+	{
+		auto s = LoremIpsumTitle(40);
+		unittest::UnitTest::PrintInfo(s + L"(" + itow(s.Length()) + L")");
+	}
+	{
+		auto s = LoremIpsumSentence(60);
+		unittest::UnitTest::PrintInfo(s + L"(" + itow(s.Length()) + L")");
+	}
+	{
+		auto s = LoremIpsumParagraph(300);
+		unittest::UnitTest::PrintInfo(s + L"(" + itow(s.Length()) + L")");
 	}
 }

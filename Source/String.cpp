@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <time.h>
 #include "String.h"
 #if defined VCZH_MSVC
 #include <Windows.h>
@@ -386,7 +387,7 @@ namespace vl
 		return result;
 	}
 
-	WString LoremIspum(vint bestLength, LoremIspumCasing casing)
+	WString LoremIpsum(vint bestLength, LoremIpsumCasing casing)
 	{
 		static const wchar_t* words[] =
 		{
@@ -454,7 +455,7 @@ namespace vl
 
 			vint wordSize = (vint)wcslen(words[index]);
 			wcscpy_s(writing, bufferLength - used, words[index]);
-			if (casing == LoremIspumCasing::AllWordsUpperCase || (casing == LoremIspumCasing::FirstWordUpperCase&&used == 0))
+			if (casing == LoremIpsumCasing::AllWordsUpperCase || (casing == LoremIpsumCasing::FirstWordUpperCase && used == 0))
 			{
 				*writing -= L'a' - L'A';
 			}
@@ -477,6 +478,62 @@ namespace vl
 
 		WString result = buffer;
 		delete[] buffer;
+		return result;
+	}
+
+	WString LoremIpsumTitle(vint bestLength)
+	{
+		return LoremIpsum(bestLength, LoremIpsumCasing::AllWordsUpperCase);
+	}
+
+	WString LoremIpsumSentence(vint bestLength)
+	{
+		return LoremIpsum(bestLength, LoremIpsumCasing::FirstWordUpperCase) + L".";
+	}
+
+	WString LoremIpsumParagraph(vint bestLength)
+	{
+		srand((unsigned)time(0));
+		auto casing = LoremIpsumCasing::FirstWordUpperCase;
+		vint comma = 0;
+		WString result;
+		while (result.Length() < bestLength)
+		{
+			vint offset = bestLength - result.Length();
+			if (comma == 0)
+			{
+				comma = rand() % 4 + 1;
+			}
+			vint length = rand() % 45 + 15;
+			if (offset < 20)
+			{
+				comma = 0;
+				length = offset - 1;
+			}
+			else if (length > offset)
+			{
+				comma = 0;
+				length = offset + rand() % 11 - 5;
+			}
+
+			result += LoremIpsum(length, casing);
+			if (comma == 0)
+			{
+				result += L".";
+				break;
+			}
+			else if (comma == 1)
+			{
+				result += L". ";
+				casing = LoremIpsumCasing::FirstWordUpperCase;
+			}
+			else
+			{
+				result += L", ";
+				casing = LoremIpsumCasing::AllWordsLowerCase;
+			}
+			comma--;
+		}
 		return result;
 	}
 }

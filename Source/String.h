@@ -669,14 +669,17 @@ namespace vl
 	extern void					_wcsupr_s(wchar_t* buffer, size_t size);
 #endif
 
-	enum class LoremIspumCasing
+	enum class LoremIpsumCasing
 	{
 		AllWordsLowerCase,
 		FirstWordUpperCase,
 		AllWordsUpperCase,
 	};
 
-	extern WString				LoremIspum(vint bestLength, LoremIspumCasing casing);
+	extern WString				LoremIpsum(vint bestLength, LoremIpsumCasing casing);
+	extern WString				LoremIpsumTitle(vint bestLength);
+	extern WString				LoremIpsumSentence(vint bestLength);
+	extern WString				LoremIpsumParagraph(vint bestLength);
 }
 
 #endif
