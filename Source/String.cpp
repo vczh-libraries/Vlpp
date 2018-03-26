@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <time.h>
 #include "String.h"
 #if defined VCZH_MSVC
 #include <Windows.h>
@@ -11,7 +12,6 @@
 #define _wcstoi64 wcstoll
 #define _wcstoui64 wcstoull
 #endif
-#include <time.h>
 
 namespace vl
 {

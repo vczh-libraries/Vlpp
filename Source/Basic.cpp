@@ -1,8 +1,8 @@
 #include "Basic.h"
+#include <time.h>
 #if defined VCZH_MSVC
 #include <Windows.h>
 #elif defined VCZH_GCC
-#include <time.h>
 #include <memory.h>
 #include <sys/time.h>
 #endif
