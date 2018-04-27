@@ -297,6 +297,9 @@ ParsingTable::TransitionItem
 ParsingTable
 ***********************************************************************/
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnull-dereference"
+
 			ParsingTable::ParsingTable(vint _attributeInfoCount, vint _treeTypeInfoCount, vint _treeFieldInfoCount, vint _tokenCount, vint discardTokenCount, vint _stateCount, vint _ruleCount)
 				:ambiguity(false)
 				,tokenCount(_tokenCount+UserTokenStart)
@@ -530,6 +533,8 @@ ParsingTable
 			{
 				return regexTokenIndex>=tokenCount-UserTokenStart?regexTokenIndex-(tokenCount-UserTokenStart):-1;
 			}
+
+#pragma clang diagnostic pop
 		}
 	}
 }

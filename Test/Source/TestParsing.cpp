@@ -25,7 +25,7 @@ using namespace vl::parsing::json;
 using namespace vl::filesystem;
 
 #pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnull-reference"
+#pragma clang diagnostic ignored "-Wnull-dereference"
 
 extern WString GetTestResourcePath();
 extern WString GetTestOutputPath();
