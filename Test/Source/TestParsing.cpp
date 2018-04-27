@@ -24,6 +24,9 @@ using namespace vl::parsing::xml;
 using namespace vl::parsing::json;
 using namespace vl::filesystem;
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnull-reference"
+
 extern WString GetTestResourcePath();
 extern WString GetTestOutputPath();
 
@@ -843,3 +846,5 @@ TEST_CASE(TestGeneratedParser_Xml)
 		}
 	}
 }
+
+#pragma clang diagnostic pop

@@ -1,6 +1,9 @@
 #include "ParsingState.h"
 #include "../Collections/Operation.h"
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnull-dereference"
+
 namespace vl
 {
 	namespace parsing
@@ -1112,3 +1115,5 @@ ParsingTransitionCollector
 		}
 	}
 }
+
+#pragma clang diagnostic pop
