@@ -1,8 +1,10 @@
 #include "ParsingState.h"
 #include "../Collections/Operation.h"
 
+#ifdef VCZH_GCC
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wnull-dereference"
+#endif
 
 namespace vl
 {
@@ -1116,4 +1118,6 @@ ParsingTransitionCollector
 	}
 }
 
+#ifdef VCZH_GCC
 #pragma clang diagnostic pop
+#endif

@@ -24,8 +24,10 @@ using namespace vl::parsing::xml;
 using namespace vl::parsing::json;
 using namespace vl::filesystem;
 
+#ifdef VCZH_GCC
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wnull-dereference"
+#endif
 
 extern WString GetTestResourcePath();
 extern WString GetTestOutputPath();
@@ -847,4 +849,6 @@ TEST_CASE(TestGeneratedParser_Xml)
 	}
 }
 
+#ifdef VCZH_GCC
 #pragma clang diagnostic pop
+#endif

@@ -131,8 +131,10 @@ DescriptableObject
 		{
 		}
 
+#ifdef VCZH_GCC
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wexceptions"
+#endif
 		DescriptableObject::~DescriptableObject()
 		{
 #ifndef VCZH_DEBUG_NO_REFLECTION
@@ -164,7 +166,9 @@ DescriptableObject
 			}
 #endif
 		}
+#ifdef VCZH_GCC
 #pragma clang diagnostic pop
+#endif
 
 #ifndef VCZH_DEBUG_NO_REFLECTION
 
