@@ -297,7 +297,7 @@ ParsingTable::TransitionItem
 ParsingTable
 ***********************************************************************/
 
-#ifdef VCZH_GCC
+#if defined(VCZH_GCC) && defined(__clang__)
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wnull-dereference"
 #endif
@@ -536,7 +536,7 @@ ParsingTable
 				return regexTokenIndex>=tokenCount-UserTokenStart?regexTokenIndex-(tokenCount-UserTokenStart):-1;
 			}
 
-#ifdef VCZH_GCC
+#if defined(VCZH_GCC) && defined(__clang__)
 #pragma clang diagnostic pop
 #endif
 		}

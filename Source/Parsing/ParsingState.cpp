@@ -1,7 +1,7 @@
 #include "ParsingState.h"
 #include "../Collections/Operation.h"
 
-#ifdef VCZH_GCC
+#if defined(VCZH_GCC) && defined(__clang__)
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wnull-dereference"
 #endif
@@ -1118,6 +1118,6 @@ ParsingTransitionCollector
 	}
 }
 
-#ifdef VCZH_GCC
+#if defined(VCZH_GCC) && defined(__clang__)
 #pragma clang diagnostic pop
 #endif

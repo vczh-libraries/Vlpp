@@ -24,7 +24,7 @@ using namespace vl::parsing::xml;
 using namespace vl::parsing::json;
 using namespace vl::filesystem;
 
-#ifdef VCZH_GCC
+#if defined(VCZH_GCC) && defined(__clang__)
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wnull-dereference"
 #endif
@@ -849,6 +849,6 @@ TEST_CASE(TestGeneratedParser_Xml)
 	}
 }
 
-#ifdef VCZH_GCC
+#if defined(VCZH_GCC) && defined(__clang__)
 #pragma clang diagnostic pop
 #endif
