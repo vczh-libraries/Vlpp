@@ -2,6 +2,11 @@
 #include "../Collections/Operation.h"
 #include "../Collections/OperationForEach.h"
 
+#if defined(VCZH_GCC) && defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnull-dereference"
+#endif
+
 namespace vl
 {
 	using namespace collections;
@@ -767,3 +772,7 @@ ParsingWriter
 		}
 	}
 }
+
+#if defined(VCZH_GCC) && defined(__clang__)
+#pragma clang diagnostic pop
+#endif
