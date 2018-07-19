@@ -44,8 +44,22 @@ bool Reachable(PartialOrderingProcessor& pop, vint a, vint b)
 	return Reachable(pop, a, b, visited);
 }
 
-void AssertPOP(PartialOrderingProcessor& pop, List<vint>& items, Group<vint, vint>& groups)
+void AssertPOP(PartialOrderingProcessor& pop, List<vint>& items, Group<vint, vint>& groups, vint componentCount)
 {
+	for (vint i = 0; i < groups.Count(); i++)
+	{
+		vint k = groups.Keys()[i];
+		const auto& vs = groups.GetByIndex(i);
+		for (vint j = 0; j < vs.Count(); j++)
+		{
+			vint v = vs[j];
+
+			TEST_ASSERT(pop.nodes[k].outs->Contains(v));
+			TEST_ASSERT(pop.nodes[v].ins->Contains(k));
+		}
+	}
+	TEST_ASSERT(pop.components.Count() == componentCount);
+	
 	for (vint i = 0; i < pop.nodes.Count(); i++)
 	{
 		auto& node = pop.nodes[i];
@@ -87,7 +101,7 @@ TEST_CASE(TestPO_One)
 		pop.InitWithGroup(items, groups);
 	}
 	pop.Sort();
-	AssertPOP(pop, items, groups);
+	AssertPOP(pop, items, groups, 1);
 }
 
 TEST_CASE(TestPO_One_Cycle)
@@ -101,5 +115,50 @@ TEST_CASE(TestPO_One_Cycle)
 		pop.InitWithGroup(items, groups);
 	}
 	pop.Sort();
-	AssertPOP(pop, items, groups);
+	AssertPOP(pop, items, groups, 1);
+}
+
+TEST_CASE(TestPO_Two)
+{
+	PartialOrderingProcessor pop;
+	List<vint> items;
+	Group<vint, vint> groups;
+	{
+		items.Add(0);
+		items.Add(1);
+		pop.InitWithGroup(items, groups);
+	}
+	pop.Sort();
+	AssertPOP(pop, items, groups, 2);
+}
+
+TEST_CASE(TestPO_Two_Depend)
+{
+	PartialOrderingProcessor pop;
+	List<vint> items;
+	Group<vint, vint> groups;
+	{
+		items.Add(0);
+		items.Add(1);
+		groups.Add(0, 1);
+		pop.InitWithGroup(items, groups);
+	}
+	pop.Sort();
+	AssertPOP(pop, items, groups, 2);
+}
+
+TEST_CASE(TestPO_Two_Cycle)
+{
+	PartialOrderingProcessor pop;
+	List<vint> items;
+	Group<vint, vint> groups;
+	{
+		items.Add(0);
+		items.Add(1);
+		groups.Add(0, 1);
+		groups.Add(1, 0);
+		pop.InitWithGroup(items, groups);
+	}
+	pop.Sort();
+	AssertPOP(pop, items, groups, 1);
 }

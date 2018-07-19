@@ -61,12 +61,12 @@ Partial Ordering
 			{
 				CHECK_ERROR(nodes.Count() == 0, L"PartialOrdering::InitWithGroup<T>(const ListBase<T>&, const Group<T, T>&)#Initializing twice is not allowed.");
 
-				for (vint i = 0; i < outs.Count(); i++)
+				for (vint i = 0; i < outsGroup.Count(); i++)
 				{
 					vint fromNode = items.IndexOf(KeyType<TList::ElementType>::GetKeyValue(outsGroup.Keys()[i]));
 					CHECK_ERROR(fromNode != -1, L"PartialOrdering::InitWithGroup<T>(const ListBase<T>&, const Group<T, T>&)#The key in outsGroup does not exist in items.");
 
-					auto& edges = outs.GetByIndex(i);
+					auto& edges = outsGroup.GetByIndex(i);
 					for (vint j = 0; j < edges.Count(); j++)
 					{
 						vint toNode = items.IndexOf(KeyType<TList::ElementType>::GetKeyValue(edges[j]));
