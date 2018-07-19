@@ -421,9 +421,9 @@ FromIterator
 		};
 
 		template<typename T>
-		FromIteratorEnumerable<T, T*> FromPointer(T* begin, T* end)
+		FromIteratorEnumerable<T, const T*> FromPointer(const T* begin, const T* end)
 		{
-			return FromIteratorEnumerable<T, T*>(begin, end);
+			return FromIteratorEnumerable<T, const T*>(begin, end);
 		}
 
 		template<typename T, int size>

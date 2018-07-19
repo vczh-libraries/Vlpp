@@ -22,16 +22,22 @@ Partial Ordering
 		{
 			struct Node
 			{
+				bool					visited = false;
+				vint					component = -1;
 				const List<vint>*		ins = nullptr;
 				const List<vint>*		outs = nullptr;
 			};
 
 			struct Component
 			{
-				const List<vint>*		nodes = nullptr;
+				const vint*				firstNode = nullptr;
+				vint					nodeCount = 0;
 			};
 		}
+	}
 
+	namespace collections
+	{
 		class PartialOrderingProcessor : public Object
 		{
 			template<typename TList>
@@ -42,9 +48,11 @@ Partial Ordering
 			Group<vint, vint>			outs;
 			Array<vint>					nodesBuffer;
 
+			void						VisitUnvisitedNode(po::Node& node, Array<vint>& reversedOrder, vint& used);
+			void						AssignUnassignedNode(po::Node& node, vint componentIndex, vint& used);
 		public:
 			Array<po::Node>				nodes;
-			Array<po::Component>		components;
+			List<po::Component>			components;
 
 			void						Sort();
 

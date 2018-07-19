@@ -17,12 +17,23 @@ TEST_CASE(TestPO_Empty)
 vint FindComponent(PartialOrderingProcessor& pop, vint node)
 {
 	return Range<vint>(0, pop.nodes.Count())
-		.Where([&](vint index) {return pop.components[index].nodes->Contains(node); })
+		.Where([&](vint index)
+		{
+			auto& component = pop.components[index];
+			return From(component.firstNode, component.firstNode + component.nodeCount)
+				.Any([&](vint node) { return node == index; });
+		})
 		.First();
 }
 
-void AssertPOP(PartialOrderingProcessor& pop)
+void AssertPOP(PartialOrderingProcessor& pop, List<vint>& items, Group<vint, vint>& groups)
 {
+	for (vint i = 0; i < pop.nodes.Count(); i++)
+	{
+		vint c = FindComponent(pop, i);
+		TEST_ASSERT(c != -1);
+	}
+
 	for (vint i = 0; i < pop.nodes.Count(); i++)
 	{
 		for (vint j = 0; j < pop.nodes.Count(); j++)
@@ -40,14 +51,26 @@ void AssertPOP(PartialOrderingProcessor& pop)
 TEST_CASE(TestPO_One)
 {
 	PartialOrderingProcessor pop;
+	List<vint> items;
+	Group<vint, vint> groups;
 	{
-		List<vint> items;
-		Group<vint, vint> groups;
-
 		items.Add(0);
 		pop.InitWithGroup(items, groups);
 	}
-
 	pop.Sort();
-	AssertPOP(pop);
+	AssertPOP(pop, items, groups);
+}
+
+TEST_CASE(TestPO_One_Cycle)
+{
+	PartialOrderingProcessor pop;
+	List<vint> items;
+	Group<vint, vint> groups;
+	{
+		items.Add(0);
+		groups.Add(0, 0);
+		pop.InitWithGroup(items, groups);
+	}
+	pop.Sort();
+	AssertPOP(pop, items, groups);
 }
