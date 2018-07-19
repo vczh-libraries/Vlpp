@@ -14,35 +14,64 @@ TEST_CASE(TestPO_Empty)
 	TEST_ASSERT(pop.components.Count() == 0);
 }
 
-vint FindComponent(PartialOrderingProcessor& pop, vint node)
+bool Reachable(PartialOrderingProcessor& pop, vint a, vint b, Array<bool>& visited)
 {
-	return Range<vint>(0, pop.nodes.Count())
-		.Where([&](vint index)
+	if (a == b) return true;
+	if (visited[a]) return false;
+	visited[a] = true;
+
+	auto& node = pop.nodes[a];
+	if (node.outs)
+	{
+		for (vint i = 0; i < node.outs->Count(); i++)
 		{
-			auto& component = pop.components[index];
-			return From(component.firstNode, component.firstNode + component.nodeCount)
-				.Any([&](vint node) { return node == index; });
-		})
-		.First();
+			if (Reachable(pop, node.outs->Get(i), b, visited))
+			{
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+bool Reachable(PartialOrderingProcessor& pop, vint a, vint b)
+{
+	Array<bool> visited(pop.nodes.Count());
+	for (vint i = 0; i < visited.Count(); i++)
+	{
+		visited[i] = false;
+	}
+	return Reachable(pop, a, b, visited);
 }
 
 void AssertPOP(PartialOrderingProcessor& pop, List<vint>& items, Group<vint, vint>& groups)
 {
 	for (vint i = 0; i < pop.nodes.Count(); i++)
 	{
-		vint c = FindComponent(pop, i);
-		TEST_ASSERT(c != -1);
+		auto& node = pop.nodes[i];
+		TEST_ASSERT(node.visited);
+		TEST_ASSERT(node.component != -1);
 	}
 
 	for (vint i = 0; i < pop.nodes.Count(); i++)
 	{
+		vint ci = pop.nodes[i].component;
 		for (vint j = 0; j < pop.nodes.Count(); j++)
 		{
+			vint cj = pop.nodes[j].component;
+
 			if (pop.nodes[i].ins->Contains(j))
 			{
-				vint ci = FindComponent(pop, i);
-				vint cj = FindComponent(pop, j);
 				TEST_ASSERT(ci <= cj);
+			}
+
+			if (Reachable(pop, i, j) && Reachable(pop, j, i))
+			{
+				TEST_ASSERT(ci == cj);
+			}
+			else
+			{
+				TEST_ASSERT(ci != cj);
 			}
 		}
 	}
