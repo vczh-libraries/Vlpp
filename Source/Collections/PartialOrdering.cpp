@@ -21,13 +21,13 @@ PartialOrderingProcessor
 					VisitUnvisitedNode(outNode, reversedOrder, used);
 				}
 			}
-			reversedOrder[used++] = &node - &nodes[0];
+			reversedOrder[used++] = (vint)(&node - &nodes[0]);
 		}
 
 		void PartialOrderingProcessor::AssignUnassignedNode(po::Node& node, vint componentIndex, vint& used)
 		{
 			node.component = componentIndex;
-			nodesBuffer[used++] = componentIndex;
+			nodesBuffer[used++] = (vint)(&node - &nodes[0]);
 			for (vint i = 0; i < node.ins->Count(); i++)
 			{
 				auto& inNode = nodes[node.ins->Get(i)];

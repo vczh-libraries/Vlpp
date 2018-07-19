@@ -21,11 +21,11 @@ bool Reachable(PartialOrderingProcessor& pop, vint a, vint b, Array<bool>& visit
 	visited[a] = true;
 
 	auto& node = pop.nodes[a];
-	if (node.outs)
+	if (node.ins)
 	{
-		for (vint i = 0; i < node.outs->Count(); i++)
+		for (vint i = 0; i < node.ins->Count(); i++)
 		{
-			if (Reachable(pop, node.outs->Get(i), b, visited))
+			if (Reachable(pop, node.ins->Get(i), b, visited))
 			{
 				return true;
 			}
@@ -59,7 +59,7 @@ void AssertPOP(PartialOrderingProcessor& pop, List<vint>& items, Group<vint, vin
 		}
 	}
 	TEST_ASSERT(pop.components.Count() == componentCount);
-	
+
 	for (vint i = 0; i < pop.nodes.Count(); i++)
 	{
 		auto& node = pop.nodes[i];
@@ -74,14 +74,20 @@ void AssertPOP(PartialOrderingProcessor& pop, List<vint>& items, Group<vint, vin
 		{
 			vint cj = pop.nodes[j].component;
 
-			if (pop.nodes[i].ins->Contains(j))
-			{
-				TEST_ASSERT(ci <= cj);
-			}
+			bool rij = Reachable(pop, i, j);
+			bool rji = Reachable(pop, j, i);
 
-			if (Reachable(pop, i, j) && Reachable(pop, j, i))
+			if (rij && rji)
 			{
 				TEST_ASSERT(ci == cj);
+			}
+			else if (rij && !rji)
+			{
+				TEST_ASSERT(ci > cj);
+			}
+			else if (!rij && rji)
+			{
+				TEST_ASSERT(ci < cj);
 			}
 			else
 			{
