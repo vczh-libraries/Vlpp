@@ -569,7 +569,7 @@ Type Traits
 		/// <summary>Convert a value to its index type.</summary>
 		/// <returns>The corresponding index value.</returns>
 		/// <param name="value">The value.</param>
-		static T GetKeyValue(const T& value)
+		static const T& GetKeyValue(const T& value)
 		{
 			return value;
 		}

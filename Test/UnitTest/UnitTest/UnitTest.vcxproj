@@ -211,6 +211,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\Source\Basic.cpp" />
+    <ClCompile Include="..\..\..\Source\Collections\PartialOrdering.cpp" />
     <ClCompile Include="..\..\..\Source\Console.cpp" />
     <ClCompile Include="..\..\..\Source\Exception.cpp" />
     <ClCompile Include="..\..\..\Source\FileSystem.cpp" />
@@ -309,6 +310,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugNoReflection|Win32'">false</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="..\..\Source\TestPartialOrdering.cpp" />
     <ClCompile Include="..\..\Source\TestReflection.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
@@ -358,6 +360,7 @@
     <ClInclude Include="..\..\..\Source\Collections\OperationString.h" />
     <ClInclude Include="..\..\..\Source\Collections\OperationWhere.h" />
     <ClInclude Include="..\..\..\Source\Collections\Pair.h" />
+    <ClInclude Include="..\..\..\Source\Collections\PartialOrdering.h" />
     <ClInclude Include="..\..\..\Source\Console.h" />
     <ClInclude Include="..\..\..\Source\Event.h" />
     <ClInclude Include="..\..\..\Source\Exception.h" />

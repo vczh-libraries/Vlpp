@@ -249,6 +249,12 @@
     <ClCompile Include="..\..\..\Source\Reflection\GuiTypeDescriptor_Log.cpp">
       <Filter>Common\Reflection</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\Source\Collections\PartialOrdering.cpp">
+      <Filter>Common\Collections</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\TestPartialOrdering.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\Source\Common.fpm">
@@ -465,6 +471,9 @@
     </ClInclude>
     <ClInclude Include="..\..\..\Source\Reflection\GuiTypeDescriptorReflection.h">
       <Filter>Common\Reflection</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\Collections\PartialOrdering.h">
+      <Filter>Common\Collections</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
