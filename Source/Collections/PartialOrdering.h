@@ -20,21 +20,15 @@ Partial Ordering
 
 		namespace po
 		{
-			struct IntArray
-			{
-				vint*					buffer = nullptr;
-				vint					count = 0;
-			};
-
 			struct Node
 			{
-				IntArray				ins;
-				IntArray				outs;
+				const List<vint>*		ins = nullptr;
+				const List<vint>*		outs = nullptr;
 			};
 
 			struct Component
 			{
-				IntArray				nodes;
+				const List<vint>*		nodes = nullptr;
 			};
 		}
 
@@ -43,6 +37,7 @@ Partial Ordering
 			template<typename TList>
 			using GroupOf = Group<typename TList::ElementType, typename TList::ElementType>;
 		protected:
+			List<vint>					emptyList;
 			Group<vint, vint>			ins;
 			Group<vint, vint>			outs;
 			Array<vint>					nodesBuffer;
@@ -79,20 +74,19 @@ Partial Ordering
 				for (vint i = 0; i < items.Count(); i++)
 				{
 					auto& node = nodes[i];
+					node.ins = &emptyList;
+					node.outs = &emptyList;
+
 					vint inIndex = ins.Keys().IndexOf(i);
 					vint outIndex = outs.Keys().IndexOf(i);
 
 					if (inIndex != -1)
 					{
-						auto& insValue = ins.GetByIndex(inIndex);
-						node.ins.buffer = &insValue[0];
-						node.ins.count = insValue.Count();
+						node.ins = &ins.GetByIndex(inIndex);
 					}
 					if (outIndex != -1)
 					{
-						auto& outsValue = outs.GetByIndex(outIndex);
-						node.outs.buffer = &outsValue[0];
-						node.outs.count = outsValue.Count();
+						node.outs = &outs.GetByIndex(outIndex);
 					}
 				}
 			}
