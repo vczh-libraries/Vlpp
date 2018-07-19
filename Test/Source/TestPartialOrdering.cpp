@@ -54,8 +54,8 @@ void AssertPOP(PartialOrderingProcessor& pop, List<vint>& items, Group<vint, vin
 		{
 			vint v = vs[j];
 
-			TEST_ASSERT(pop.nodes[k].outs->Contains(v));
-			TEST_ASSERT(pop.nodes[v].ins->Contains(k));
+			TEST_ASSERT(pop.nodes[k].ins->Contains(v));
+			TEST_ASSERT(pop.nodes[v].outs->Contains(k));
 		}
 	}
 	TEST_ASSERT(pop.components.Count() == componentCount);
