@@ -238,3 +238,47 @@ TEST_CASE_PARTIAL_ORDERING(DependedComponents, 3)
 		groups.Add(i * 3, i * 3 + 3);
 	}
 }
+
+TEST_CASE_PARTIAL_ORDERING(Olive, 4)
+{
+	for (vint i = 0; i < 8; i++)
+	{
+		items.Add(i);
+	}
+
+	for (vint i = 0; i < 2; i++)
+	{
+		for (vint j = 0; j < 3; j++)
+		{
+			groups.Add(i * 3 + j, i * 3 + (j + 1) % 3);
+		}
+		groups.Add(6, i * 3);
+		groups.Add(i * 3, 7);
+	}
+}
+
+TEST_CASE_PARTIAL_ORDERING(Tree, 3)
+{
+	for (vint i = 0; i < 3; i++)
+	{
+		items.Add(i);
+	}
+
+	groups.Add(1, 0);
+	groups.Add(2, 0);
+}
+
+TEST_CASE_PARTIAL_ORDERING(Tree_Component, 4)
+{
+	for (vint i = 0; i < 6; i++)
+	{
+		items.Add(i);
+	}
+
+	groups.Add(1, 0);
+	groups.Add(2, 0);
+	groups.Add(2, 3);
+	groups.Add(3, 4);
+	groups.Add(4, 2);
+	groups.Add(5, 4);
+}
