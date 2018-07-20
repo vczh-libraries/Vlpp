@@ -46,6 +46,35 @@ bool Reachable(PartialOrderingProcessor& pop, vint a, vint b)
 
 void AssertPOP(PartialOrderingProcessor& pop, List<vint>& items, Group<vint, vint>& groups, vint componentCount)
 {
+	unittest::UnitTest::PrintInfo(
+		From(groups)
+			.Select([](Pair<vint, vint> p)
+			{
+				return L"(" + itow(p.key) + L" -> " + itow(p.value) + L")";
+			})
+			.Aggregate(WString::Empty, [](const WString& a, const WString& b)
+			{
+				return a + b;
+			})
+	);
+
+	unittest::UnitTest::PrintInfo(
+		From(pop.components)
+			.Select([](const po::Component& component)
+			{
+				return From(component.firstNode, component.firstNode + component.nodeCount)
+					.Select(itow)
+					.Aggregate([](const WString& a, const WString& b)
+					{
+						return a + L"," + b;
+					});
+			})
+			.Aggregate([](const WString& a, const WString& b)
+			{
+				return a + L" <- " + b;
+			})
+	);
+
 	for (vint i = 0; i < groups.Count(); i++)
 	{
 		vint k = groups.Keys()[i];
@@ -186,5 +215,26 @@ TEST_CASE_PARTIAL_ORDERING(NestedComponents, 1)
 	for (vint i = 0; i < 3; i++)
 	{
 		groups.Add(i * 3, (i * 3 + 3) % 9);
+	}
+}
+
+TEST_CASE_PARTIAL_ORDERING(DependedComponents, 3)
+{
+	for (vint i = 0; i < 9; i++)
+	{
+		items.Add(i);
+	}
+
+	for (vint i = 0; i < 3; i++)
+	{
+		for (vint j = 0; j < 3; j++)
+		{
+			groups.Add(i * 3 + j, i * 3 + (j + 1) % 3);
+		}
+	}
+
+	for (vint i = 0; i < 2; i++)
+	{
+		groups.Add(i * 3, i * 3 + 3);
 	}
 }
