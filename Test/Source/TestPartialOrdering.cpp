@@ -111,31 +111,31 @@ void AssertPOP(PartialOrderingProcessor& pop, List<vint>& items, Group<vint, vin
 	}																			\
 	void TestPO_##NAME##_Create(List<vint>& items, Group<vint, vint>& groups)	\
 
-TEST_CASE_PARTIAL_ORDERING(TestPO_One, 1)
+TEST_CASE_PARTIAL_ORDERING(One, 1)
 {
 	items.Add(0);
 }
 
-TEST_CASE_PARTIAL_ORDERING(TestPO_One_Cycle, 1)
+TEST_CASE_PARTIAL_ORDERING(One_Cycle, 1)
 {
 	items.Add(0);
 	groups.Add(0, 0);
 }
 
-TEST_CASE_PARTIAL_ORDERING(TestPO_Two, 2)
+TEST_CASE_PARTIAL_ORDERING(Two, 2)
 {
 	items.Add(0);
 	items.Add(1);
 }
 
-TEST_CASE_PARTIAL_ORDERING(TestPO_Two_Depend, 2)
+TEST_CASE_PARTIAL_ORDERING(Two_Depend, 2)
 {
 	items.Add(0);
 	items.Add(1);
 	groups.Add(0, 1);
 }
 
-TEST_CASE_PARTIAL_ORDERING(TestPO_Two_Cycle, 1)
+TEST_CASE_PARTIAL_ORDERING(Two_Cycle, 1)
 {
 	items.Add(0);
 	items.Add(1);
@@ -143,14 +143,48 @@ TEST_CASE_PARTIAL_ORDERING(TestPO_Two_Cycle, 1)
 	groups.Add(1, 0);
 }
 
-TEST_CASE_PARTIAL_ORDERING(TestPO_SingleComponent, 1)
+TEST_CASE_PARTIAL_ORDERING(SingleComponent, 1)
 {
-	items.Add(0);
-	items.Add(1);
-	items.Add(2);
-	items.Add(3);
-	groups.Add(0, 1);
-	groups.Add(1, 2);
-	groups.Add(2, 3);
-	groups.Add(3, 0);
+	for (vint i = 0; i < 4; i++)
+	{
+		items.Add(i);
+		groups.Add(i, (i + 1) % 4);
+	}
+}
+
+TEST_CASE_PARTIAL_ORDERING(DisconnectedComponents, 3)
+{
+	for (vint i = 0; i < 9; i++)
+	{
+		items.Add(i);
+	}
+
+	for (vint i = 0; i < 3; i++)
+	{
+		for (vint j = 0; j < 3; j++)
+		{
+			groups.Add(i * 3 + j, i * 3 + (j + 1) % 3);
+		}
+	}
+}
+
+TEST_CASE_PARTIAL_ORDERING(NestedComponents, 1)
+{
+	for (vint i = 0; i < 9; i++)
+	{
+		items.Add(i);
+	}
+
+	for (vint i = 0; i < 3; i++)
+	{
+		for (vint j = 0; j < 3; j++)
+		{
+			groups.Add(i * 3 + j, i * 3 + (j + 1) % 3);
+		}
+	}
+
+	for (vint i = 0; i < 3; i++)
+	{
+		groups.Add(i * 3, (i * 3 + 3) % 9);
+	}
 }
