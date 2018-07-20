@@ -97,74 +97,60 @@ void AssertPOP(PartialOrderingProcessor& pop, List<vint>& items, Group<vint, vin
 	}
 }
 
-TEST_CASE(TestPO_One)
+#define TEST_CASE_PARTIAL_ORDERING(NAME, COMPONENT_COUNT)						\
+	void TestPO_##NAME##_Create(List<vint>& items, Group<vint, vint>& groups);	\
+	TEST_CASE(TestPO_##NAME)													\
+	{																			\
+		PartialOrderingProcessor pop;											\
+		List<vint> items;														\
+		Group<vint, vint> groups;												\
+		TestPO_##NAME##_Create(items, groups);									\
+		pop.InitWithGroup(items, groups);										\
+		pop.Sort();																\
+		AssertPOP(pop, items, groups, COMPONENT_COUNT);							\
+	}																			\
+	void TestPO_##NAME##_Create(List<vint>& items, Group<vint, vint>& groups)	\
+
+TEST_CASE_PARTIAL_ORDERING(TestPO_One, 1)
 {
-	PartialOrderingProcessor pop;
-	List<vint> items;
-	Group<vint, vint> groups;
-	{
-		items.Add(0);
-		pop.InitWithGroup(items, groups);
-	}
-	pop.Sort();
-	AssertPOP(pop, items, groups, 1);
+	items.Add(0);
 }
 
-TEST_CASE(TestPO_One_Cycle)
+TEST_CASE_PARTIAL_ORDERING(TestPO_One_Cycle, 1)
 {
-	PartialOrderingProcessor pop;
-	List<vint> items;
-	Group<vint, vint> groups;
-	{
-		items.Add(0);
-		groups.Add(0, 0);
-		pop.InitWithGroup(items, groups);
-	}
-	pop.Sort();
-	AssertPOP(pop, items, groups, 1);
+	items.Add(0);
+	groups.Add(0, 0);
 }
 
-TEST_CASE(TestPO_Two)
+TEST_CASE_PARTIAL_ORDERING(TestPO_Two, 2)
 {
-	PartialOrderingProcessor pop;
-	List<vint> items;
-	Group<vint, vint> groups;
-	{
-		items.Add(0);
-		items.Add(1);
-		pop.InitWithGroup(items, groups);
-	}
-	pop.Sort();
-	AssertPOP(pop, items, groups, 2);
+	items.Add(0);
+	items.Add(1);
 }
 
-TEST_CASE(TestPO_Two_Depend)
+TEST_CASE_PARTIAL_ORDERING(TestPO_Two_Depend, 2)
 {
-	PartialOrderingProcessor pop;
-	List<vint> items;
-	Group<vint, vint> groups;
-	{
-		items.Add(0);
-		items.Add(1);
-		groups.Add(0, 1);
-		pop.InitWithGroup(items, groups);
-	}
-	pop.Sort();
-	AssertPOP(pop, items, groups, 2);
+	items.Add(0);
+	items.Add(1);
+	groups.Add(0, 1);
 }
 
-TEST_CASE(TestPO_Two_Cycle)
+TEST_CASE_PARTIAL_ORDERING(TestPO_Two_Cycle, 1)
 {
-	PartialOrderingProcessor pop;
-	List<vint> items;
-	Group<vint, vint> groups;
-	{
-		items.Add(0);
-		items.Add(1);
-		groups.Add(0, 1);
-		groups.Add(1, 0);
-		pop.InitWithGroup(items, groups);
-	}
-	pop.Sort();
-	AssertPOP(pop, items, groups, 1);
+	items.Add(0);
+	items.Add(1);
+	groups.Add(0, 1);
+	groups.Add(1, 0);
+}
+
+TEST_CASE_PARTIAL_ORDERING(TestPO_SingleComponent, 1)
+{
+	items.Add(0);
+	items.Add(1);
+	items.Add(2);
+	items.Add(3);
+	groups.Add(0, 1);
+	groups.Add(1, 2);
+	groups.Add(2, 3);
+	groups.Add(3, 0);
 }
