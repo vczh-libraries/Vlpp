@@ -282,3 +282,77 @@ TEST_CASE_PARTIAL_ORDERING(Tree_Component, 4)
 	groups.Add(4, 2);
 	groups.Add(5, 4);
 }
+
+template<typename T, typename U>
+void TestPO_InitFunc(bool func, U generator)
+{
+	PartialOrderingProcessor pop;
+	List<T> items;
+	Group<T, T> groups;
+	{
+		auto a = generator(0);
+		auto b = generator(1);
+		auto c = generator(2);
+		items.Add(a);
+		items.Add(b);
+		items.Add(c);
+		if (func)
+		{
+			pop.InitWithFunc(items, [&](T x, T y)
+			{
+				if (x == b && y == a) return true;
+				if (x == b && y == c) return true;
+				if (x == c && y == a) return true;
+				if (x == c && y == b) return true;
+				return false;
+			});
+		}
+		else
+		{
+			groups.Add(b, a);
+			groups.Add(b, c);
+			groups.Add(c, a);
+			groups.Add(c, b);
+			pop.InitWithGroup(items, groups);
+		}
+	}
+
+	pop.Sort();
+	TEST_ASSERT(pop.components.Count() == 2);
+	for (vint i = 0; i < pop.components.Count(); i++)
+	{
+		Sort<vint>(
+			const_cast<vint*>(pop.components[i].firstNode),
+			pop.components[i].nodeCount,
+			[](vint a, vint b) {return a - b; }
+		);
+	}
+	TEST_ASSERT(pop.components[0].nodeCount == 1);
+	TEST_ASSERT(pop.components[0].firstNode[0] == 0);
+	TEST_ASSERT(pop.components[1].nodeCount == 2);
+	TEST_ASSERT(pop.components[1].firstNode[0] == 1);
+	TEST_ASSERT(pop.components[1].firstNode[1] == 2);
+}
+
+TEST_CASE(TestPO_Pointer)
+{
+	const wchar_t* items[] = { L"A",L"B",L"C" };
+	TestPO_InitFunc<const wchar_t*>(false, [&](vint i) { return items[i]; });
+}
+
+TEST_CASE(TestPO_Pointer_Func)
+{
+	const wchar_t* items[] = { L"A",L"B",L"C" };
+	TestPO_InitFunc<const wchar_t*>(true, [&](vint i) { return items[i]; });
+}
+
+
+TEST_CASE(TestPO_SharedPointer)
+{
+	TestPO_InitFunc<Ptr<vint>>(false, [](vint i) { return MakePtr<vint>(i + 1); });
+}
+
+TEST_CASE(TestPO_SharedPointer_Func)
+{
+	TestPO_InitFunc<Ptr<vint>>(true, [](vint i) { return MakePtr<vint>(i + 1); });
+}
