@@ -392,5 +392,40 @@ TEST_CASE(TestPO_SubClass)
 		subClasses.Add(items[9], c);
 		subClasses.Add(items[11], c);
 	}
+
 	pop.InitWithSubClass(items, depGroup, subClasses);
+	TEST_ASSERT(pop.nodes.Count() == 6);
+
+	Dictionary<Ptr<vint>, vint> itemNodeMap;
+	for (vint i = 0; i < pop.nodes.Count(); i++)
+	{
+		auto& node = pop.nodes[i];
+		TEST_ASSERT(node.firstSubClassItem != nullptr);
+		for (vint j = 0; j < node.subClassItemCount; j++)
+		{
+			itemNodeMap.Add(items[node.firstSubClassItem[j]], i);
+		}
+	}
+	TEST_ASSERT(itemNodeMap[items[1].Obj()] == itemNodeMap[items[2].Obj()]);
+	TEST_ASSERT(itemNodeMap[items[1].Obj()] == itemNodeMap[items[4].Obj()]);
+	TEST_ASSERT(itemNodeMap[items[6].Obj()] == itemNodeMap[items[7].Obj()]);
+	TEST_ASSERT(itemNodeMap[items[6].Obj()] == itemNodeMap[items[8].Obj()]);
+	TEST_ASSERT(itemNodeMap[items[5].Obj()] == itemNodeMap[items[9].Obj()]);
+	TEST_ASSERT(itemNodeMap[items[5].Obj()] == itemNodeMap[items[11].Obj()]);
+
+	auto node_0 = itemNodeMap[items[0].Obj()];
+	auto node_3 = itemNodeMap[items[3].Obj()];
+	auto node_1_2_4 = itemNodeMap[items[1].Obj()];
+	auto node_6_7_8 = itemNodeMap[items[6].Obj()];
+	auto node_5_9_11 = itemNodeMap[items[5].Obj()];
+	auto node_10 = itemNodeMap[items[10].Obj()];
+
+	pop.Sort();
+
+	TEST_ASSERT(pop.components.Count() == 5);
+	TEST_ASSERT(pop.nodes[node_6_7_8].component == pop.nodes[node_5_9_11].component);
+	TEST_ASSERT(pop.nodes[node_0].component < pop.nodes[node_1_2_4].component);
+	TEST_ASSERT(pop.nodes[node_3].component < pop.nodes[node_1_2_4].component);
+	TEST_ASSERT(pop.nodes[node_3].component < pop.nodes[node_6_7_8].component);
+	TEST_ASSERT(pop.nodes[node_5_9_11].component < pop.nodes[node_10].component);
 }

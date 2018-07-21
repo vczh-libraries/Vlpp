@@ -208,7 +208,7 @@ Partial Ordering
 						const auto& values = scItems.GetByIndex(i);
 						for (vint j = 0; j < values.Count(); j++)
 						{
-							subClassItemsBuffer[used++] = items.IndexOf(ElementKeyType::GetKeyValue(values[i]));
+							subClassItemsBuffer[used++] = items.IndexOf(ElementKeyType::GetKeyValue(values[j]));
 						}
 						node.subClassItemCount = values.Count();
 					}
