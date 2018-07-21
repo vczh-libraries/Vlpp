@@ -94,6 +94,8 @@ void AssertPOP(PartialOrderingProcessor& pop, List<vint>& items, Group<vint, vin
 		auto& node = pop.nodes[i];
 		TEST_ASSERT(node.visited);
 		TEST_ASSERT(node.component != -1);
+		TEST_ASSERT(node.firstSubClassItem == nullptr);
+		TEST_ASSERT(node.subClassItemCount == 0);
 	}
 
 	for (vint i = 0; i < pop.nodes.Count(); i++)
@@ -374,6 +376,8 @@ TEST_CASE(TestPO_SubClass)
 			depGroup.Add(items[i * 3 + 1], items[i * 3]);
 			depGroup.Add(items[i * 3 + 2], items[i * 3]);
 		}
+		depGroup.Add(items[6], items[9]);
+		depGroup.Add(items[11], items[8]);
 
 		auto a = L"A";
 		auto b = L"B";

@@ -152,7 +152,7 @@ Partial Ordering
 				auto getSubClass = [&](const ElementType& item)
 				{
 					vint index = subClasses.Keys().IndexOf(ElementKeyType::GetKeyValue(item));
-					if (index == -1)
+					if (index != -1)
 					{
 						index = scItems.Keys().IndexOf(KeyType<TSubClass>::GetKeyValue(subClasses.Values()[index]));
 						CHECK_ERROR(index != -1, L"PartialOrdering::InitWithSubClass(items, degGroup, subClasses)#Internal Error.");
