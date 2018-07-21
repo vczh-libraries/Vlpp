@@ -10,6 +10,30 @@ namespace vl
 PartialOrderingProcessor
 ***********************************************************************/
 
+		void PartialOrderingProcessor::InitNodes(vint itemCount)
+		{
+			nodes.Resize(itemCount);
+
+			for (vint i = 0; i < itemCount; i++)
+			{
+				auto& node = nodes[i];
+				node.ins = &emptyList;
+				node.outs = &emptyList;
+
+				vint inIndex = ins.Keys().IndexOf(i);
+				vint outIndex = outs.Keys().IndexOf(i);
+
+				if (inIndex != -1)
+				{
+					node.ins = &ins.GetByIndex(inIndex);
+				}
+				if (outIndex != -1)
+				{
+					node.outs = &outs.GetByIndex(outIndex);
+				}
+			}
+		}
+
 		void PartialOrderingProcessor::VisitUnvisitedNode(po::Node& node, Array<vint>& reversedOrder, vint& used)
 		{
 			node.visited = true;
@@ -27,7 +51,7 @@ PartialOrderingProcessor
 		void PartialOrderingProcessor::AssignUnassignedNode(po::Node& node, vint componentIndex, vint& used)
 		{
 			node.component = componentIndex;
-			nodesBuffer[used++] = (vint)(&node - &nodes[0]);
+			firstNodesBuffer[used++] = (vint)(&node - &nodes[0]);
 			for (vint i = 0; i < node.ins->Count(); i++)
 			{
 				auto& inNode = nodes[node.ins->Get(i)];
@@ -56,7 +80,7 @@ PartialOrderingProcessor
 				}
 			}
 
-			nodesBuffer.Resize(nodes.Count());
+			firstNodesBuffer.Resize(nodes.Count());
 			{
 				vint lastUsed = 0;
 				vint used = 0;
@@ -68,7 +92,7 @@ PartialOrderingProcessor
 						AssignUnassignedNode(node, components.Count(), used);
 
 						Component component;
-						component.firstNode = &nodesBuffer[lastUsed];
+						component.firstNode = &firstNodesBuffer[lastUsed];
 						component.nodeCount = used - lastUsed;
 						lastUsed = used;
 						components.Add(component);

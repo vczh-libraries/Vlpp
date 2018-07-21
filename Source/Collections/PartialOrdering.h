@@ -24,8 +24,10 @@ Partial Ordering
 			{
 				bool					visited = false;
 				vint					component = -1;
-				const List<vint>*		ins = nullptr;
-				const List<vint>*		outs = nullptr;
+				const List<vint>*		ins = nullptr;					// all nodes that this node depends on
+				const List<vint>*		outs = nullptr;					// all nodes that depend on this node
+				const vint*				firstSubClassItem = nullptr;	// index of the first item in this sub class node
+				vint					subClassItemCount = 0;			// the number of items in this sub class node
 			};
 
 			struct Component
@@ -45,6 +47,7 @@ Partial Ordering
 		/// If a depends on b, then a.ins-&gt;Contains(b) && b.outs-&gt;Contains(a).
 		/// The sorting result is a list of strong connected components in order.
 		/// If a depends on b, then the component containing a appears after the component containing b.
+		/// Node could represent a sub class if InitWithSubClass is called.
 		/// </summary>
 		class PartialOrderingProcessor : public Object
 		{
@@ -54,8 +57,10 @@ Partial Ordering
 			List<vint>					emptyList;
 			Group<vint, vint>			ins;
 			Group<vint, vint>			outs;
-			Array<vint>					nodesBuffer;
+			Array<vint>					firstNodesBuffer;
+			Array<vint>					subClassItemsBuffer;
 
+			void						InitNodes(vint itemCount);
 			void						VisitUnvisitedNode(po::Node& node, Array<vint>& reversedOrder, vint& used);
 			void						AssignUnassignedNode(po::Node& node, vint componentIndex, vint& used);
 		public:
@@ -75,44 +80,25 @@ Partial Ordering
 			template<typename TList>
 			void InitWithGroup(const TList& items, const GroupOf<TList>& depGroup)
 			{
-				CHECK_ERROR(nodes.Count() == 0, L"PartialOrdering::InitWithGroup<T>(const ListBase<T>&, const Group<T, T>&)#Initializing twice is not allowed.");
+				CHECK_ERROR(nodes.Count() == 0, L"PartialOrdering::InitWithGroup(items, depGroup)#Initializing twice is not allowed.");
 
 				for (vint i = 0; i < depGroup.Count(); i++)
 				{
 					vint fromNode = items.IndexOf(KeyType<TList::ElementType>::GetKeyValue(depGroup.Keys()[i]));
-					CHECK_ERROR(fromNode != -1, L"PartialOrdering::InitWithGroup<T>(const ListBase<T>&, const Group<T, T>&)#The key in outsGroup does not exist in items.");
+					CHECK_ERROR(fromNode != -1, L"PartialOrdering::InitWithGroup(items, depGroup)#The key in outsGroup does not exist in items.");
 
 					auto& edges = depGroup.GetByIndex(i);
 					for (vint j = 0; j < edges.Count(); j++)
 					{
 						vint toNode = items.IndexOf(KeyType<TList::ElementType>::GetKeyValue(edges[j]));
-						CHECK_ERROR(toNode != -1, L"PartialOrdering::InitWithGroup<T>(const ListBase<T>&, const Group<T, T>&)#The value in outsGroup does not exist in items.");
+						CHECK_ERROR(toNode != -1, L"PartialOrdering::InitWithGroup(items, depGroup)#The value in outsGroup does not exist in items.");
 
 						ins.Add(fromNode, toNode);
 						outs.Add(toNode, fromNode);
 					}
 				}
 
-				nodes.Resize(items.Count());
-
-				for (vint i = 0; i < items.Count(); i++)
-				{
-					auto& node = nodes[i];
-					node.ins = &emptyList;
-					node.outs = &emptyList;
-
-					vint inIndex = ins.Keys().IndexOf(i);
-					vint outIndex = outs.Keys().IndexOf(i);
-
-					if (inIndex != -1)
-					{
-						node.ins = &ins.GetByIndex(inIndex);
-					}
-					if (outIndex != -1)
-					{
-						node.outs = &outs.GetByIndex(outIndex);
-					}
-				}
+				InitNodes(items.Count());
 			}
 
 			/// <summary>Initialize the processor.</summary>
@@ -135,6 +121,91 @@ Partial Ordering
 					}
 				}
 				InitWithGroup(items, depGroup);
+			}
+
+			template<typename TList, typename TSubClass>
+			void InitWithSubClass(const TList& items, const GroupOf<TList>& depGroup, const Group<typename TList::ElementType, TSubClass>& subClasses)
+			{
+				CHECK_ERROR(nodes.Count() == 0, L"PartialOrdering::InitWithSubClass(items, degGroup, subClasses)#Initializing twice is not allowed.");
+				using ElementType = typename TList::ElementType;
+				using ElementKeyType = KeyType<ElementType>;
+
+				Group<TSubClass, ElementType> scItems;
+				SortedList<ElementType> singleItems;
+
+				for (vint i = 0; i < subClasses.Count(); i++)
+				{
+					const auto& key = subClasses.Keys()[i];
+					const auto& values = subClasses.GetByIndex(i);
+					for (vint j = 0; j < values.Count(); j++)
+					{
+						const auto& scItem = values[j];
+						scItems.Add(scItem, key);
+					}
+				}
+
+				for (vint i = 0; i < items.Count(); i++)
+				{
+					const auto& item = items[i];
+					if (!subClasses.Keys.Contains(ElementKeyType::GetKeyValue(item)))
+					{
+						singleItems.Add(item);
+					}
+				}
+
+				for (vint i = 0; i < depGroup.Count(); i++)
+				{
+					const auto& key = depGroup.Keys()[i];
+					const auto& values = depGroup.GetByIndex(i);
+					for (vint j = 0; j < values.Count(); j++)
+					{
+						const auto& value = values[j];
+						vint keyIndex = scItems.Keys().IndexOf(ElementKeyType::GetKeyValue(key));
+						if (keyIndex == -1) keyIndex = singleItems.IndexOf(ElementKeyType::GetKeyValue(key));
+						vint valueIndex = scItems.Keys().IndexOf(ElementKeyType::GetKeyValue(value));
+						if (valueIndex == -1) valueIndex = singleItems.IndexOf(ElementKeyType::GetKeyValue(value));
+
+						if (!ins.Contains(keyIndex, valueIndex))
+						{
+							ins.Add(keyIndex, valueIndex);
+						}
+					}
+				}
+
+				for (vint i = 0; i < ins.Count(); i++)
+				{
+					vint key = ins.Keys()[i];
+					const auto& values = ins.GetByIndex(i);
+					for (vint j = 0; j < values.Count(); j++)
+					{
+						outs.Add(values[j], key);
+					}
+				}
+
+				InitNodes(scItems.Count() + singleItems.Count());
+				subClassItemsBuffer.Resize(items.Count());
+				
+				vint used = 0;
+				vint scItemCount = scItems.Keys().Count();
+				for (vint i = 0; i < nodes.Count(); i++)
+				{
+					auto& node = nodes[i];
+					node.firstSubClassItem = &subClassItemsBuffer[used];
+					if (i < scItemCount)
+					{
+						const auto& values = scItems.GetByIndex(i);
+						for (vint j = 0; j < values.Count(); j++)
+						{
+							subClassItemsBuffer[used++] = items.IndexOf(ElementKeyType::GetKeyValue(values[i]));
+						}
+						node.subClassItemCount = values.Count();
+					}
+					else
+					{
+						subClassItemsBuffer[used++] = items.IndexOf(ElementKeyType::GetKeyValue(singleItems[i - scItemCount]));
+						node.subClassItemCount = 1;
+					}
+				}
 			}
 		};
 	}
