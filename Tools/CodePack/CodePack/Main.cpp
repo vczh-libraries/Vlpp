@@ -35,7 +35,7 @@ LazyList<FilePath> GetHeaderFiles(const FilePath& folder)
 	return SearchFiles(folder, L".h");
 }
 
-void CategorizeCodeFiles(Ptr<XmlDocument> config, LazyList<FilePath> files, Group<WString, FilePath>& categorizedFiles, Dictionary<FilePath, WString>& reverseCategories)
+void CategorizeCodeFiles(Ptr<XmlDocument> config, LazyList<FilePath> files, Group<WString, FilePath>& categorizedFiles, Dictionary<FilePath, WString>& reverseCategoryNames)
 {
 	FOREACH(Ptr<XmlElement>, e, XmlGetElements(XmlGetElement(config->rootElement, L"categories"), L"category"))
 	{
@@ -71,7 +71,7 @@ void CategorizeCodeFiles(Ptr<XmlDocument> config, LazyList<FilePath> files, Grou
 			if (!categorizedFiles.Contains(name, file))
 			{
 				categorizedFiles.Add(name, file);
-				reverseCategories.Add(file, name);
+				reverseCategoryNames.Add(file, name);
 			}
 		}
 	}
@@ -199,49 +199,6 @@ LazyList<FilePath> GetIncludedFiles(const FilePath& codeFile)
 		);
 
 	scannedFiles.Add(codeFile, result);
-	return result;
-}
-
-template<typename T>
-LazyList<T> SortDependencies(LazyList<T> all, const Group<T, T>& dependencies)
-{
-	List<T> unsorted;
-	Group<T, T> deps;
-	CopyFrom(
-		unsorted,
-		From(dependencies.Keys())
-		.Concat(Range<vint>(0, dependencies.Count())
-			.SelectMany([&](vint index)->LazyList<T> { return dependencies.GetByIndex(index); })
-			)
-			.Distinct()
-		);
-	CopyFrom(deps, dependencies);
-
-	List<T> sorted;
-	while (true)
-	{
-		vint count = unsorted.Count();
-
-		FOREACH_INDEXER(T, category, index, unsorted)
-		{
-			if (!deps.Keys().Contains(category))
-			{
-				sorted.Add(category);
-				unsorted.RemoveAt(index);
-				for (vint i = deps.Count() - 1; i >= 0; i--)
-				{
-					deps.Remove(deps.Keys()[i], category);
-				}
-				break;
-			}
-		}
-
-		if (unsorted.Count() == 0) break;
-		CHECK_ERROR(count != unsorted.Count(), L"Cycle dependency is not allowed.");
-	}
-
-	auto result = MakePtr<List<T>>();
-	CopyFrom(*result.Obj(), From(all).Except(sorted).Concat(sorted));
 	return result;
 }
 
@@ -420,18 +377,21 @@ int main(int argc, char* argv[])
 	}
 
 	// collect project files
-	List<FilePath> folders;
-	CopyFrom(
-		folders,
-		XmlGetElements(XmlGetElement(config->rootElement,L"folders"), L"folder")
-			.Select([&](Ptr<XmlElement> e)
-			{
-				return workingDir / XmlGetAttribute(e, L"path")->value.value;
-			})
-		);
+	List<FilePath> folders; // all folders
+	{
+		CopyFrom(
+			folders,
+			XmlGetElements(XmlGetElement(config->rootElement,L"folders"), L"folder")
+				.Select([&](Ptr<XmlElement> e)
+				{
+					return workingDir / XmlGetAttribute(e, L"path")->value.value;
+				})
+			);
+	}
 
 	// collect code files
-	List<FilePath> unprocessedCppFiles, unprocessedHeaderFiles;
+	List<FilePath> unprocessedCppFiles;		// all cpp files need to combine
+	List<FilePath> unprocessedHeaderFiles;	// all header files need to combine
 	{
 		List<FilePath> headerFiles;
 		CopyFrom(unprocessedCppFiles, From(folders).SelectMany(GetCppFiles).Distinct());
@@ -448,83 +408,95 @@ int main(int argc, char* argv[])
 	}
 
 	// categorize code files
-	Group<WString, FilePath> categorizedCppFiles, categorizedHeaderFiles;
-	Dictionary<FilePath, WString> reverseCategorieNames, reverseCategories;
-
-	CategorizeCodeFiles(config, unprocessedCppFiles, categorizedCppFiles, reverseCategorieNames);
-	CategorizeCodeFiles(config, unprocessedHeaderFiles, categorizedHeaderFiles, reverseCategorieNames);
-	auto outputFolder = workingDir / (XmlGetAttribute(XmlGetElement(config->rootElement, L"output"), L"path")->value.value);
-	Dictionary<WString, Tuple<WString, bool>> categorizedOutput;
-	CopyFrom(
-		categorizedOutput,
-		XmlGetElements(XmlGetElement(config->rootElement, L"output"), L"codepair")
-			.Select([&](Ptr<XmlElement> e)->decltype(categorizedOutput)::ElementType
-			{
-				return {
-					XmlGetAttribute(e, L"category")->value.value,
-					{
-						XmlGetAttribute(e, L"filename")->value.value,
-						XmlGetAttribute(e, L"generate")->value.value == L"true"
-					}
-				};
-			})
-	);
-	for (vint i = 0; i < reverseCategorieNames.Count(); i++)
+	Group<WString, FilePath> categorizedCppFiles;		// category name to cpp file
+	Group<WString, FilePath> categorizedHeaderFiles;	// category name to header file
+	SortedList<WString> categoryNames;					// all category names
+	Dictionary<FilePath, WString> reverseCategoryNames;	// files to category name
+	Dictionary<FilePath, WString> reverseCategoryFiles;	// files to category output file
+	Dictionary<WString, Tuple<WString, bool>> categorizedOutput; // category name to (category output file, need to generate or not)
 	{
-		auto key = reverseCategorieNames.Keys()[i];
-		auto value = reverseCategorieNames.Values()[i];
-		reverseCategories.Add(key, categorizedOutput[value].f0);
+		CategorizeCodeFiles(config, unprocessedCppFiles, categorizedCppFiles, reverseCategoryNames);
+		CategorizeCodeFiles(config, unprocessedHeaderFiles, categorizedHeaderFiles, reverseCategoryNames);
+		CopyFrom(categoryNames, From(categorizedCppFiles.Keys()).Concat(categorizedHeaderFiles.Keys()).Distinct());
+
+		CopyFrom(
+			categorizedOutput,
+			XmlGetElements(XmlGetElement(config->rootElement, L"output"), L"codepair")
+				.Select([&](Ptr<XmlElement> e)->decltype(categorizedOutput)::ElementType
+				{
+					return {
+						XmlGetAttribute(e, L"category")->value.value,
+						{
+							XmlGetAttribute(e, L"filename")->value.value,
+							XmlGetAttribute(e, L"generate")->value.value == L"true"
+						}
+					};
+				})
+		);
+		for (vint i = 0; i < reverseCategoryNames.Count(); i++)
+		{
+			auto key = reverseCategoryNames.Keys()[i];
+			auto value = reverseCategoryNames.Values()[i];
+			reverseCategoryFiles.Add(key, categorizedOutput[value].f0);
+		}
 	}
 
 	// calculate category dependencies
-	Group<WString, WString> categoryDepedencies;
-	CopyFrom(
-		categoryDepedencies,
-		From(categorizedCppFiles.Keys())
-			.SelectMany([&](const WString& key)
-			{
-				SortedList<FilePath> headerFiles;
-				CopyFrom(
-					headerFiles,
-					From(categorizedCppFiles[key])
-						.SelectMany(GetIncludedFiles)
-						.Distinct()
-					);
-
-				auto keys = MakePtr<SortedList<WString>>();
-				CopyFrom(
-					*keys.Obj(),
-					From(categorizedHeaderFiles.Keys())
-						.Where([&](const WString& key)
-						{
-							return From(categorizedHeaderFiles[key])
-								.Any([&](const FilePath& h)
-								{
-									return headerFiles.Contains(h);
-								});
-						})
-					);
-				keys->Remove(key);
-
-				return LazyList<WString>(keys).Select([=](const WString& k)->Pair<WString, WString>{ return {key,k}; });
-			})
-		);
-
-	// sort categories by dependencies
-	List<WString> categoryOrder;
+	PartialOrderingProcessor popCategories;			// POP for category ordering
+	Group<vint, WString> componentToCategoryNames;	// component index to category names
 	{
-		auto allCategories=
-			XmlGetElements(XmlGetElement(config->rootElement, L"categories"), L"category")
-				.Select([](Ptr<XmlElement> e)
+		SortedList<FilePath> items;
+		Group<FilePath, FilePath> depGroup;
+
+		CopyFrom(items, From(unprocessedCppFiles).Concat(unprocessedHeaderFiles));
+		FOREACH(FilePath, filePath, items)
+		{
+			FOREACH(FilePath, includedFile, GetIncludedFiles(filePath))
+			{
+				depGroup.Add(filePath, includedFile);
+			}
+		}
+
+		popCategories.InitWithSubClass(items, depGroup, reverseCategoryNames);
+		popCategories.Sort();
+
+		for (vint i = 0; i < popCategories.components.Count(); i++)
+		{
+			auto& component = popCategories.components[i];
+			if (component.nodeCount > 1)
+			{
+				for (vint j = 0; j < component.nodeCount; j++)
 				{
-					return XmlGetAttribute(e, L"name")->value.value;
-				});
-		CopyFrom(categoryOrder, SortDependencies(allCategories, categoryDepedencies));
+					auto& firstNode = popCategories.nodes[component.firstNode[j]];
+					auto firstFile = items[firstNode.firstSubClassItem[0]];
+					componentToCategoryNames.Add(i, reverseCategoryNames[firstFile]);
+				}
+			}
+		}
+
+		bool needExit = false;
+		for (vint i = 0; i < componentToCategoryNames.Count(); i++)
+		{
+			const auto& cycleCategories = componentToCategoryNames.GetByIndex(i);
+			if (cycleCategories.Count() > 1)
+			{
+				Console::SetColor(true, false, false, true);
+				Console::WriteLine(
+					L"Error: Cycle dependency found in categories: "
+					+ From(cycleCategories).Aggregate([](const WString& a, const WString& b) {return a + L", " + b; })
+					+ L".");
+				Console::SetColor(true, true, true, false);
+				needExit = true;
+			}
+		}
+		CHECK_ERROR(!needExit, L"Cycle dependency is not allowed");
 	}
+
 	Dictionary<WString, Ptr<SortedList<WString>>> categorizedSystemIncludes;
 
 	// generate code pair header files
-	FOREACH(WString, c, categoryOrder)
+	auto outputFolder = workingDir / (XmlGetAttribute(XmlGetElement(config->rootElement, L"output"), L"path")->value.value);
+	FOREACH(WString, c, categoryNames)
 	{
 		auto output = outputFolder / (categorizedOutput[c].f0 + L".h");
 
@@ -534,7 +506,7 @@ int main(int argc, char* argv[])
 		if (categorizedOutput[c].f1)
 		{
 			Combine(
-				reverseCategories,
+				reverseCategoryFiles,
 				categorizedHeaderFiles[c],
 				output,
 				*systemIncludes.Obj(),
@@ -551,14 +523,14 @@ int main(int argc, char* argv[])
 	}
 
 	// generate code pair cpp files
-	FOREACH(WString, c, categoryOrder)
+	FOREACH(WString, c, categoryNames)
 	{
 		if (categorizedOutput[c].f1)
 		{
 			WString outputHeader[] = { categorizedOutput[c].f0 + L".h" };
 			auto outputCpp = outputFolder / (categorizedOutput[c].f0 + L".cpp");
 			Combine(
-				reverseCategories,
+				reverseCategoryFiles,
 				categorizedCppFiles[c],
 				outputCpp,
 				*categorizedSystemIncludes[c].Obj(),
@@ -572,7 +544,7 @@ int main(int argc, char* argv[])
 	{
 		auto source = workingDir / XmlGetAttribute(e, L"source")->value.value;
 		auto output = outputFolder / XmlGetAttribute(e, L"filename")->value.value;
-		Combine(reverseCategories, source, output, {});
+		Combine(reverseCategoryFiles, source, output, {});
 	}
 
 	return 0;
