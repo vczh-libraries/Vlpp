@@ -124,7 +124,7 @@ Partial Ordering
 			}
 
 			template<typename TList, typename TSubClass>
-			void InitWithSubClass(const TList& items, const GroupOf<TList>& depGroup, const Group<typename TList::ElementType, TSubClass>& subClasses)
+			void InitWithSubClass(const TList& items, const GroupOf<TList>& depGroup, const Dictionary<typename TList::ElementType, TSubClass>& subClasses)
 			{
 				CHECK_ERROR(nodes.Count() == 0, L"PartialOrdering::InitWithSubClass(items, degGroup, subClasses)#Initializing twice is not allowed.");
 				using ElementType = typename TList::ElementType;
@@ -136,34 +136,46 @@ Partial Ordering
 				for (vint i = 0; i < subClasses.Count(); i++)
 				{
 					const auto& key = subClasses.Keys()[i];
-					const auto& values = subClasses.GetByIndex(i);
-					for (vint j = 0; j < values.Count(); j++)
-					{
-						const auto& scItem = values[j];
-						scItems.Add(scItem, key);
-					}
+					const auto& value = subClasses.Values()[i];
+					scItems.Add(value, key);
 				}
 
 				for (vint i = 0; i < items.Count(); i++)
 				{
 					const auto& item = items[i];
-					if (!subClasses.Keys.Contains(ElementKeyType::GetKeyValue(item)))
+					if (!subClasses.Keys().Contains(ElementKeyType::GetKeyValue(item)))
 					{
 						singleItems.Add(item);
 					}
 				}
 
+				auto getSubClass = [&](const ElementType& item)
+				{
+					vint index = subClasses.Keys().IndexOf(ElementKeyType::GetKeyValue(item));
+					if (index == -1)
+					{
+						index = scItems.Keys().IndexOf(KeyType<TSubClass>::GetKeyValue(subClasses.Values()[index]));
+						CHECK_ERROR(index != -1, L"PartialOrdering::InitWithSubClass(items, degGroup, subClasses)#Internal Error.");
+						return index;
+					}
+					else
+					{
+						index = singleItems.IndexOf(ElementKeyType::GetKeyValue(item));
+						CHECK_ERROR(index != -1, L"PartialOrdering::InitWithSubClass(items, degGroup, subClasses)#Internal Error.");
+						return scItems.Count() + index;
+					}
+				};
+
 				for (vint i = 0; i < depGroup.Count(); i++)
 				{
 					const auto& key = depGroup.Keys()[i];
+					vint keyIndex = getSubClass(key);
 					const auto& values = depGroup.GetByIndex(i);
+
 					for (vint j = 0; j < values.Count(); j++)
 					{
 						const auto& value = values[j];
-						vint keyIndex = scItems.Keys().IndexOf(ElementKeyType::GetKeyValue(key));
-						if (keyIndex == -1) keyIndex = singleItems.IndexOf(ElementKeyType::GetKeyValue(key));
-						vint valueIndex = scItems.Keys().IndexOf(ElementKeyType::GetKeyValue(value));
-						if (valueIndex == -1) valueIndex = singleItems.IndexOf(ElementKeyType::GetKeyValue(value));
+						vint valueIndex = getSubClass(value);
 
 						if (!ins.Contains(keyIndex, valueIndex))
 						{

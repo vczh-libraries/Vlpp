@@ -356,3 +356,37 @@ TEST_CASE(TestPO_SharedPointer_Func)
 {
 	TestPO_InitFunc<Ptr<vint>>(true, [](vint i) { return MakePtr<vint>(i + 1); });
 }
+
+TEST_CASE(TestPO_SubClass)
+{
+	PartialOrderingProcessor pop;
+	List<Ptr<vint>> items;
+	Group<Ptr<vint>, Ptr<vint>> depGroup;
+	Dictionary<Ptr<vint>, const wchar_t*> subClasses;
+	{
+		for (vint i = 0; i < 12; i++)
+		{
+			items.Add(MakePtr<vint>(i));
+		}
+		
+		for (vint i = 0; i < 4; i++)
+		{
+			depGroup.Add(items[i * 3 + 1], items[i * 3]);
+			depGroup.Add(items[i * 3 + 2], items[i * 3]);
+		}
+
+		auto a = L"A";
+		auto b = L"B";
+		auto c = L"C";
+		subClasses.Add(items[1], a);
+		subClasses.Add(items[2], a);
+		subClasses.Add(items[4], a);
+		subClasses.Add(items[6], b);
+		subClasses.Add(items[7], b);
+		subClasses.Add(items[8], b);
+		subClasses.Add(items[5], c);
+		subClasses.Add(items[9], c);
+		subClasses.Add(items[11], c);
+	}
+	pop.InitWithSubClass(items, depGroup, subClasses);
+}
