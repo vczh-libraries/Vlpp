@@ -534,7 +534,11 @@ int main(int argc, char* argv[])
 				categorizedHeaderFiles[categoryName],
 				output,
 				*systemIncludes.Obj(),
-				From(component.firstNode, component.firstNode + component.nodeCount)
+				From(*popCategories.nodes[component.firstNode[0]].ins)
+					.Where([&](vint nodeIndex)
+					{
+						return nodeIndex != component.firstNode[0];
+					})
 					.Select([&](vint nodeIndex)
 					{
 						return categorizedOutput[componentToCategoryNames[popCategories.nodes[nodeIndex].component][0]].f0 + L".h";
