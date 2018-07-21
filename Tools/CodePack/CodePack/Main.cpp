@@ -9,7 +9,7 @@ using namespace vl::regex;
 using namespace vl::console;
 using namespace vl::stream;
 
-LazyList<FilePath> SearchFiles(const Folder& folder, const WString& extension)
+LazyList<FilePath> SearchFiles(const Folder& folder, const WString& extension, List<WString>& exceptions)
 {
 	auto files = MakePtr<List<File>>();
 	auto folders = MakePtr<List<Folder>>();
@@ -17,22 +17,39 @@ LazyList<FilePath> SearchFiles(const Folder& folder, const WString& extension)
 	folder.GetFolders(*folders.Obj());
 
 	return LazyList<File>(files)
-		.Select([](const File& file) { return file.GetFilePath(); })
-		.Where([=](const FilePath& path) { return INVLOC.EndsWith(path.GetName(), extension, Locale::IgnoreCase); })
+		.Select([](const File& file)
+		{
+			return file.GetFilePath();
+		})
+		.Where([&](const FilePath& filePath)
+		{
+			return From(exceptions)
+				.All([&](const WString& except)
+				{
+					return INVLOC.FindFirst(filePath.GetFullPath(), except, Locale::IgnoreCase).key == -1;
+				});
+		})
+		.Where([=](const FilePath& path)
+		{
+			return INVLOC.EndsWith(path.GetName(), extension, Locale::IgnoreCase);
+		})
 		.Concat(
 			LazyList<Folder>(folders)
-			.SelectMany([=](const Folder& folder) { return SearchFiles(folder, extension); })
-			);
+			.SelectMany([&](const Folder& folder)
+			{
+				return SearchFiles(folder, extension, exceptions);
+			})
+		);
 }
 
-LazyList<FilePath> GetCppFiles(const FilePath& folder)
+LazyList<FilePath> GetCppFiles(const FilePath& folder, List<WString>& exceptions)
 {
-	return SearchFiles(folder, L".cpp");
+	return SearchFiles(folder, L".cpp", exceptions);
 }
 
-LazyList<FilePath> GetHeaderFiles(const FilePath& folder)
+LazyList<FilePath> GetHeaderFiles(const FilePath& folder, List<WString>& exceptions)
 {
-	return SearchFiles(folder, L".h");
+	return SearchFiles(folder, L".h", exceptions);
 }
 
 void CategorizeCodeFiles(Ptr<XmlDocument> config, LazyList<FilePath> files, Group<WString, FilePath>& categorizedFiles, Dictionary<FilePath, WString>& reverseCategoryNames)
@@ -403,9 +420,11 @@ int main(int argc, char* argv[])
 		config = XmlParseDocument(text, table);
 	}
 
-	// collect project files
-	List<FilePath> folders; // all folders
+	// collect code files
+	List<FilePath> unprocessedCppFiles;		// all cpp files need to combine
+	List<FilePath> unprocessedHeaderFiles;	// all header files need to combine
 	{
+		List<FilePath> folders;
 		CopyFrom(
 			folders,
 			XmlGetElements(XmlGetElement(config->rootElement,L"folders"), L"folder")
@@ -414,19 +433,36 @@ int main(int argc, char* argv[])
 					return workingDir / XmlGetAttribute(e, L"path")->value.value;
 				})
 			);
-	}
 
-	// collect code files
-	List<FilePath> unprocessedCppFiles;		// all cpp files need to combine
-	List<FilePath> unprocessedHeaderFiles;	// all header files need to combine
-	{
+		List<WString> exceptions;
+		CopyFrom(
+			exceptions,
+			XmlGetElements(XmlGetElement(config->rootElement,L"folders"), L"except")
+				.Select([&](Ptr<XmlElement> e)
+				{
+					return XmlGetAttribute(e, L"pattern")->value.value;
+				})
+			);
+
 		List<FilePath> headerFiles;
-		CopyFrom(unprocessedCppFiles, From(folders).SelectMany(GetCppFiles).Distinct());
-		CopyFrom(headerFiles, From(folders).SelectMany(GetHeaderFiles).Distinct());
+
+		CopyFrom(
+			unprocessedCppFiles,
+			From(folders)
+				.SelectMany([&](const FilePath& folder) { return GetCppFiles(folder, exceptions); })
+				.Distinct()
+			);
+
+		CopyFrom(
+			headerFiles,
+			From(folders)
+				.SelectMany([&](const FilePath& folder) { return GetHeaderFiles(folder, exceptions); })
+				.Distinct()
+			);
+
 		CopyFrom(
 			unprocessedHeaderFiles,
-			From(folders)
-				.SelectMany(GetHeaderFiles)
+			From(headerFiles)
 				.Concat(unprocessedCppFiles)
 				.SelectMany(GetIncludedFiles)
 				.Concat(headerFiles)
