@@ -84,13 +84,13 @@ Partial Ordering
 
 				for (vint i = 0; i < depGroup.Count(); i++)
 				{
-					vint fromNode = items.IndexOf(KeyType<TList::ElementType>::GetKeyValue(depGroup.Keys()[i]));
+					vint fromNode = items.IndexOf(KeyType<typename TList::ElementType>::GetKeyValue(depGroup.Keys()[i]));
 					CHECK_ERROR(fromNode != -1, L"PartialOrdering::InitWithGroup(items, depGroup)#The key in outsGroup does not exist in items.");
 
 					auto& edges = depGroup.GetByIndex(i);
 					for (vint j = 0; j < edges.Count(); j++)
 					{
-						vint toNode = items.IndexOf(KeyType<TList::ElementType>::GetKeyValue(edges[j]));
+						vint toNode = items.IndexOf(KeyType<typename TList::ElementType>::GetKeyValue(edges[j]));
 						CHECK_ERROR(toNode != -1, L"PartialOrdering::InitWithGroup(items, depGroup)#The value in outsGroup does not exist in items.");
 
 						ins.Add(fromNode, toNode);
