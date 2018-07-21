@@ -284,15 +284,42 @@ void Combine(const Dictionary<FilePath, WString>& reverseCategories, const List<
 
 		List<FilePath> sortedFiles;
 		{
-			Group<FilePath, FilePath> dependencies;
+			PartialOrderingProcessor popFiles;
+			Group<FilePath, FilePath> depGroup;
 			FOREACH(FilePath, file, files)
 			{
 				FOREACH(FilePath, dep, GetIncludedFiles(file))
 				{
-					dependencies.Add(file, dep);
+					if (files.Contains(dep))
+					{
+						depGroup.Add(file, dep);
+					}
 				}
 			}
-			CopyFrom(sortedFiles, SortDependencies(From(files), dependencies));
+			
+			popFiles.InitWithGroup(files, depGroup);
+			popFiles.Sort();
+
+			bool needExit = false;
+			for (vint i = 0; i < popFiles.components.Count(); i++)
+			{
+				auto& component = popFiles.components[i];
+				sortedFiles.Add(files[component.firstNode[0]]);
+
+				if (component.nodeCount > 1)
+				{
+					Console::SetColor(true, false, false, true);
+					Console::WriteLine(
+						L"Error: Cycle dependency found in categories: "
+						+ From(component.firstNode, component.firstNode + component.nodeCount)
+							.Select([&](vint nodeIndex) { return L"\r\n" + files[nodeIndex].GetFullPath(); })
+							.Aggregate([](const WString& a, const WString& b) {return a + b; })
+						+ L"\r\n.");
+					Console::SetColor(true, true, true, false);
+					needExit = true;
+				}
+			}
+			CHECK_ERROR(!needExit, L"Cycle dependency is not allowed");
 		}
 
 		FOREACH(FilePath, file, From(sortedFiles).Intersect(files))
