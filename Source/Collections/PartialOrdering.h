@@ -123,6 +123,12 @@ Partial Ordering
 				InitWithGroup(items, depGroup);
 			}
 
+			/// <summary>Initialize the processor.</summary>
+			/// <typeparam name="TList">Type of the first parameter.</typeparam>
+			/// <typeparam name="TSubClass">Type of the sub class.</typeparam>
+			/// <param name="items">Items.</param>
+			/// <param name="depGroup">Dependences. If a depends on b, then depGroups[a].Contains(b) == true.</param>
+			/// <param name="subClasses">To put multiple items in a node to represent a sub class, use these items as keys, use a unique value as a value, and put them in subClasses.</param>
 			template<typename TList, typename TSubClass>
 			void InitWithSubClass(const TList& items, const GroupOf<TList>& depGroup, const Dictionary<typename TList::ElementType, TSubClass>& subClasses)
 			{
