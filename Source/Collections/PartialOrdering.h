@@ -73,7 +73,7 @@ Partial Ordering
 			/// <summary>Sort. This method can only be called once.</summary>
 			void						Sort();
 
-			/// <summary>Initialize the processor.</summary>
+			/// <summary>Initialize the processor, specifying dependency relationships as a group.</summary>
 			/// <typeparam name="TList">Type of the first parameter.</typeparam>
 			/// <param name="items">Items.</param>
 			/// <param name="depGroup">Dependences. If a depends on b, then depGroups[a].Contains(b) == true.</param>
@@ -101,7 +101,7 @@ Partial Ordering
 				InitNodes(items.Count());
 			}
 
-			/// <summary>Initialize the processor.</summary>
+			/// <summary>Initialize the processor, specifying dependency relationships as a callback function.</summary>
 			/// <typeparam name="TList">Type of the first parameter.</typeparam>
 			/// <typeparam name="TFunc">Type of the second parameter.</typeparam>
 			/// <param name="items">Items.</param>
@@ -123,7 +123,7 @@ Partial Ordering
 				InitWithGroup(items, depGroup);
 			}
 
-			/// <summary>Initialize the processor.</summary>
+			/// <summary>Initialize the processor, specifying dependency relationships and sub class classification as two groups.</summary>
 			/// <typeparam name="TList">Type of the first parameter.</typeparam>
 			/// <typeparam name="TSubClass">Type of the sub class.</typeparam>
 			/// <param name="items">Items.</param>
