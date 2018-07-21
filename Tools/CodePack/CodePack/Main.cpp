@@ -488,14 +488,11 @@ int main(int argc, char* argv[])
 		for (vint i = 0; i < popCategories.components.Count(); i++)
 		{
 			auto& component = popCategories.components[i];
-			if (component.nodeCount > 1)
+			for (vint j = 0; j < component.nodeCount; j++)
 			{
-				for (vint j = 0; j < component.nodeCount; j++)
-				{
-					auto& firstNode = popCategories.nodes[component.firstNode[j]];
-					auto firstFile = items[firstNode.firstSubClassItem[0]];
-					componentToCategoryNames.Add(i, reverseCategoryNames[firstFile]);
-				}
+				auto& firstNode = popCategories.nodes[component.firstNode[j]];
+				auto firstFile = items[firstNode.firstSubClassItem[0]];
+				componentToCategoryNames.Add(i, reverseCategoryNames[firstFile]);
 			}
 		}
 
