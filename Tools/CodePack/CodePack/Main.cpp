@@ -410,14 +410,12 @@ int main(int argc, char* argv[])
 	// categorize code files
 	Group<WString, FilePath> categorizedCppFiles;		// category name to cpp file
 	Group<WString, FilePath> categorizedHeaderFiles;	// category name to header file
-	SortedList<WString> categoryNames;					// all category names
 	Dictionary<FilePath, WString> reverseCategoryNames;	// files to category name
 	Dictionary<FilePath, WString> reverseCategoryFiles;	// files to category output file
 	Dictionary<WString, Tuple<WString, bool>> categorizedOutput; // category name to (category output file, need to generate or not)
 	{
 		CategorizeCodeFiles(config, unprocessedCppFiles, categorizedCppFiles, reverseCategoryNames);
 		CategorizeCodeFiles(config, unprocessedHeaderFiles, categorizedHeaderFiles, reverseCategoryNames);
-		CopyFrom(categoryNames, From(categorizedCppFiles.Keys()).Concat(categorizedHeaderFiles.Keys()).Distinct());
 
 		CopyFrom(
 			categorizedOutput,
@@ -496,28 +494,27 @@ int main(int argc, char* argv[])
 
 	// generate code pair header files
 	auto outputFolder = workingDir / (XmlGetAttribute(XmlGetElement(config->rootElement, L"output"), L"path")->value.value);
-	FOREACH(WString, c, categoryNames)
+	for (vint i = 0; i < popCategories.components.Count(); i++)
 	{
-		auto output = outputFolder / (categorizedOutput[c].f0 + L".h");
+		auto& component = popCategories.components[i];
+		auto categoryName = componentToCategoryNames[i][0];
+		auto output = outputFolder / (categorizedOutput[categoryName].f0 + L".h");
 
 		auto systemIncludes = MakePtr<SortedList<WString>>();
-		categorizedSystemIncludes.Add(c, systemIncludes);
+		categorizedSystemIncludes.Add(categoryName, systemIncludes);
 
-		if (categorizedOutput[c].f1)
+		if (categorizedOutput[categoryName].f1)
 		{
 			Combine(
 				reverseCategoryFiles,
-				categorizedHeaderFiles[c],
+				categorizedHeaderFiles[categoryName],
 				output,
 				*systemIncludes.Obj(),
-				!categoryDepedencies.Keys().Contains(c)
-					? LazyList<WString>()
-					: From(categoryDepedencies[c])
-						.Distinct()
-						.Select([&](const WString& d)
-						{
-							return categorizedOutput[d].f0 + L".h";
-						})
+				From(component.firstNode, component.firstNode + component.nodeCount)
+					.Select([&](vint nodeIndex)
+					{
+						return categorizedOutput[componentToCategoryNames[popCategories.nodes[nodeIndex].component][0]].f0 + L".h";
+					})
 				);
 		}
 	}
