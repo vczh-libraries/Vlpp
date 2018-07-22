@@ -37,7 +37,7 @@ PartialOrderingProcessor
 		void PartialOrderingProcessor::VisitUnvisitedNode(po::Node& node, Array<vint>& reversedOrder, vint& used)
 		{
 			node.visited = true;
-			for (vint i = 0; i < node.outs->Count(); i++)
+			for (vint i = node.outs->Count() - 1; i >= 0; i--)
 			{
 				auto& outNode = nodes[node.outs->Get(i)];
 				if (!outNode.visited)
