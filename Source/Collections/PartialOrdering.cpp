@@ -70,7 +70,7 @@ PartialOrderingProcessor
 			Array<vint> reversedOrder(nodes.Count());
 			{
 				vint used = 0;
-				for (vint i = 0; i < nodes.Count(); i++)
+				for (vint i = nodes.Count() - 1; i >= 0; i--)
 				{
 					auto& node = nodes[i];
 					if (!node.visited)
