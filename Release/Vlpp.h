@@ -7181,6 +7181,25 @@ Encoding Related
 			vint						Write(void* _buffer, vint _size);
 			vint						Peek(void* _buffer, vint _size);
 		};
+
+/***********************************************************************
+Helper Functions
+***********************************************************************/
+
+		template<typename TCallback>
+		WString GenerateToStream(const TCallback& callback, vint block = 65536)
+		{
+			MemoryStream stream(block);
+			{
+				StreamWriter writer(stream);
+				callback(writer);
+			}
+			stream.SeekFromBegin(0);
+			{
+				StreamReader reader(stream);
+				return reader.ReadToEnd();
+			}
+		}
 	}
 }
 
@@ -7302,6 +7321,14 @@ Compression
 			void									Close()override;
 			vint									Read(void* _buffer, vint _size)override;
 		};
+
+/***********************************************************************
+Helper Functions
+***********************************************************************/
+
+		extern vint						CopyStream(stream::IStream& inputStream, stream::IStream& outputStream);
+		extern void						CompressStream(stream::IStream& inputStream, stream::IStream& outputStream);
+		extern void						DecompressStream(stream::IStream& inputStream, stream::IStream& outputStream);
 	}
 }
 

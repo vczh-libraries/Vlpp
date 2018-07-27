@@ -10668,14 +10668,10 @@ namespace vl
 
 			WString SerializeString(const WString& value)
 			{
-				MemoryStream stream;
+				return GenerateToStream([&](StreamWriter& writer)
 				{
-					StreamWriter writer(stream);
 					LogString(value, writer);
-				}
-				stream.SeekFromBegin(0);
-				StreamReader reader(stream);
-				return reader.ReadToEnd();
+				});
 			}
 
 			void LogAttributeList(ParsingDefinitionBase* definition, TextWriter& writer)
@@ -11145,16 +11141,10 @@ Logger (ParsingDefinitionGrammar)
 
 			WString TypeToString(ParsingDefinitionType* type)
 			{
-				MemoryStream stream(64);
+				return GenerateToStream([&](StreamWriter& writer)
 				{
-					StreamWriter writer(stream);
 					Log(type, writer);
-				}
-				stream.SeekFromBegin(0);
-				{
-					StreamReader reader(stream);
-					return reader.ReadToEnd();
-				}
+				}, 64);
 			}
 
 			WString GrammarToString(ParsingDefinitionGrammar* grammar)
@@ -11164,16 +11154,10 @@ Logger (ParsingDefinitionGrammar)
 
 			WString GrammarStateToString(ParsingDefinitionGrammar* grammar, ParsingDefinitionGrammar* stateNode, bool beforeNode)
 			{
-				MemoryStream stream(64);
+				return GenerateToStream([&](StreamWriter& writer)
 				{
-					StreamWriter writer(stream);
 					Log(grammar, stateNode, beforeNode, writer);
-				}
-				stream.SeekFromBegin(0);
-				{
-					StreamReader reader(stream);
-					return reader.ReadToEnd();
-				}
+				}, 64);
 			}
 
 			ParsingDefinitionGrammar* FindAppropriateGrammarState(ParsingDefinitionGrammar* grammar, ParsingDefinitionGrammar* stateNode, bool beforeNode)
@@ -14183,16 +14167,10 @@ Unescaping Function Foward Declarations
 
 			void JsonUnescapingString(vl::parsing::ParsingToken& value, const vl::collections::List<vl::regex::RegexToken>& tokens)
 			{
-				MemoryStream stream;
+				value.value = GenerateToStream([&](StreamWriter& writer)
 				{
-					StreamWriter writer(stream);
-					JsonUnescapeString(value.value.Sub(1, value.value.Length()-2), writer);
-				}
-				stream.SeekFromBegin(0);
-				{
-					StreamReader reader(stream);
-					value.value=reader.ReadToEnd();
-				}
+					JsonUnescapeString(value.value.Sub(1, value.value.Length() - 2), writer);
+				});
 			}
 
 /***********************************************************************
@@ -14360,16 +14338,10 @@ API
 
 			WString JsonToString(Ptr<JsonNode> node)
 			{
-				MemoryStream stream;
+				return GenerateToStream([&](StreamWriter& writer)
 				{
-					StreamWriter writer(stream);
 					JsonPrint(node, writer);
-				}
-				stream.SeekFromBegin(0);
-				{
-					StreamReader reader(stream);
-					return reader.ReadToEnd();
-				}
+				});
 			}
 		}
 	}
@@ -15261,16 +15233,10 @@ API
 
 			WString XmlToString(Ptr<XmlNode> node)
 			{
-				MemoryStream stream;
+				return GenerateToStream([&](StreamWriter& writer)
 				{
-					StreamWriter writer(stream);
 					XmlPrint(node, writer);
-				}
-				stream.SeekFromBegin(0);
-				{
-					StreamReader reader(stream);
-					return reader.ReadToEnd();
-				}
+				});
 			}
 
 /***********************************************************************
@@ -25736,6 +25702,7 @@ namespace vl
 {
 	namespace stream
 	{
+		using namespace collections;
 		using namespace lzw;
 
 /***********************************************************************
@@ -26084,6 +26051,85 @@ LzwDecoder
 				}
 			}
 			return written;
+		}
+
+/***********************************************************************
+Helper Functions
+***********************************************************************/
+
+		vint CopyStream(stream::IStream& inputStream, stream::IStream& outputStream)
+		{
+			vint totalSize = 0;
+			while (true)
+			{
+				char buffer[1024];
+				vint copied = inputStream.Read(buffer, (vint)sizeof(buffer));
+				if (copied == 0)
+				{
+					break;
+				}
+				totalSize += outputStream.Write(buffer, copied);
+			}
+			return totalSize;
+		}
+
+		const vint CompressionFragmentSize = 1048576;
+
+		void CompressStream(stream::IStream& inputStream, stream::IStream& outputStream)
+		{
+			Array<char> buffer(CompressionFragmentSize);
+			while (true)
+			{
+				vint size = inputStream.Read(&buffer[0], buffer.Count());
+				if (size == 0) break;
+
+				MemoryStream compressedStream;
+				{
+					LzwEncoder encoder;
+					EncoderStream encoderStream(compressedStream, encoder);
+					encoderStream.Write(&buffer[0], size);
+				}
+
+				compressedStream.SeekFromBegin(0);
+				{
+					{
+						vint32_t bufferSize = (vint32_t)size;
+						outputStream.Write(&bufferSize, (vint)sizeof(bufferSize));
+					}
+					{
+						vint32_t compressedSize = (vint32_t)compressedStream.Size();
+						outputStream.Write(&compressedSize, (vint)sizeof(compressedSize));
+					}
+					CopyStream(compressedStream, outputStream);
+				}
+			}
+		}
+
+		void DecompressStream(stream::IStream& inputStream, stream::IStream& outputStream)
+		{
+			vint totalSize = 0;
+			vint totalWritten = 0;
+			while (true)
+			{
+				vint32_t bufferSize = 0;
+				if (inputStream.Read(&bufferSize, (vint)sizeof(bufferSize)) != sizeof(bufferSize))
+				{
+					break;
+				}
+
+				vint32_t compressedSize = 0;
+				CHECK_ERROR(inputStream.Read(&compressedSize, (vint)sizeof(compressedSize)) == sizeof(compressedSize), L"vl::stream::DecompressStream(MemoryStream&, MemoryStream&)#Incomplete input");
+
+				Array<char> buffer(compressedSize);
+				CHECK_ERROR(inputStream.Read(&buffer[0], compressedSize) == compressedSize, L"vl::stream::DecompressStream(MemoryStream&, MemoryStream&)#Incomplete input");
+
+				MemoryWrapperStream compressedStream(&buffer[0], compressedSize);
+				LzwDecoder decoder;
+				DecoderStream decoderStream(compressedStream, decoder);
+				totalWritten += CopyStream(decoderStream, outputStream);
+				totalSize += bufferSize;
+			}
+			CHECK_ERROR(outputStream.Size() == totalSize, L"vl::stream::DecompressStream(MemoryStream&, MemoryStream&)#Incomplete input");
 		}
 	}
 }
