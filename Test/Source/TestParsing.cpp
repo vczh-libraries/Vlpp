@@ -529,14 +529,10 @@ namespace test
 {
 	WString ParsingDefinitionToText(Ptr<ParsingDefinition> definition)
 	{
-		MemoryStream stream;
+		return GenerateToStream([&](StreamWriter& writer)
 		{
-			StreamWriter writer(stream);
 			Log(definition, writer);
-		}
-		stream.SeekFromBegin(0);
-		StreamReader reader(stream);
-		return reader.ReadToEnd();
+		});
 	}
 }
 using namespace test;

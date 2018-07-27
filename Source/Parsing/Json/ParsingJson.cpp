@@ -17,16 +17,10 @@ Unescaping Function Foward Declarations
 
 			void JsonUnescapingString(vl::parsing::ParsingToken& value, const vl::collections::List<vl::regex::RegexToken>& tokens)
 			{
-				MemoryStream stream;
+				value.value = GenerateToStream([&](StreamWriter& writer)
 				{
-					StreamWriter writer(stream);
-					JsonUnescapeString(value.value.Sub(1, value.value.Length()-2), writer);
-				}
-				stream.SeekFromBegin(0);
-				{
-					StreamReader reader(stream);
-					value.value=reader.ReadToEnd();
-				}
+					JsonUnescapeString(value.value.Sub(1, value.value.Length() - 2), writer);
+				});
 			}
 
 /***********************************************************************
@@ -194,16 +188,10 @@ API
 
 			WString JsonToString(Ptr<JsonNode> node)
 			{
-				MemoryStream stream;
+				return GenerateToStream([&](StreamWriter& writer)
 				{
-					StreamWriter writer(stream);
 					JsonPrint(node, writer);
-				}
-				stream.SeekFromBegin(0);
-				{
-					StreamReader reader(stream);
-					return reader.ReadToEnd();
-				}
+				});
 			}
 		}
 	}

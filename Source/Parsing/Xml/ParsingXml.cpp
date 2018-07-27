@@ -292,16 +292,10 @@ API
 
 			WString XmlToString(Ptr<XmlNode> node)
 			{
-				MemoryStream stream;
+				return GenerateToStream([&](StreamWriter& writer)
 				{
-					StreamWriter writer(stream);
 					XmlPrint(node, writer);
-				}
-				stream.SeekFromBegin(0);
-				{
-					StreamReader reader(stream);
-					return reader.ReadToEnd();
-				}
+				});
 			}
 
 /***********************************************************************

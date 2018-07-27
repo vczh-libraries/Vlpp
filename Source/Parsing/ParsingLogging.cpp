@@ -32,14 +32,10 @@ namespace vl
 
 			WString SerializeString(const WString& value)
 			{
-				MemoryStream stream;
+				return GenerateToStream([&](StreamWriter& writer)
 				{
-					StreamWriter writer(stream);
 					LogString(value, writer);
-				}
-				stream.SeekFromBegin(0);
-				StreamReader reader(stream);
-				return reader.ReadToEnd();
+				});
 			}
 
 			void LogAttributeList(ParsingDefinitionBase* definition, TextWriter& writer)
@@ -509,16 +505,10 @@ Logger (ParsingDefinitionGrammar)
 
 			WString TypeToString(ParsingDefinitionType* type)
 			{
-				MemoryStream stream(64);
+				return GenerateToStream([&](StreamWriter& writer)
 				{
-					StreamWriter writer(stream);
 					Log(type, writer);
-				}
-				stream.SeekFromBegin(0);
-				{
-					StreamReader reader(stream);
-					return reader.ReadToEnd();
-				}
+				}, 64);
 			}
 
 			WString GrammarToString(ParsingDefinitionGrammar* grammar)
@@ -528,16 +518,10 @@ Logger (ParsingDefinitionGrammar)
 
 			WString GrammarStateToString(ParsingDefinitionGrammar* grammar, ParsingDefinitionGrammar* stateNode, bool beforeNode)
 			{
-				MemoryStream stream(64);
+				return GenerateToStream([&](StreamWriter& writer)
 				{
-					StreamWriter writer(stream);
 					Log(grammar, stateNode, beforeNode, writer);
-				}
-				stream.SeekFromBegin(0);
-				{
-					StreamReader reader(stream);
-					return reader.ReadToEnd();
-				}
+				}, 64);
 			}
 
 			ParsingDefinitionGrammar* FindAppropriateGrammarState(ParsingDefinitionGrammar* grammar, ParsingDefinitionGrammar* stateNode, bool beforeNode)

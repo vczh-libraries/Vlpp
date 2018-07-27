@@ -206,9 +206,9 @@ Helper Functions
 ***********************************************************************/
 
 		template<typename TCallback>
-		WString GenerateToStream(const TCallback& callback)
+		WString GenerateToStream(const TCallback& callback, vint block = 65536)
 		{
-			MemoryStream stream;
+			MemoryStream stream(block);
 			{
 				StreamWriter writer(stream);
 				callback(writer);
