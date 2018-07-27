@@ -112,6 +112,14 @@ Compression
 			void									Close()override;
 			vint									Read(void* _buffer, vint _size)override;
 		};
+
+/***********************************************************************
+Helper Functions
+***********************************************************************/
+
+		extern vint						CopyStream(stream::IStream& inputStream, stream::IStream& outputStream);
+		extern void						CompressStream(stream::IStream& inputStream, stream::IStream& outputStream);
+		extern void						DecompressStream(stream::IStream& inputStream, stream::IStream& outputStream);
 	}
 }
 

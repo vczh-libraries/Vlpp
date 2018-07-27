@@ -17,6 +17,7 @@ Classes:
 #define VCZH_STREAM_ACCESSOR
 
 #include "Interfaces.h"
+#include "MemoryStream.h"
 #include "../Collections/List.h"
 #include "../String.h"
 
@@ -199,6 +200,25 @@ Encoding Related
 			vint						Write(void* _buffer, vint _size);
 			vint						Peek(void* _buffer, vint _size);
 		};
+
+/***********************************************************************
+Helper Functions
+***********************************************************************/
+
+		template<typename TCallback>
+		WString GenerateToStream(const TCallback& callback)
+		{
+			MemoryStream stream;
+			{
+				StreamWriter writer(stream);
+				callback(writer);
+			}
+			stream.SeekFromBegin(0);
+			{
+				StreamReader reader(stream);
+				return reader.ReadToEnd();
+			}
+		}
 	}
 }
 
