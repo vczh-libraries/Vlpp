@@ -442,6 +442,7 @@ RegexTokens
 					token.token = -2;
 					token.completeToken = true;
 				}
+
 				token.rowStart = rowStart;
 				token.columnStart = columnStart;
 				token.rowEnd = rowStart;
@@ -479,6 +480,12 @@ RegexTokens
 					{
 						id = stateTokens.Get(result.finalState);
 					}
+
+					if (id != -1 && proc.extendProc)
+					{
+						proc.extendProc(proc.argument, reading, result.start, result.length, id, completeToken);
+					}
+
 					if (token.token == -2)
 					{
 						token.start = result.start;
@@ -501,6 +508,7 @@ RegexTokens
 						cacheToken.completeToken = completeToken;
 					}
 					reading += result.length;
+
 					if (cacheAvailable)
 					{
 						break;

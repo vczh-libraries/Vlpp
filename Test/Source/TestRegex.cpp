@@ -1392,7 +1392,7 @@ void TestRegexLexer6Validation(List<RegexToken>& tokens)
 	TEST_ASSERT(tokens[1].columnStart == 3);
 	TEST_ASSERT(tokens[1].rowEnd == 0);
 	TEST_ASSERT(tokens[1].columnEnd == 3);
-	TEST_ASSERT(tokens[1].completeToken == false);
+	TEST_ASSERT(tokens[1].completeToken == true);
 	//[456]
 	TEST_ASSERT(tokens[2].start == 4);
 	TEST_ASSERT(tokens[2].length == 3);
@@ -1410,7 +1410,7 @@ void TestRegexLexer6Validation(List<RegexToken>& tokens)
 	TEST_ASSERT(tokens[3].columnStart == 7);
 	TEST_ASSERT(tokens[3].rowEnd == 0);
 	TEST_ASSERT(tokens[3].columnEnd == 7);
-	TEST_ASSERT(tokens[3].completeToken == false);
+	TEST_ASSERT(tokens[3].completeToken == true);
 	//[simple text]
 	TEST_ASSERT(tokens[4].start == 8);
 	TEST_ASSERT(tokens[4].length == 13);
@@ -1418,17 +1418,17 @@ void TestRegexLexer6Validation(List<RegexToken>& tokens)
 	TEST_ASSERT(tokens[4].rowStart == 1);
 	TEST_ASSERT(tokens[4].columnStart == 0);
 	TEST_ASSERT(tokens[4].rowEnd == 1);
-	TEST_ASSERT(tokens[4].columnEnd == 13);
+	TEST_ASSERT(tokens[4].columnEnd == 12);
 	TEST_ASSERT(tokens[4].completeToken == true);
 	//[\n]
 	TEST_ASSERT(tokens[5].start == 21);
 	TEST_ASSERT(tokens[5].length == 1);
 	TEST_ASSERT(tokens[5].token == -1);
 	TEST_ASSERT(tokens[5].rowStart == 1);
-	TEST_ASSERT(tokens[5].columnStart == 14);
+	TEST_ASSERT(tokens[5].columnStart == 13);
 	TEST_ASSERT(tokens[5].rowEnd == 1);
-	TEST_ASSERT(tokens[5].columnEnd == 14);
-	TEST_ASSERT(tokens[5].completeToken == false);
+	TEST_ASSERT(tokens[5].columnEnd == 13);
+	TEST_ASSERT(tokens[5].completeToken == true);
 	//[123]
 	TEST_ASSERT(tokens[6].start == 22);
 	TEST_ASSERT(tokens[6].length == 3);
@@ -1436,14 +1436,14 @@ void TestRegexLexer6Validation(List<RegexToken>& tokens)
 	TEST_ASSERT(tokens[6].rowStart == 2);
 	TEST_ASSERT(tokens[6].columnStart == 0);
 	TEST_ASSERT(tokens[6].rowEnd == 2);
-	TEST_ASSERT(tokens[6].columnEnd == 3);
+	TEST_ASSERT(tokens[6].columnEnd == 2);
 	TEST_ASSERT(tokens[6].completeToken == true);
 	//["$===(+\nabcde\n-)==="]
 	TEST_ASSERT(tokens[7].start == 25);
 	TEST_ASSERT(tokens[7].length == 20);
 	TEST_ASSERT(tokens[7].token == 2);
 	TEST_ASSERT(tokens[7].rowStart == 2);
-	TEST_ASSERT(tokens[7].columnStart == 4);
+	TEST_ASSERT(tokens[7].columnStart == 3);
 	TEST_ASSERT(tokens[7].rowEnd == 4);
 	TEST_ASSERT(tokens[7].columnEnd == 5);
 	TEST_ASSERT(tokens[7].completeToken == true);
@@ -1459,25 +1459,30 @@ void TestRegexLexer6Validation(List<RegexToken>& tokens)
 	//[$"===(]
 	TEST_ASSERT(tokens[9].start == 48);
 	TEST_ASSERT(tokens[9].length == 6);
-	TEST_ASSERT(tokens[9].token == -1);
+	TEST_ASSERT(tokens[9].token == 3);
 	TEST_ASSERT(tokens[9].rowStart == 4);
 	TEST_ASSERT(tokens[9].columnStart == 9);
 	TEST_ASSERT(tokens[9].rowEnd == 4);
 	TEST_ASSERT(tokens[9].columnEnd == 14);
-	TEST_ASSERT(tokens[9].completeToken == true);
+	TEST_ASSERT(tokens[9].completeToken == false);
 }
 
-vint TestRegexLexer6ExtendProc(void* argument, const wchar_t* reading, vint start, vint length, vint token)
+void TestRegexLexer6ExtendProc(void* argument, const wchar_t* reading, vint start, vint& length, vint& token, bool& completeToken)
 {
 	if (token == 2)
 	{
 		auto end = L")" + WString(reading + 2, length - 3) + L"\"";
 		auto find = wcsstr(reading, end.Buffer());
-		return find ? (vint)(find - reading) : -1;
-	}
-	else
-	{
-		return length;
+		if (find)
+		{
+			length = (vint)(find - reading) + end.Length();
+		}
+		else
+		{
+			length = (vint)wcslen(reading);
+			token = 3;
+			completeToken = false;
+		}
 	}
 }
 

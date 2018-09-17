@@ -235,7 +235,7 @@ Tokenizer
 			bool										operator==(const wchar_t* _token)const;
 		};
 
-		using RegexTokenExtendProc = vint(*)(void* argument, const wchar_t* reading, vint start, vint length, vint token);
+		using RegexTokenExtendProc = void(*)(void* argument, const wchar_t* reading, vint start, vint& length, vint& token, bool& completeToken);
 		using RegexTokenColorizeProc =  void(*)(void* argument, vint start, vint length, vint token);
 
 		struct RegexProc
