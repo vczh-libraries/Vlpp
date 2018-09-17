@@ -590,12 +590,6 @@ RegexLexerWalker
 		{
 		}
 
-		RegexLexerWalker::RegexLexerWalker(const RegexLexerWalker& walker)
-			:pure(walker.pure)
-			,stateTokens(walker.stateTokens)
-		{
-		}
-
 		RegexLexerWalker::~RegexLexerWalker()
 		{
 		}

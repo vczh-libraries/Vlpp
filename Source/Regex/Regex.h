@@ -267,7 +267,6 @@ Tokenizer
 			
 			RegexLexerWalker(regex_internal::PureInterpretor* _pure, const collections::Array<vint>& _stateTokens);
 		public:
-			RegexLexerWalker(const RegexLexerWalker& walker);
 			~RegexLexerWalker();
 			
 			/// <summary>Get the start DFA state number, which represents the correct state before parsing any input.</summary>
