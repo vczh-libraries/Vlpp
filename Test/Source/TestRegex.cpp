@@ -20,7 +20,7 @@ extern WString GetTestResourcePath();
 extern WString GetTestOutputPath();
 
 /***********************************************************************
-语法分析
+Regex Parser
 ***********************************************************************/
 
 void RegexAssert(const wchar_t* input, RegexNode node, bool pure)
@@ -140,7 +140,7 @@ TEST_CASE(TestRegexCompleteParsingB)
 }
 
 /***********************************************************************
-字符集合正规化
+Character Normalization
 ***********************************************************************/
 
 void NormalizedRegexAssert(const wchar_t* input, RegexNode node)
@@ -168,7 +168,7 @@ TEST_CASE(TestCharSetNormalization)
 }
 
 /***********************************************************************
-正则表达式解引用
+Sub Regex
 ***********************************************************************/
 
 void MergedRegexAssert(const wchar_t* input, RegexNode node)
@@ -334,7 +334,7 @@ TEST_CASE(TestEpsilonNfa)
 }
 
 /***********************************************************************
-纯匹配
+Regex Pure
 ***********************************************************************/
 
 void RunPureInterpretor(const wchar_t* code, const wchar_t* input, vint start, vint length)
@@ -405,7 +405,7 @@ TEST_CASE(TestPureInterpretor)
 }
 
 /***********************************************************************
-富匹配
+Regex Rich
 ***********************************************************************/
 
 Ptr<RichInterpretor> BuildRichInterpretor(const wchar_t* code)
@@ -667,7 +667,7 @@ TEST_CASE(TestRichInterpretorChaos)
 }
 
 /***********************************************************************
-接口
+Regex Integration Test
 ***********************************************************************/
 
 void TestRegexMatchPosition(bool preferPure)
@@ -904,7 +904,7 @@ TEST_CASE(TestRegexCapture)
 }
 
 /***********************************************************************
-词法分析
+Lexer
 ***********************************************************************/
 
 void TestRegexLexer1Validation(List<RegexToken>& tokens)
@@ -1373,7 +1373,7 @@ TEST_CASE(TestRegexLexer5)
 }
 
 /***********************************************************************
-字符着色
+Regex Walker and Colorizer
 ***********************************************************************/
 
 #define WALK(INPUT, TOKEN, RESULT, STOP)\
@@ -1499,7 +1499,7 @@ TEST_CASE(TestRegexLexerColorizer)
 #undef WALK
 
 /***********************************************************************
-性能测试
+Performance
 ***********************************************************************/
 
 namespace TestRegexSpeedHelper
