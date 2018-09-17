@@ -994,7 +994,7 @@ TEST_CASE(TestRegexLexer1)
 	codes.Add(L"/d+");
 	codes.Add(L"/s+");
 	codes.Add(L"[a-zA-Z_]/w*");
-	RegexLexer lexer(codes);
+	RegexLexer lexer(codes, {});
 
 	{
 		List<RegexToken> tokens;
@@ -1175,7 +1175,7 @@ TEST_CASE(TestRegexLexer2)
 	codes.Add(L"/d+");
 	codes.Add(L"[a-zA-Z_]/w*");
 	codes.Add(L"\"[^\"]*\"");
-	RegexLexer lexer(codes);
+	RegexLexer lexer(codes, {});
 
 	WString input=
 		L"12345vczh is a genius!"		L"\r\n"
@@ -1199,7 +1199,7 @@ TEST_CASE(TestRegexLexer3)
 		List<WString> codes;
 		codes.Add(L"unit");
 		codes.Add(L"/w+");
-		RegexLexer lexer(codes);
+		RegexLexer lexer(codes, {});
 		{
 			WString input=L"unit";
 			List<RegexToken> tokens;
@@ -1231,7 +1231,7 @@ TEST_CASE(TestRegexLexer3)
 		List<WString> codes;
 		codes.Add(L"/w+");
 		codes.Add(L"unit");
-		RegexLexer lexer(codes);
+		RegexLexer lexer(codes, {});
 		{
 			WString input=L"unit";
 			List<RegexToken> tokens;
@@ -1267,7 +1267,7 @@ TEST_CASE(TestRegexLexer4)
 		List<WString> codes;
 		codes.Add(L"=");
 		codes.Add(L"==");
-		RegexLexer lexer(codes);
+		RegexLexer lexer(codes, {});
 		{
 			WString input=L"=";
 			List<RegexToken> tokens;
@@ -1299,7 +1299,7 @@ TEST_CASE(TestRegexLexer4)
 		List<WString> codes;
 		codes.Add(L"==");
 		codes.Add(L"=");
-		RegexLexer lexer(codes);
+		RegexLexer lexer(codes, {});
 		{
 			WString input=L"=";
 			List<RegexToken> tokens;
@@ -1357,7 +1357,7 @@ TEST_CASE(TestRegexLexer5)
 	List<WString> codes;
 	codes.Add(L"/d+");
 	codes.Add(L"\"[^\"]*\"");
-	RegexLexer lexer(codes);
+	RegexLexer lexer(codes, {});
 
 	WString input=L"123\"456";
 	{
@@ -1394,7 +1394,7 @@ TEST_CASE(TestRegexLexerWalker)
 	codes.Add(L"/d+(./d+)?");
 	codes.Add(L"[a-zA-Z_]/w*");
 	codes.Add(L"\"[^\"]*\"");
-	RegexLexer lexer(codes);
+	RegexLexer lexer(codes, {});
 	RegexLexerWalker walker=lexer.Walk();
 
 	vint state=-1;
@@ -1453,45 +1453,49 @@ TEST_CASE(TestRegexLexerColorizer)
 	codes.Add(L"/d+(./d+)?");
 	codes.Add(L"[a-zA-Z_]/w*");
 	codes.Add(L"\"[^\"]*\"");
-	RegexLexer lexer(codes);
-	RegexLexerColorizer colorizer=lexer.Colorize();
 
-	const wchar_t line1[]=L" genius 10..10.10   \"a";
-	vint color1[]={-1, 1, 1, 1, 1, 1, 1, -1, 0, 0, -1, -1, 0, 0, 0, 0, 0, -1, -1, -1, 2, 2};
-	vint length1=sizeof(color1)/sizeof(*color1);
+	const wchar_t line1[] = L" genius 10..10.10   \"a";
+	vint color1[] = { -1, 1, 1, 1, 1, 1, 1, -1, 0, 0, -1, -1, 0, 0, 0, 0, 0, -1, -1, -1, 2, 2 };
+	vint length1 = sizeof(color1) / sizeof(*color1);
 
-	const wchar_t line2[]=L"b\"\"genius\"";
-	vint color2[]={2, 2, 2, 2, 2, 2, 2, 2, 2, 2};
-	vint length2=sizeof(color2)/sizeof(*color2);
+	const wchar_t line2[] = L"b\"\"genius\"";
+	vint color2[] = { 2, 2, 2, 2, 2, 2, 2, 2, 2, 2 };
+	vint length2 = sizeof(color2) / sizeof(*color2);
 
-	TEST_ASSERT(wcslen(line1)==length1);
-	TEST_ASSERT(wcslen(line2)==length2);
+	TEST_ASSERT(wcslen(line1) == length1);
+	TEST_ASSERT(wcslen(line2) == length2);
 
 	vint colors[100];
+	RegexProc proc;
+	proc.colorizeProc = &ColorizerProc;
+	proc.argument = colors;
+	RegexLexer lexer(codes, proc);
+	RegexLexerColorizer colorizer = lexer.Colorize();
+
 	{
-		for(vint i=0;i<sizeof(colors)/sizeof(*colors);i++)
+		for (vint i = 0; i < sizeof(colors) / sizeof(*colors); i++)
 		{
-			colors[i]=-2;
+			colors[i] = -2;
 		}
 		colorizer.Reset(colorizer.GetStartState());
-		colorizer.Colorize(line1, length1, &ColorizerProc, colors);
-		for(vint i=0;i<length1;i++)
+		colorizer.Colorize(line1, length1);
+		for (vint i = 0; i < length1; i++)
 		{
-			TEST_ASSERT(color1[i]==colors[i]);
+			TEST_ASSERT(color1[i] == colors[i]);
 		}
 	}
 	colorizer.Pass(L'\r');
 	colorizer.Pass(L'\n');
 	{
-		for(vint i=0;i<sizeof(colors)/sizeof(*colors);i++)
+		for (vint i = 0; i < sizeof(colors) / sizeof(*colors); i++)
 		{
-			colors[i]=-2;
+			colors[i] = -2;
 		}
 		colorizer.Reset(colorizer.GetCurrentState());
- 		colorizer.Colorize(line2, length2, &ColorizerProc, colors);
-		for(vint i=0;i<length2;i++)
+		colorizer.Colorize(line2, length2);
+		for (vint i = 0; i < length2; i++)
 		{
-			TEST_ASSERT(color2[i]==colors[i]);
+			TEST_ASSERT(color2[i] == colors[i]);
 		}
 	}
 }

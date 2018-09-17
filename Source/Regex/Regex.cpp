@@ -545,19 +545,21 @@ RegexTokens
 			}
 		};
 
-		RegexTokens::RegexTokens(PureInterpretor* _pure, const Array<vint>& _stateTokens, const WString& _code, vint _codeIndex)
+		RegexTokens::RegexTokens(PureInterpretor* _pure, const Array<vint>& _stateTokens, const WString& _code, vint _codeIndex, RegexProc _proc)
 			:pure(_pure)
-			,stateTokens(_stateTokens)
-			,code(_code)
-			,codeIndex(_codeIndex)
+			, stateTokens(_stateTokens)
+			, code(_code)
+			, codeIndex(_codeIndex)
+			, proc(_proc)
 		{
 		}
 
 		RegexTokens::RegexTokens(const RegexTokens& tokens)
 			:pure(tokens.pure)
-			,stateTokens(tokens.stateTokens)
-			,code(tokens.code)
-			,codeIndex(tokens.codeIndex)
+			, stateTokens(tokens.stateTokens)
+			, code(tokens.code)
+			, codeIndex(tokens.codeIndex)
+			, proc(tokens.proc)
 		{
 		}
 
@@ -586,11 +588,21 @@ RegexLexerWalker
 
 		RegexLexerWalker::RegexLexerWalker(PureInterpretor* _pure, const Array<vint>& _stateTokens)
 			:pure(_pure)
-			,stateTokens(_stateTokens)
+			, stateTokens(_stateTokens)
+		{
+		}
+
+		RegexLexerWalker::RegexLexerWalker(const RegexLexerWalker& tokens)
+			: pure(tokens.pure)
+			, stateTokens(tokens.stateTokens)
 		{
 		}
 
 		RegexLexerWalker::~RegexLexerWalker()
+		{
+		}
+
+		RegexTokens::~RegexTokens()
 		{
 		}
 
@@ -674,15 +686,17 @@ RegexLexerWalker
 RegexLexerColorizer
 ***********************************************************************/
 
-		RegexLexerColorizer::RegexLexerColorizer(const RegexLexerWalker& _walker)
+		RegexLexerColorizer::RegexLexerColorizer(const RegexLexerWalker& _walker, RegexProc _proc)
 			:walker(_walker)
-			,currentState(_walker.GetStartState())
+			, currentState(_walker.GetStartState())
+			, proc(_proc)
 		{
 		}
 
 		RegexLexerColorizer::RegexLexerColorizer(const RegexLexerColorizer& colorizer)
 			:walker(colorizer.walker)
-			,currentState(colorizer.currentState)
+			, currentState(colorizer.currentState)
+			, proc(colorizer.proc)
 		{
 		}
 
@@ -710,65 +724,65 @@ RegexLexerColorizer
 			return currentState;
 		}
 
-		void RegexLexerColorizer::Colorize(const wchar_t* input, vint length, TokenProc tokenProc, void* tokenProcArgument)
+		void RegexLexerColorizer::Colorize(const wchar_t* input, vint length)
 		{
-			vint start=0;
-			vint stop=0;
-			vint state=-1;
-			vint token=-1;
-			
-			vint index=0;
-			vint currentToken=-1;
-			bool finalState=false;
-			bool previousTokenStop=false;
+			vint start = 0;
+			vint stop = 0;
+			vint state = -1;
+			vint token = -1;
 
-			while(index<length)
+			vint index = 0;
+			vint currentToken = -1;
+			bool finalState = false;
+			bool previousTokenStop = false;
+
+			while (index < length)
 			{
-				currentToken=-1;
-				finalState=false;
-				previousTokenStop=false;
+				currentToken = -1;
+				finalState = false;
+				previousTokenStop = false;
 				walker.Walk(input[index], currentState, currentToken, finalState, previousTokenStop);
-				
-				if(previousTokenStop)
+
+				if (previousTokenStop)
 				{
-					vint tokenLength=stop-start;
-					if(tokenLength>0)
+					vint tokenLength = stop - start;
+					if (tokenLength > 0)
 					{
-						tokenProc(tokenProcArgument, start, tokenLength, token);
-						currentState=state;
-						start=stop;
-						index=stop-1;
-						state=-1;
-						token=-1;
-						finalState=false;
+						proc.colorizeProc(proc.argument, start, tokenLength, token);
+						currentState = state;
+						start = stop;
+						index = stop - 1;
+						state = -1;
+						token = -1;
+						finalState = false;
 					}
-					else if(stop<index)
+					else if (stop < index)
 					{
-						stop=index+1;
-						tokenProc(tokenProcArgument, start, stop-start, -1);
-						start=index+1;
-						state=-1;
-						token=-1;
+						stop = index + 1;
+						proc.colorizeProc(proc.argument, start, stop - start, -1);
+						start = index + 1;
+						state = -1;
+						token = -1;
 					}
 				}
-				if(finalState)
+				if (finalState)
 				{
-					stop=index+1;
-					state=currentState;
-					token=currentToken;
+					stop = index + 1;
+					state = currentState;
+					token = currentToken;
 				}
 
 				index++;
 			}
-			if(start<length)
+			if (start < length)
 			{
-				if(finalState)
+				if (finalState)
 				{
-					tokenProc(tokenProcArgument, start, length-start, token);
+					proc.colorizeProc(proc.argument, start, length - start, token);
 				}
 				else
 				{
-					tokenProc(tokenProcArgument, start, length-start, walker.GetRelatedToken(currentState));
+					proc.colorizeProc(proc.argument, start, length - start, walker.GetRelatedToken(currentState));
 				}
 			}
 		}
@@ -777,61 +791,61 @@ RegexLexerColorizer
 RegexLexer
 ***********************************************************************/
 
-		RegexLexer::RegexLexer(const collections::IEnumerable<WString>& tokens)
-			:pure(0)
+		RegexLexer::RegexLexer(const collections::IEnumerable<WString>& tokens, RegexProc _proc)
+			:proc(_proc)
 		{
 			// Build DFA for all tokens
 			List<Expression::Ref> expressions;
 			List<Automaton::Ref> dfas;
 			CharRange::List subsets;
-			Ptr<IEnumerator<WString>> enumerator=tokens.CreateEnumerator();
-			while(enumerator->Next())
+			Ptr<IEnumerator<WString>> enumerator = tokens.CreateEnumerator();
+			while (enumerator->Next())
 			{
-				const WString& code=enumerator->Current();
+				const WString& code = enumerator->Current();
 
-				RegexExpression::Ref regex=ParseRegexExpression(code);
-				Expression::Ref expression=regex->Merge();
+				RegexExpression::Ref regex = ParseRegexExpression(code);
+				Expression::Ref expression = regex->Merge();
 				expression->CollectCharSet(subsets);
 				expressions.Add(expression);
 			}
-			for(vint i=0;i<expressions.Count();i++)
+			for (vint i = 0; i < expressions.Count(); i++)
 			{
 				Dictionary<State*, State*> nfaStateMap;
 				Group<State*, State*> dfaStateMap;
-				Expression::Ref expression=expressions[i];
+				Expression::Ref expression = expressions[i];
 				expression->ApplyCharSet(subsets);
-				Automaton::Ref eNfa=expression->GenerateEpsilonNfa();
-				Automaton::Ref nfa=EpsilonNfaToNfa(eNfa, PureEpsilonChecker, nfaStateMap);
-				Automaton::Ref dfa=NfaToDfa(nfa, dfaStateMap);
+				Automaton::Ref eNfa = expression->GenerateEpsilonNfa();
+				Automaton::Ref nfa = EpsilonNfaToNfa(eNfa, PureEpsilonChecker, nfaStateMap);
+				Automaton::Ref dfa = NfaToDfa(nfa, dfaStateMap);
 				dfas.Add(dfa);
 			}
 
 			// Mark all states in DFAs
-			for(vint i=0;i<dfas.Count();i++)
+			for (vint i = 0; i < dfas.Count(); i++)
 			{
-				Automaton::Ref dfa=dfas[i];
-				for(vint j=0;j<dfa->states.Count();j++)
+				Automaton::Ref dfa = dfas[i];
+				for (vint j = 0; j < dfa->states.Count(); j++)
 				{
-					if(dfa->states[j]->finalState)
+					if (dfa->states[j]->finalState)
 					{
-						dfa->states[j]->userData=(void*)i;
+						dfa->states[j]->userData = (void*)i;
 					}
 					else
 					{
-						dfa->states[j]->userData=(void*)dfas.Count();
+						dfa->states[j]->userData = (void*)dfas.Count();
 					}
 				}
 			}
 
 			// Connect all DFAs to an e-NFA
-			Automaton::Ref bigEnfa=new Automaton;
-			for(vint i=0;i<dfas.Count();i++)
+			Automaton::Ref bigEnfa = new Automaton;
+			for (vint i = 0; i < dfas.Count(); i++)
 			{
 				CopyFrom(bigEnfa->states, dfas[i]->states);
 				CopyFrom(bigEnfa->transitions, dfas[i]->transitions);
 			}
-			bigEnfa->startState=bigEnfa->NewState();
-			for(vint i=0;i<dfas.Count();i++)
+			bigEnfa->startState = bigEnfa->NewState();
+			for (vint i = 0; i < dfas.Count(); i++)
 			{
 				bigEnfa->NewEpsilon(bigEnfa->startState, dfas[i]->startState);
 			}
@@ -839,46 +853,46 @@ RegexLexer
 			// Build a single DFA out of the e-NFA
 			Dictionary<State*, State*> nfaStateMap;
 			Group<State*, State*> dfaStateMap;
-			Automaton::Ref bigNfa=EpsilonNfaToNfa(bigEnfa, PureEpsilonChecker, nfaStateMap);
-			for(vint i=0;i<nfaStateMap.Keys().Count();i++)
+			Automaton::Ref bigNfa = EpsilonNfaToNfa(bigEnfa, PureEpsilonChecker, nfaStateMap);
+			for (vint i = 0; i < nfaStateMap.Keys().Count(); i++)
 			{
-				void* userData=nfaStateMap.Values().Get(i)->userData;
-				nfaStateMap.Keys()[i]->userData=userData;
+				void* userData = nfaStateMap.Values().Get(i)->userData;
+				nfaStateMap.Keys()[i]->userData = userData;
 			}
-			Automaton::Ref bigDfa=NfaToDfa(bigNfa, dfaStateMap);
-			for(vint i=0;i<dfaStateMap.Keys().Count();i++)
+			Automaton::Ref bigDfa = NfaToDfa(bigNfa, dfaStateMap);
+			for (vint i = 0; i < dfaStateMap.Keys().Count(); i++)
 			{
-				void* userData=dfaStateMap.GetByIndex(i).Get(0)->userData;
-				for(vint j=1;j<dfaStateMap.GetByIndex(i).Count();j++)
+				void* userData = dfaStateMap.GetByIndex(i).Get(0)->userData;
+				for (vint j = 1; j < dfaStateMap.GetByIndex(i).Count(); j++)
 				{
-					void* newData=dfaStateMap.GetByIndex(i).Get(j)->userData;
-					if(userData>newData)
+					void* newData = dfaStateMap.GetByIndex(i).Get(j)->userData;
+					if (userData > newData)
 					{
-						userData=newData;
+						userData = newData;
 					}
 				}
-				dfaStateMap.Keys()[i]->userData=userData;
+				dfaStateMap.Keys()[i]->userData = userData;
 			}
 
 			// Build state machine
-			pure=new PureInterpretor(bigDfa, subsets);
+			pure = new PureInterpretor(bigDfa, subsets);
 			stateTokens.Resize(bigDfa->states.Count());
-			for(vint i=0;i<stateTokens.Count();i++)
+			for (vint i = 0; i < stateTokens.Count(); i++)
 			{
-				void* userData=bigDfa->states[i]->userData;
-				stateTokens[i]=(vint)userData;
+				void* userData = bigDfa->states[i]->userData;
+				stateTokens[i] = (vint)userData;
 			}
 		}
 
 		RegexLexer::~RegexLexer()
 		{
-			if(pure)delete pure;
+			if (pure)delete pure;
 		}
 
 		RegexTokens RegexLexer::Parse(const WString& code, vint codeIndex)const
 		{
 			pure->PrepareForRelatedFinalStateTable();
-			return RegexTokens(pure, stateTokens, code, codeIndex);
+			return RegexTokens(pure, stateTokens, code, codeIndex, proc);
 		}
 
 		RegexLexerWalker RegexLexer::Walk()const
@@ -889,7 +903,7 @@ RegexLexer
 
 		RegexLexerColorizer RegexLexer::Colorize()const
 		{
-			return RegexLexerColorizer(Walk());
+			return RegexLexerColorizer(Walk(), proc);
 		}
 	}
 }

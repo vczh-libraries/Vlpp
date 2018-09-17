@@ -235,6 +235,16 @@ Tokenizer
 			bool										operator==(const wchar_t* _token)const;
 		};
 
+		using RegexTokenExtendProc = vint(*)(void* argument, const wchar_t* reading, vint token);
+		using RegexTokenColorizeProc =  void(*)(void* argument, vint start, vint length, vint token);
+
+		struct RegexProc
+		{
+			RegexTokenExtendProc						extendProc = nullptr;
+			RegexTokenColorizeProc						colorizeProc = nullptr;
+			void*										argument = nullptr;
+		};
+
 		/// <summary>Token collection representing the result from the lexical analyzer.</summary>
 		class RegexTokens : public Object, public collections::IEnumerable<RegexToken>
 		{
@@ -244,10 +254,12 @@ Tokenizer
 			const collections::Array<vint>&				stateTokens;
 			WString										code;
 			vint										codeIndex;
+			RegexProc									proc;
 			
-			RegexTokens(regex_internal::PureInterpretor* _pure, const collections::Array<vint>& _stateTokens, const WString& _code, vint _codeIndex);
+			RegexTokens(regex_internal::PureInterpretor* _pure, const collections::Array<vint>& _stateTokens, const WString& _code, vint _codeIndex, RegexProc _proc);
 		public:
 			RegexTokens(const RegexTokens& tokens);
+			~RegexTokens();
 
 			collections::IEnumerator<RegexToken>*		CreateEnumerator()const;
 
@@ -267,6 +279,7 @@ Tokenizer
 			
 			RegexLexerWalker(regex_internal::PureInterpretor* _pure, const collections::Array<vint>& _stateTokens);
 		public:
+			RegexLexerWalker(const RegexLexerWalker& tokens);
 			~RegexLexerWalker();
 			
 			/// <summary>Get the start DFA state number, which represents the correct state before parsing any input.</summary>
@@ -303,14 +316,12 @@ Tokenizer
 		class RegexLexerColorizer : public Object
 		{
 			friend class RegexLexer;
-		public:
-			typedef void(*TokenProc)(void* argument, vint start, vint length, vint token);
-
 		protected:
 			RegexLexerWalker							walker;
+			RegexProc									proc;
 			vint										currentState;
 
-			RegexLexerColorizer(const RegexLexerWalker& _walker);
+			RegexLexerColorizer(const RegexLexerWalker& _walker, RegexProc _proc);
 		public:
 			RegexLexerColorizer(const RegexLexerColorizer& colorizer);
 			~RegexLexerColorizer();
@@ -332,20 +343,22 @@ Tokenizer
 			/// <param name="length">Size of the text in characters.</param>
 			/// <param name="tokenProc">Colorizer callback. This callback will be called if any token is found..</param>
 			/// <param name="tokenProcArgument">The argument to call the callback.</param>
-			void										Colorize(const wchar_t* input, vint length, TokenProc tokenProc, void* tokenProcArgument);
+			void										Colorize(const wchar_t* input, vint length);
 		};
 
 		/// <summary>Lexical analyzer.</summary>
 		class RegexLexer : public Object, private NotCopyable
 		{
 		protected:
-			regex_internal::PureInterpretor*			pure;
+			regex_internal::PureInterpretor*			pure = nullptr;
 			collections::Array<vint>					ids;
 			collections::Array<vint>					stateTokens;
+			RegexProc									proc;
+
 		public:
 			/// <summary>Create a lexical analyzer by a set of regular expressions. [F:vl.regex.RegexToken.token] will be the index of the matched regular expression.</summary>
 			/// <param name="tokens">The regular expressions.</param>
-			RegexLexer(const collections::IEnumerable<WString>& tokens);
+			RegexLexer(const collections::IEnumerable<WString>& tokens, RegexProc _proc);
 			~RegexLexer();
 
 			/// <summary>Tokenize a input text.</summary>

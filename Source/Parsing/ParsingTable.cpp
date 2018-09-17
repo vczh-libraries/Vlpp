@@ -485,26 +485,26 @@ ParsingTable
 					tokens.Add(info.regex);
 				}
 
-				vint regexTokenIndex=0;
-				for(vint i=UserTokenStart;i<tokenInfos.Count();i++)
+				vint regexTokenIndex = 0;
+				for (vint i = UserTokenStart; i < tokenInfos.Count(); i++)
 				{
-					tokenInfos[i].regexTokenIndex=regexTokenIndex++;
+					tokenInfos[i].regexTokenIndex = regexTokenIndex++;
 				}
-				for(vint i=0;i<discardTokenInfos.Count();i++)
+				for (vint i = 0; i < discardTokenInfos.Count(); i++)
 				{
-					discardTokenInfos[i].regexTokenIndex=regexTokenIndex++;
+					discardTokenInfos[i].regexTokenIndex = regexTokenIndex++;
 				}
-				lexer=new RegexLexer(tokens);
+				lexer = new RegexLexer(tokens, {});
 
 				ruleMap.Clear();
 				FOREACH_INDEXER(RuleInfo, rule, index, ruleInfos)
 				{
 					ruleMap.Add(rule.name, index);
 				}
-				for(vint i=0;i<stateInfos.Count();i++)
+				for (vint i = 0; i < stateInfos.Count(); i++)
 				{
-					StateInfo& info=stateInfos[i];
-					info.ruleAmbiguousType=ruleInfos[ruleMap[info.ruleName]].ambiguousType;
+					StateInfo& info = stateInfos[i];
+					info.ruleAmbiguousType = ruleInfos[ruleMap[info.ruleName]].ambiguousType;
 				}
 
 				treeTypeInfoMap.Clear();
