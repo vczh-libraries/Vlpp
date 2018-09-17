@@ -369,45 +369,45 @@ RegexTokens
 		{
 		protected:
 			RegexToken				token;
-			vint					index;
+			vint					index = -1;
 
 			PureInterpretor*		pure;
 			const Array<vint>&		stateTokens;
 			const wchar_t*			start;
 			vint					codeIndex;
+			RegexProc				proc;
 
 			const wchar_t*			reading;
-			vint					rowStart;
-			vint					columnStart;
-			bool					cacheAvailable;
+			vint					rowStart = 0;
+			vint					columnStart = 0;
+			bool					cacheAvailable = false;
 			RegexToken				cacheToken;
 
 		public:
 			RegexTokenEnumerator(const RegexTokenEnumerator& enumerator)
 				:token(enumerator.token)
-				,index(enumerator.index)
-				,pure(enumerator.pure)
-				,stateTokens(enumerator.stateTokens)
-				,reading(enumerator.reading)
-				,start(enumerator.start)
-				,rowStart(enumerator.rowStart)
-				,columnStart(enumerator.columnStart)
-				,codeIndex(enumerator.codeIndex)
-				,cacheAvailable(enumerator.cacheAvailable)
-				,cacheToken(enumerator.cacheToken)
+				, index(enumerator.index)
+				, pure(enumerator.pure)
+				, stateTokens(enumerator.stateTokens)
+				, proc(enumerator.proc)
+				, reading(enumerator.reading)
+				, start(enumerator.start)
+				, rowStart(enumerator.rowStart)
+				, columnStart(enumerator.columnStart)
+				, codeIndex(enumerator.codeIndex)
+				, cacheAvailable(enumerator.cacheAvailable)
+				, cacheToken(enumerator.cacheToken)
 			{
 			}
 
-			RegexTokenEnumerator(PureInterpretor* _pure, const Array<vint>& _stateTokens, const wchar_t* _start, vint _codeIndex)
+			RegexTokenEnumerator(PureInterpretor* _pure, const Array<vint>& _stateTokens, const wchar_t* _start, vint _codeIndex, RegexProc _proc)
 				:index(-1)
-				,pure(_pure)
-				,stateTokens(_stateTokens)
-				,reading(_start)
-				,start(_start)
-				,rowStart(0)
-				,columnStart(0)
-				,codeIndex(_codeIndex)
-				,cacheAvailable(false)
+				, pure(_pure)
+				, stateTokens(_stateTokens)
+				, start(_start)
+				, codeIndex(_codeIndex)
+				, proc(_proc)
+				, reading(_start)
 			{
 			}
 
@@ -428,80 +428,80 @@ RegexTokens
 
 			bool Next()
 			{
-				if(!cacheAvailable && !*reading) return false;
-				if(cacheAvailable)
+				if (!cacheAvailable && !*reading) return false;
+				if (cacheAvailable)
 				{
-					token=cacheToken;
-					cacheAvailable=false;
+					token = cacheToken;
+					cacheAvailable = false;
 				}
 				else
 				{
-					token.reading=reading;
-					token.start=0;
-					token.length=0;
-					token.token=-2;
-					token.completeToken=true;
+					token.reading = reading;
+					token.start = 0;
+					token.length = 0;
+					token.token = -2;
+					token.completeToken = true;
 				}
-				token.rowStart=rowStart;
-				token.columnStart=columnStart;
-				token.rowEnd=rowStart;
-				token.columnEnd=columnStart;
-				token.codeIndex=codeIndex;
+				token.rowStart = rowStart;
+				token.columnStart = columnStart;
+				token.rowEnd = rowStart;
+				token.columnEnd = columnStart;
+				token.codeIndex = codeIndex;
 
 				PureResult result;
-				while(*reading)
+				while (*reading)
 				{
-					vint id=-1;
-					bool completeToken=true;
-					if(!pure->MatchHead(reading, start, result))
+					vint id = -1;
+					bool completeToken = true;
+					if (!pure->MatchHead(reading, start, result))
 					{
-						result.start=reading-start;
+						result.start = reading - start;
 
-						if(id==-1 && result.terminateState!=-1)
+						if (id == -1 && result.terminateState != -1)
 						{
-							vint state=pure->GetRelatedFinalState(result.terminateState);
-							if(state!=-1)
+							vint state = pure->GetRelatedFinalState(result.terminateState);
+							if (state != -1)
 							{
-								id=stateTokens[state];
+								id = stateTokens[state];
 							}
 						}
 
-						if(id==-1)
+						if (id == -1)
 						{
-							result.length=1;
+							result.length = 1;
 						}
 						else
 						{
-							completeToken=false;
+							completeToken = false;
 						}
 					}
 					else
 					{
-						id=stateTokens.Get(result.finalState);
+						id = stateTokens.Get(result.finalState);
 					}
-					if(token.token==-2)
+					if (token.token == -2)
 					{
-						token.start=result.start;
-						token.length=result.length;
-						token.token=id;
-						token.completeToken=completeToken;
+						token.start = result.start;
+						token.length = result.length;
+						token.token = id;
+						token.completeToken = completeToken;
 					}
-					else if(token.token==id && id==-1)
+					else if (token.token == id && id == -1)
 					{
-						token.length+=result.length;
+						token.length += result.length;
 					}
 					else
 					{
-						cacheAvailable=true;
-						cacheToken.reading=reading;
-						cacheToken.start=result.start;
-						cacheToken.length=result.length;
-						cacheToken.codeIndex=codeIndex;
-						cacheToken.token=id;
-						cacheToken.completeToken=completeToken;
+						cacheAvailable = true;
+						cacheToken.reading = reading;
+						cacheToken.start = result.start;
+						cacheToken.length = result.length;
+						cacheToken.codeIndex = codeIndex;
+						cacheToken.token = id;
+						cacheToken.completeToken = completeToken;
 					}
-					reading+=result.length;
-					if(cacheAvailable)
+					reading += result.length;
+					if (cacheAvailable)
 					{
 						break;
 					}
@@ -509,14 +509,14 @@ RegexTokens
 
 				index++;
 
-				for(vint i=0;i<token.length;i++)
+				for (vint i = 0; i < token.length; i++)
 				{
-					token.rowEnd=rowStart;
-					token.columnEnd=columnStart;
-					if(token.reading[i]==L'\n')
+					token.rowEnd = rowStart;
+					token.columnEnd = columnStart;
+					if (token.reading[i] == L'\n')
 					{
 						rowStart++;
-						columnStart=0;
+						columnStart = 0;
 					}
 					else
 					{
@@ -528,16 +528,16 @@ RegexTokens
 
 			void Reset()
 			{
-				index=-1;
-				reading=start;
-				cacheAvailable=false;
+				index = -1;
+				reading = start;
+				cacheAvailable = false;
 			}
 
 			void ReadToEnd(List<RegexToken>& tokens, bool(*discard)(vint))
 			{
-				while(Next())
+				while (Next())
 				{
-					if(!discard(token.token))
+					if (!discard(token.token))
 					{
 						tokens.Add(token);
 					}
@@ -565,7 +565,7 @@ RegexTokens
 
 		IEnumerator<RegexToken>* RegexTokens::CreateEnumerator()const
 		{
-			return new RegexTokenEnumerator(pure, stateTokens, code.Buffer(), codeIndex);
+			return new RegexTokenEnumerator(pure, stateTokens, code.Buffer(), codeIndex, proc);
 		}
 
 		bool DefaultDiscard(vint token)
@@ -579,7 +579,7 @@ RegexTokens
 			{
 				discard=&DefaultDiscard;
 			}
-			RegexTokenEnumerator(pure, stateTokens, code.Buffer(), codeIndex).ReadToEnd(tokens, discard);
+			RegexTokenEnumerator(pure, stateTokens, code.Buffer(), codeIndex, proc).ReadToEnd(tokens, discard);
 		}
 
 /***********************************************************************
