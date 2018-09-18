@@ -1479,8 +1479,8 @@ void TestRegexLexer6Deleter(void* interStateDeleter)
 
 void TestRegexLexer6ExtendProc(void* argument, const wchar_t* reading, vint length, bool completeText, RegexProcessingToken& processingToken)
 {
-	// in this unit test the given string should be null-terminated
-	TEST_ASSERT(length == -1 || reading[length] == 0);
+	WString readingBuffer = length == -1 ? WString(reading, false) : WString(reading, length);
+	reading = readingBuffer.Buffer();
 
 	if (processingToken.token == 2 || processingToken.token == 3)
 	{
@@ -1498,10 +1498,12 @@ void TestRegexLexer6ExtendProc(void* argument, const wchar_t* reading, vint leng
 		if (find)
 		{
 			processingToken.length = (vint)(find - reading) + postfix.Length();
+			processingToken.completeToken = true;
+			processingToken.interTokenState = nullptr;
 		}
 		else
 		{
-			processingToken.length = (vint)wcslen(reading);
+			processingToken.length = readingBuffer.Length();
 			processingToken.token = 3;
 			processingToken.completeToken = false;
 
@@ -1721,11 +1723,16 @@ TEST_CASE(TestRegexLexerColorizer2)
 	colorizer.Pass(L'\n');
 	{
 		const wchar_t input[] = L"-)===\"456$\"===(";
-		vint expect[] = { 3,3,3,3,3,3,0,0,0,-1,-1,-1,-1,-1,-1 };
+		vint expect[] = { 3,3,3,3,3,3,0,0,0,3,3,3,3,3,3 };
 		auto state = AssertColorizer(colors, expect, colorizer, input, true);
-		TEST_ASSERT(state == nullptr);
+		TEST_ASSERT(state != nullptr && state != lastInterTokenState);
 		proc.deleter(lastInterTokenState);
 		lastInterTokenState = state;
+	}
+
+	if (lastInterTokenState)
+	{
+		proc.deleter(lastInterTokenState);
 	}
 }
 

@@ -782,13 +782,13 @@ RegexLexerColorizer
 				proc.extendProc(proc.argument, input, length, false, token);
 #if _DEBUG
 				{
-					bool pausedAtTheEnd = token.start + token.length == length && !token.completeToken;
+					bool pausedAtTheEnd = token.length == length && !token.completeToken;
 					CHECK_ERROR(
 						token.completeToken || pausedAtTheEnd,
 						L"RegexLexerColorizer::WalkOneToken(const wchar_t*, vint, vint, bool)#The extendProc is not allowed to pause before the end of the input."
 					);
 					CHECK_ERROR(
-						token.completeToken || token.token != internalState.interTokenId,
+						token.completeToken || token.token == internalState.interTokenId,
 						L"RegexLexerColorizer::WalkOneToken(const wchar_t*, vint, vint, bool)#The extendProc is not allowed to continue pausing with a different token id."
 					);
 					CHECK_ERROR(
