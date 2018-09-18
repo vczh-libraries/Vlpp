@@ -484,7 +484,7 @@ RegexTokens
 					if (id != -1 && proc.extendProc)
 					{
 						RegexProcessingToken token(result.start, result.length, id, completeToken, nullptr);
-						proc.extendProc(proc.argument, reading, token);
+						proc.extendProc(proc.argument, reading, true, token);
 #if _DEBUG
 						CHECK_ERROR(token.interTokenState == nullptr, L"RegexTokenEnumerator::Next()#The extendProc is only allowed to create interTokenState in RegexLexerColorizer.");
 #endif
@@ -739,7 +739,7 @@ RegexLexerColorizer
 			return currentState;
 		}
 
-		void RegexLexerColorizer::Colorize(const wchar_t* input, vint length)
+		void* RegexLexerColorizer::Colorize(const wchar_t* input, vint length, void* interTokenState)
 		{
 			vint start = 0;
 			vint stop = 0;
@@ -800,6 +800,7 @@ RegexLexerColorizer
 					proc.colorizeProc(proc.argument, start, length - start, walker.GetRelatedToken(currentState));
 				}
 			}
+			return nullptr;
 		}
 
 /***********************************************************************

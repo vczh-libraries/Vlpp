@@ -1467,25 +1467,47 @@ void TestRegexLexer6Validation(List<RegexToken>& tokens)
 	TEST_ASSERT(tokens[9].completeToken == false);
 }
 
+struct TestRegexLexer6InterTokenState
+{
+	WString postfix;
+};
+
 void TestRegexLexer6Deleter(void* interStateDeleter)
 {
+	delete (TestRegexLexer6InterTokenState*)interStateDeleter;
 }
 
-void TestRegexLexer6ExtendProc(void* argument, const wchar_t* reading, RegexProcessingToken& processingToken)
+void TestRegexLexer6ExtendProc(void* argument, const wchar_t* reading, bool completeText, RegexProcessingToken& processingToken)
 {
 	if (processingToken.token == 2)
 	{
-		auto end = L")" + WString(reading + 2, processingToken.length - 3) + L"\"";
-		auto find = wcsstr(reading, end.Buffer());
+		WString postfix;
+		if (processingToken.interTokenState)
+		{
+			postfix = ((TestRegexLexer6InterTokenState*)processingToken.interTokenState)->postfix;
+		}
+		else
+		{
+			postfix = L")" + WString(reading + 2, processingToken.length - 3) + L"\"";
+		}
+
+		auto find = wcsstr(reading, postfix.Buffer());
 		if (find)
 		{
-			processingToken.length = (vint)(find - reading) + end.Length();
+			processingToken.length = (vint)(find - reading) + postfix.Length();
 		}
 		else
 		{
 			processingToken.length = (vint)wcslen(reading);
 			processingToken.token = 3;
 			processingToken.completeToken = false;
+
+			if (!completeText && !processingToken.interTokenState)
+			{
+				auto state = new TestRegexLexer6InterTokenState;
+				state->postfix = postfix;
+				processingToken.interTokenState = state;
+			}
 		}
 	}
 }
@@ -1599,18 +1621,19 @@ void ColorizerProc(void* argument, vint start, vint length, vint token)
 }
 
 template<int Size, int Length>
-void AssertColorizer(vint(&actual)[Size], vint(&expect)[Length], RegexLexerColorizer& colorizer, const wchar_t(&input)[Length + 1], bool firstLine)
+void* AssertColorizer(vint(&actual)[Size], vint(&expect)[Length], RegexLexerColorizer& colorizer, const wchar_t(&input)[Length + 1], bool firstLine, void* interStateObject)
 {
 	for (vint i = 0; i < Size; i++)
 	{
 		actual[i] = -2;
 	}
 	colorizer.Reset(firstLine ? colorizer.GetStartState() : colorizer.GetCurrentState());
-	colorizer.Colorize(input, Length);
+	auto newStateObject = colorizer.Colorize(input, Length, interStateObject);
 	for (vint i = 0; i < Length; i++)
 	{
 		TEST_ASSERT(actual[i] == expect[i]);
 	}
+	return newStateObject;
 }
 
 TEST_CASE(TestRegexLexerColorizer1)
@@ -1633,10 +1656,10 @@ TEST_CASE(TestRegexLexerColorizer1)
 	RegexLexer lexer(codes, proc);
 	RegexLexerColorizer colorizer = lexer.Colorize();
 
-	AssertColorizer(colors, color1, colorizer, line1, true);
+	TEST_ASSERT(AssertColorizer(colors, color1, colorizer, line1, true, nullptr) == nullptr);
 	colorizer.Pass(L'\r');
 	colorizer.Pass(L'\n');
-	AssertColorizer(colors, color2, colorizer, line2, false);
+	TEST_ASSERT(AssertColorizer(colors, color2, colorizer, line2, false, nullptr) == nullptr);
 }
 
 TEST_CASE(TestRegexLexerColorizer2)
@@ -1677,19 +1700,22 @@ abcde
 	RegexLexer lexer(codes, proc);
 	RegexLexerColorizer colorizer = lexer.Colorize();
 
-	AssertColorizer(colors, color1, colorizer, line1, true);
+	TEST_ASSERT(AssertColorizer(colors, color1, colorizer, line1, true, nullptr) == nullptr);
 	colorizer.Pass(L'\r');
 	colorizer.Pass(L'\n');
-	AssertColorizer(colors, color2, colorizer, line2, false);
+	TEST_ASSERT(AssertColorizer(colors, color2, colorizer, line2, false, nullptr) == nullptr);
 	colorizer.Pass(L'\r');
 	colorizer.Pass(L'\n');
-	AssertColorizer(colors, color3, colorizer, line3, false);
+	auto stateObject = AssertColorizer(colors, color3, colorizer, line3, false, nullptr);
+	TEST_ASSERT(stateObject);
 	colorizer.Pass(L'\r');
 	colorizer.Pass(L'\n');
-	AssertColorizer(colors, color4, colorizer, line4, false);
+	TEST_ASSERT(AssertColorizer(colors, color4, colorizer, line4, false, stateObject) == stateObject);
 	colorizer.Pass(L'\r');
 	colorizer.Pass(L'\n');
-	AssertColorizer(colors, color5, colorizer, line5, false);
+	TEST_ASSERT(AssertColorizer(colors, color5, colorizer, line5, false, stateObject) == nullptr);
+
+	proc.deleter(stateObject);
 }
 
 #undef WALK

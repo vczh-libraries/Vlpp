@@ -253,7 +253,7 @@ Tokenizer
 		};
 
 		using RegexInterTokenStateDeleter = void(*)(void* interTokenState);
-		using RegexTokenExtendProc = void(*)(void* argument, const wchar_t* reading, RegexProcessingToken& processingToken);
+		using RegexTokenExtendProc = void(*)(void* argument, const wchar_t* reading, bool completeText, RegexProcessingToken& processingToken);
 		using RegexTokenColorizeProc =  void(*)(void* argument, vint start, vint length, vint token);
 
 		struct RegexProc
@@ -357,12 +357,12 @@ Tokenizer
 			/// <summary>Get the current DFA state number.</summary>
 			/// <returns>The DFA state number.</returns>
 			vint										GetCurrentState()const;
-			/// <summary>Colorize a text.</summary>
+			/// <summary>Colorize a text.</summary>	GetCurrentState()const;
+			/// <returns>An inter token state at the end of this line. If it is different from the interTokenState parameter, then this is a new state object.</returns>
 			/// <param name="input">The text to colorize.</param>
 			/// <param name="length">Size of the text in characters.</param>
-			/// <param name="tokenProc">Colorizer callback. This callback will be called if any token is found..</param>
-			/// <param name="tokenProcArgument">The argument to call the callback.</param>
-			void										Colorize(const wchar_t* input, vint length);
+			/// <param name="interTokenState">The state object, which must be the one returned from this function when processing the previous line.</param>
+			void*										Colorize(const wchar_t* input, vint length, void* interTokenState);
 		};
 
 		/// <summary>Lexical analyzer.</summary>
@@ -377,6 +377,7 @@ Tokenizer
 		public:
 			/// <summary>Create a lexical analyzer by a set of regular expressions. [F:vl.regex.RegexToken.token] will be the index of the matched regular expression.</summary>
 			/// <param name="tokens">The regular expressions.</param>
+			/// <param name="_proc">Callback procedures.</param>
 			RegexLexer(const collections::IEnumerable<WString>& tokens, RegexProc _proc);
 			~RegexLexer();
 
