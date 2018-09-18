@@ -1467,21 +1467,21 @@ void TestRegexLexer6Validation(List<RegexToken>& tokens)
 	TEST_ASSERT(tokens[9].completeToken == false);
 }
 
-void TestRegexLexer6ExtendProc(void* argument, const wchar_t* reading, vint start, vint& length, vint& token, bool& completeToken)
+void TestRegexLexer6ExtendProc(void* argument, const wchar_t* reading, RegexProcessingToken& processingToken)
 {
-	if (token == 2)
+	if (processingToken.token == 2)
 	{
-		auto end = L")" + WString(reading + 2, length - 3) + L"\"";
+		auto end = L")" + WString(reading + 2, processingToken.length - 3) + L"\"";
 		auto find = wcsstr(reading, end.Buffer());
 		if (find)
 		{
-			length = (vint)(find - reading) + end.Length();
+			processingToken.length = (vint)(find - reading) + end.Length();
 		}
 		else
 		{
-			length = (vint)wcslen(reading);
-			token = 3;
-			completeToken = false;
+			processingToken.length = (vint)wcslen(reading);
+			processingToken.token = 3;
+			processingToken.completeToken = false;
 		}
 	}
 }

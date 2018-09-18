@@ -483,7 +483,11 @@ RegexTokens
 
 					if (id != -1 && proc.extendProc)
 					{
-						proc.extendProc(proc.argument, reading, result.start, result.length, id, completeToken);
+						RegexProcessingToken token(result.start, result.length, id, completeToken);
+						proc.extendProc(proc.argument, reading, token);
+						result.length = token.length;
+						id = token.token;
+						completeToken = token.completeToken;
 					}
 
 					if (token.token == -2)

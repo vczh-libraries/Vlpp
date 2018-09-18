@@ -206,9 +206,8 @@ Tokenizer
 ***********************************************************************/
 
 		/// <summary>A token.</summary>
-		class RegexToken
+		struct RegexToken
 		{
-		public:
 			/// <summary>Position in the input string.</summary>
 			vint										start;
 			/// <summary>Size of this token in characters.</summary>
@@ -235,7 +234,23 @@ Tokenizer
 			bool										operator==(const wchar_t* _token)const;
 		};
 
-		using RegexTokenExtendProc = void(*)(void* argument, const wchar_t* reading, vint start, vint& length, vint& token, bool& completeToken);
+		struct RegexProcessingToken
+		{
+			const vint									start;
+			vint										length;
+			vint										token;
+			bool										completeToken;
+
+			RegexProcessingToken(vint _start, vint _length, vint _token, bool _completeToken)
+				:start(_start)
+				, length(_length)
+				, token(_token)
+				, completeToken(_completeToken)
+			{
+			}
+		};
+
+		using RegexTokenExtendProc = void(*)(void* argument, const wchar_t* reading, RegexProcessingToken& processingToken);
 		using RegexTokenColorizeProc =  void(*)(void* argument, vint start, vint length, vint token);
 
 		struct RegexProc
