@@ -374,11 +374,18 @@ Tokenizer
 		class RegexLexerColorizer : public Object
 		{
 			friend class RegexLexer;
+		public:
+			struct InternalState
+			{
+				vint									currentState = -1;
+				vint									interTokenId = -1;
+				void*									interTokenState = nullptr;
+			};
+
 		protected:
 			RegexLexerWalker							walker;
 			RegexProc									proc;
-			vint										currentState;
-			void*										interTokenState = nullptr;
+			InternalState								internalState;
 
 			void										CallExtendProcAndColorizeProc(const wchar_t* input, vint length, RegexProcessingToken& token, bool colorize);
 			vint										WalkOneToken(const wchar_t* input, vint length, vint start, bool colorize);
@@ -388,22 +395,18 @@ Tokenizer
 			RegexLexerColorizer(const RegexLexerColorizer& colorizer);
 			~RegexLexerColorizer();
 
-			/// <summary>Reset the colorizer using the DFA state number.</summary>
-			/// <param name="_currentState">The DFA state number.</param>
-			/// <param name="_interTokenState">The inter token state object.</param>
-			void										Reset(vint _currentState, void* _interTokenState);
+			/// <summary>Get the internal state.</summary>
+			/// <returns>The internal state.</returns>
+			InternalState								GetInternalState();
+			/// <summary>Restore the colorizer to a internal state.</summary>
+			/// <param name="value">The internal state.</param>
+			void										SetInternalState(InternalState state);
 			/// <summary>Step forward by one character.</summary>
 			/// <param name="input">The input character.</param>
 			void										Pass(wchar_t input);
 			/// <summary>Get the start DFA state number, which represents the correct state before colorizing any characters.</summary>
 			/// <returns>The DFA state number.</returns>
 			vint										GetStartState()const;
-			/// <summary>Get the current DFA state number.</summary>
-			/// <returns>The current DFA state number.</returns>
-			vint										GetCurrentState()const;
-			/// <summary>Get the current inter token state object.</summary>
-			/// <returns>The current inter token state object.</returns>
-			void*										GetCurrentInterTokenState()const;
 			/// <summary>Colorize a text.</summary>	GetCurrentState()const;
 			/// <returns>An inter token state at the end of this line. It could be the same object which is returned from the previous call.</returns>
 			/// <param name="input">The text to colorize.</param>

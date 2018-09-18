@@ -703,15 +703,14 @@ RegexLexerColorizer
 
 		RegexLexerColorizer::RegexLexerColorizer(const RegexLexerWalker& _walker, RegexProc _proc)
 			:walker(_walker)
-			, currentState(_walker.GetStartState())
 			, proc(_proc)
 		{
 		}
 
 		RegexLexerColorizer::RegexLexerColorizer(const RegexLexerColorizer& colorizer)
 			:walker(colorizer.walker)
-			, currentState(colorizer.currentState)
 			, proc(colorizer.proc)
+			, internalState(colorizer.internalState)
 		{
 		}
 
@@ -719,10 +718,13 @@ RegexLexerColorizer
 		{
 		}
 
-		void RegexLexerColorizer::Reset(vint _currentState, void* _interTokenState)
+		RegexLexerColorizer::InternalState RegexLexerColorizer::GetInternalState()
 		{
-			currentState = _currentState;
-			interTokenState = _interTokenState;
+			return internalState;
+		}
+		void RegexLexerColorizer::SetInternalState(InternalState state)
+		{
+			internalState = state;
 		}
 
 		void RegexLexerColorizer::Pass(wchar_t input)
@@ -735,34 +737,35 @@ RegexLexerColorizer
 			return walker.GetStartState();
 		}
 
-		vint RegexLexerColorizer::GetCurrentState()const
-		{
-			return currentState;
-		}
-
-		void* RegexLexerColorizer::GetCurrentInterTokenState()const
-		{
-			return interTokenState;
-		}
-
 		void RegexLexerColorizer::CallExtendProcAndColorizeProc(const wchar_t* input, vint length, RegexProcessingToken& token, bool colorize)
 		{
 			vint oldTokenLength = token.length;
 			proc.extendProc(proc.argument, input + token.start, length - token.start, false, token);
-			bool pausedAtTheEnd = token.start + token.length == length && !token.completeToken;
 #if _DEBUG
-			CHECK_ERROR(
-				oldTokenLength <= token.length,
-				L"RegexLexerColorizer::WalkOneToken(const wchar_t*, vint, vint, bool)#The extendProc is not allowed to decrease the token length."
-			);
-			CHECK_ERROR(
-				(token.interTokenState == nullptr) == (token.token != -1 && !pausedAtTheEnd),
-				L"RegexLexerColorizer::Colorize(const wchar_t*, vint, void*)#The extendProc should return an inter token state object if and only if a valid token does not end at the end of the input."
-			);
-#endif
-			if ((interTokenState = token.interTokenState))
 			{
-				currentState = -1;
+				bool pausedAtTheEnd = token.start + token.length == length && !token.completeToken;
+				CHECK_ERROR(
+					token.completeToken || pausedAtTheEnd,
+					L"RegexLexerColorizer::WalkOneToken(const wchar_t*, vint, vint, bool)#The extendProc is not allowed pause before the end of the input."
+				);
+				CHECK_ERROR(
+					token.completeToken || token.token != -1,
+					L"RegexLexerColorizer::WalkOneToken(const wchar_t*, vint, vint, bool)#The extendProc is not allowed to pause without a valid token id."
+				);
+				CHECK_ERROR(
+					oldTokenLength <= token.length,
+					L"RegexLexerColorizer::WalkOneToken(const wchar_t*, vint, vint, bool)#The extendProc is not allowed to decrease the token length."
+				);
+				CHECK_ERROR(
+					(token.interTokenState == nullptr) == !pausedAtTheEnd,
+					L"RegexLexerColorizer::Colorize(const wchar_t*, vint, void*)#The extendProc should return an inter token state object if and only if a valid token does not end at the end of the input."
+				);
+			}
+#endif
+			if ((internalState.interTokenState = token.interTokenState))
+			{
+				internalState.interTokenId = token.token;
+				internalState.currentState = -1;
 			}
 			if (colorize)
 			{
@@ -772,6 +775,38 @@ RegexLexerColorizer
 
 		vint RegexLexerColorizer::WalkOneToken(const wchar_t* input, vint length, vint start, bool colorize)
 		{
+			if (internalState.interTokenState)
+			{
+				RegexProcessingToken token(-1, -1, internalState.interTokenId, false, internalState.interTokenState);
+				proc.extendProc(proc.argument, input, length, false, token);
+#if _DEBUG
+				{
+					bool pausedAtTheEnd = token.start + token.length == length && !token.completeToken;
+					CHECK_ERROR(
+						token.completeToken || pausedAtTheEnd,
+						L"RegexLexerColorizer::WalkOneToken(const wchar_t*, vint, vint, bool)#The extendProc is not allowed to pause before the end of the input."
+					);
+					CHECK_ERROR(
+						token.completeToken || token.token != internalState.interTokenId,
+						L"RegexLexerColorizer::WalkOneToken(const wchar_t*, vint, vint, bool)#The extendProc is not allowed to continue pausing with a different token id."
+					);
+					CHECK_ERROR(
+						(token.interTokenState == nullptr) == !pausedAtTheEnd,
+						L"RegexLexerColorizer::Colorize(const wchar_t*, vint, void*)#The extendProc should return an inter token state object if and only if a valid token does not end at the end of the input."
+					);
+				}
+#endif
+				if (colorize)
+				{
+					proc.colorizeProc(proc.argument, 0, token.length, token.token);
+				}
+				if (!(internalState.interTokenState = token.interTokenState))
+				{
+					internalState.interTokenId = -1;
+				}
+				return token.length;
+			}
+
 			vint lastFinalStateLength = 0;
 			vint lastFinalStateToken = -1;
 
@@ -780,7 +815,7 @@ RegexLexerColorizer
 				vint currentToken = -1;
 				bool finalState = false;
 				bool previousTokenStop = false;
-				walker.Walk(input[i], currentState, currentToken, finalState, previousTokenStop);
+				walker.Walk(input[i], internalState.currentState, currentToken, finalState, previousTokenStop);
 
 				if (previousTokenStop)
 				{
@@ -792,7 +827,7 @@ RegexLexerColorizer
 					}
 					else
 					{
-						currentState = -1;
+						internalState.currentState = -1;
 						if (colorize)
 						{
 							proc.colorizeProc(proc.argument, start, lastFinalStateLength, lastFinalStateToken);
@@ -815,119 +850,26 @@ RegexLexerColorizer
 					RegexProcessingToken token(start, lastFinalStateLength, lastFinalStateToken, true, nullptr);
 					CallExtendProcAndColorizeProc(input, length, token, colorize);
 				}
-				else
+				else if (colorize)
 				{
-					if (colorize)
-					{
-						proc.colorizeProc(proc.argument, start, lastFinalStateLength, lastFinalStateToken);
-					}
+					proc.colorizeProc(proc.argument, start, lastFinalStateLength, lastFinalStateToken);
 				}
-				return length;
 			}
+			else if (colorize)
+			{
+				proc.colorizeProc(proc.argument, start, length - start, walker.GetRelatedToken(internalState.currentState));
+			}
+			return length;
 		}
 
 		void* RegexLexerColorizer::Colorize(const wchar_t* input, vint length)
 		{
-			if (interTokenState)
-			{
-
-			}
-
-			vint start = 0;
-			vint stop = 0;
-			vint state = -1;
-			vint token = -1;
-
 			vint index = 0;
-			vint currentToken = -1;
-			bool finalState = false;
-			bool previousTokenStop = false;
-
-			while (index < length)
+			while (index != length)
 			{
-				currentToken = -1;
-				finalState = false;
-				previousTokenStop = false;
-				walker.Walk(input[index], currentState, currentToken, finalState, previousTokenStop);
-
-				if (previousTokenStop)
-				{
-					RegexProcessingToken processingToken(start, stop - start, token, true, nullptr);
-					if (proc.extendProc && processingToken.token != -1)
-					{
-						proc.extendProc(proc.argument, input, length, false, processingToken);
-						bool pausedAtTheEnd = start + processingToken.length == length && !processingToken.completeToken;
-#if _DEBUG
-						CHECK_ERROR(
-							stop - start <= processingToken.length,
-							L"RegexLexerColorizer::Colorize(const wchar_t*, vint, void*)#The extendProc is not allowed to decrease the token length."
-							);
-						CHECK_ERROR(
-							(processingToken.interTokenState == nullptr) == (processingToken.token != -1 && !pausedAtTheEnd),
-							L"RegexLexerColorizer::Colorize(const wchar_t*, vint, void*)#The extendProc should return an inter token state object if and only if a valid token does not end at the end of the input."
-							);
-#endif
-						interTokenState = processingToken.interTokenState;
-						if (pausedAtTheEnd)
-						{
-							currentState = -1;
-							proc.colorizeProc(proc.argument, start, processingToken.length, processingToken.token);
-							return interTokenState;
-						}
-						
-						token = processingToken.token;
-					}
-
-					if (tokenLength > 0)
-					{
-						proc.colorizeProc(proc.argument, start, tokenLength, token);
-						currentState = state;
-						start = stop;
-						index = stop - 1;
-						state = -1;
-						token = -1;
-						finalState = false;
-					}
-					else if (stop < index)
-					{
-						stop = index + 1;
-						proc.colorizeProc(proc.argument, start, stop - start, -1);
-						start = index + 1;
-						state = -1;
-						token = -1;
-					}
-				}
-				if (finalState)
-				{
-					stop = index + 1;
-					state = currentState;
-					token = currentToken;
-				}
-
-				index++;
+				index = WalkOneToken(input, length, index, true);
 			}
-
-			if (start < length)
-			{
-				RegexProcessingToken processingToken(start, length - start, (finalState ? token : walker.GetRelatedToken(currentState)), false, interTokenState);
-				if (proc.extendProc && processingToken.token != -1)
-				{
-					proc.extendProc(proc.argument, input, length, false, processingToken);
-#if _DEBUG
-					CHECK_ERROR(
-						length - start <= processingToken.length,
-						L"RegexLexerColorizer::Colorize(const wchar_t*, vint, void*)#The extendProc is not allowed to decrease the token length."
-						);
-#endif
-					if (processingToken.completeToken)
-					{
-						currentState = -1;
-					}
-				}
-				proc.colorizeProc(proc.argument, start, processingToken.length, processingToken.token);
-				return processingToken.interTokenState;
-			}
-			return nullptr;
+			return internalState.interTokenState;
 		}
 
 /***********************************************************************
