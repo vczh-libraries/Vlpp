@@ -1477,8 +1477,11 @@ void TestRegexLexer6Deleter(void* interStateDeleter)
 	delete (TestRegexLexer6InterTokenState*)interStateDeleter;
 }
 
-void TestRegexLexer6ExtendProc(void* argument, const wchar_t* reading, bool completeText, RegexProcessingToken& processingToken)
+void TestRegexLexer6ExtendProc(void* argument, const wchar_t* reading, vint length, bool completeText, RegexProcessingToken& processingToken)
 {
+	// in this unit test the given string should be null-terminated
+	TEST_ASSERT(length == -1 || reading[length] == 0);
+
 	if (processingToken.token == 2)
 	{
 		WString postfix;

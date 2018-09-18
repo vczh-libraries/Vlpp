@@ -484,7 +484,7 @@ RegexTokens
 					if (id != -1 && proc.extendProc)
 					{
 						RegexProcessingToken token(result.start, result.length, id, completeToken, nullptr);
-						proc.extendProc(proc.argument, reading, true, token);
+						proc.extendProc(proc.argument, reading, -1, true, token);
 #if _DEBUG
 						CHECK_ERROR(token.interTokenState == nullptr, L"RegexTokenEnumerator::Next()#The extendProc is only allowed to create interTokenState in RegexLexerColorizer.");
 #endif
