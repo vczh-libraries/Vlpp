@@ -1593,7 +1593,22 @@ void ColorizerProc(void* argument, vint start, vint length, vint token)
 	}
 }
 
-TEST_CASE(TestRegexLexerColorizer)
+template<int Size, int Length>
+void AssertColorizer(vint(&actual)[Size], vint(&expect)[Length], RegexLexerColorizer& colorizer, const wchar_t(&input)[Length + 1], bool firstLine)
+{
+	for (vint i = 0; i < Size; i++)
+	{
+		actual[i] = -2;
+	}
+	colorizer.Reset(firstLine ? colorizer.GetStartState() : colorizer.GetCurrentState());
+	colorizer.Colorize(input, Length);
+	for (vint i = 0; i < Length; i++)
+	{
+		TEST_ASSERT(actual[i] == expect[i]);
+	}
+}
+
+TEST_CASE(TestRegexLexerColorizer1)
 {
 	List<WString> codes;
 	codes.Add(L"/d+(./d+)?");
@@ -1602,14 +1617,9 @@ TEST_CASE(TestRegexLexerColorizer)
 
 	const wchar_t line1[] = L" genius 10..10.10   \"a";
 	vint color1[] = { -1, 1, 1, 1, 1, 1, 1, -1, 0, 0, -1, -1, 0, 0, 0, 0, 0, -1, -1, -1, 2, 2 };
-	vint length1 = sizeof(color1) / sizeof(*color1);
 
 	const wchar_t line2[] = L"b\"\"genius\"";
 	vint color2[] = { 2, 2, 2, 2, 2, 2, 2, 2, 2, 2 };
-	vint length2 = sizeof(color2) / sizeof(*color2);
-
-	TEST_ASSERT(wcslen(line1) == length1);
-	TEST_ASSERT(wcslen(line2) == length2);
 
 	vint colors[100];
 	RegexProc proc;
@@ -1618,32 +1628,62 @@ TEST_CASE(TestRegexLexerColorizer)
 	RegexLexer lexer(codes, proc);
 	RegexLexerColorizer colorizer = lexer.Colorize();
 
-	{
-		for (vint i = 0; i < sizeof(colors) / sizeof(*colors); i++)
-		{
-			colors[i] = -2;
-		}
-		colorizer.Reset(colorizer.GetStartState());
-		colorizer.Colorize(line1, length1);
-		for (vint i = 0; i < length1; i++)
-		{
-			TEST_ASSERT(color1[i] == colors[i]);
-		}
-	}
+	AssertColorizer(colors, color1, colorizer, line1, true);
 	colorizer.Pass(L'\r');
 	colorizer.Pass(L'\n');
-	{
-		for (vint i = 0; i < sizeof(colors) / sizeof(*colors); i++)
-		{
-			colors[i] = -2;
-		}
-		colorizer.Reset(colorizer.GetCurrentState());
-		colorizer.Colorize(line2, length2);
-		for (vint i = 0; i < length2; i++)
-		{
-			TEST_ASSERT(color2[i] == colors[i]);
-		}
-	}
+	AssertColorizer(colors, color2, colorizer, line2, false);
+}
+
+TEST_CASE(TestRegexLexerColorizer2)
+{
+	List<WString> codes;
+	codes.Add(L"/d+");
+	codes.Add(L"\"[^\"]*\"");
+	codes.Add(L"/$\"=*/(");
+
+	LR"test_input(123 456
+"simple text"
+123$"===(+
+abcde
+-)==="456$"===()test_input";
+
+	const wchar_t line1[] = L"123 456";
+	vint color1[] = { 0,0,0,-1,0,0,0 };
+
+	const wchar_t line2[] = L"\"simple text\"";
+	vint color2[] = { 1,1,1,1,1,1,1,1,1,1,1,1,1 };
+
+	const wchar_t line3[] = L"123$\"===(+";
+	vint color3[] = { 0,0,0,2,2,2,2,2,2,2, };
+
+	const wchar_t line4[] = L"abcde";
+	vint color4[] = { 2,2,2,2,2 };
+
+	const wchar_t line5[] = L"-)===\"456$\"===(";
+	vint color5[] = { 2,2,2,2,2,2,0,0,0,-1,-1,-1,-1,-1,-1 };
+
+	vint colors[100];
+
+	RegexProc proc;
+	proc.extendProc = &TestRegexLexer6ExtendProc;
+	proc.colorizeProc = &ColorizerProc;
+	proc.argument = colors;
+	RegexLexer lexer(codes, proc);
+	RegexLexerColorizer colorizer = lexer.Colorize();
+
+	AssertColorizer(colors, color1, colorizer, line1, true);
+	colorizer.Pass(L'\r');
+	colorizer.Pass(L'\n');
+	AssertColorizer(colors, color2, colorizer, line2, false);
+	colorizer.Pass(L'\r');
+	colorizer.Pass(L'\n');
+	AssertColorizer(colors, color3, colorizer, line3, false);
+	colorizer.Pass(L'\r');
+	colorizer.Pass(L'\n');
+	AssertColorizer(colors, color4, colorizer, line4, false);
+	colorizer.Pass(L'\r');
+	colorizer.Pass(L'\n');
+	AssertColorizer(colors, color5, colorizer, line5, false);
 }
 
 #undef WALK
