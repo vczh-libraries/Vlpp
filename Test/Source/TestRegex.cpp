@@ -1630,7 +1630,6 @@ void* AssertColorizer(vint(&actual)[Size], vint(&expect)[Length], RegexLexerColo
 	{
 		actual[i] = -2;
 	}
-	colorizer.Reset(firstLine ? colorizer.GetStartState() : colorizer.GetCurrentState());
 	auto newStateObject = colorizer.Colorize(input, Length, interStateObject);
 	for (vint i = 0; i < Length; i++)
 	{

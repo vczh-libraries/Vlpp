@@ -237,15 +237,32 @@ Tokenizer
 		/// <summary>Token information for <see cref="RegexProc::extendProc"/>.</summary>
 		struct RegexProcessingToken
 		{
-			/// <summary>The read only start position of the token.</summary>
+			/// <summary>
+			/// The read only start position of the token.
+			/// This value will be -1 if <see cref="interTokenState"/> is not null.
+			/// </summary>
 			const vint									start;
-			/// <summary>The length of the token, could be modified after the callback. When the callback returns, the length is not allowed to be decreased.</summary>
+			/// <summary>
+			/// The length of the token, could be modified after the callback.
+			/// When the callback returns, the length is not allowed to be decreased.
+			/// This value will be -1 if <see cref="interTokenState"/> is not null.
+			/// </summary>
 			vint										length;
-			/// <summary>The id of the token, could be modified after the callback.</summary>
+			/// <summary>
+			/// The id of the token, could be modified after the callback.
+			/// </summary>
 			vint										token;
-			/// <summary>The flag indicating if this token is completed, could be modified after the callback.</summary>
+			/// <summary>
+			/// The flag indicating if this token is completed, could be modified after the callback.
+			/// </summary>
 			bool										completeToken;
-			/// <summary>The inter token state object, could be modified after the callback. When the callback returns, this value can only be non-null if a token does not end at the end of the input.</summary>
+			/// <summary>
+			/// The inter token state object, could be modified after the callback.
+			/// When the callback returns:
+			///   if the completeText parameter is true in <see cref="RegexProc::extendProc"/>, it should be nullptr.
+			///   if the token does not end at the end of the input, it should not be nullptr.
+			///   if a token is completed, it should be nullptr.
+			/// </summary>
 			void*										interTokenState;
 
 			RegexProcessingToken(vint _start, vint _length, vint _token, bool _completeToken, void* _interTokenState)
@@ -361,6 +378,7 @@ Tokenizer
 			RegexLexerWalker							walker;
 			RegexProc									proc;
 			vint										currentState;
+			void*										interTokenState = nullptr;
 
 			RegexLexerColorizer(const RegexLexerWalker& _walker, RegexProc _proc);
 		public:
@@ -368,8 +386,9 @@ Tokenizer
 			~RegexLexerColorizer();
 
 			/// <summary>Reset the colorizer using the DFA state number.</summary>
-			/// <param name="state">The DFA state number.</param>
-			void										Reset(vint state);
+			/// <param name="_currentState">The DFA state number.</param>
+			/// <param name="_interTokenState">The inter token state object.</param>
+			void										Reset(vint _currentState, void* _interTokenState);
 			/// <summary>Step forward by one character.</summary>
 			/// <param name="input">The input character.</param>
 			void										Pass(wchar_t input);
@@ -377,14 +396,16 @@ Tokenizer
 			/// <returns>The DFA state number.</returns>
 			vint										GetStartState()const;
 			/// <summary>Get the current DFA state number.</summary>
-			/// <returns>The DFA state number.</returns>
+			/// <returns>The current DFA state number.</returns>
 			vint										GetCurrentState()const;
+			/// <summary>Get the current inter token state object.</summary>
+			/// <returns>The current inter token state object.</returns>
+			void*										GetCurrentInterTokenState()const;
 			/// <summary>Colorize a text.</summary>	GetCurrentState()const;
-			/// <returns>An inter token state at the end of this line. If it is different from the interTokenState parameter, then this is a new state object.</returns>
+			/// <returns>An inter token state at the end of this line. It could be the same object which is returned from the previous call.</returns>
 			/// <param name="input">The text to colorize.</param>
 			/// <param name="length">Size of the text in characters.</param>
-			/// <param name="interTokenState">The state object, which must be the one returned from this function when processing the previous line.</param>
-			void*										Colorize(const wchar_t* input, vint length, void* interTokenState);
+			void*										Colorize(const wchar_t* input, vint length);
 		};
 
 		/// <summary>Lexical analyzer.</summary>
