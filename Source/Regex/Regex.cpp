@@ -789,16 +789,20 @@ RegexLexerColorizer
 
 				index++;
 			}
+
 			if (start < length)
 			{
-				if (finalState)
+				RegexProcessingToken processingToken(start, length - start, (finalState ? token : walker.GetRelatedToken(currentState)), false, interTokenState);
+				if (proc.extendProc)
 				{
-					proc.colorizeProc(proc.argument, start, length - start, token);
+					proc.extendProc(proc.argument, input, length, false, processingToken);
+					if (processingToken.completeToken)
+					{
+						currentState = -1;
+					}
 				}
-				else
-				{
-					proc.colorizeProc(proc.argument, start, length - start, walker.GetRelatedToken(currentState));
-				}
+				proc.colorizeProc(proc.argument, start, processingToken.length, processingToken.token);
+				return processingToken.interTokenState;
 			}
 			return nullptr;
 		}

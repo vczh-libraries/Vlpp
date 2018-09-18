@@ -239,13 +239,13 @@ Tokenizer
 		{
 			/// <summary>The read only start position of the token.</summary>
 			const vint									start;
-			/// <summary>The length of the token, could be modified after the callback.</summary>
+			/// <summary>The length of the token, could be modified after the callback. When the callback returns, the length is not allowed to be decreased.</summary>
 			vint										length;
 			/// <summary>The id of the token, could be modified after the callback.</summary>
 			vint										token;
 			/// <summary>The flag indicating if this token is completed, could be modified after the callback.</summary>
 			bool										completeToken;
-			/// <summary>The inter token state object, could be modified after the callback.</summary>
+			/// <summary>The inter token state object, could be modified after the callback. When the callback returns, this value can only be non-null if a token does not end at the end of the input.</summary>
 			void*										interTokenState;
 
 			RegexProcessingToken(vint _start, vint _length, vint _token, bool _completeToken, void* _interTokenState)
@@ -271,9 +271,9 @@ Tokenizer
 			RegexInterTokenStateDeleter					deleter = nullptr;
 			/// <summary>
 			/// The token extend callback. It is called after recognizing any token, and run a customized procedure to modify the token based on the given context.
-			/// If the length parameter is -1, it means the caller doesn't measure the incoming text buffer, which automatically indicates that the buffer is null-terminated.
-			/// If the length parameter is not -1, it indicates the number of available characters in the buffer.
-			/// The completeText parameter could be true or false. When it is false, it means that the buffer doesn't contain all the text.
+			/// If the length parameter is -1, it means the caller does not measure the incoming text buffer, which automatically indicates that the buffer is null-terminated.
+			/// If the length parameter is not -1, it means the number of available characters in the buffer.
+			/// The completeText parameter could be true or false. When it is false, it means that the buffer does not contain all the text.
 			/// </summary>
 			RegexTokenExtendProc						extendProc = nullptr;
 			/// <summary>
