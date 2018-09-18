@@ -1624,13 +1624,13 @@ void ColorizerProc(void* argument, vint start, vint length, vint token)
 }
 
 template<int Size, int Length>
-void* AssertColorizer(vint(&actual)[Size], vint(&expect)[Length], RegexLexerColorizer& colorizer, const wchar_t(&input)[Length + 1], bool firstLine, void* interStateObject)
+void* AssertColorizer(vint(&actual)[Size], vint(&expect)[Length], RegexLexerColorizer& colorizer, const wchar_t(&input)[Length + 1], bool firstLine)
 {
 	for (vint i = 0; i < Size; i++)
 	{
 		actual[i] = -2;
 	}
-	auto newStateObject = colorizer.Colorize(input, Length, interStateObject);
+	auto newStateObject = colorizer.Colorize(input, Length);
 	for (vint i = 0; i < Length; i++)
 	{
 		TEST_ASSERT(actual[i] == expect[i]);
@@ -1645,12 +1645,6 @@ TEST_CASE(TestRegexLexerColorizer1)
 	codes.Add(L"[a-zA-Z_]/w*");
 	codes.Add(L"\"[^\"]*\"");
 
-	const wchar_t line1[] = L" genius 10..10.10   \"a";
-	vint color1[] = { -1, 1, 1, 1, 1, 1, 1, -1, 0, 0, -1, -1, 0, 0, 0, 0, 0, -1, -1, -1, 2, 2 };
-
-	const wchar_t line2[] = L"b\"\"genius\"";
-	vint color2[] = { 2, 2, 2, 2, 2, 2, 2, 2, 2, 2 };
-
 	vint colors[100];
 	RegexProc proc;
 	proc.colorizeProc = &ColorizerProc;
@@ -1658,10 +1652,18 @@ TEST_CASE(TestRegexLexerColorizer1)
 	RegexLexer lexer(codes, proc);
 	RegexLexerColorizer colorizer = lexer.Colorize();
 
-	TEST_ASSERT(AssertColorizer(colors, color1, colorizer, line1, true, nullptr) == nullptr);
+	{
+		const wchar_t input[] = L" genius 10..10.10   \"a";
+		vint expect[] = { -1, 1, 1, 1, 1, 1, 1, -1, 0, 0, -1, -1, 0, 0, 0, 0, 0, -1, -1, -1, 2, 2 };
+		TEST_ASSERT(AssertColorizer(colors, expect, colorizer, input, true) == nullptr);
+	}
 	colorizer.Pass(L'\r');
 	colorizer.Pass(L'\n');
-	TEST_ASSERT(AssertColorizer(colors, color2, colorizer, line2, false, nullptr) == nullptr);
+	{
+		const wchar_t input[] = L"b\"\"genius\"";
+		vint expect[] = { 2, 2, 2, 2, 2, 2, 2, 2, 2, 2 };
+		TEST_ASSERT(AssertColorizer(colors, expect, colorizer, input, true) == nullptr);
+	}
 }
 
 TEST_CASE(TestRegexLexerColorizer2)
@@ -1671,29 +1673,7 @@ TEST_CASE(TestRegexLexerColorizer2)
 	codes.Add(L"\"[^\"]*\"");
 	codes.Add(L"/$\"=*/(");
 
-	LR"test_input(123 456
-"simple text"
-123$"===(+
-abcde
--)==="456$"===()test_input";
-
-	const wchar_t line1[] = L"123 456";
-	vint color1[] = { 0,0,0,-1,0,0,0 };
-
-	const wchar_t line2[] = L"\"simple text\"";
-	vint color2[] = { 1,1,1,1,1,1,1,1,1,1,1,1,1 };
-
-	const wchar_t line3[] = L"123$\"===(+";
-	vint color3[] = { 0,0,0,2,2,2,2,2,2,2, };
-
-	const wchar_t line4[] = L"abcde";
-	vint color4[] = { 2,2,2,2,2 };
-
-	const wchar_t line5[] = L"-)===\"456$\"===(";
-	vint color5[] = { 2,2,2,2,2,2,0,0,0,-1,-1,-1,-1,-1,-1 };
-
 	vint colors[100];
-
 	RegexProc proc;
 	proc.deleter = &TestRegexLexer6Deleter;
 	proc.extendProc = &TestRegexLexer6ExtendProc;
@@ -1702,22 +1682,51 @@ abcde
 	RegexLexer lexer(codes, proc);
 	RegexLexerColorizer colorizer = lexer.Colorize();
 
-	TEST_ASSERT(AssertColorizer(colors, color1, colorizer, line1, true, nullptr) == nullptr);
+	void* lastInterTokenState = nullptr;
+	{
+		const wchar_t input[] = L"123 456";
+		vint expect[] = { 0,0,0,-1,0,0,0 };
+		auto state = AssertColorizer(colors, expect, colorizer, input, true);
+		TEST_ASSERT(state == nullptr);
+		lastInterTokenState = state;
+	}
 	colorizer.Pass(L'\r');
 	colorizer.Pass(L'\n');
-	TEST_ASSERT(AssertColorizer(colors, color2, colorizer, line2, false, nullptr) == nullptr);
+	{
+		const wchar_t input[] = L"\"simple text\"";
+		vint expect[] = { 1,1,1,1,1,1,1,1,1,1,1,1,1 };
+		auto state = AssertColorizer(colors, expect, colorizer, input, true);
+		TEST_ASSERT(state == nullptr);
+		lastInterTokenState = state;
+	}
 	colorizer.Pass(L'\r');
 	colorizer.Pass(L'\n');
-	auto stateObject = AssertColorizer(colors, color3, colorizer, line3, false, nullptr);
-	TEST_ASSERT(stateObject);
+	{
+		const wchar_t input[] = L"123$\"===(+";
+		vint expect[] = { 0,0,0,2,2,2,2,2,2,2, };
+		auto state = AssertColorizer(colors, expect, colorizer, input, true);
+		TEST_ASSERT(state != nullptr);
+		lastInterTokenState = state;
+	}
 	colorizer.Pass(L'\r');
 	colorizer.Pass(L'\n');
-	TEST_ASSERT(AssertColorizer(colors, color4, colorizer, line4, false, stateObject) == stateObject);
+	{
+		const wchar_t input[] = L"abcde";
+		vint expect[] = { 2,2,2,2,2 };
+		auto state = AssertColorizer(colors, expect, colorizer, input, true);
+		TEST_ASSERT(state == lastInterTokenState);
+		lastInterTokenState = state;
+	}
 	colorizer.Pass(L'\r');
 	colorizer.Pass(L'\n');
-	TEST_ASSERT(AssertColorizer(colors, color5, colorizer, line5, false, stateObject) == nullptr);
-
-	proc.deleter(stateObject);
+	{
+		const wchar_t input[] = L"-)===\"456$\"===(";
+		vint expect[] = { 2,2,2,2,2,2,0,0,0,-1,-1,-1,-1,-1,-1 };
+		auto state = AssertColorizer(colors, expect, colorizer, input, true);
+		TEST_ASSERT(state == nullptr);
+		proc.deleter(lastInterTokenState);
+		lastInterTokenState = state;
+	}
 }
 
 #undef WALK
