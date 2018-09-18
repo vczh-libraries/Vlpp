@@ -1467,6 +1467,10 @@ void TestRegexLexer6Validation(List<RegexToken>& tokens)
 	TEST_ASSERT(tokens[9].completeToken == false);
 }
 
+void TestRegexLexer6Deleter(void* interStateDeleter)
+{
+}
+
 void TestRegexLexer6ExtendProc(void* argument, const wchar_t* reading, RegexProcessingToken& processingToken)
 {
 	if (processingToken.token == 2)
@@ -1494,6 +1498,7 @@ TEST_CASE(TestRegexLexer6)
 	codes.Add(L"/$\"=*/(");
 
 	RegexProc proc;
+	proc.deleter = &TestRegexLexer6Deleter;
 	proc.extendProc = &TestRegexLexer6ExtendProc;
 	RegexLexer lexer(codes, proc);
 
@@ -1665,6 +1670,7 @@ abcde
 	vint colors[100];
 
 	RegexProc proc;
+	proc.deleter = &TestRegexLexer6Deleter;
 	proc.extendProc = &TestRegexLexer6ExtendProc;
 	proc.colorizeProc = &ColorizerProc;
 	proc.argument = colors;

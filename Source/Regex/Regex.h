@@ -240,21 +240,25 @@ Tokenizer
 			vint										length;
 			vint										token;
 			bool										completeToken;
+			void*										interTokenState;
 
-			RegexProcessingToken(vint _start, vint _length, vint _token, bool _completeToken)
+			RegexProcessingToken(vint _start, vint _length, vint _token, bool _completeToken, void* _interTokenState)
 				:start(_start)
 				, length(_length)
 				, token(_token)
 				, completeToken(_completeToken)
+				, interTokenState(_interTokenState)
 			{
 			}
 		};
 
+		using RegexInterTokenStateDeleter = void(*)(void* interTokenState);
 		using RegexTokenExtendProc = void(*)(void* argument, const wchar_t* reading, RegexProcessingToken& processingToken);
 		using RegexTokenColorizeProc =  void(*)(void* argument, vint start, vint length, vint token);
 
 		struct RegexProc
 		{
+			RegexInterTokenStateDeleter					deleter = nullptr;
 			RegexTokenExtendProc						extendProc = nullptr;
 			RegexTokenColorizeProc						colorizeProc = nullptr;
 			void*										argument = nullptr;
