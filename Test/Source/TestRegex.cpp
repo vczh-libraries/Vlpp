@@ -1686,8 +1686,8 @@ TEST_CASE(TestRegexLexerColorizer2)
 
 	void* lastInterTokenState = nullptr;
 	{
-		const wchar_t input[] = L"123 456";
-		vint expect[] = { 0,0,0,-1,0,0,0 };
+		const wchar_t input[] = L"123$\"==()==)==\"456";
+		vint expect[] = { 0,0,0,2,2,2,2,2,2,2,2,2,2,2,2,0,0,0 };
 		auto state = AssertColorizer(colors, expect, colorizer, input, true);
 		TEST_ASSERT(state == nullptr);
 		lastInterTokenState = state;
