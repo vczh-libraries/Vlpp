@@ -705,6 +705,7 @@ RegexLexerColorizer
 			:walker(_walker)
 			, proc(_proc)
 		{
+			internalState.currentState = walker.GetStartState();
 		}
 
 		RegexLexerColorizer::RegexLexerColorizer(const RegexLexerColorizer& colorizer)
@@ -765,7 +766,7 @@ RegexLexerColorizer
 			if ((internalState.interTokenState = token.interTokenState))
 			{
 				internalState.interTokenId = token.token;
-				internalState.currentState = -1;
+				internalState.currentState = walker.GetStartState();
 			}
 			if (colorize)
 			{
@@ -825,14 +826,23 @@ RegexLexerColorizer
 						CallExtendProcAndColorizeProc(input, length, token, colorize);
 						return length;
 					}
+					else if (i == start)
+					{
+						internalState.currentState = walker.GetStartState();
+						if (colorize)
+						{
+							proc.colorizeProc(proc.argument, start, 1, -1);
+						}
+						return i + 1;
+					}
 					else
 					{
-						internalState.currentState = -1;
+						internalState.currentState = walker.GetStartState();
 						if (colorize)
 						{
 							proc.colorizeProc(proc.argument, start, lastFinalStateLength, lastFinalStateToken);
 						}
-						return i;
+						return start + lastFinalStateLength;
 					}
 				}
 
