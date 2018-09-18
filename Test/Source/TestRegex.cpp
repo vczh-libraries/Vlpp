@@ -1482,7 +1482,7 @@ void TestRegexLexer6ExtendProc(void* argument, const wchar_t* reading, vint leng
 	// in this unit test the given string should be null-terminated
 	TEST_ASSERT(length == -1 || reading[length] == 0);
 
-	if (processingToken.token == 2)
+	if (processingToken.token == 2 || processingToken.token == 3)
 	{
 		WString postfix;
 		if (processingToken.interTokenState)

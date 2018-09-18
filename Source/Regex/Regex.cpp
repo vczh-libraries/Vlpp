@@ -820,11 +820,11 @@ RegexLexerColorizer
 
 				if (previousTokenStop)
 				{
-					if (proc.extendProc && currentToken != -1)
+					if (proc.extendProc && lastFinalStateToken != -1)
 					{
 						RegexProcessingToken token(start, lastFinalStateLength, lastFinalStateToken, true, nullptr);
 						CallExtendProcAndColorizeProc(input, length, token, colorize);
-						return length;
+						return token.length;
 					}
 					else if (i == start)
 					{
