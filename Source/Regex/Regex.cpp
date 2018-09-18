@@ -727,7 +727,7 @@ RegexLexerColorizer
 
 		void RegexLexerColorizer::Pass(wchar_t input)
 		{
-			currentState = walker.Walk(input, currentState);
+			WalkOneToken(&input, 1, 0, false);
 		}
 
 		vint RegexLexerColorizer::GetStartState()const
@@ -743,6 +743,87 @@ RegexLexerColorizer
 		void* RegexLexerColorizer::GetCurrentInterTokenState()const
 		{
 			return interTokenState;
+		}
+
+		void RegexLexerColorizer::CallExtendProcAndColorizeProc(const wchar_t* input, vint length, RegexProcessingToken& token, bool colorize)
+		{
+			vint oldTokenLength = token.length;
+			proc.extendProc(proc.argument, input + token.start, length - token.start, false, token);
+			bool pausedAtTheEnd = token.start + token.length == length && !token.completeToken;
+#if _DEBUG
+			CHECK_ERROR(
+				oldTokenLength <= token.length,
+				L"RegexLexerColorizer::WalkOneToken(const wchar_t*, vint, vint, bool)#The extendProc is not allowed to decrease the token length."
+			);
+			CHECK_ERROR(
+				(token.interTokenState == nullptr) == (token.token != -1 && !pausedAtTheEnd),
+				L"RegexLexerColorizer::Colorize(const wchar_t*, vint, void*)#The extendProc should return an inter token state object if and only if a valid token does not end at the end of the input."
+			);
+#endif
+			if ((interTokenState = token.interTokenState))
+			{
+				currentState = -1;
+			}
+			if (colorize)
+			{
+				proc.colorizeProc(proc.argument, token.start, token.length, token.token);
+			}
+		}
+
+		vint RegexLexerColorizer::WalkOneToken(const wchar_t* input, vint length, vint start, bool colorize)
+		{
+			vint lastFinalStateLength = 0;
+			vint lastFinalStateToken = -1;
+
+			for (vint i = start; i < length; i++)
+			{
+				vint currentToken = -1;
+				bool finalState = false;
+				bool previousTokenStop = false;
+				walker.Walk(input[i], currentState, currentToken, finalState, previousTokenStop);
+
+				if (previousTokenStop)
+				{
+					if (proc.extendProc && currentToken != -1)
+					{
+						RegexProcessingToken token(start, lastFinalStateLength, lastFinalStateToken, true, nullptr);
+						CallExtendProcAndColorizeProc(input, length, token, colorize);
+						return length;
+					}
+					else
+					{
+						currentState = -1;
+						if (colorize)
+						{
+							proc.colorizeProc(proc.argument, start, lastFinalStateLength, lastFinalStateToken);
+						}
+						return i;
+					}
+				}
+
+				if (finalState)
+				{
+					lastFinalStateLength = i + 1 - start;
+					lastFinalStateToken = currentToken;
+				}
+			}
+
+			if (lastFinalStateToken != -1)
+			{
+				if (proc.extendProc)
+				{
+					RegexProcessingToken token(start, lastFinalStateLength, lastFinalStateToken, true, nullptr);
+					CallExtendProcAndColorizeProc(input, length, token, colorize);
+				}
+				else
+				{
+					if (colorize)
+					{
+						proc.colorizeProc(proc.argument, start, lastFinalStateLength, lastFinalStateToken);
+					}
+				}
+				return length;
+			}
 		}
 
 		void* RegexLexerColorizer::Colorize(const wchar_t* input, vint length)
@@ -793,10 +874,8 @@ RegexLexerColorizer
 							proc.colorizeProc(proc.argument, start, processingToken.length, processingToken.token);
 							return interTokenState;
 						}
-						else
-						{
-							token = processingToken.token;
-						}
+						
+						token = processingToken.token;
 					}
 
 					if (tokenLength > 0)

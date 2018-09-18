@@ -380,6 +380,9 @@ Tokenizer
 			vint										currentState;
 			void*										interTokenState = nullptr;
 
+			void										CallExtendProcAndColorizeProc(const wchar_t* input, vint length, RegexProcessingToken& token, bool colorize);
+			vint										WalkOneToken(const wchar_t* input, vint length, vint start, bool colorize);
+
 			RegexLexerColorizer(const RegexLexerWalker& _walker, RegexProc _proc);
 		public:
 			RegexLexerColorizer(const RegexLexerColorizer& colorizer);
