@@ -1703,7 +1703,7 @@ TEST_CASE(TestRegexLexerColorizer2)
 	colorizer.Pass(L'\n');
 	{
 		const wchar_t input[] = L"123$\"===(+";
-		vint expect[] = { 0,0,0,2,2,2,2,2,2,2, };
+		vint expect[] = { 0,0,0,3,3,3,3,3,3,3 };
 		auto state = AssertColorizer(colors, expect, colorizer, input, true);
 		TEST_ASSERT(state != nullptr);
 		lastInterTokenState = state;
@@ -1712,7 +1712,7 @@ TEST_CASE(TestRegexLexerColorizer2)
 	colorizer.Pass(L'\n');
 	{
 		const wchar_t input[] = L"abcde";
-		vint expect[] = { 2,2,2,2,2 };
+		vint expect[] = { 3,3,3,3,3 };
 		auto state = AssertColorizer(colors, expect, colorizer, input, true);
 		TEST_ASSERT(state == lastInterTokenState);
 		lastInterTokenState = state;
@@ -1721,7 +1721,7 @@ TEST_CASE(TestRegexLexerColorizer2)
 	colorizer.Pass(L'\n');
 	{
 		const wchar_t input[] = L"-)===\"456$\"===(";
-		vint expect[] = { 2,2,2,2,2,2,0,0,0,-1,-1,-1,-1,-1,-1 };
+		vint expect[] = { 3,3,3,3,3,3,0,0,0,-1,-1,-1,-1,-1,-1 };
 		auto state = AssertColorizer(colors, expect, colorizer, input, true);
 		TEST_ASSERT(state == nullptr);
 		proc.deleter(lastInterTokenState);

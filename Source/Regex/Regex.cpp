@@ -820,15 +820,15 @@ RegexLexerColorizer
 
 				if (previousTokenStop)
 				{
+					internalState.currentState = walker.GetStartState();
 					if (proc.extendProc && lastFinalStateToken != -1)
 					{
 						RegexProcessingToken token(start, lastFinalStateLength, lastFinalStateToken, true, nullptr);
 						CallExtendProcAndColorizeProc(input, length, token, colorize);
-						return token.length;
+						return start + token.length;
 					}
 					else if (i == start)
 					{
-						internalState.currentState = walker.GetStartState();
 						if (colorize)
 						{
 							proc.colorizeProc(proc.argument, start, 1, -1);
@@ -837,7 +837,6 @@ RegexLexerColorizer
 					}
 					else
 					{
-						internalState.currentState = walker.GetStartState();
 						if (colorize)
 						{
 							proc.colorizeProc(proc.argument, start, lastFinalStateLength, lastFinalStateToken);
