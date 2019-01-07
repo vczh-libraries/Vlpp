@@ -38,6 +38,10 @@ Macros:
 #endif
 #endif
 
+#if defined VCZH_CLANG_AST_DUMP
+#define abstract
+#endif
+
 #if defined VCZH_MSVC
 #include <intrin.h>
 #elif defined VCZH_GCC
