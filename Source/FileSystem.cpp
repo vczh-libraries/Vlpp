@@ -74,6 +74,18 @@ FilePath
 					{
 						throw ArgumentException(L"The path is illegal.", L"vl::filesystem::FilePath::FilePath", L"_filePath");
 					}
+
+					{
+						wchar_t shortPath[MAX_PATH + 1];
+						wchar_t longPath[MAX_PATH + 1];
+						if (GetShortPathName(buffer, shortPath, MAX_PATH) > 0)
+						{
+							if (GetLongPathName(shortPath, longPath, MAX_PATH) > 0)
+							{
+								memcpy(buffer, longPath, sizeof(buffer));
+							}
+						}
+					}
 					fullPath = buffer;
 				}
 			}
@@ -141,7 +153,6 @@ FilePath
 		FilePath::FilePath(const FilePath& _filePath)
 			:fullPath(_filePath.fullPath)
 		{
-			Initialize();
 		}
 
 		FilePath::~FilePath()

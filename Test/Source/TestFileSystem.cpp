@@ -76,8 +76,8 @@ TEST_CASE(TestFilePath)
 		TEST_ASSERT(p.IsFile() == true);
 		TEST_ASSERT(p.IsFolder() == false);
 		TEST_ASSERT(p.IsRoot() == false);
-		TEST_ASSERT(p.GetFullPath() == L"C:\\Windows\\Explorer.exe");
-		TEST_ASSERT(p.GetName() == L"Explorer.exe");
+		TEST_ASSERT(p.GetFullPath() == L"C:\\Windows\\explorer.exe");
+		TEST_ASSERT(p.GetName() == L"explorer.exe");
 		TEST_ASSERT(p.GetFolder().GetFullPath() == L"C:\\Windows");
 	}
 	{
@@ -90,24 +90,24 @@ TEST_CASE(TestFilePath)
 	{
 		FilePath p = L"C:\\Windows";
 		auto q = p / L"Explorer.exe";
-		TEST_ASSERT(q.GetFullPath() == L"C:\\Windows\\Explorer.exe");
+		TEST_ASSERT(q.GetFullPath() == L"C:\\Windows\\explorer.exe");
 	}
 	{
 		FilePath p = L"C:\\Program Files";
 		auto q = p / L"..\\Windows\\.\\Explorer.exe";
-		TEST_ASSERT(q.GetFullPath() == L"C:\\Windows\\Explorer.exe");
+		TEST_ASSERT(q.GetFullPath() == L"C:\\Windows\\explorer.exe");
 	}
 	{
 		FilePath p = L"C:\\Program Files";
 		FilePath q = L"C:\\Windows\\Explorer.exe";
 		auto r = p.GetRelativePathFor(q);
-		TEST_ASSERT(r == L"..\\Windows\\Explorer.exe");
+		TEST_ASSERT(r == L"..\\Windows\\explorer.exe");
 	}
 	{
 		FilePath p = L"C:\\Program Files\\vczh.txt";
 		FilePath q = L"C:\\Windows\\Explorer.exe";
 		auto r = p.GetRelativePathFor(q);
-		TEST_ASSERT(r == L"..\\Windows\\Explorer.exe");
+		TEST_ASSERT(r == L"..\\Windows\\explorer.exe");
 	}
 	{
 		FilePath p = L"C:\\Program Files\\vczh.txt";
