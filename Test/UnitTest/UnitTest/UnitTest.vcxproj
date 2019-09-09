@@ -339,11 +339,6 @@
     <ClCompile Include="Main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\..\Source\Common.fpm" />
-    <None Include="..\..\..\Source\GenerateCode.bat" />
-    <None Include="..\..\..\Source\Tuple.h.fpm" />
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="..\..\..\Source\Basic.h" />
     <ClInclude Include="..\..\..\Source\Collections\Dictionary.h" />
     <ClInclude Include="..\..\..\Source\Collections\Interfaces.h" />

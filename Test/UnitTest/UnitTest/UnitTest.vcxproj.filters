@@ -16,9 +16,6 @@
     <Filter Include="Common">
       <UniqueIdentifier>{a0063a3f-fb90-4cc0-8369-26646e7eadf7}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Common\_Codegen">
-      <UniqueIdentifier>{85ef3193-9479-4c8b-98ee-d1524a7c686a}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Common\Collections">
       <UniqueIdentifier>{7abfcf20-99a0-4db8-8a83-6e00c3e5ba40}</UniqueIdentifier>
     </Filter>
@@ -255,17 +252,6 @@
     <ClCompile Include="..\..\Source\TestPartialOrdering.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\..\Source\Common.fpm">
-      <Filter>Common\_Codegen</Filter>
-    </None>
-    <None Include="..\..\..\Source\GenerateCode.bat">
-      <Filter>Common\_Codegen</Filter>
-    </None>
-    <None Include="..\..\..\Source\Tuple.h.fpm">
-      <Filter>Common\_Codegen</Filter>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\Source\Basic.h">
