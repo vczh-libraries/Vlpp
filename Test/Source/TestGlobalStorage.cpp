@@ -14,9 +14,12 @@ BEGIN_GLOBAL_STORAGE_CLASS(MyGlobalStorage)
 
 END_GLOBAL_STORAGE_CLASS(MyGlobalStorage)
 
-TEST_CASE(TestGlobalStorage)
+TEST_FILE
 {
-	TEST_ASSERT(*GetMyGlobalStorage().resource.Obj()==100);
-	TEST_ASSERT(GetMyGlobalStorage().Cleared()==false);
-	TEST_ASSERT(&GetMyGlobalStorage()==dynamic_cast<MyGlobalStorage*>(GetGlobalStorage(L"MyGlobalStorage")));
+	TEST_CASE(L"Test GlobalStorage")
+	{
+		TEST_ASSERT(*GetMyGlobalStorage().resource.Obj()==100);
+		TEST_ASSERT(GetMyGlobalStorage().Cleared()==false);
+		TEST_ASSERT(&GetMyGlobalStorage()==dynamic_cast<MyGlobalStorage*>(GetGlobalStorage(L"MyGlobalStorage")));
+	});
 }

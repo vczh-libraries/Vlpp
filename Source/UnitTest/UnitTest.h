@@ -9,21 +9,23 @@ UI::Console
 #define VCZH_UNITTEST
 
 #include "../String.h"
-
-class UnitTestError
-{
-};
+#include "../Function.h"
 
 namespace vl
 {
 	namespace unittest
 	{
+		using UnitTestFileProc = void(*)(const char*);
+
 		/// <summary><![CDATA[
 		/// A static class containing all unit test operations.
 		/// 1) Writing test cases:
-		///   TEST_CATEGORY(L"Category Description"){ ... }
-		///   TEST_CASE(L"Test Case Description"){ ... }
-		///   Both category or case could appear at the root level, a category could contains other categories and cases, but a case should only contain assertions.
+		///   TEST_FILE
+		///   {
+		///     TEST_CATEGORY(L"Category Description"){ ... });
+		///     TEST_CASE(L"Test Case Description"){ ... });
+		///   }
+		///   A category could contains other categories and cases, but a case should only contain assertions.
 		/// 2) Writing asserts:
 		///   TEST_CASE_ASSERT(condition): An assertion that is also a test case, only legal to call inside a category, with a description equivalents to the condition.
 		///   TEST_ASSERT(condition); Only legal to call inside a case. It passes when condition evaluates to true.
@@ -39,10 +41,10 @@ namespace vl
 		///     In Windows, it becomes "/D" only when a debugger is attached, in other cases it becomes "/R".
 		///     In other platforms, it becomes "/R"
 		/// ]]></summary>
-		class UnitTest abstract
+		class UnitTest
 		{
 		public:
-			typedef void(*TestProc)();
+			UnitTest() = delete;
 
 			/// <summary>Print a green message.</summary>
 			/// <param name="string">The content.</param>
@@ -56,36 +58,57 @@ namespace vl
 			/// <param name="string">The content.</param>
 			static void PrintError(const WString& string);
 
-			static void PushTest(TestProc testProc);
-
 			/// <summary>Run all test cases.</summary>
-			static void RunAndDisposeTests();
+			static int RunAndDisposeTests(int argc, wchar_t* argv[]);
+
+			static void RegisterTestFile(const char* fileName, UnitTestFileProc testProc);
+			static void RunCategory(const WString& description, Func<void()>&& callback);
+			static void RunCase(const WString& description, Func<void()>&& callback);
+			static void UseArgument(const char*) {}
 		};
 
-#define TEST_CHECK_ERROR(CONDITION,DESCRIPTION) do{if(!(CONDITION))throw Error(DESCRIPTION);}while(0)
-#define TEST_ASSERT(CONDITION) do{TEST_CHECK_ERROR(CONDITION,L"");}while(0)
-#define TEST_ERROR(CONDITION) do{try{CONDITION;throw UnitTestError();}catch(const Error&){}catch(const UnitTestError&){TEST_CHECK_ERROR(false,L"");}}while(0)
-#define TEST_CASE(NAME)\
-		extern void TESTCASE_##NAME();														\
-		namespace vl_unittest_executors														\
-		{																					\
-			class TESTCASE_RUNNER_##NAME													\
-			{																				\
-			public:																			\
-				static void RunUnitTest()													\
-				{																			\
-					vl::unittest::UnitTest::PrintMessage(L_(#NAME));						\
-					TESTCASE_##NAME();														\
-				}																			\
-				TESTCASE_RUNNER_##NAME()													\
-				{																			\
-					vl::unittest::UnitTest::PushTest(&TESTCASE_RUNNER_##NAME::RunUnitTest);	\
-				}																			\
-			} TESTCASE_RUNNER_##NAME##_INSTANCE;											\
-		}																					\
-		void TESTCASE_##NAME()
-#define TEST_PRINT(x) vl::unittest::UnitTest::PrintInfo(x)
-#define TEST_EXCEPTION(STATEMENT,EXCEPTION,ASSERT_FUNCTION) try{STATEMENT; TEST_ASSERT(false);}catch(const EXCEPTION& e){ASSERT_FUNCTION(e);}
+		class UnitTestFile
+		{
+		public:
+			UnitTestFile(const char* fileName, UnitTestFileProc testProc)
+			{
+				UnitTest::RegisterTestFile(fileName, testProc);
+			}
+		};
+
+		class UnitTestAssertError {};
+		class UnitTestConfigError {};
+
+#define TEST_FILE\
+		extern void VLPPTEST_TESTFILE(const char* VLPPTEST_TESTFILE_ARGUMENT);\
+		::vl::unittest::UnitTestFile VLPPTEST_TESTFILE_INSTANCE(__FILE__, &VLPPTEST_TESTFILE);\
+		void VLPPTEST_TESTFILE(const char* VLPPTEST_TESTFILE_ARGUMENT)\
+
+#define TEST_CATEGORY(DESCRIPTION)\
+		::vl::unittest::UnitTest::RunCategory((::vl::unittest::UnitTest::UseArgument(VLPPTEST_TESTFILE_ARGUMENT), (DESCRIPTION)), [&]()\
+
+#define TEST_CASE(DESCRIPTION)\
+		::vl::unittest::UnitTest::RunCategory((::vl::unittest::UnitTest::UseArgument(VLPPTEST_TESTFILE_ARGUMENT), (DESCRIPTION)), [&]()\
+
+#define TEST_ASSERT(CONDITION)\
+		do{if(!(CONDITION))throw ::vl::unittest::UnitTestAssertError();}while(0)\
+
+#define TEST_ERROR(CONDITION)\
+		do{\
+			try{CONDITION;throw ::vl::unittest::UnitTestAssertError();}\
+			catch(const Error&){}\
+			catch(const ::vl::unittest::UnitTestAssertError&) { throw; }\
+			catch (const ::vl::unittest::UnitTestConfigError&) { throw; }\
+		}while(0)\
+
+
+#define TEST_EXCEPTION(STATEMENT,EXCEPTION,ASSERT_FUNCTION)\
+		try{STATEMENT; TEST_ASSERT(false);}\
+		catch(const EXCEPTION& e){ASSERT_FUNCTION(e);}\
+
+#define TEST_PRINT\
+		::vl::unittest::UnitTest::PrintInfo\
+
 	}
 }
 

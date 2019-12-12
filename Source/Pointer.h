@@ -52,19 +52,19 @@ Ptr
 	template<typename T>
 	class Ptr
 	{
-		 template<typename X>
-		 friend class Ptr;
+		template<typename X>
+		friend class Ptr;
 	protected:
-		typedef void		(*Destructor)(volatile vint*, void*);
+		typedef void(*Destructor)(volatile vint*, void*);
 
-		volatile vint*		counter;
-		T*					reference;
-		void*				originalReference;
-		Destructor			originalDestructor;
+		volatile vint*		counter = nullptr;
+		T*					reference = nullptr;
+		void*				originalReference = nullptr;
+		Destructor			originalDestructor = nullptr;
 
 		void Inc()
 		{
-			if(counter)
+			if (counter)
 			{
 				INCRC(counter);
 			}
@@ -72,18 +72,18 @@ Ptr
 
 		void Dec(bool deleteIfZero = true)
 		{
-			if(counter)
+			if (counter)
 			{
-				if(DECRC(counter)==0)
+				if (DECRC(counter) == 0)
 				{
 					if (deleteIfZero)
 					{
 						originalDestructor(counter, originalReference);
 					}
-					counter=nullptr;
-					reference=nullptr;
-					originalReference=nullptr;
-					originalDestructor=nullptr;
+					counter = nullptr;
+					reference = nullptr;
+					originalReference = nullptr;
+					originalDestructor = nullptr;
 				}
 			}
 		}
@@ -95,9 +95,9 @@ Ptr
 
 		Ptr(volatile vint* _counter, T* _reference, void* _originalReference, Destructor _originalDestructor)
 			:counter(_counter)
-			,reference(_reference)
-			,originalReference(_originalReference)
-			,originalDestructor(_originalDestructor)
+			, reference(_reference)
+			, originalReference(_originalReference)
+			, originalDestructor(_originalDestructor)
 		{
 			Inc();
 		}
@@ -105,73 +105,61 @@ Ptr
 
 		/// <summary>Create a null pointer.</summary>
 		Ptr()
-			:counter(0)
-			,reference(0)
-			,originalReference(0)
-			,originalDestructor(0)
 		{
 		}
-		
+
 		/// <summary>Convert a pointer to an object to a smart pointer.</summary>
 		/// <param name="pointer">The pointer to the object.</param>
 		Ptr(T* pointer)
-			:counter(0)
-			,reference(0)
-			,originalReference(0)
-			,originalDestructor(0)
 		{
-			if(pointer)
+			if (pointer)
 			{
-				counter=ReferenceCounterOperator<T>::CreateCounter(pointer);
-				reference=pointer;
-				originalReference=pointer;
-				originalDestructor=&ReferenceCounterOperator<T>::DeleteReference;
+				counter = ReferenceCounterOperator<T>::CreateCounter(pointer);
+				reference = pointer;
+				originalReference = pointer;
+				originalDestructor = &ReferenceCounterOperator<T>::DeleteReference;
 				Inc();
 			}
 		}
-		
+
 		/// <summary>Copy a smart pointer.</summary>
 		/// <param name="pointer">The smart pointer to copy.</param>
 		Ptr(const Ptr<T>& pointer)
 			:counter(pointer.counter)
-			,reference(pointer.reference)
-			,originalReference(pointer.originalReference)
-			,originalDestructor(pointer.originalDestructor)
+			, reference(pointer.reference)
+			, originalReference(pointer.originalReference)
+			, originalDestructor(pointer.originalDestructor)
 		{
 			Inc();
 		}
-		
+
 		/// <summary>Move a smart pointer.</summary>
 		/// <param name="pointer">The smart pointer to Move.</param>
 		Ptr(Ptr<T>&& pointer)
 			:counter(pointer.counter)
-			,reference(pointer.reference)
-			,originalReference(pointer.originalReference)
-			,originalDestructor(pointer.originalDestructor)
+			, reference(pointer.reference)
+			, originalReference(pointer.originalReference)
+			, originalDestructor(pointer.originalDestructor)
 		{
-			pointer.counter=0;
-			pointer.reference=0;
-			pointer.originalReference=0;
-			pointer.originalDestructor=0;
+			pointer.counter = nullptr;
+			pointer.reference = nullptr;
+			pointer.originalReference = nullptr;
+			pointer.originalDestructor = nullptr;
 		}
-		
+
 		/// <summary>Cast a smart pointer.</summary>
 		/// <typeparam name="C">The type of the object before casting.</typeparam>
 		/// <param name="pointer">The smart pointer to cast.</param>
-		template<typename C>
+		template<typename C, typename = decltype(static_case<T*>((C*)nullptr))>
 		Ptr(const Ptr<C>& pointer)
-			:counter(0)
-			,reference(0)
-			,originalReference(0)
-			,originalDestructor(0)
 		{
-			T* converted=pointer.Obj();
-			if(converted)
+			T* converted = pointer.Obj();
+			if (converted)
 			{
-				counter=pointer.Counter();
-				reference=converted;
-				originalReference=pointer.originalReference;
-				originalDestructor=pointer.originalDestructor;
+				counter = pointer.Counter();
+				reference = converted;
+				originalReference = pointer.originalReference;
+				originalDestructor = pointer.originalDestructor;
 				Inc();
 			}
 		}
@@ -180,7 +168,7 @@ Ptr
 		{
 			Dec();
 		}
-		
+
 		/// <summary>Detach the contained object from this smart pointer.</summary>
 		/// <returns>The detached object. Returns null if this smart pointer is empty.</returns>
 		T* Detach()
@@ -189,171 +177,171 @@ Ptr
 			Dec(false);
 			return detached;
 		}
-		
+
 		/// <summary>Cast a smart pointer.</summary>
 		/// <typeparam name="C">The type of the object after casting.</typeparam>
 		/// <returns>The casted smart pointer. Returns null if failed.</returns>
 		template<typename C>
 		Ptr<C> Cast()const
 		{
-			C* converted=dynamic_cast<C*>(reference);
-			return Ptr<C>((converted?counter:0), converted, originalReference, originalDestructor);
+			C* converted = dynamic_cast<C*>(reference);
+			return Ptr<C>((converted ? counter : 0), converted, originalReference, originalDestructor);
 		}
-		
+
 		/// <summary>Convert a pointer to an object to a smart pointer.</summary>
 		/// <returns>The converted smart pointer.</returns>
 		/// <param name="pointer">The pointer to the object.</param>
 		Ptr<T>& operator=(T* pointer)
 		{
 			Dec();
-			if(pointer)
+			if (pointer)
 			{
-				counter=ReferenceCounterOperator<T>::CreateCounter(pointer);
-				reference=pointer;
-				originalReference=pointer;
-				originalDestructor=&ReferenceCounterOperator<T>::DeleteReference;
+				counter = ReferenceCounterOperator<T>::CreateCounter(pointer);
+				reference = pointer;
+				originalReference = pointer;
+				originalDestructor = &ReferenceCounterOperator<T>::DeleteReference;
 				Inc();
 			}
 			else
 			{
-				counter=0;
-				reference=0;
-				originalReference=0;
-				originalDestructor=0;
+				counter = 0;
+				reference = 0;
+				originalReference = 0;
+				originalDestructor = 0;
 			}
 			return *this;
 		}
-		
+
 		/// <summary>Copy a smart pointer.</summary>
 		/// <returns>The copied smart pointer.</returns>
 		/// <param name="pointer">The smart pointer to copy.</param>
 		Ptr<T>& operator=(const Ptr<T>& pointer)
 		{
-			if(this!=&pointer)
+			if (this != &pointer)
 			{
 				Dec();
-				counter=pointer.counter;
-				reference=pointer.reference;
-				originalReference=pointer.originalReference;
-				originalDestructor=pointer.originalDestructor;
+				counter = pointer.counter;
+				reference = pointer.reference;
+				originalReference = pointer.originalReference;
+				originalDestructor = pointer.originalDestructor;
 				Inc();
 			}
 			return *this;
 		}
-		
+
 		/// <summary>Move a smart pointer.</summary>
 		/// <returns>The moved smart pointer.</returns>
 		/// <param name="pointer">The smart pointer to Move.</param>
 		Ptr<T>& operator=(Ptr<T>&& pointer)
 		{
-			if(this!=&pointer)
+			if (this != &pointer)
 			{
 				Dec();
-				counter=pointer.counter;
-				reference=pointer.reference;
-				originalReference=pointer.originalReference;
-				originalDestructor=pointer.originalDestructor;
-				
-				pointer.counter=0;
-				pointer.reference=0;
-				pointer.originalReference=0;
-				pointer.originalDestructor=0;
+				counter = pointer.counter;
+				reference = pointer.reference;
+				originalReference = pointer.originalReference;
+				originalDestructor = pointer.originalDestructor;
+
+				pointer.counter = 0;
+				pointer.reference = 0;
+				pointer.originalReference = 0;
+				pointer.originalDestructor = 0;
 			}
 			return *this;
 		}
-		
+
 		/// <summary>Cast a smart pointer.</summary>
 		/// <typeparam name="C">The type of the object before casting.</typeparam>
 		/// <returns>The smart pointer after casting.</returns>
 		/// <param name="pointer">The smart pointer to cast.</param>
-		template<typename C>
+		template<typename C, typename = decltype(static_case<T*>((C*)nullptr))>
 		Ptr<T>& operator=(const Ptr<C>& pointer)
 		{
-			T* converted=pointer.Obj();
+			T* converted = pointer.Obj();
 			Dec();
-			if(converted)
+			if (converted)
 			{
-				counter=pointer.counter;
-				reference=converted;
-				originalReference=pointer.originalReference;
-				originalDestructor=pointer.originalDestructor;
+				counter = pointer.counter;
+				reference = converted;
+				originalReference = pointer.originalReference;
+				originalDestructor = pointer.originalDestructor;
 				Inc();
 			}
 			else
 			{
-				counter=0;
-				reference=0;
-				originalReference=0;
-				originalDestructor=0;
+				counter = 0;
+				reference = 0;
+				originalReference = 0;
+				originalDestructor = 0;
 			}
 			return *this;
 		}
 
 		bool operator==(const T* pointer)const
 		{
-			return reference==pointer;
+			return reference == pointer;
 		}
 
 		bool operator!=(const T* pointer)const
 		{
-			return reference!=pointer;
+			return reference != pointer;
 		}
 
 		bool operator>(const T* pointer)const
 		{
-			return reference>pointer;
+			return reference > pointer;
 		}
 
 		bool operator>=(const T* pointer)const
 		{
-			return reference>=pointer;
+			return reference >= pointer;
 		}
 
 		bool operator<(const T* pointer)const
 		{
-			return reference<pointer;
+			return reference < pointer;
 		}
 
 		bool operator<=(const T* pointer)const
 		{
-			return reference<=pointer;
+			return reference <= pointer;
 		}
 
 		bool operator==(const Ptr<T>& pointer)const
 		{
-			return reference==pointer.reference;
+			return reference == pointer.reference;
 		}
 
 		bool operator!=(const Ptr<T>& pointer)const
 		{
-			return reference!=pointer.reference;
+			return reference != pointer.reference;
 		}
 
 		bool operator>(const Ptr<T>& pointer)const
 		{
-			return reference>pointer.reference;
+			return reference > pointer.reference;
 		}
 
 		bool operator>=(const Ptr<T>& pointer)const
 		{
-			return reference>=pointer.reference;
+			return reference >= pointer.reference;
 		}
 
 		bool operator<(const Ptr<T>& pointer)const
 		{
-			return reference<pointer.reference;
+			return reference < pointer.reference;
 		}
 
 		bool operator<=(const Ptr<T>& pointer)const
 		{
-			return reference<=pointer.reference;
+			return reference <= pointer.reference;
 		}
 
 		/// <summary>Test if it is a null pointer.</summary>
 		/// <returns>Returns true if it is not null.</returns>
 		operator bool()const
 		{
-			return reference!=0;
+			return reference != 0;
 		}
 
 		/// <summary>Get the pointer to the object.</summary>
@@ -362,7 +350,7 @@ Ptr
 		{
 			return reference;
 		}
-		
+
 		/// <summary>Get the pointer to the object.</summary>
 		/// <returns>The pointer to the object.</returns>
 		T* operator->()const

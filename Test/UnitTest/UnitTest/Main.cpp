@@ -5,12 +5,12 @@
 
 using namespace vl;
 
-int wmain(vint argc , wchar_t* args[])
+int wmain(vint argc , wchar_t* argv[])
 {
-	unittest::UnitTest::RunAndDisposeTests();
+	int result = unittest::UnitTest::RunAndDisposeTests(argc, argv);
 	FinalizeGlobalStorage();
 #ifdef VCZH_CHECK_MEMORY_LEAKS
 	_CrtDumpMemoryLeaks();
 #endif
-	return 0;
+	return result;
 }

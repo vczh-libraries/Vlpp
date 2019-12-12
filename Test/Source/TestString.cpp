@@ -1,7 +1,6 @@
 #include <string.h>
 #include "../../Source/UnitTest/UnitTest.h"
 
-
 using namespace vl;
 
 void CheckString(const WString& string, const wchar_t* buffer)

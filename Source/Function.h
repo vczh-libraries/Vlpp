@@ -136,21 +136,28 @@ vl::Func<R(TArgs...)>
 		Func()
 		{
 		}
-		
+
 		/// <summary>Copy a function reference.</summary>
 		/// <param name="function">The function reference to copy.</param>
 		Func(const Func<R(TArgs...)>& function)
+			:invoker(function.invoker)
 		{
-			invoker=function.invoker;
 		}
-		
+
+		/// <summary>Move a function reference.</summary>
+		/// <param name="function">The function reference to move.</param>
+		Func(const Func<R(TArgs...)>&& function)
+			:invoker(MoveValue(function.invoker))
+		{
+		}
+
 		/// <summary>Create a reference using a function pointer.</summary>
 		/// <param name="function">The function pointer.</param>
 		Func(R(*function)(TArgs...))
 		{
-			invoker=new internal_invokers::StaticInvoker<R, TArgs...>(function);
+			invoker = new internal_invokers::StaticInvoker<R, TArgs...>(function);
 		}
-		
+
 		/// <summary>Create a reference using a method.</summary>
 		/// <typeparam name="C">Type of the class that has the method.</typeparam>
 		/// <param name="sender">The object that has the method.</param>
@@ -158,7 +165,7 @@ vl::Func<R(TArgs...)>
 		template<typename C>
 		Func(C* sender, R(C::*function)(TArgs...))
 		{
-			invoker=new internal_invokers::MemberInvoker<C, R, TArgs...>(sender, function);
+			invoker = new internal_invokers::MemberInvoker<C, R, TArgs...>(sender, function);
 		}
 
 		/// <summary>Create a reference using a function object.</summary>
@@ -173,7 +180,7 @@ vl::Func<R(TArgs...)>
 				invoker = new internal_invokers::ObjectInvoker<Func<R2(TArgs2...)>, R, TArgs...>(function);
 			}
 		}
-		
+
 		/// <summary>Create a reference using a function object.</summary>
 		/// <typeparam name="C">Type of the function object.</typeparam>
 		/// <param name="function">The function object. It could be a lambda expression.</param>
@@ -189,6 +196,18 @@ vl::Func<R(TArgs...)>
 		R operator()(TArgs ...args)const
 		{
 			return invoker->Invoke(ForwardValue<TArgs>(args)...);
+		}
+
+		Func<R(TArgs...)>& operator=(const Func<R(TArgs...)>& function)
+		{
+			invoker = function.invoker;
+			return *this;
+		}
+
+		Func<R(TArgs...)>& operator=(const Func<R(TArgs...)>&& function)
+		{
+			invoker = MoveValue(function.invoker);
+			return *this;
 		}
 
 		bool operator==(const Func<R(TArgs...)>& function)const
