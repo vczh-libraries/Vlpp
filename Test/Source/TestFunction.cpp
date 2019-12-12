@@ -294,6 +294,8 @@ TEST_FILE
 	{
 		TEST_ASSERT(Accept((vint(*)(vint))nullptr) == 1);
 		TEST_ASSERT(Accept((double(*)(double))nullptr) == 1);
+		TEST_ASSERT(Accept([](vint x) { return x; }) == 1);
+		TEST_ASSERT(Accept([](double x) { return x; }) == 1);
 	});
 
 	TEST_CASE(L"Test lambda expression with Curry()")

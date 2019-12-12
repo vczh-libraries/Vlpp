@@ -224,7 +224,7 @@ LazyList
 			template<typename U>
 			LazyList<Ptr<U>> FindType()const
 			{
-				return Cast<U>().Where([](T t){return t;});
+				return Cast<U>().Where([](Ptr<U> t){return t;});
 			}
 			
 			/// <summary>Create a new lazy list with all elements sorted.</summary>
