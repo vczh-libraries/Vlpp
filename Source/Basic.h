@@ -320,52 +320,52 @@ Basic Types
 			:object(_object)
 		{
 		}
-		
+
 		/// <summary>Box a movable value.</summary>
 		/// <param name="_object">The value to box.</param>
 		ObjectBox(T&& _object)
 			:object(MoveValue(_object))
 		{
 		}
-		
+
 		/// <summary>Copy a box.</summary>
 		/// <param name="value">The box.</param>
 		ObjectBox(const ObjectBox<T>& value)
 			:object(value.object)
 		{
 		}
-		
+
 		/// <summary>Move a box.</summary>
 		/// <param name="value">The box.</param>
 		ObjectBox(ObjectBox<T>&& value)
 			:object(MoveValue(value.object))
 		{
 		}
-		
+
 		/// <summary>Box a value.</summary>
 		/// <returns>The boxed value.</returns>
 		/// <param name="_object">The value to box.</param>
 		ObjectBox<T>& operator=(const T& _object)
 		{
-			object=_object;
+			object = _object;
 			return *this;
 		}
-		
+
 		/// <summary>Copy a box.</summary>
 		/// <returns>The boxed value.</returns>
 		/// <param name="value">The box.</param>
 		ObjectBox<T>& operator=(const ObjectBox<T>& value)
 		{
-			object=value.object;
+			object = value.object;
 			return *this;
 		}
-		
+
 		/// <summary>Move a box.</summary>
 		/// <returns>The boxed value.</returns>
 		/// <param name="value">The box.</param>
 		ObjectBox<T>& operator=(ObjectBox<T>&& value)
 		{
-			object=MoveValue(value.object);
+			object = MoveValue(value.object);
 			return *this;
 		}
 
@@ -397,7 +397,7 @@ Basic Types
 			:object(new T(value))
 		{
 		}
-		
+
 		/// <summary>Create a non-null value.</summary>
 		/// <param name="value">The value to move.</param>
 		Nullable(T&& value)
@@ -408,75 +408,75 @@ Basic Types
 		/// <summary>Copy a nullable value.</summary>
 		/// <param name="nullable">The nullable value to copy.</param>
 		Nullable(const Nullable<T>& nullable)
-			:object(nullable.object?new T(*nullable.object):0)
+			:object(nullable.object ? new T(*nullable.object) : 0)
 		{
 		}
-		
+
 		/// <summary>Move a nullable value.</summary>
 		/// <param name="nullable">The nullable value to move.</param>
 		Nullable(Nullable<T>&& nullable)
 			:object(nullable.object)
 		{
-			nullable.object=0;
+			nullable.object = 0;
 		}
 
 		~Nullable()
 		{
-			if(object)
+			if (object)
 			{
 				delete object;
-				object=0;
+				object = 0;
 			}
 		}
-		
+
 		/// <summary>Create a non-null value.</summary>
 		/// <returns>The created nullable value.</returns>
 		/// <param name="value">The value to copy.</param>
 		Nullable<T>& operator=(const T& value)
 		{
-			if(object)
+			if (object)
 			{
 				delete object;
-				object=0;
+				object = 0;
 			}
-			object=new T(value);
+			object = new T(value);
 			return *this;
 		}
-		
+
 		/// <summary>Copy a nullable value.</summary>
 		/// <returns>The created nullable value.</returns>
 		/// <param name="nullable">The nullable value to copy.</param>
 		Nullable<T>& operator=(const Nullable<T>& nullable)
 		{
-			if(this!=&nullable)
+			if (this != &nullable)
 			{
-				if(object)
+				if (object)
 				{
 					delete object;
-					object=0;
+					object = 0;
 				}
-				if(nullable.object)
+				if (nullable.object)
 				{
-					object=new T(*nullable.object);
+					object = new T(*nullable.object);
 				}
 			}
 			return *this;
 		}
-		
+
 		/// <summary>Move a nullable value.</summary>
 		/// <returns>The created nullable value.</returns>
 		/// <param name="nullable">The nullable value to move.</param>
 		Nullable<T>& operator=(Nullable<T>&& nullable)
 		{
-			if(this!=&nullable)
+			if (this != &nullable)
 			{
-				if(object)
+				if (object)
 				{
 					delete object;
-					object=0;
+					object = 0;
 				}
-				object=nullable.object;
-				nullable.object=0;
+				object = nullable.object;
+				nullable.object = 0;
 			}
 			return *this;
 		}
@@ -485,24 +485,24 @@ Basic Types
 		{
 			return
 				a.object
-				?b.object
-					?*a.object==*b.object
-					:false
-				:b.object
-					?false
-					:true;
+				? b.object
+					? *a.object == *b.object
+					: false
+				: b.object
+					? false
+					: true;
 		}
 
 		static vint Compare(const Nullable<T>& a, const Nullable<T>& b)
 		{
 			return
 				a.object
-				?b.object
-					?(*a.object==*b.object?0:*a.object<*b.object?-1:1)
-					:1
-				:b.object
-					?-1
-					:0;
+				? b.object
+					? (*a.object == *b.object ? 0 : *a.object < *b.object ? -1 : 1)
+					: 1
+				: b.object
+					? -1
+					: 0;
 		}
 
 		bool operator==(const Nullable<T>& nullable)const
@@ -517,31 +517,31 @@ Basic Types
 
 		bool operator<(const Nullable<T>& nullable)const
 		{
-			return Compare(*this, nullable)<0;
+			return Compare(*this, nullable) < 0;
 		}
 
 		bool operator<=(const Nullable<T>& nullable)const
 		{
-			return Compare(*this, nullable)<=0;
+			return Compare(*this, nullable) <= 0;
 		}
 
 		bool operator>(const Nullable<T>& nullable)const
 		{
-			return Compare(*this, nullable)>0;
+			return Compare(*this, nullable) > 0;
 		}
 
 		bool operator>=(const Nullable<T>& nullable)const
 		{
-			return Compare(*this, nullable)>=0;
+			return Compare(*this, nullable) >= 0;
 		}
 
 		/// <summary>Convert the nullable value to a bool value.</summary>
 		/// <returns>Returns true if it is not null.</returns>
 		operator bool()const
 		{
-			return object!=0;
+			return object != 0;
 		}
-		
+
 		/// <summary>Unbox the value. This operation will cause an access violation of it is null.</summary>
 		/// <returns>The original value.</returns>
 		const T& Value()const
@@ -723,7 +723,7 @@ Type Traits
 		static YesType Test(TTo* value);
 		static NoType Test(void* value);
 		
-		typedef decltype(Test((TFrom*)0)) YesNoType;
+		typedef decltype(Test((TFrom*)nullptr)) YesNoType;
 	};
 
 	template<typename T, typename U>

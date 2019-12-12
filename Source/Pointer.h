@@ -62,6 +62,14 @@ Ptr
 		void*				originalReference = nullptr;
 		Destructor			originalDestructor = nullptr;
 
+		void SetEmptyNoIncDec()
+		{
+			counter = nullptr;
+			reference = nullptr;
+			originalReference = nullptr;
+			originalDestructor = nullptr;
+		}
+
 		void Inc()
 		{
 			if (counter)
@@ -80,10 +88,7 @@ Ptr
 					{
 						originalDestructor(counter, originalReference);
 					}
-					counter = nullptr;
-					reference = nullptr;
-					originalReference = nullptr;
-					originalDestructor = nullptr;
+					SetEmptyNoIncDec();
 				}
 			}
 		}
@@ -141,26 +146,38 @@ Ptr
 			, originalReference(pointer.originalReference)
 			, originalDestructor(pointer.originalDestructor)
 		{
-			pointer.counter = nullptr;
-			pointer.reference = nullptr;
-			pointer.originalReference = nullptr;
-			pointer.originalDestructor = nullptr;
+			pointer.SetEmptyNoIncDec();
 		}
 
 		/// <summary>Cast a smart pointer.</summary>
 		/// <typeparam name="C">The type of the object before casting.</typeparam>
 		/// <param name="pointer">The smart pointer to cast.</param>
-		template<typename C, typename = decltype(static_case<T*>((C*)nullptr))>
+		template<typename C, typename = typename AcceptType<void, typename RequiresConvertable<C, T>::YesNoType>::Type>
 		Ptr(const Ptr<C>& pointer)
 		{
-			T* converted = pointer.Obj();
-			if (converted)
+			if (auto converted = pointer.Obj())
 			{
 				counter = pointer.Counter();
 				reference = converted;
 				originalReference = pointer.originalReference;
 				originalDestructor = pointer.originalDestructor;
 				Inc();
+			}
+		}
+
+		/// <summary>Cast a smart pointer.</summary>
+		/// <typeparam name="C">The type of the object before casting.</typeparam>
+		/// <param name="pointer">The smart pointer to cast.</param>
+		template<typename C, typename = typename AcceptType<void, typename RequiresConvertable<C, T>::YesNoType>::Type>
+		Ptr(Ptr<C>&& pointer)
+		{
+			if (auto converted = pointer.Obj())
+			{
+				counter = pointer.Counter();
+				reference = converted;
+				originalReference = pointer.originalReference;
+				originalDestructor = pointer.originalDestructor;
+				pointer.SetEmptyNoIncDec();
 			}
 		}
 
@@ -204,10 +221,7 @@ Ptr
 			}
 			else
 			{
-				counter = 0;
-				reference = 0;
-				originalReference = 0;
-				originalDestructor = 0;
+				SetEmptyNoIncDec();
 			}
 			return *this;
 		}
@@ -241,38 +255,7 @@ Ptr
 				reference = pointer.reference;
 				originalReference = pointer.originalReference;
 				originalDestructor = pointer.originalDestructor;
-
-				pointer.counter = 0;
-				pointer.reference = 0;
-				pointer.originalReference = 0;
-				pointer.originalDestructor = 0;
-			}
-			return *this;
-		}
-
-		/// <summary>Cast a smart pointer.</summary>
-		/// <typeparam name="C">The type of the object before casting.</typeparam>
-		/// <returns>The smart pointer after casting.</returns>
-		/// <param name="pointer">The smart pointer to cast.</param>
-		template<typename C, typename = decltype(static_case<T*>((C*)nullptr))>
-		Ptr<T>& operator=(const Ptr<C>& pointer)
-		{
-			T* converted = pointer.Obj();
-			Dec();
-			if (converted)
-			{
-				counter = pointer.counter;
-				reference = converted;
-				originalReference = pointer.originalReference;
-				originalDestructor = pointer.originalDestructor;
-				Inc();
-			}
-			else
-			{
-				counter = 0;
-				reference = 0;
-				originalReference = 0;
-				originalDestructor = 0;
+				pointer.SetEmptyNoIncDec();
 			}
 			return *this;
 		}
