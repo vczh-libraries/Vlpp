@@ -19,16 +19,25 @@ namespace vl
 	namespace unittest
 	{
 		/// <summary><![CDATA[
-		/// A static class containing all unit test operations. In order to run test cases, you should do the following:
-		/// 1) Write test cases in cpp files like this
-		/// TEST_CASE(<Name of the test case, which should be a legal C++ identifier>)
-		/// {
-		///		<Use TEST_ASSERT(condition) to test>
-		///		<Use TEST_ERROR(expression) if you know "expression" will cause a fatal error by using the CHECK_ERROR macro.>
-		///		<Use TEST_EXCEPTION(expression, exceptionType, assertFunction) if you know "expression" will throw an expression of "exceptionType", and then you can provide "assertFunction" to check the information provided in the exception.>
-		///		<Use TEST_PRINT(message) to print whatever to the command line window.>
-		/// }
-		/// You should call [M:vl.unittest.UnitTest.RunAndDisposeTests] in your main function to run all test cases.
+		/// A static class containing all unit test operations.
+		/// 1) Writing test cases:
+		///   TEST_CATEGORY(L"Category Description"){ ... }
+		///   TEST_CASE(L"Test Case Description"){ ... }
+		///   Both category or case could appear at the root level, a category could contains other categories and cases, but a case should only contain assertions.
+		/// 2) Writing asserts:
+		///   TEST_CASE_ASSERT(condition): An assertion that is also a test case, only legal to call inside a category, with a description equivalents to the condition.
+		///   TEST_ASSERT(condition); Only legal to call inside a case. It passes when condition evaluates to true.
+		///   TEST_ERROR(condition); Only legal to call inside a case. It passes when condition throws vl::Error
+		///   TEST_EXCEPTION(statement, exception, callback); Only legal to call inside a case. It passes when an exception of the expected type is thrown, and callback(exception) passes.
+		/// 3) Other functions
+		///   TEST_PRINT(message); Print neutral message.
+		/// 4)
+		///   You should call [M:vl.unittest.UnitTest.RunAndDisposeTests] in your main function to run all test cases, and return the value from this function.
+		///   When "/D" is provided, the test program crashes at any failed assertiong.
+		///   When "/R" is provided, the test program consumes all failed assertions and run all cases. A test case stopped at the first failed assertion. Exit code will be 1 when any case fails.
+		///   When no argument is provided
+		///     In Windows, it becomes "/D" only when a debugger is attached, in other cases it becomes "/R".
+		///     In other platforms, it becomes "/R"
 		/// ]]></summary>
 		class UnitTest abstract
 		{

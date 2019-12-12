@@ -601,6 +601,7 @@ Type Traits
 	template<>struct POD<wchar_t>{static const bool Result=true;};
 	template<typename T>struct POD<T*>{static const bool Result=true;};
 	template<typename T>struct POD<T&>{static const bool Result=true;};
+	template<typename T>struct POD<T&&> { static const bool Result = true; };
 	template<typename T, typename C>struct POD<T C::*>{static const bool Result=true;};
 	template<typename T, vint _Size>struct POD<T[_Size]>{static const bool Result=POD<T>::Result;};
 	template<typename T>struct POD<const T>{static const bool Result=POD<T>::Result;};
