@@ -45,6 +45,16 @@ namespace TestBasic_TestObjects
 	{
 		return 200;
 	}
+
+	vint Accept(Ptr<Base>)
+	{
+		return 1;
+	}
+
+	vint Accept(Ptr<vint>)
+	{
+		return 2;
+	}
 }
 
 using namespace TestBasic_TestObjects;
@@ -105,6 +115,12 @@ TEST_FILE
 		TEST_ASSERT(p1->number == 4);
 		TEST_ASSERT((bool)p2 == true);
 		TEST_ASSERT(p2->number == 5);
+	});
+
+	TEST_CASE(L"Test Ptr<T> overloading")
+	{
+		TEST_ASSERT(Accept(MakePtr<Derived1>(0)) == 1);
+		TEST_ASSERT(Accept(MakePtr<vint>()) == 2);
 	});
 
 	TEST_CASE(L"Test Lazy<T>")
