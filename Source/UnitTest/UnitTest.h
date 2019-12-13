@@ -46,17 +46,19 @@ namespace vl
 		public:
 			UnitTest() = delete;
 
-			/// <summary>Print a green message.</summary>
-			/// <param name="string">The content.</param>
-			static void PrintMessage(const WString& string);
+			enum class MessageKind
+			{
+				Info,
+				Error,
+				File,
+				Category,
+				Case,
+			};
 
-			/// <summary>Print a white information.</summary>
+			/// <summary>Print a message with specified color.</summary>
 			/// <param name="string">The content.</param>
-			static void PrintInfo(const WString& string);
-
-			/// <summary>Print a red error.</summary>
-			/// <param name="string">The content.</param>
-			static void PrintError(const WString& string);
+			/// <param name="kind">The kind of the content.</param>
+			static void PrintMessage(const WString& string, MessageKind kind);
 
 			/// <summary>Run all test cases.</summary>
 			static int RunAndDisposeTests(int argc, wchar_t* argv[]);
@@ -108,8 +110,8 @@ namespace vl
 		try{STATEMENT; TEST_ASSERT(false);}\
 		catch(const EXCEPTION& e){ASSERT_FUNCTION(e);}\
 
-#define TEST_PRINT\
-		::vl::unittest::UnitTest::PrintInfo\
+#define TEST_PRINT(MESSAGE)\
+		::vl::unittest::UnitTest::PrintMessage((MESSAGE), ::vl::unittest::UnitTest::MessageKind::Info)\
 
 #define TEST_CASE_ASSSERT(CONDITION)\
 		TEST_CASE(L ## # CONDITION) { TEST_ASSERT(CONDITION); })\

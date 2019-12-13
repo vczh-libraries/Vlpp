@@ -37,26 +37,27 @@ UnitTest
 
 		UnitTestContext*				testContext = nullptr;
 
-		void UnitTest::PrintMessage(const WString& string)
+		void UnitTest::PrintMessage(const WString& string, MessageKind kind)
 		{
 			if (!testContext) throw UnitTestConfigError();
-			Console::SetColor(false, true, false, true);
-			Console::WriteLine(testContext->indentation + string);
-			Console::SetColor(true, true, true, false);
-		}
-
-		void UnitTest::PrintInfo(const WString& string)
-		{
-			if (!testContext) throw UnitTestConfigError();
-			Console::SetColor(true, true, true, true);
-			Console::WriteLine(testContext->indentation + string);
-			Console::SetColor(true, true, true, false);
-		}
-
-		void UnitTest::PrintError(const WString& string)
-		{
-			if (!testContext) throw UnitTestConfigError();
-			Console::SetColor(true, false, false, true);
+			switch (kind)
+			{
+			case MessageKind::Error:
+				Console::SetColor(true, false, false, true);
+				break;
+			case MessageKind::Info:
+				Console::SetColor(true, true, true, true);
+				break;
+			case MessageKind::File:
+				Console::SetColor(true, false, true, true);
+				break;
+			case MessageKind::Category:
+				Console::SetColor(true, true, false, true);
+				break;
+			case MessageKind::Case:
+				Console::SetColor(false, true, false, true);
+				break;
+			}
 			Console::WriteLine(testContext->indentation + string);
 			Console::SetColor(true, true, true, false);
 		}
@@ -72,7 +73,7 @@ UnitTest
 
 			while (current)
 			{
-				PrintMessage(atow(current->fileName));
+				PrintMessage(atow(current->fileName), MessageKind::File);
 				context.indentation = L"    ";
 				current->testProc();
 				context.indentation = L"";
@@ -99,7 +100,7 @@ UnitTest
 			if (!testContext) throw UnitTestConfigError();
 			if (testContext->kind == UnitTestContextKind::Case) throw UnitTestConfigError();
 
-			PrintMessage((isCategory ? L"[PACK] " : L"[CASE] ") + description);
+			PrintMessage(description, (isCategory ? MessageKind::Category : MessageKind::Case));
 
 			UnitTestContext context;
 			context.parent = testContext;

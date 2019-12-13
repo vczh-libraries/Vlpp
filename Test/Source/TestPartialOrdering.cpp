@@ -39,7 +39,7 @@ namespace TestPartialOrdering_TestObjects
 
 	void AssertPOP(PartialOrderingProcessor& pop, List<vint>& items, Group<vint, vint>& groups, vint componentCount)
 	{
-		unittest::UnitTest::PrintInfo(
+		unittest::UnitTest::PrintMessage(
 			From(groups)
 				.Select([](Pair<vint, vint> p)
 				{
@@ -48,10 +48,11 @@ namespace TestPartialOrdering_TestObjects
 				.Aggregate(WString::Empty, [](const WString& a, const WString& b)
 				{
 					return a + b;
-				})
+				}),
+			unittest::UnitTest::MessageKind::Info
 			);
 
-		unittest::UnitTest::PrintInfo(
+		unittest::UnitTest::PrintMessage(
 			From(pop.components)
 				.Select([](const po::Component& component)
 				{
@@ -65,7 +66,8 @@ namespace TestPartialOrdering_TestObjects
 				.Aggregate([](const WString& a, const WString& b)
 				{
 					return a + L" <- " + b;
-				})
+				}),
+			unittest::UnitTest::MessageKind::Info
 			);
 
 		for (vint i = 0; i < groups.Count(); i++)
