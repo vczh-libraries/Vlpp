@@ -103,7 +103,7 @@ namespace TestFunction_TestObjects
 		return 1;
 	}
 
-	vint Accept(Func<double(double)>)
+	vint Accept(Func<WString(WString)>)
 	{
 		return 2;
 	}
@@ -293,9 +293,11 @@ TEST_FILE
 	TEST_CASE(L"Test Func<T> overloading")
 	{
 		TEST_ASSERT(Accept((vint(*)(vint))nullptr) == 1);
-		TEST_ASSERT(Accept((double(*)(double))nullptr) == 1);
-		TEST_ASSERT(Accept([](vint x) { return x; }) == 1);
-		TEST_ASSERT(Accept([](double x) { return x; }) == 1);
+		TEST_ASSERT(Accept((WString(*)(WString))nullptr) == 2);
+		TEST_ASSERT(Accept([](WString x) { return x; }) == 1);
+		TEST_ASSERT(Accept([](WString x) { return x; }) == 2);
+		TEST_ASSERT(Accept(LAMBDA([](WString x) { return x; })) == 1);
+		TEST_ASSERT(Accept(LAMBDA([](WString x) { return x; })) == 2);
 	});
 
 	TEST_CASE(L"Test lambda expression with Curry()")

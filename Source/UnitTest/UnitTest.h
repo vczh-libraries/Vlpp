@@ -80,9 +80,9 @@ namespace vl
 		class UnitTestConfigError {};
 
 #define TEST_FILE\
-		extern void VLPPTEST_TESTFILE(const char* VLPPTEST_TESTFILE_ARGUMENT);\
-		::vl::unittest::UnitTestFile VLPPTEST_TESTFILE_INSTANCE(__FILE__, &VLPPTEST_TESTFILE);\
-		void VLPPTEST_TESTFILE(const char* VLPPTEST_TESTFILE_ARGUMENT)\
+		static void VLPPTEST_TESTFILE(const char* VLPPTEST_TESTFILE_ARGUMENT);\
+		static ::vl::unittest::UnitTestFile VLPPTEST_TESTFILE_INSTANCE(__FILE__, &VLPPTEST_TESTFILE);\
+		static void VLPPTEST_TESTFILE(const char* VLPPTEST_TESTFILE_ARGUMENT)\
 
 #define TEST_CATEGORY(DESCRIPTION)\
 		::vl::unittest::UnitTest::RunCategory((::vl::unittest::UnitTest::UseArgument(VLPPTEST_TESTFILE_ARGUMENT), (DESCRIPTION)), [&]()\

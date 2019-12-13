@@ -17,15 +17,63 @@ Functions:
 #include "Pointer.h"
 namespace vl
 {
- 
-/***********************************************************************
-vl::Func<R(TArgs...)>
-***********************************************************************/
 
 	template<typename T>
 	class Func
 	{
 	};
+ 
+/***********************************************************************
+vl::function_lambda::LambdaRetriveType<R(TArgs...)>
+***********************************************************************/
+ 
+	namespace function_lambda
+	{
+		template<typename T>
+		struct LambdaRetriveType
+		{
+		};
+
+		template<typename T>
+		struct FunctionObjectRetriveType
+		{
+			typedef typename LambdaRetriveType<decltype(&T::operator())>::Type Type;
+			typedef typename LambdaRetriveType<decltype(&T::operator())>::FunctionType FunctionType;
+			typedef typename LambdaRetriveType<decltype(&T::operator())>::ResultType ResultType;
+			typedef typename LambdaRetriveType<decltype(&T::operator())>::ParameterTypes ParameterTypes;
+		};
+
+		template<typename TObject, typename R, typename ...TArgs>
+		struct LambdaRetriveType<R(__thiscall TObject::*)(TArgs...)const>
+		{
+			typedef Func<R(TArgs...)> Type;
+			typedef R(FunctionType)(TArgs...);
+			typedef R ResultType;
+			typedef TypeTuple<TArgs...> ParameterTypes;
+		};
+
+		template<typename TObject, typename R, typename ...TArgs>
+		struct LambdaRetriveType<R(__thiscall TObject::*)(TArgs...)>
+		{
+			typedef Func<R(TArgs...)> Type;
+			typedef R(FunctionType)(TArgs...);
+			typedef R ResultType;
+			typedef TypeTuple<TArgs...> ParameterTypes;
+		};
+
+		template<typename R, typename ...TArgs>
+		struct FunctionObjectRetriveType<R(*)(TArgs...)>
+		{
+			typedef Func<R(TArgs...)> Type;
+			typedef R(FunctionType)(TArgs...);
+			typedef R ResultType;
+			typedef TypeTuple<TArgs...> ParameterTypes;
+		};
+	}
+ 
+/***********************************************************************
+vl::Func<R(TArgs...)>
+***********************************************************************/
 
 	namespace internal_invokers
 	{
@@ -92,6 +140,11 @@ vl::Func<R(TArgs...)>
 			{
 			}
 
+			ObjectInvoker(C&& _function)
+				:function(MoveValue(_function))
+			{
+			}
+
 			R Invoke(TArgs&& ...args)override
 			{
 				return function(ForwardValue<TArgs>(args)...);
@@ -112,6 +165,11 @@ vl::Func<R(TArgs...)>
 			{
 			}
 
+			ObjectInvoker(C&& _function)
+				:function(MoveValue(_function))
+			{
+			}
+
 			void Invoke(TArgs&& ...args)override
 			{
 				function(ForwardValue<TArgs>(args)...);
@@ -128,6 +186,17 @@ vl::Func<R(TArgs...)>
 	protected:
 		Ptr<internal_invokers::Invoker<R, TArgs...>>		invoker;
 
+		template<typename R2, typename ...TArgs2>
+		static bool IsEmptyFunc(const Func<R2(TArgs2...)>& function)
+		{
+			return function;
+		}
+
+		template<typename C>
+		static bool IsEmptyFunc(const C&)
+		{
+			return false;
+		}
 	public:
 		typedef R FunctionType(TArgs...);
 		typedef R ResultType;
@@ -146,7 +215,7 @@ vl::Func<R(TArgs...)>
 
 		/// <summary>Move a function reference.</summary>
 		/// <param name="function">The function reference to move.</param>
-		Func(const Func<R(TArgs...)>&& function)
+		Func(Func<R(TArgs...)>&& function)
 			:invoker(MoveValue(function.invoker))
 		{
 		}
@@ -169,25 +238,15 @@ vl::Func<R(TArgs...)>
 		}
 
 		/// <summary>Create a reference using a function object.</summary>
-		/// <typeparam name="R2">Return type of the function object.</typeparam>
-		/// <typeparam name="TArgs2">Argument types of the function object.</typeparam>
-		/// <param name="function">The function object.</param>
-		template<typename R2, typename ...TArgs2>
-		Func(const Func<R2(TArgs2...)>& function)
-		{
-			if (function)
-			{
-				invoker = new internal_invokers::ObjectInvoker<Func<R2(TArgs2...)>, R, TArgs...>(function);
-			}
-		}
-
-		/// <summary>Create a reference using a function object.</summary>
 		/// <typeparam name="C">Type of the function object.</typeparam>
 		/// <param name="function">The function object. It could be a lambda expression.</param>
-		template<typename C>
-		Func(const C& function)
+		template<typename C, typename = typename AcceptType<void, typename ReturnConvertable<decltype(ValueOf<C>()(ValueOf<TArgs>()...)), R>::YesNoType>::Type>
+		Func(C&& function)
 		{
-			invoker = new internal_invokers::ObjectInvoker<C, R, TArgs...>(function);
+			if (!IsEmptyFunc(function))
+			{
+				invoker = new internal_invokers::ObjectInvoker<typename RemoveCVR<C>::Type, R, TArgs...>(ForwardValue<C&&>(function));
+			}
 		}
 
 		/// <summary>Invoke the function.</summary>
@@ -229,51 +288,11 @@ vl::Func<R(TArgs...)>
 	};
  
 /***********************************************************************
-vl::function_lambda::LambdaRetriveType<R(TArgs...)>
+LAMBDA
 ***********************************************************************/
  
 	namespace function_lambda
 	{
-		template<typename T>
-		struct LambdaRetriveType
-		{
-			typedef vint Type;
-			typedef vint FunctionType;
-			typedef vint ResultType;
-		};
- 
-		template<typename T>
-		struct FunctionObjectRetriveType
-		{
-			typedef typename LambdaRetriveType<decltype(&T::operator())>::Type Type;
-			typedef typename LambdaRetriveType<decltype(&T::operator())>::FunctionType FunctionType;
-			typedef typename LambdaRetriveType<decltype(&T::operator())>::ResultType ResultType;
-		};
- 
-		template<typename TObject, typename R, typename ...TArgs>
-		struct LambdaRetriveType<R (__thiscall TObject::*)(TArgs...)const>
-		{
-			typedef Func<R(TArgs...)> Type;
-			typedef R(FunctionType)(TArgs...);
-			typedef R ResultType;
-		};
- 
-		template<typename TObject, typename R, typename ...TArgs>
-		struct LambdaRetriveType<R (__thiscall TObject::*)(TArgs...)>
-		{
-			typedef Func<R(TArgs...)> Type;
-			typedef R(FunctionType)(TArgs...);
-			typedef R ResultType;
-		};
- 
-		template<typename R, typename ...TArgs>
-		struct FunctionObjectRetriveType<R(*)(TArgs...)>
-		{
-			typedef Func<R(TArgs...)> Type;
-			typedef R(FunctionType)(TArgs...);
-			typedef R ResultType;
-		};
- 
 		/// <summary>Create a function reference to a function object or a lambda expression, with all type information autotimatically inferred. You can use the macro called "LAMBDA" to refer to this function.</summary>
 		/// <typeparam name="T">Type of the function object or the lambda expression.</typeparam>
 		/// <returns>The function reference.</returns>
@@ -283,7 +302,7 @@ vl::function_lambda::LambdaRetriveType<R(TArgs...)>
 		{
 			return functionObject;
 		}
-		
+
 		/// <summary>Create a function reference to a function pointer, with all type information autotimatically inferred. You can use the macro called "FUNCTION" to refer to this function.</summary>
 		/// <typeparam name="T">Type of the function pointer.</typeparam>
 		/// <returns>The function reference.</returns>

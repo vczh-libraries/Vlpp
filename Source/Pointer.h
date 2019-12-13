@@ -152,7 +152,7 @@ Ptr
 		/// <summary>Cast a smart pointer.</summary>
 		/// <typeparam name="C">The type of the object before casting.</typeparam>
 		/// <param name="pointer">The smart pointer to cast.</param>
-		template<typename C, typename = typename AcceptType<void, typename RequiresConvertable<C, T>::YesNoType>::Type>
+		template<typename C, typename = typename AcceptType<void, typename PointerConvertable<C, T>::YesNoType>::Type>
 		Ptr(const Ptr<C>& pointer)
 		{
 			if (auto converted = pointer.Obj())
@@ -168,7 +168,7 @@ Ptr
 		/// <summary>Cast a smart pointer.</summary>
 		/// <typeparam name="C">The type of the object before casting.</typeparam>
 		/// <param name="pointer">The smart pointer to cast.</param>
-		template<typename C, typename = typename AcceptType<void, typename RequiresConvertable<C, T>::YesNoType>::Type>
+		template<typename C, typename = typename AcceptType<void, typename PointerConvertable<C, T>::YesNoType>::Type>
 		Ptr(Ptr<C>&& pointer)
 		{
 			if (auto converted = pointer.Obj())

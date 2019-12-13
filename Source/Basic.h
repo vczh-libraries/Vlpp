@@ -76,9 +76,9 @@ Macros:
 namespace vl
 {
 
-/***********************************************************************
-x86 and x64 Compatbility
-***********************************************************************/
+	/***********************************************************************
+	x86 and x64 Compatbility
+	***********************************************************************/
 
 #if defined VCZH_MSVC
 	/// <summary>1-byte signed integer.</summary>
@@ -160,9 +160,9 @@ x86 and x64 Compatbility
 #endif
 #endif
 
-/***********************************************************************
-Basic Types
-***********************************************************************/
+	/***********************************************************************
+	Basic Types
+	***********************************************************************/
 
 	class NotCopyable
 	{
@@ -172,7 +172,7 @@ Basic Types
 	public:
 		NotCopyable();
 	};
-	
+
 	/// <summary>Base type of all errors. An error is an exception that you are not allowed to catch. Raising it means there is a fatal error in the code.</summary>
 	class Error
 	{
@@ -185,9 +185,9 @@ Basic Types
 	};
 
 #if defined VCZH_MSVC || defined VCZH_GCC || defined _DEBUG
-	#define CHECK_ERROR(CONDITION,DESCRIPTION) do{if(!(CONDITION))throw Error(DESCRIPTION);}while(0)
+#define CHECK_ERROR(CONDITION,DESCRIPTION) do{if(!(CONDITION))throw Error(DESCRIPTION);}while(0)
 #elif defined NDEBUG
-	#define CHECK_ERROR(CONDITION,DESCRIPTION)
+#define CHECK_ERROR(CONDITION,DESCRIPTION)
 #endif
 
 #define CHECK_FAIL(DESCRIPTION) do{throw Error(DESCRIPTION);}while(0)
@@ -196,10 +196,10 @@ Basic Types
 	if(bool __scope_variable_flag__=true)\
 		for(TYPE VARIABLE = VALUE;__scope_variable_flag__;__scope_variable_flag__=false)
 
-/***********************************************************************
-Type Traits
-***********************************************************************/
-	
+	/***********************************************************************
+	Type Traits
+	***********************************************************************/
+
 	template<typename T>
 	struct RemoveReference
 	{
@@ -295,9 +295,9 @@ Type Traits
 	{
 	};
 
-/***********************************************************************
-Basic Types
-***********************************************************************/
+	/***********************************************************************
+	Basic Types
+	***********************************************************************/
 
 	/// <summary>Base type of all classes.</summary>
 	class Object
@@ -305,7 +305,7 @@ Basic Types
 	public:
 		virtual ~Object();
 	};
-	
+
 	/// <summary>Type for storing a value to wherever requiring a [T:vl.Ptr`1] to [T:vl.Object].</summary>
 	/// <typeparam name="T">Type of the value.</typeparam>
 	template<typename T>
@@ -486,11 +486,11 @@ Basic Types
 			return
 				a.object
 				? b.object
-					? *a.object == *b.object
-					: false
+				? *a.object == *b.object
+				: false
 				: b.object
-					? false
-					: true;
+				? false
+				: true;
 		}
 
 		static vint Compare(const Nullable<T>& a, const Nullable<T>& b)
@@ -498,11 +498,11 @@ Basic Types
 			return
 				a.object
 				? b.object
-					? (*a.object == *b.object ? 0 : *a.object < *b.object ? -1 : 1)
-					: 1
+				? (*a.object == *b.object ? 0 : *a.object < *b.object ? -1 : 1)
+				: 1
 				: b.object
-					? -1
-					: 0;
+				? -1
+				: 0;
 		}
 
 		bool operator==(const Nullable<T>& nullable)const
@@ -554,12 +554,12 @@ Basic Types
 	union BinaryRetriver
 	{
 		T t;
-		char binary[sizeof(T)>minSize?sizeof(T):minSize];
+		char binary[sizeof(T) > minSize ? sizeof(T) : minSize];
 	};
 
-/***********************************************************************
-Type Traits
-***********************************************************************/
+	/***********************************************************************
+	Type Traits
+	***********************************************************************/
 
 	/// <summary>Get the index type of a value for containers.</summary>
 	/// <typeparam name="T">Type of the value.</typeparam>
@@ -585,32 +585,32 @@ Type Traits
 	struct POD
 	{
 		/// <summary>Returns true if the type is a Plain-Old-Data type.</summary>
-		static const bool Result=false;
+		static const bool Result = false;
 	};
 
-	template<>struct POD<bool>{static const bool Result=true;};
-	template<>struct POD<vint8_t>{static const bool Result=true;};
-	template<>struct POD<vuint8_t>{static const bool Result=true;};
-	template<>struct POD<vint16_t>{static const bool Result=true;};
-	template<>struct POD<vuint16_t>{static const bool Result=true;};
-	template<>struct POD<vint32_t>{static const bool Result=true;};
-	template<>struct POD<vuint32_t>{static const bool Result=true;};
-	template<>struct POD<vint64_t>{static const bool Result=true;};
-	template<>struct POD<vuint64_t>{static const bool Result=true;};
-	template<>struct POD<char>{static const bool Result=true;};
-	template<>struct POD<wchar_t>{static const bool Result=true;};
-	template<typename T>struct POD<T*>{static const bool Result=true;};
-	template<typename T>struct POD<T&>{static const bool Result=true;};
+	template<>struct POD<bool> { static const bool Result = true; };
+	template<>struct POD<vint8_t> { static const bool Result = true; };
+	template<>struct POD<vuint8_t> { static const bool Result = true; };
+	template<>struct POD<vint16_t> { static const bool Result = true; };
+	template<>struct POD<vuint16_t> { static const bool Result = true; };
+	template<>struct POD<vint32_t> { static const bool Result = true; };
+	template<>struct POD<vuint32_t> { static const bool Result = true; };
+	template<>struct POD<vint64_t> { static const bool Result = true; };
+	template<>struct POD<vuint64_t> { static const bool Result = true; };
+	template<>struct POD<char> { static const bool Result = true; };
+	template<>struct POD<wchar_t> { static const bool Result = true; };
+	template<typename T>struct POD<T*> { static const bool Result = true; };
+	template<typename T>struct POD<T&> { static const bool Result = true; };
 	template<typename T>struct POD<T&&> { static const bool Result = true; };
-	template<typename T, typename C>struct POD<T C::*>{static const bool Result=true;};
-	template<typename T, vint _Size>struct POD<T[_Size]>{static const bool Result=POD<T>::Result;};
-	template<typename T>struct POD<const T>{static const bool Result=POD<T>::Result;};
-	template<typename T>struct POD<volatile T>{static const bool Result=POD<T>::Result;};
-	template<typename T>struct POD<const volatile T>{static const bool Result=POD<T>::Result;};
+	template<typename T, typename C>struct POD<T C::*> { static const bool Result = true; };
+	template<typename T, vint _Size>struct POD<T[_Size]> { static const bool Result = POD<T>::Result; };
+	template<typename T>struct POD<const T> { static const bool Result = POD<T>::Result; };
+	template<typename T>struct POD<volatile T> { static const bool Result = POD<T>::Result; };
+	template<typename T>struct POD<const volatile T> { static const bool Result = POD<T>::Result; };
 
-/***********************************************************************
-Date and Time
-***********************************************************************/
+	/***********************************************************************
+	Date and Time
+	***********************************************************************/
 
 	/// <summary>A type representing the combination of date and time.</summary>
 	struct DateTime
@@ -625,7 +625,7 @@ Date and Time
 		vint				milliseconds;
 
 		vuint64_t			totalMilliseconds;
-		
+
 		// in gcc, this will be mktime(t) * 1000 + gettimeofday().tv_usec / 1000
 		vuint64_t			filetime;
 
@@ -646,8 +646,8 @@ Date and Time
 		/// <param name="_minute">The minute.</param>
 		/// <param name="_second">The second.</param>
 		/// <param name="_milliseconds">The millisecond.</param>
-		static DateTime		FromDateTime(vint _year, vint _month, vint _day, vint _hour=0, vint _minute=0, vint _second=0, vint _milliseconds=0);
-	
+		static DateTime		FromDateTime(vint _year, vint _month, vint _day, vint _hour = 0, vint _minute = 0, vint _second = 0, vint _milliseconds = 0);
+
 		static DateTime		FromFileTime(vuint64_t filetime);
 
 		/// <summary>Create an empty date time value.</summary>
@@ -668,18 +668,18 @@ Date and Time
 		/// <param name="milliseconds">The delta in milliseconds.</param>
 		DateTime			Backward(vuint64_t milliseconds);
 
-		bool operator==(const DateTime& value)const { return filetime==value.filetime; }
-		bool operator!=(const DateTime& value)const { return filetime!=value.filetime; }
-		bool operator<(const DateTime& value)const { return filetime<value.filetime; }
-		bool operator<=(const DateTime& value)const { return filetime<=value.filetime; }
-		bool operator>(const DateTime& value)const { return filetime>value.filetime; }
-		bool operator>=(const DateTime& value)const { return filetime>=value.filetime; }
+		bool operator==(const DateTime& value)const { return filetime == value.filetime; }
+		bool operator!=(const DateTime& value)const { return filetime != value.filetime; }
+		bool operator<(const DateTime& value)const { return filetime < value.filetime; }
+		bool operator<=(const DateTime& value)const { return filetime <= value.filetime; }
+		bool operator>(const DateTime& value)const { return filetime > value.filetime; }
+		bool operator>=(const DateTime& value)const { return filetime >= value.filetime; }
 	};
 
-/***********************************************************************
-Interface
-***********************************************************************/
-	
+	/***********************************************************************
+	Interface
+	***********************************************************************/
+
 	/// <summary>Base type of all interfaces. All interface types are encouraged to be virtual inherited.</summary>
 	class Interface : private NotCopyable
 	{
@@ -687,12 +687,12 @@ Interface
 		virtual ~Interface();
 	};
 
-/***********************************************************************
-Type Traits
-***********************************************************************/
+	/***********************************************************************
+	Type Traits
+	***********************************************************************/
 
-	struct YesType{};
-	struct NoType{};
+	struct YesType {};
+	struct NoType {};
 
 	template<typename T, typename YesOrNo>
 	struct AcceptType
@@ -705,25 +705,76 @@ Type Traits
 		typedef T Type;
 	};
 
+	template<typename T1, typename T2>
+	struct YesNoAnd
+	{
+		typedef NoType Type;
+	};
+
+	template<>
+	struct YesNoAnd<YesType, YesType>
+	{
+		typedef YesType Type;
+	};
+
+	template<typename T1, typename T2>
+	struct YesNoOr
+	{
+		typedef YesType Type;
+	};
+
+	template<>
+	struct YesNoOr<NoType, NoType>
+	{
+		typedef NoType Type;
+	};
+
 	template<typename YesOrNo>
 	struct AcceptValue
 	{
-		static const bool Result=false;
+		static const bool Result = false;
 	};
 
 	template<>
 	struct AcceptValue<YesType>
 	{
-		static const bool Result=true;
+		static const bool Result = true;
 	};
 
 	template<typename TFrom, typename TTo>
-	struct RequiresConvertable
+	struct PointerConvertable
 	{
 		static YesType Test(TTo* value);
 		static NoType Test(void* value);
-		
+
 		typedef decltype(Test((TFrom*)nullptr)) YesNoType;
+	};
+
+	template<typename TFrom, typename TTo>
+	struct ReturnConvertable
+	{
+		static YesType Test(TTo&& value);
+		static NoType Test(...);
+
+		typedef decltype(Test((TFrom&&)*(TFrom*)nullptr)) YesNoType;
+	};
+
+	template<typename TFrom>
+	struct ReturnConvertable<TFrom, void>
+	{
+		typedef YesType YesNoType;
+	};
+
+	template<typename TTo>
+	struct ReturnConvertable<void, TTo>
+	{
+		typedef NoType YesNoType;
+	};
+
+	template<>
+	struct ReturnConvertable<void, void>
+	{
+		typedef YesType YesNoType;
 	};
 
 	template<typename T, typename U>
@@ -731,6 +782,9 @@ Type Traits
 	{
 		typedef T Type;
 	};
+
+	template<typename T>
+	T ValueOf();
 }
 
 #endif
