@@ -62,8 +62,8 @@ namespace vl
 			static int RunAndDisposeTests(int argc, wchar_t* argv[]);
 
 			static void RegisterTestFile(const char* fileName, UnitTestFileProc testProc);
-			static void RunCategory(const WString& description, Func<void()>&& callback);
-			static void RunCase(const WString& description, Func<void()>&& callback);
+			static void RunCategoryOrCase(const WString& description, bool isCategory, Func<void()>&& callback);
+			static void EnsureLegalToAssert();
 		};
 
 		class UnitTestFile
@@ -84,22 +84,25 @@ namespace vl
 		static void VLPPTEST_TESTFILE()\
 
 #define TEST_CATEGORY(DESCRIPTION)\
-		::vl::unittest::UnitTest::RunCategory((DESCRIPTION), [&]()\
+		::vl::unittest::UnitTest::RunCategoryOrCase((DESCRIPTION), true, [&]()\
 
 #define TEST_CASE(DESCRIPTION)\
-		::vl::unittest::UnitTest::RunCategory((DESCRIPTION), [&]()\
+		::vl::unittest::UnitTest::RunCategoryOrCase((DESCRIPTION), false, [&]()\
 
 #define TEST_ASSERT(CONDITION)\
-		do{if(!(CONDITION))throw ::vl::unittest::UnitTestAssertError();}while(0)\
+		do{\
+			::vl::unittest::UnitTest::EnsureLegalToAssert();\
+			if(!(CONDITION))throw ::vl::unittest::UnitTestAssertError();\
+		}while(0)\
 
 #define TEST_ERROR(CONDITION)\
 		do{\
+			::vl::unittest::UnitTest::EnsureLegalToAssert();\
 			try{CONDITION;throw ::vl::unittest::UnitTestAssertError();}\
 			catch(const Error&){}\
 			catch(const ::vl::unittest::UnitTestAssertError&) { throw; }\
 			catch (const ::vl::unittest::UnitTestConfigError&) { throw; }\
 		}while(0)\
-
 
 #define TEST_EXCEPTION(STATEMENT,EXCEPTION,ASSERT_FUNCTION)\
 		try{STATEMENT; TEST_ASSERT(false);}\
@@ -107,6 +110,9 @@ namespace vl
 
 #define TEST_PRINT\
 		::vl::unittest::UnitTest::PrintInfo\
+
+#define TEST_CASE_ASSSERT(CONDITION)\
+		TEST_CASE(L ## # CONDITION) { TEST_ASSERT(CONDITION); })\
 
 	}
 }
