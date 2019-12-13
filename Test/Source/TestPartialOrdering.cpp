@@ -121,7 +121,7 @@ namespace TestPartialOrdering_TestObjects
 		}
 	}
 
-	void TestPOP(const char* VLPPTEST_TESTFILE_ARGUMENT, const WString& description, vint componentCount, Func<void(List<vint>& items, Group<vint, vint>& groups)>&& callback)
+	void TestPOP(const WString& description, vint componentCount, Func<void(List<vint>& items, Group<vint, vint>& groups)>&& callback)
 	{
 		TEST_CASE(description)
 		{
@@ -189,7 +189,7 @@ namespace TestPartialOrdering_TestObjects
 
 using namespace TestPartialOrdering_TestObjects;
 
-#define TEST_CASE_PARTIAL_ORDERING(NAME, COMPONENT_COUNT) TestPOP(VLPPTEST_TESTFILE_ARGUMENT, (WString(L"Test PartialOrderingProcessor: ") + L ## # NAME), COMPONENT_COUNT, [&](List<vint>& items, Group<vint, vint>& groups)
+#define TEST_CASE_PARTIAL_ORDERING(NAME, COMPONENT_COUNT) TestPOP((WString(L"Test PartialOrderingProcessor: ") + L ## # NAME), COMPONENT_COUNT, [&](List<vint>& items, Group<vint, vint>& groups)
 
 TEST_FILE
 {

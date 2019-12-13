@@ -49,7 +49,7 @@ UnitTest
 
 			while (current)
 			{
-				current->testProc(nullptr);
+				current->testProc();
 				auto temp = current;
 				current = current->next;
 				delete temp;

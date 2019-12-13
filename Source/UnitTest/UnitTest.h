@@ -15,7 +15,7 @@ namespace vl
 {
 	namespace unittest
 	{
-		using UnitTestFileProc = void(*)(const char*);
+		using UnitTestFileProc = void(*)();
 
 		/// <summary><![CDATA[
 		/// A static class containing all unit test operations.
@@ -64,7 +64,6 @@ namespace vl
 			static void RegisterTestFile(const char* fileName, UnitTestFileProc testProc);
 			static void RunCategory(const WString& description, Func<void()>&& callback);
 			static void RunCase(const WString& description, Func<void()>&& callback);
-			static void UseArgument(const char*) {}
 		};
 
 		class UnitTestFile
@@ -80,15 +79,15 @@ namespace vl
 		class UnitTestConfigError {};
 
 #define TEST_FILE\
-		static void VLPPTEST_TESTFILE(const char* VLPPTEST_TESTFILE_ARGUMENT);\
+		static void VLPPTEST_TESTFILE();\
 		static ::vl::unittest::UnitTestFile VLPPTEST_TESTFILE_INSTANCE(__FILE__, &VLPPTEST_TESTFILE);\
-		static void VLPPTEST_TESTFILE(const char* VLPPTEST_TESTFILE_ARGUMENT)\
+		static void VLPPTEST_TESTFILE()\
 
 #define TEST_CATEGORY(DESCRIPTION)\
-		::vl::unittest::UnitTest::RunCategory((::vl::unittest::UnitTest::UseArgument(VLPPTEST_TESTFILE_ARGUMENT), (DESCRIPTION)), [&]()\
+		::vl::unittest::UnitTest::RunCategory((DESCRIPTION), [&]()\
 
 #define TEST_CASE(DESCRIPTION)\
-		::vl::unittest::UnitTest::RunCategory((::vl::unittest::UnitTest::UseArgument(VLPPTEST_TESTFILE_ARGUMENT), (DESCRIPTION)), [&]()\
+		::vl::unittest::UnitTest::RunCategory((DESCRIPTION), [&]()\
 
 #define TEST_ASSERT(CONDITION)\
 		do{if(!(CONDITION))throw ::vl::unittest::UnitTestAssertError();}while(0)\
