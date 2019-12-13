@@ -59,9 +59,9 @@ namespace TestPartialOrdering_TestObjects
 					return From(component.firstNode, component.firstNode + component.nodeCount)
 						.Select(itow)
 						.Aggregate([](const WString& a, const WString& b)
-					{
-						return a + L"," + b;
-					});
+						{
+							return a + L"," + b;
+						});
 				})
 				.Aggregate([](const WString& a, const WString& b)
 				{
@@ -77,7 +77,6 @@ namespace TestPartialOrdering_TestObjects
 			for (vint j = 0; j < vs.Count(); j++)
 			{
 				vint v = vs[j];
-
 				TEST_ASSERT(pop.nodes[k].ins->Contains(v));
 				TEST_ASSERT(pop.nodes[v].outs->Contains(k));
 			}
