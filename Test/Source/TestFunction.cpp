@@ -294,9 +294,9 @@ TEST_FILE
 	{
 		TEST_ASSERT(Accept((vint(*)(vint))nullptr) == 1);
 		TEST_ASSERT(Accept((WString(*)(WString))nullptr) == 2);
-		TEST_ASSERT(Accept([](WString x) { return x; }) == 1);
+		TEST_ASSERT(Accept([](vint x) { return x; }) == 1);
 		TEST_ASSERT(Accept([](WString x) { return x; }) == 2);
-		TEST_ASSERT(Accept(LAMBDA([](WString x) { return x; })) == 1);
+		TEST_ASSERT(Accept(LAMBDA([](vint x) { return x; })) == 1);
 		TEST_ASSERT(Accept(LAMBDA([](WString x) { return x; })) == 2);
 	});
 

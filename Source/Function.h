@@ -189,11 +189,17 @@ vl::Func<R(TArgs...)>
 		template<typename R2, typename ...TArgs2>
 		static bool IsEmptyFunc(const Func<R2(TArgs2...)>& function)
 		{
-			return function;
+			return !function;
+		}
+
+		template<typename R2, typename ...TArgs2>
+		static bool IsEmptyFunc(Func<R2(TArgs2...)>& function)
+		{
+			return !function;
 		}
 
 		template<typename C>
-		static bool IsEmptyFunc(const C&)
+		static bool IsEmptyFunc(C&&)
 		{
 			return false;
 		}
