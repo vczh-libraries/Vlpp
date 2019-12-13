@@ -62,7 +62,11 @@ UnitTest
 			Console::SetColor(true, true, true, false);
 		}
 
+#ifdef VCZH_MSVC
 		int UnitTest::RunAndDisposeTests(int argc, wchar_t* argv[])
+#else
+		int UnitTest::RunAndDisposeTests(int argc, char* argv[])
+#endif
 		{
 			auto current = testHead;
 			testHead = nullptr;

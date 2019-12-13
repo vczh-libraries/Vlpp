@@ -61,7 +61,11 @@ namespace vl
 			static void PrintMessage(const WString& string, MessageKind kind);
 
 			/// <summary>Run all test cases.</summary>
+#ifdef VCZH_MSVC
 			static int RunAndDisposeTests(int argc, wchar_t* argv[]);
+#else
+			static int RunAndDisposeTests(int argc, char* argv[]);
+#endif
 
 			static void RegisterTestFile(const char* fileName, UnitTestFileProc testProc);
 			static void RunCategoryOrCase(const WString& description, bool isCategory, Func<void()>&& callback);
