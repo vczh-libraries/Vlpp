@@ -1,56 +1,7 @@
-#include "../../Source/UnitTest/UnitTest.h"
-#include "../../Source/Collections/List.h"
-#include "../../Source/Collections/Dictionary.h"
-#include "../../Source/Collections/Operation.h"
-
-using namespace vl;
-using namespace vl::collections;
-
-#define _ ,
-#define CHECK_EMPTY_LIST(CONTAINER) TestReadonlyList(CONTAINER, 0, 0)
-#define CHECK_LIST_ITEMS(CONTAINER,ITEMS)do{vint __items__[]=ITEMS;TestReadonlyList(CONTAINER,__items__, sizeof(__items__)/sizeof(*__items__));}while(0)
-#define CHECK_EMPTY_DICTIONARY(CONTAINER) TestReadonlyDictionary(CONTAINER, 0, 0, 0);
-#define CHECK_DICTIONARY_ITEMS(CONTAINER,KEYS,VALUES)do{vint __keys__[]=KEYS;vint __values__[]=VALUES;TestReadonlyDictionary(CONTAINER, __keys__, __values__, sizeof(__keys__)/sizeof(*__keys__));}while(0)
-#define CHECK_EMPTY_GROUP(CONTAINER) TestReadonlyGroup(CONTAINER, 0, 0, 0, 0);
-#define CHECK_GROUP_ITEMS(CONTAINER,KEYS,VALUES,COUNTS)do{vint __keys__[]=KEYS;vint __values__[]=VALUES;vint __counts__[]=COUNTS;TestReadonlyGroup(CONTAINER, __keys__, __values__, __counts__, sizeof(__keys__)/sizeof(*__keys__));}while(0)
+#include "AssertCollection.h"
 
 namespace TestList_TestObjects
 {
-
-	template<typename TList>
-	void TestReadonlyList(const TList& list, vint* items, vint count)
-	{
-		TEST_ASSERT(list.Count() == count);
-		IEnumerator<vint>* enumerator = list.CreateEnumerator();
-		for (vint i = 0; i < count; i++)
-		{
-			TEST_ASSERT(list.Contains(items[i]));
-			TEST_ASSERT(list.Get(i) == items[i]);
-			TEST_ASSERT(enumerator->Next());
-			TEST_ASSERT(enumerator->Current() == items[i]);
-			TEST_ASSERT(enumerator->Index() == i);
-		}
-		TEST_ASSERT(enumerator->Next() == false);
-		delete enumerator;
-	}
-
-	template<typename T>
-	void CompareEnumerable(const IEnumerable<T>& dst, const IEnumerable<T>& src)
-	{
-		IEnumerator<T>* dstEnum = dst.CreateEnumerator();
-		IEnumerator<T>* srcEnum = src.CreateEnumerator();
-		while (dstEnum->Next())
-		{
-			TEST_ASSERT(srcEnum->Next());
-			TEST_ASSERT(dstEnum->Current() == srcEnum->Current());
-			TEST_ASSERT(dstEnum->Index() == srcEnum->Index());
-		}
-		TEST_ASSERT(dstEnum->Next() == false);
-		TEST_ASSERT(srcEnum->Next() == false);
-		delete dstEnum;
-		delete srcEnum;
-	}
-
 	void TestArray(Array<vint>& arr)
 	{
 		arr.Resize(0);
@@ -179,28 +130,6 @@ namespace TestList_TestObjects
 		CHECK_LIST_ITEMS(list, { 0 _ 2 _ 4 _ 6 _ 8 _ 10 _ 12 _ 14 _ 16 _ 18 });
 	}
 
-	void TestReadonlyDictionary(const Dictionary<vint, vint>& dictionary, vint* keys, vint* values, vint count)
-	{
-		TEST_ASSERT(dictionary.Count() == count);
-		TestReadonlyList(dictionary.Keys(), keys, count);
-		TestReadonlyList(dictionary.Values(), values, count);
-		for (vint i = 0; i < count; i++)
-		{
-			TEST_ASSERT(dictionary.Get(keys[i]) == values[i]);
-		}
-
-		IEnumerator<Pair<vint, vint>>* enumerator = dictionary.CreateEnumerator();
-		for (vint i = 0; i < count; i++)
-		{
-			Pair<vint, vint> pair(keys[i], values[i]);
-			TEST_ASSERT(enumerator->Next());
-			TEST_ASSERT(enumerator->Current() == pair);
-			TEST_ASSERT(enumerator->Index() == i);
-		}
-		TEST_ASSERT(enumerator->Next() == false);
-		delete enumerator;
-	}
-
 	void TestSortedDictionary(Dictionary<vint, vint>& dictionary)
 	{
 		dictionary.Clear();
@@ -228,47 +157,6 @@ namespace TestList_TestObjects
 		CHECK_EMPTY_DICTIONARY(dictionary);
 	}
 
-	void TestReadonlyGroup(const Group<vint, vint>& group, vint* keys, vint* values, vint* counts, vint count)
-	{
-		TEST_ASSERT(group.Count() == count);
-		TestReadonlyList(group.Keys(), keys, count);
-		vint offset = 0;
-		for (vint i = 0; i < count; i++)
-		{
-			TEST_ASSERT(group.Contains(keys[i]) == true);
-			TestReadonlyList(group.Get(keys[i]), values + offset, counts[i]);
-			TestReadonlyList(group[keys[i]], values + offset, counts[i]);
-			TestReadonlyList(group.GetByIndex(i), values + offset, counts[i]);
-			for (vint j = 0; j < counts[i]; j++)
-			{
-				TEST_ASSERT(group.Contains(keys[i], values[offset + j]));
-			}
-			offset += counts[i];
-		}
-
-		IEnumerator<Pair<vint, vint>>* enumerator = group.CreateEnumerator();
-		vint keyIndex = 0;
-		vint valueIndex = 0;
-		vint index = 0;
-		while (keyIndex < count)
-		{
-			Pair<vint, vint> pair(keys[keyIndex], values[index]);
-			TEST_ASSERT(enumerator->Next());
-			TEST_ASSERT(enumerator->Current() == pair);
-			TEST_ASSERT(enumerator->Index() == index);
-
-			valueIndex++;
-			index++;
-			if (valueIndex == counts[keyIndex])
-			{
-				keyIndex++;
-				valueIndex = 0;
-			}
-		}
-		TEST_ASSERT(enumerator->Next() == false);
-		delete enumerator;
-	}
-
 	void TestSortedGroup(Group<vint, vint>& group)
 	{
 		group.Clear();
@@ -293,44 +181,9 @@ namespace TestList_TestObjects
 		CHECK_EMPTY_GROUP(group);
 	}
 
-	vint Square(vint a)
-	{
-		return a * a;
-	}
-
-	vint Double(vint a)
-	{
-		return a * 2;
-	}
-
-	bool Odd(vint a)
-	{
-		return a % 2 == 1;
-	}
-
-	vint Add(vint a, vint b)
-	{
-		return a + b;
-	}
-
-	bool And(bool a, bool b)
-	{
-		return a && b;
-	}
-
-	bool Or(bool a, bool b)
-	{
-		return a || b;
-	}
-
 	bool dividable(vint a, vint b)
 	{
 		return b % a == 0;
-	}
-
-	Func<bool(vint)> dividableConverter(vint a)
-	{
-		return Curry(dividable)(a);
 	}
 
 	template<typename TList>
@@ -341,11 +194,6 @@ namespace TestList_TestObjects
 		{
 			TEST_ASSERT(list.Get(i) == L'a' + i % 5);
 		}
-	}
-
-	vint Compare(vint a, vint b)
-	{
-		return a - b;
 	}
 }
 
@@ -544,300 +392,6 @@ TEST_FILE
 		CompareEnumerable(sortedList, group);
 	});
 
-	TEST_CASE(L"Test Select()")
-	{
-		LazyList<vint> xs;
-		auto x = xs.Select(&Square);
-	});
-
-	TEST_CASE(L"Test Select() sequence")
-	{
-		List<vint> src;
-		List<vint> dst;
-		for (vint i = 1; i <= 10; i++)
-		{
-			src.Add(i);
-		}
-		CopyFrom(dst, From(src).Select(Square).Select(Double));
-		CHECK_LIST_ITEMS(dst, {2 _ 8 _ 18 _ 32 _ 50 _ 72 _ 98 _ 128 _ 162 _ 200});
-		CompareEnumerable(dst, From(src).Select(Square).Select(Double));
-	});
-
-	TEST_CASE(L"Test SelectMany()")
-	{
-		vint src[] = {1,2,3};
-		List<vint> dst;
-
-		CopyFrom(dst, From(src).SelectMany([](vint i)
-		{
-			Ptr<List<vint>> xs = new List<vint>();
-			xs->Add(i);
-			xs->Add(i * 2);
-			xs->Add(i * 3);
-			return LazyList<vint>(xs);
-		}));
-		CHECK_LIST_ITEMS(dst, {1 _ 2 _ 3 _ 2 _ 4 _ 6 _ 3 _ 6 _ 9});
-	});
-
-	TEST_CASE(L"Test Where()")
-	{
-		List<vint> src;
-		List<vint> dst;
-		for (vint i = 1; i <= 10; i++)
-		{
-			src.Add(i);
-		}
-		CopyFrom(dst, From(src).Where(Odd).Select(Square));
-		CHECK_LIST_ITEMS(dst, {1 _ 9 _ 25 _ 49 _ 81});
-		CopyFrom(dst, From(src).Where(Odd));
-		CHECK_LIST_ITEMS(dst, {1 _ 3 _ 5 _ 7 _ 9});
-		CompareEnumerable(dst, From(src).Where(Odd));
-	});
-
-	TEST_CASE(L"Test Aggregate()")
-	{
-		List<vint> src;
-		for (vint i = 1; i <= 10; i++)
-		{
-			src.Add(i);
-		}
-		TEST_ASSERT(From(src).Aggregate(Add) == 55);
-		TEST_ASSERT(From(src).All(Odd) == false);
-		TEST_ASSERT(From(src).Any(Odd) == true);
-		TEST_ASSERT(From(src).Max() == 10);
-		TEST_ASSERT(From(src).Min() == 1);
-	});
-
-	TEST_CASE(L"Test Concat()")
-	{
-		{
-			List<vint> first;
-			List<vint> second;
-			List<vint> result;
-			for (vint i = 0; i < 5; i++)
-			{
-				first.Add(i);
-			}
-			for (vint i = 5; i < 10; i++)
-			{
-				second.Add(i);
-			}
-			CopyFrom(result, From(first).Concat(second));
-			CHECK_LIST_ITEMS(result, {0 _ 1 _ 2 _ 3 _ 4 _ 5 _ 6 _ 7 _ 8 _ 9});
-			CompareEnumerable(result, From(first).Concat(second));
-		}
-		{
-			List<vint> first;
-			List<vint> second;
-			List<vint> result;
-			for (vint i = 5; i < 10; i++)
-			{
-				second.Add(i);
-			}
-			CopyFrom(result, From(first).Concat(second));
-			CHECK_LIST_ITEMS(result, {5 _ 6 _ 7 _ 8 _ 9});
-			CompareEnumerable(result, From(first).Concat(second));
-		}
-		{
-			List<vint> first;
-			List<vint> second;
-			List<vint> result;
-			for (vint i = 0; i < 5; i++)
-			{
-				first.Add(i);
-			}
-			CopyFrom(result, From(first).Concat(second));
-			CHECK_LIST_ITEMS(result, {0 _ 1 _ 2 _ 3 _ 4});
-			CompareEnumerable(result, From(first).Concat(second));
-		}
-		{
-			List<vint> first;
-			List<vint> second;
-			List<vint> result;
-			CopyFrom(result, From(first).Concat(second));
-			TEST_ASSERT(result.Count() == 0);
-			CompareEnumerable(result, From(first).Concat(second));
-		}
-	});
-
-	TEST_CASE(L"Test Take() / Skip() / Repeat() / ")
-	{
-		List<vint> src;
-		List<vint> dst;
-		for (vint i = 0; i < 10; i++)
-		{
-			src.Add(i);
-		}
-
-		CopyFrom(dst, From(src).Take(5));
-		CHECK_LIST_ITEMS(dst, {0 _ 1 _ 2 _ 3 _ 4});
-		CompareEnumerable(dst, From(src).Take(5));
-		CopyFrom(dst, From(src).Take(15));
-		CHECK_LIST_ITEMS(dst, {0 _ 1 _ 2 _ 3 _ 4 _ 5 _ 6 _ 7 _ 8 _ 9});
-		CompareEnumerable(dst, From(src).Take(15));
-
-		CopyFrom(dst, From(src).Skip(5));
-		CHECK_LIST_ITEMS(dst, {5 _ 6 _ 7 _ 8 _ 9});
-		CompareEnumerable(dst, From(src).Skip(5));
-		CopyFrom(dst, From(src).Skip(15));
-		CHECK_EMPTY_LIST(dst);
-		CompareEnumerable(dst, From(src).Skip(15));
-
-		src.Clear();
-		for (vint i = 0; i < 3; i++)
-		{
-			src.Add(i);
-		}
-		CopyFrom(dst, From(src).Repeat(0));
-		CHECK_EMPTY_LIST(dst);
-		CompareEnumerable(dst, From(src).Repeat(0));
-		CopyFrom(dst, From(src).Repeat(1));
-		CHECK_LIST_ITEMS(dst, {0 _ 1 _ 2});
-		CompareEnumerable(dst, From(src).Repeat(1));
-		CopyFrom(dst, From(src).Repeat(2));
-		CHECK_LIST_ITEMS(dst, {0 _ 1 _ 2 _ 0 _ 1 _ 2});
-		CompareEnumerable(dst, From(src).Repeat(2));
-
-		src.Clear();
-		CopyFrom(dst, From(src).Repeat(0));
-		CHECK_EMPTY_LIST(dst);
-		CompareEnumerable(dst, From(src).Repeat(0));
-		CopyFrom(dst, From(src).Repeat(1));
-		CHECK_EMPTY_LIST(dst);
-		CompareEnumerable(dst, From(src).Repeat(1));
-		CopyFrom(dst, From(src).Repeat(2));
-		CHECK_EMPTY_LIST(dst);
-		CompareEnumerable(dst, From(src).Repeat(2));
-	});
-
-	TEST_CASE(L"Test Distinct()")
-	{
-		List<vint> first;
-		List<vint> second;
-		List<vint> result;
-		for (vint i = 0; i < 8; i++)
-		{
-			first.Add(i);
-		}
-		for (vint i = 2; i < 10; i++)
-		{
-			second.Add(i);
-		}
-		CopyFrom(result, From(first).Concat(second).Distinct());
-		CHECK_LIST_ITEMS(result, {0 _ 1 _ 2 _ 3 _ 4 _ 5 _ 6 _ 7 _ 8 _ 9});
-		CompareEnumerable(result, From(first).Concat(second).Distinct());
-		CopyFrom(result, From(first).Concat(second).Distinct().Reverse());
-		CHECK_LIST_ITEMS(result, {9 _ 8 _ 7 _ 6 _ 5 _ 4 _ 3 _ 2 _ 1 _ 0});
-		CompareEnumerable(result, From(first).Concat(second).Distinct().Reverse());
-	});
-
-	TEST_CASE(L"Test Intersect() / Except() / Union()")
-	{
-		List<vint> first;
-		List<vint> second;
-		List<vint> result;
-		for (vint i = 0; i < 8; i++)
-		{
-			first.Add(i);
-		}
-		for (vint i = 2; i < 10; i++)
-		{
-			second.Add(i);
-		}
-		CopyFrom(result, From(first).Intersect(second));
-		CHECK_LIST_ITEMS(result, {2 _ 3 _ 4 _ 5 _ 6 _ 7});
-		CompareEnumerable(result, From(first).Intersect(second));
-		CopyFrom(result, From(first).Except(second));
-		CHECK_LIST_ITEMS(result, {0 _ 1});
-		CompareEnumerable(result, From(first).Except(second));
-		CopyFrom(result, From(first).Union(second));
-		CHECK_LIST_ITEMS(result, {0 _ 1 _ 2 _ 3 _ 4 _ 5 _ 6 _ 7 _ 8 _ 9});
-		CompareEnumerable(result, From(first).Union(second));
-	});
-
-	TEST_CASE(L"Test Pairwise()")
-	{
-		List<vint> src;
-		Group<bool, vint> dst;
-		List<Pair<bool, vint>> pair;
-		for (vint i = 1; i <= 10; i++)
-		{
-			src.Add(i);
-		}
-		CopyFrom(dst, From(src).Select(Odd).Pairwise(From(src).Select(Square)));
-		TEST_ASSERT(dst.Count() == 2);
-		TEST_ASSERT(dst.Keys()[0] == false);
-		TEST_ASSERT(dst.Keys()[1] == true);
-		CHECK_LIST_ITEMS(dst.Get(true), {1 _ 9 _ 25 _ 49 _ 81});
-		CHECK_LIST_ITEMS(dst.Get(false), {4 _ 16 _ 36 _ 64 _ 100});
-		CopyFrom(pair, From(src).Select(Odd).Pairwise(From(src).Select(Square)));
-		CompareEnumerable(pair, From(src).Select(Odd).Pairwise(From(src).Select(Square)));
-	});
-
-	TEST_CASE(L"Test Cast()")
-	{
-		List<Ptr<Object>> src;
-		src.Add(new ObjectBox<vint>(0));
-		src.Add(new ObjectBox<vint>(1));
-		src.Add(new ObjectBox<vint>(2));
-		src.Add(new ObjectBox<vuint>(3));
-		src.Add(new ObjectBox<vuint>(4));
-		src.Add(new ObjectBox<vuint>(5));
-
-		List<vint> dst;
-		CopyFrom(dst, From(src)
-			.Cast<ObjectBox<vint>>()
-			.Select([](Ptr<ObjectBox<vint>> o) {return o ? o->Unbox() : -1; })
-			);
-		CHECK_LIST_ITEMS(dst, {0 _ 1 _ 2 _ - 1 _ - 1 _ - 1});
-
-		CopyFrom(dst, From(src)
-			.FindType<ObjectBox<vint>>()
-			.Select([](Ptr<ObjectBox<vint>> o) {return o ? o->Unbox() : -1; })
-			);
-		CHECK_LIST_ITEMS(dst, {0 _ 1 _ 2});
-	});
-
-	TEST_CASE(L"Test Linq with List<Nullable<T>>")
-	{
-		List<Nullable<vint>> src;
-		src.Add(1);
-		src.Add(Nullable<vint>());
-		src.Add(2);
-		src.Add(Nullable<vint>());
-		src.Add(3);
-
-		List<vint> dst;
-		CopyFrom(dst, From(src)
-			.Select([](Nullable<vint> i) {return i ? i.Value() : -1; })
-			);
-		CHECK_LIST_ITEMS(dst, {1 _ - 1 _ 2 _ - 1 _ 3});
-
-		CopyFrom(dst, From(src)
-			.Where([](Nullable<vint> i) {return i; })
-			.Select([](Nullable<vint> i) {return i.Value(); })
-			);
-		CHECK_LIST_ITEMS(dst, {1 _ 2 _ 3});
-	});
-
-	TEST_CASE(L"Test Linq with functions")
-	{
-		vint divider[] = {2,3,5};
-		Func<bool(vint)> selector =
-			From(divider)
-			.Select(dividableConverter)
-			.Aggregate(Combiner<bool(vint)>(And));
-
-		List<vint> src;
-		List<vint> dst;
-		for (vint i = 1; i <= 100; i++)
-		{
-			src.Add(i);
-		}
-		CopyFrom(dst, From(src).Where(selector));
-		CHECK_LIST_ITEMS(dst, {30 _ 60 _ 90});
-	});
-
 	TEST_CASE(L"Test CopyFrom() with strings")
 	{
 		WString string;
@@ -938,35 +492,11 @@ TEST_FILE
 		CHECK_DICTIONARY_ITEMS(b, {0 _ 1 _ 2 _ 3 _ 4 _ 5 _ 6 _ 7 _ 8 _ 9}, {0 _ 1 _ 4 _ 9 _ 16 _ 25 _ 36 _ 49 _ 64 _ 81});
 	});
 
-	TEST_CASE(L"Test OrderBy()")
-	{
-		vint numbers[] = {7, 1, 12, 2, 8, 3, 11, 4, 9, 5, 13, 6, 10};
-		List<vint> list;
-		CopyFrom(list, From(numbers).OrderBy(Compare));
-		CHECK_LIST_ITEMS(list, {1 _ 2 _ 3 _ 4 _ 5 _ 6 _ 7 _ 8 _ 9 _ 10 _ 11 _ 12 _ 13});
-	});
-
 	TEST_CASE(L"Test Range<T>()")
 	{
 		List<vint> list;
 		CopyFrom(list, Range<vint>(1, 10));
 		CHECK_LIST_ITEMS(list, {1 _ 2 _ 3 _ 4 _ 5 _ 6 _ 7 _ 8 _ 9 _ 10});
-	});
-
-	TEST_CASE(L"Test GroupBy()")
-	{
-		Dictionary<WString, LazyList<vint>> groups;
-		List<vint> keys;
-		CopyFrom(groups, Range<vint>(1, 10).GroupBy([](vint i) {return itow(i % 3); }));
-
-		CopyFrom(keys, From(groups.Keys()).Select(wtoi));
-		CHECK_LIST_ITEMS(keys, {0 _ 1 _ 2});
-		CopyFrom(keys, groups[L"0"]);
-		CHECK_LIST_ITEMS(keys, {3 _ 6 _ 9});
-		CopyFrom(keys, groups[L"1"]);
-		CHECK_LIST_ITEMS(keys, {1 _ 4 _ 7 _ 10});
-		CopyFrom(keys, groups[L"2"]);
-		CHECK_LIST_ITEMS(keys, {2 _ 5 _ 8});
 	});
 
 	TEST_CASE(L"Test FromIterator<T>() / FromPointer() / FromArray()")

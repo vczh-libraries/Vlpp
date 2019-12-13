@@ -66,6 +66,9 @@
     <ClCompile Include="..\..\Source\TestPartialOrdering.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\TestLinq.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\Source\Basic.h">
@@ -148,6 +151,9 @@
     </ClInclude>
     <ClInclude Include="..\..\..\Source\Collections\PartialOrdering.h">
       <Filter>Common\Collections</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\AssertCollection.h">
+      <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

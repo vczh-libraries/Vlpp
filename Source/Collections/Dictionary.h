@@ -223,6 +223,7 @@ namespace vl
 		>
 		class Group : public Object, public virtual IEnumerable<Pair<KT, VT>>
 		{
+		public:
 			typedef SortedList<KT, KK>		KeyContainer;
 			typedef List<VT, VK>			ValueContainer;
 		protected:
