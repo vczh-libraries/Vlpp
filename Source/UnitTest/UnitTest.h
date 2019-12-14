@@ -82,8 +82,19 @@ namespace vl
 			}
 		};
 
-		class UnitTestAssertError {};
-		class UnitTestConfigError {};
+		struct UnitTestAssertError
+		{
+			const wchar_t*				message;
+
+			UnitTestAssertError(const wchar_t* _message) :message(_message) {}
+		};
+
+		struct UnitTestConfigError
+		{
+			const wchar_t*				message;
+
+			UnitTestConfigError(const wchar_t* _message) :message(_message) {}
+		};
 
 #define TEST_FILE\
 		static void VLPPTEST_TESTFILE();\
@@ -99,13 +110,13 @@ namespace vl
 #define TEST_ASSERT(CONDITION)\
 		do{\
 			::vl::unittest::UnitTest::EnsureLegalToAssert();\
-			if(!(CONDITION))throw ::vl::unittest::UnitTestAssertError();\
+			if(!(CONDITION))throw ::vl::unittest::UnitTestAssertError(L"Assertion failure: " #CONDITION);\
 		}while(0)\
 
-#define TEST_ERROR(CONDITION)\
+#define TEST_ERROR(STATEMENT)\
 		do{\
 			::vl::unittest::UnitTest::EnsureLegalToAssert();\
-			try{CONDITION;throw ::vl::unittest::UnitTestAssertError();}\
+			try{STATEMENT; throw ::vl::unittest::UnitTestAssertError(L"Expect an error but nothing occurred: " #STATEMENT);}\
 			catch(const ::vl::Error&){}\
 			catch(const ::vl::unittest::UnitTestAssertError&) { throw; }\
 			catch (const ::vl::unittest::UnitTestConfigError&) { throw; }\
@@ -114,8 +125,9 @@ namespace vl
 #define TEST_EXCEPTION(STATEMENT,EXCEPTION,ASSERT_FUNCTION)\
 		do{\
 			auto __ASSERT_FUNCTION__ = ASSERT_FUNCTION;\
-			try{STATEMENT; TEST_ASSERT(false);}\
+			try{STATEMENT; throw ::vl::unittest::UnitTestAssertError(L"Expect [" #EXCEPTION "] but nothing occurred: " #STATEMENT);}\
 			catch(const EXCEPTION& e){ __ASSERT_FUNCTION__(e); }\
+			catch(...){ throw ::vl::unittest::UnitTestAssertError(L"Expect [" #EXCEPTION "] but get unexpected exception: " #STATEMENT); }\
 		}while(0)\
 
 #define TEST_PRINT(MESSAGE)\

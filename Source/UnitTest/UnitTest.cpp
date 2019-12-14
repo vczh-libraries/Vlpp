@@ -47,7 +47,8 @@ UnitTest
 			vint							passedCases = 0;
 			bool							suppressFailure = false;
 
-			void RecordFailure(const wchar_t* errorMessage)
+			template<typename TMessage>
+			void RecordFailure(TMessage errorMessage)
 			{
 				UnitTest::PrintMessage(errorMessage, UnitTest::MessageKind::Error);
 				auto current = testContext;
@@ -65,17 +66,25 @@ UnitTest
 				{
 					callback();
 				}
-				catch (const UnitTestAssertError&)
+				catch (const UnitTestAssertError& e)
 				{
-					RecordFailure(L"Assertion Failure Occurred!");
+					RecordFailure(e.message);
 				}
-				catch (const UnitTestConfigError&)
+				catch (const UnitTestConfigError& e)
 				{
-					RecordFailure(L"Unit Test Configuration Error Occurred!");
+					RecordFailure(e.message);
+				}
+				catch (const Error& e)
+				{
+					RecordFailure(e.Description());
+				}
+				catch (const Exception& e)
+				{
+					RecordFailure(e.Message());
 				}
 				catch (...)
 				{
-					RecordFailure(L"Custom Exception Occurred!");
+					RecordFailure(L"Unknown exception occurred!");
 				}
 			}
 
@@ -89,7 +98,7 @@ UnitTest
 				}
 				__except (EXCEPTION_EXECUTE_HANDLER)
 				{
-					RecordFailure(L"Runtime Exception Occurred!");
+					RecordFailure(L"Runtime exception occurred!");
 				}
 #else
 				SuppresCppFailure(callback);
@@ -113,7 +122,7 @@ UnitTest
 
 		void UnitTest::PrintMessage(const WString& string, MessageKind kind)
 		{
-			if (!testContext) throw UnitTestConfigError();
+			if (!testContext) throw UnitTestConfigError(L"Cannot print message when unit test is not running.");
 			switch (kind)
 			{
 			case MessageKind::Error:
@@ -237,8 +246,11 @@ UnitTest
 
 		void UnitTest::RunCategoryOrCase(const WString& description, bool isCategory, Func<void()>&& callback)
 		{
-			if (!testContext) throw UnitTestConfigError();
-			if (testContext->kind == UnitTestContextKind::Case) throw UnitTestConfigError();
+			if (!testContext) throw UnitTestConfigError(L"TEST_CATEGORY is not allowed to execute outside of TEST_FILE.");
+			if (testContext->kind == UnitTestContextKind::Case) throw UnitTestConfigError(
+				isCategory ?
+				L"TEST_CATEGORY is not allowed to execute inside TEST_CASE" :
+				L"TEST_CASE is not allowed to execute inside TEST_CASE");
 
 			PrintMessage(description, (isCategory ? MessageKind::Category : MessageKind::Case));
 
@@ -259,8 +271,8 @@ UnitTest
 
 		void UnitTest::EnsureLegalToAssert()
 		{
-			if (!testContext) throw UnitTestConfigError();
-			if (testContext->kind != UnitTestContextKind::Case) throw UnitTestConfigError();
+			if (!testContext) throw UnitTestConfigError(L"Assertion is not allowed to execute outside of TEST_CASE.");
+			if (testContext->kind != UnitTestContextKind::Case) throw UnitTestConfigError(L"Assertion is not allowed to execute outside of TEST_CASE.");
 		}
 	}
 }

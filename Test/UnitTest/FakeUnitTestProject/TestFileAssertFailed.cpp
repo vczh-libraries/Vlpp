@@ -21,12 +21,12 @@ TEST_FILE
 			TEST_EXCEPTION(true, Exception, [](const Exception&) {});
 		});
 
-		TEST_CASE(L"Except an Exception but get unexpected type")
+		TEST_CASE(L"Expect an Exception but get unexpected type")
 		{
 			TEST_EXCEPTION(throw ArgumentException(), ParsingException, [](const Exception&) {});
 		});
 
-		TEST_CASE(L"Except an Exception but the information is not correct")
+		TEST_CASE(L"Expect an Exception but the information is not correct")
 		{
 			TEST_EXCEPTION(throw ArgumentException(), ArgumentException, [](const Exception& e)
 			{
