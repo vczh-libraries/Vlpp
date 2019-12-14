@@ -34,8 +34,8 @@ TEST_FILE
 			});
 		});
 
-		TEST_CASE_ASSSERT((L"Case assertion failure in category", false));
+		TEST_CASE_ASSERT((L"Case assertion failure in category", false));
 	});
 
-	TEST_CASE_ASSSERT((L"Case assertion failure in file", false));
+	TEST_CASE_ASSERT((L"Case assertion failure in file", false));
 }

@@ -6314,7 +6314,7 @@ namespace vl
 #define TEST_PRINT(MESSAGE)\
 		::vl::unittest::UnitTest::PrintMessage((MESSAGE), ::vl::unittest::UnitTest::MessageKind::Info)\
 
-#define TEST_CASE_ASSSERT(CONDITION)\
+#define TEST_CASE_ASSERT(CONDITION)\
 		TEST_CASE(L ## # CONDITION) { TEST_ASSERT(CONDITION); })\
 
 	}
