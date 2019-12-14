@@ -122,7 +122,11 @@ UnitTest
 
 		void UnitTest::PrintMessage(const WString& string, MessageKind kind)
 		{
-			if (!testContext) throw UnitTestConfigError(L"Cannot print message when unit test is not running.");
+			if (kind != MessageKind::Error && !testContext)
+			{
+				throw UnitTestConfigError(L"Cannot print message when unit test is not running.");
+			}
+
 			switch (kind)
 			{
 			case MessageKind::Error:
@@ -141,7 +145,7 @@ UnitTest
 				Console::SetColor(false, true, false, true);
 				break;
 			}
-			Console::WriteLine(testContext->indentation + string);
+			Console::WriteLine((testContext ? testContext->indentation : L"") + string);
 			Console::SetColor(true, true, true, false);
 		}
 
