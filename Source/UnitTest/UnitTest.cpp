@@ -191,6 +191,15 @@ UnitTest
 				totalCases = 0;
 				passedCases = 0;
 
+				if (suppressFailure)
+				{
+					PrintMessage(L"Failures are suppressed.", MessageKind::Info);
+				}
+				else
+				{
+					PrintMessage(L"Failures are not suppressed.", MessageKind::Info);
+				}
+
 				while (current)
 				{
 					context.failed = false;
