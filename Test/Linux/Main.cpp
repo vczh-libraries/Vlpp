@@ -3,18 +3,7 @@
 
 using namespace vl;
 
-WString GetTestResourcePath()
+int main(int argc, char** argv)
 {
-	return L"../Resources/";
-}
-
-WString GetTestOutputPath()
-{
-	return L"../Output/";
-}
-
-int main()
-{
-	unittest::UnitTest::RunAndDisposeTests();
-	return 0;
+	return unittest::UnitTest::RunAndDisposeTests(argc, argv);
 }

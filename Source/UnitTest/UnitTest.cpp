@@ -101,7 +101,7 @@ UnitTest
 					RecordFailure(L"Runtime exception occurred!");
 				}
 #else
-				SuppresCppFailure(callback);
+				SuppressCppFailure(callback);
 #endif
 			}
 

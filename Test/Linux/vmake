@@ -1,6 +1,6 @@
 <#
 CPP_TARGET=./Bin/UnitTest
-CPP_VCXPROJ=../UnitTest/UnitTest/UnitTest.vcxproj
+CPP_VCXPROJS=("../UnitTest/UnitTest/UnitTest.vcxproj" "../UnitTest/Vlpp/Vlpp.vcxproj")
 CPP_REMOVES=("../Source/TestLocale.cpp" "../UnitTest/UnitTest/Main.cpp")
 CPP_ADDS=("Main.cpp")
 FOLDERS=("../Output")

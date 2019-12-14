@@ -17,8 +17,29 @@ clean:
 
 all:pre-build ./Bin/UnitTest
 
-./Bin/UnitTest:./Obj/Basic.o ./Obj/PartialOrdering.o ./Obj/Console.o ./Obj/Exception.o ./Obj/GlobalStorage.o ./Obj/String.o ./Obj/UnitTest.o ./Obj/TestBasic.o ./Obj/TestFunction.o ./Obj/TestGlobalStorage.o ./Obj/TestList.o ./Obj/TestPartialOrdering.o ./Obj/TestString.o ./Obj/Main.o
+./Bin/UnitTest:./Obj/TestBasic.o ./Obj/TestFunction.o ./Obj/TestGlobalStorage.o ./Obj/TestLinq.o ./Obj/TestList.o ./Obj/TestPartialOrdering.o ./Obj/TestString.o ./Obj/Basic.o ./Obj/PartialOrdering.o ./Obj/Console.o ./Obj/Exception.o ./Obj/GlobalStorage.o ./Obj/String.o ./Obj/UnitTest.o ./Obj/Main.o
 	$(CPP_LINK)
+
+./Obj/TestBasic.o: ../Source/TestBasic.cpp ../Source/../../Source/UnitTest/UnitTest.h ../Source/../../Source/UnitTest/../String.h ../Source/../../Source/UnitTest/../Basic.h ../Source/../../Source/UnitTest/../Function.h ../Source/../../Source/UnitTest/../Pointer.h ../Source/../../Source/UnitTest/../Exception.h ../Source/../../Source/Pointer.h ../Source/../../Source/Tuple.h ../Source/../../Source/Lazy.h
+	$(CPP_COMPILE)
+
+./Obj/TestFunction.o: ../Source/TestFunction.cpp ../Source/../../Source/UnitTest/UnitTest.h ../Source/../../Source/UnitTest/../String.h ../Source/../../Source/UnitTest/../Basic.h ../Source/../../Source/UnitTest/../Function.h ../Source/../../Source/UnitTest/../Pointer.h ../Source/../../Source/UnitTest/../Exception.h ../Source/../../Source/Function.h ../Source/../../Source/Event.h ../Source/../../Source/UnitTest/../Collections/List.h ../Source/../../Source/UnitTest/../Collections/Interfaces.h ../Source/../../Source/UnitTest/../Collections/../Basic.h ../Source/../../Source/UnitTest/../Collections/../Pointer.h ../Source/../../Source/UnitTest/../Collections/Pair.h ../Source/../../Source/Collections/List.h
+	$(CPP_COMPILE)
+
+./Obj/TestGlobalStorage.o: ../Source/TestGlobalStorage.cpp ../Source/../../Source/UnitTest/UnitTest.h ../Source/../../Source/UnitTest/../String.h ../Source/../../Source/UnitTest/../Basic.h ../Source/../../Source/UnitTest/../Function.h ../Source/../../Source/UnitTest/../Pointer.h ../Source/../../Source/UnitTest/../Exception.h ../Source/../../Source/GlobalStorage.h
+	$(CPP_COMPILE)
+
+./Obj/TestLinq.o: ../Source/TestLinq.cpp ../Source/AssertCollection.h ../Source/../../Source/UnitTest/UnitTest.h ../Source/../../Source/UnitTest/../String.h ../Source/../../Source/UnitTest/../Basic.h ../Source/../../Source/UnitTest/../Function.h ../Source/../../Source/UnitTest/../Pointer.h ../Source/../../Source/UnitTest/../Exception.h ../Source/../../Source/Collections/List.h ../Source/../../Source/Collections/Interfaces.h ../Source/../../Source/Collections/../Basic.h ../Source/../../Source/Collections/../Pointer.h ../Source/../../Source/Collections/Pair.h ../Source/../../Source/Collections/Dictionary.h ../Source/../../Source/Collections/Operation.h ../Source/../../Source/Collections/OperationCopyFrom.h ../Source/../../Source/Collections/OperationEnumerable.h ../Source/../../Source/Collections/OperationSelect.h ../Source/../../Source/Collections/../Function.h ../Source/../../Source/Collections/OperationWhere.h ../Source/../../Source/Collections/OperationConcat.h ../Source/../../Source/Collections/OperationSequence.h ../Source/../../Source/Collections/OperationSet.h ../Source/../../Source/Collections/OperationPair.h ../Source/../../Source/Collections/OperationString.h ../Source/../../Source/Collections/../String.h ../Source/../../Source/Collections/OperationForEach.h
+	$(CPP_COMPILE)
+
+./Obj/TestList.o: ../Source/TestList.cpp ../Source/AssertCollection.h ../Source/../../Source/UnitTest/UnitTest.h ../Source/../../Source/UnitTest/../String.h ../Source/../../Source/UnitTest/../Basic.h ../Source/../../Source/UnitTest/../Function.h ../Source/../../Source/UnitTest/../Pointer.h ../Source/../../Source/UnitTest/../Exception.h ../Source/../../Source/Collections/List.h ../Source/../../Source/Collections/Interfaces.h ../Source/../../Source/Collections/../Basic.h ../Source/../../Source/Collections/../Pointer.h ../Source/../../Source/Collections/Pair.h ../Source/../../Source/Collections/Dictionary.h ../Source/../../Source/Collections/Operation.h ../Source/../../Source/Collections/OperationCopyFrom.h ../Source/../../Source/Collections/OperationEnumerable.h ../Source/../../Source/Collections/OperationSelect.h ../Source/../../Source/Collections/../Function.h ../Source/../../Source/Collections/OperationWhere.h ../Source/../../Source/Collections/OperationConcat.h ../Source/../../Source/Collections/OperationSequence.h ../Source/../../Source/Collections/OperationSet.h ../Source/../../Source/Collections/OperationPair.h ../Source/../../Source/Collections/OperationString.h ../Source/../../Source/Collections/../String.h ../Source/../../Source/Collections/OperationForEach.h
+	$(CPP_COMPILE)
+
+./Obj/TestPartialOrdering.o: ../Source/TestPartialOrdering.cpp ../Source/../../Source/UnitTest/UnitTest.h ../Source/../../Source/UnitTest/../String.h ../Source/../../Source/UnitTest/../Basic.h ../Source/../../Source/UnitTest/../Function.h ../Source/../../Source/UnitTest/../Pointer.h ../Source/../../Source/UnitTest/../Exception.h ../Source/../../Source/Collections/PartialOrdering.h ../Source/../../Source/Collections/Dictionary.h ../Source/../../Source/Collections/List.h ../Source/../../Source/Collections/Interfaces.h ../Source/../../Source/Collections/../Basic.h ../Source/../../Source/Collections/../Pointer.h ../Source/../../Source/Collections/Pair.h ../Source/../../Source/Collections/Operation.h ../Source/../../Source/Collections/OperationCopyFrom.h ../Source/../../Source/Collections/OperationEnumerable.h ../Source/../../Source/Collections/OperationSelect.h ../Source/../../Source/Collections/../Function.h ../Source/../../Source/Collections/OperationWhere.h ../Source/../../Source/Collections/OperationConcat.h ../Source/../../Source/Collections/OperationSequence.h ../Source/../../Source/Collections/OperationSet.h ../Source/../../Source/Collections/OperationPair.h ../Source/../../Source/Collections/OperationString.h ../Source/../../Source/Collections/../String.h ../Source/../../Source/Collections/OperationForEach.h
+	$(CPP_COMPILE)
+
+./Obj/TestString.o: ../Source/TestString.cpp ../Source/../../Source/UnitTest/UnitTest.h ../Source/../../Source/UnitTest/../String.h ../Source/../../Source/UnitTest/../Basic.h ../Source/../../Source/UnitTest/../Function.h ../Source/../../Source/UnitTest/../Pointer.h ../Source/../../Source/UnitTest/../Exception.h
+	$(CPP_COMPILE)
 
 ./Obj/Basic.o: ../../Source/Basic.cpp ../../Source/Basic.h
 	$(CPP_COMPILE)
@@ -38,26 +59,8 @@ all:pre-build ./Bin/UnitTest
 ./Obj/String.o: ../../Source/String.cpp ../../Source/String.h ../../Source/Basic.h
 	$(CPP_COMPILE)
 
-./Obj/UnitTest.o: ../../Source/UnitTest/UnitTest.cpp ../../Source/UnitTest/UnitTest.h ../../Source/UnitTest/../String.h ../../Source/UnitTest/../Basic.h ../../Source/UnitTest/../Console.h
+./Obj/UnitTest.o: ../../Source/UnitTest/UnitTest.cpp ../../Source/UnitTest/UnitTest.h ../../Source/UnitTest/../String.h ../../Source/UnitTest/../Basic.h ../../Source/UnitTest/../Function.h ../../Source/UnitTest/../Pointer.h ../../Source/UnitTest/../Exception.h ../../Source/UnitTest/../Console.h
 	$(CPP_COMPILE)
 
-./Obj/TestBasic.o: ../Source/TestBasic.cpp ../Source/../../Source/UnitTest/UnitTest.h ../Source/../../Source/UnitTest/../String.h ../Source/../../Source/UnitTest/../Basic.h ../Source/../../Source/Pointer.h ../Source/../../Source/Tuple.h ../Source/../../Source/Lazy.h ../Source/../../Source/UnitTest/../Pointer.h ../Source/../../Source/UnitTest/../Function.h
-	$(CPP_COMPILE)
-
-./Obj/TestFunction.o: ../Source/TestFunction.cpp ../Source/../../Source/UnitTest/UnitTest.h ../Source/../../Source/UnitTest/../String.h ../Source/../../Source/UnitTest/../Basic.h ../Source/../../Source/Function.h ../Source/../../Source/UnitTest/../Pointer.h ../Source/../../Source/Event.h ../Source/../../Source/UnitTest/../Function.h ../Source/../../Source/UnitTest/../Collections/List.h ../Source/../../Source/UnitTest/../Collections/Interfaces.h ../Source/../../Source/UnitTest/../Collections/../Basic.h ../Source/../../Source/UnitTest/../Collections/../Pointer.h ../Source/../../Source/UnitTest/../Collections/Pair.h ../Source/../../Source/Collections/List.h
-	$(CPP_COMPILE)
-
-./Obj/TestGlobalStorage.o: ../Source/TestGlobalStorage.cpp ../Source/../../Source/UnitTest/UnitTest.h ../Source/../../Source/UnitTest/../String.h ../Source/../../Source/UnitTest/../Basic.h ../Source/../../Source/GlobalStorage.h ../Source/../../Source/UnitTest/../Pointer.h
-	$(CPP_COMPILE)
-
-./Obj/TestList.o: ../Source/TestList.cpp ../Source/../../Source/UnitTest/UnitTest.h ../Source/../../Source/UnitTest/../String.h ../Source/../../Source/UnitTest/../Basic.h ../Source/../../Source/Collections/List.h ../Source/../../Source/Collections/Interfaces.h ../Source/../../Source/Collections/../Basic.h ../Source/../../Source/Collections/../Pointer.h ../Source/../../Source/Collections/Pair.h ../Source/../../Source/Collections/Dictionary.h ../Source/../../Source/Collections/Operation.h ../Source/../../Source/Collections/OperationCopyFrom.h ../Source/../../Source/Collections/OperationEnumerable.h ../Source/../../Source/Collections/OperationSelect.h ../Source/../../Source/Collections/../Function.h ../Source/../../Source/UnitTest/../Pointer.h ../Source/../../Source/Collections/OperationWhere.h ../Source/../../Source/Collections/OperationConcat.h ../Source/../../Source/Collections/OperationSequence.h ../Source/../../Source/Collections/OperationSet.h ../Source/../../Source/Collections/OperationPair.h ../Source/../../Source/Collections/OperationString.h ../Source/../../Source/Collections/../String.h ../Source/../../Source/Collections/OperationForEach.h
-	$(CPP_COMPILE)
-
-./Obj/TestPartialOrdering.o: ../Source/TestPartialOrdering.cpp ../Source/../../Source/UnitTest/UnitTest.h ../Source/../../Source/UnitTest/../String.h ../Source/../../Source/UnitTest/../Basic.h ../Source/../../Source/Collections/PartialOrdering.h ../Source/../../Source/Collections/Dictionary.h ../Source/../../Source/Collections/List.h ../Source/../../Source/Collections/Interfaces.h ../Source/../../Source/Collections/../Basic.h ../Source/../../Source/Collections/../Pointer.h ../Source/../../Source/Collections/Pair.h ../Source/../../Source/Collections/Operation.h ../Source/../../Source/Collections/OperationCopyFrom.h ../Source/../../Source/Collections/OperationEnumerable.h ../Source/../../Source/Collections/OperationSelect.h ../Source/../../Source/Collections/../Function.h ../Source/../../Source/UnitTest/../Pointer.h ../Source/../../Source/Collections/OperationWhere.h ../Source/../../Source/Collections/OperationConcat.h ../Source/../../Source/Collections/OperationSequence.h ../Source/../../Source/Collections/OperationSet.h ../Source/../../Source/Collections/OperationPair.h ../Source/../../Source/Collections/OperationString.h ../Source/../../Source/Collections/../String.h ../Source/../../Source/Collections/OperationForEach.h
-	$(CPP_COMPILE)
-
-./Obj/TestString.o: ../Source/TestString.cpp ../Source/../../Source/UnitTest/UnitTest.h ../Source/../../Source/UnitTest/../String.h ../Source/../../Source/UnitTest/../Basic.h
-	$(CPP_COMPILE)
-
-./Obj/Main.o: Main.cpp ../../Source/String.h ../../Source/Basic.h ../../Source/UnitTest/UnitTest.h ../../Source/UnitTest/../String.h
+./Obj/Main.o: Main.cpp ../../Source/String.h ../../Source/Basic.h ../../Source/UnitTest/UnitTest.h ../../Source/UnitTest/../String.h ../../Source/UnitTest/../Function.h ../../Source/Pointer.h ../../Source/UnitTest/../Exception.h
 	$(CPP_COMPILE)
