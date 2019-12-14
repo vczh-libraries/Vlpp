@@ -741,13 +741,16 @@ namespace vl
 		static const bool Result = true;
 	};
 
+	template<typename T>
+	T ValueOf();
+
 	template<typename TFrom, typename TTo>
 	struct PointerConvertable
 	{
 		static YesType Test(TTo* value);
 		static NoType Test(void* value);
 
-		typedef decltype(Test((TFrom*)nullptr)) YesNoType;
+		typedef decltype(Test(ValueOf<TFrom*>())) YesNoType;
 	};
 
 	template<typename TFrom, typename TTo>
@@ -756,7 +759,7 @@ namespace vl
 		static YesType Test(TTo&& value);
 		static NoType Test(...);
 
-		typedef decltype(Test((TFrom&&)*(TFrom*)nullptr)) YesNoType;
+		typedef decltype(Test(ValueOf<TFrom&&>())) YesNoType;
 	};
 
 	template<typename TFrom>
@@ -782,9 +785,6 @@ namespace vl
 	{
 		typedef T Type;
 	};
-
-	template<typename T>
-	T ValueOf();
 }
 
 #endif
