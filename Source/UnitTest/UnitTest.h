@@ -10,6 +10,7 @@ UI::Console
 
 #include "../String.h"
 #include "../Function.h"
+#include "../Exception.h"
 
 namespace vl
 {
@@ -105,14 +106,17 @@ namespace vl
 		do{\
 			::vl::unittest::UnitTest::EnsureLegalToAssert();\
 			try{CONDITION;throw ::vl::unittest::UnitTestAssertError();}\
-			catch(const Error&){}\
+			catch(const ::vl::Error&){}\
 			catch(const ::vl::unittest::UnitTestAssertError&) { throw; }\
 			catch (const ::vl::unittest::UnitTestConfigError&) { throw; }\
 		}while(0)\
 
 #define TEST_EXCEPTION(STATEMENT,EXCEPTION,ASSERT_FUNCTION)\
-		try{STATEMENT; TEST_ASSERT(false);}\
-		catch(const EXCEPTION& e){ASSERT_FUNCTION(e);}\
+		do{\
+			auto __ASSERT_FUNCTION__ = ASSERT_FUNCTION;\
+			try{STATEMENT; TEST_ASSERT(false);}\
+			catch(const EXCEPTION& e){ __ASSERT_FUNCTION__(e); }\
+		}while(0)\
 
 #define TEST_PRINT(MESSAGE)\
 		::vl::unittest::UnitTest::PrintMessage((MESSAGE), ::vl::unittest::UnitTest::MessageKind::Info)\

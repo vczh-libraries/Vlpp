@@ -156,6 +156,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="TestFileAssertFailed.cpp" />
+    <ClCompile Include="TestFileConfigFailed.cpp" />
+    <ClCompile Include="TestFileException.cpp" />
+    <ClCompile Include="TestFilePassed.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Vlpp\Vlpp.vcxproj">
