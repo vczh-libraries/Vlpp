@@ -13,15 +13,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Common">
-      <UniqueIdentifier>{a0063a3f-fb90-4cc0-8369-26646e7eadf7}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Common\Collections">
-      <UniqueIdentifier>{7abfcf20-99a0-4db8-8a83-6e00c3e5ba40}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Common\UnitTest">
-      <UniqueIdentifier>{e230e625-0768-422e-abfb-f3de93e4a706}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Source\TestBasic.cpp">
@@ -39,29 +30,8 @@
     <ClCompile Include="..\..\Source\TestString.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\Source\Basic.cpp">
-      <Filter>Common</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\Source\Console.cpp">
-      <Filter>Common</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\Source\Exception.cpp">
-      <Filter>Common</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\Source\GlobalStorage.cpp">
-      <Filter>Common</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\Source\String.cpp">
-      <Filter>Common</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\Source\UnitTest\UnitTest.cpp">
-      <Filter>Common\UnitTest</Filter>
-    </ClCompile>
     <ClCompile Include="Main.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\Source\Collections\PartialOrdering.cpp">
-      <Filter>Common\Collections</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\TestPartialOrdering.cpp">
       <Filter>Source Files</Filter>
@@ -71,87 +41,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\Source\Basic.h">
-      <Filter>Common</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Source\Console.h">
-      <Filter>Common</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Source\Event.h">
-      <Filter>Common</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Source\Exception.h">
-      <Filter>Common</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Source\Function.h">
-      <Filter>Common</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Source\GlobalStorage.h">
-      <Filter>Common</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Source\Lazy.h">
-      <Filter>Common</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Source\Pointer.h">
-      <Filter>Common</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Source\String.h">
-      <Filter>Common</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Source\Tuple.h">
-      <Filter>Common</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Source\Collections\Dictionary.h">
-      <Filter>Common\Collections</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Source\Collections\Interfaces.h">
-      <Filter>Common\Collections</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Source\Collections\List.h">
-      <Filter>Common\Collections</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Source\Collections\Operation.h">
-      <Filter>Common\Collections</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Source\Collections\OperationConcat.h">
-      <Filter>Common\Collections</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Source\Collections\OperationCopyFrom.h">
-      <Filter>Common\Collections</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Source\Collections\OperationEnumerable.h">
-      <Filter>Common\Collections</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Source\Collections\OperationForEach.h">
-      <Filter>Common\Collections</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Source\Collections\OperationPair.h">
-      <Filter>Common\Collections</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Source\Collections\OperationSelect.h">
-      <Filter>Common\Collections</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Source\Collections\OperationSequence.h">
-      <Filter>Common\Collections</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Source\Collections\OperationSet.h">
-      <Filter>Common\Collections</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Source\Collections\OperationString.h">
-      <Filter>Common\Collections</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Source\Collections\OperationWhere.h">
-      <Filter>Common\Collections</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Source\Collections\Pair.h">
-      <Filter>Common\Collections</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Source\UnitTest\UnitTest.h">
-      <Filter>Common\UnitTest</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Source\Collections\PartialOrdering.h">
-      <Filter>Common\Collections</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Source\AssertCollection.h">
       <Filter>Source Files</Filter>
     </ClInclude>
