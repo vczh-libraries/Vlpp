@@ -1,5 +1,8 @@
 #include "UnitTest.h"
 #include "../Console.h"
+#ifdef VCZH_MSVC
+#include <Windows.h>
+#endif
 
 namespace vl
 {
@@ -11,31 +14,102 @@ namespace vl
 UnitTest
 ***********************************************************************/
 
-		struct UnitTestLink
+		namespace execution_impl
 		{
-			const char*					fileName;
-			UnitTestFileProc			testProc = nullptr;
-			UnitTestLink*				next = nullptr;
-		};
-		UnitTestLink*					testHead = nullptr;
-		UnitTestLink**					testTail = &testHead;
+			struct UnitTestLink
+			{
+				const char*					fileName;
+				UnitTestFileProc			testProc = nullptr;
+				UnitTestLink*				next = nullptr;
+			};
+			UnitTestLink*					testHead = nullptr;
+			UnitTestLink**					testTail = &testHead;
 
-		enum class UnitTestContextKind
-		{
-			File,
-			Category,
-			Case,
-		};
+			enum class UnitTestContextKind
+			{
+				File,
+				Category,
+				Case,
+			};
 
-		struct UnitTestContext
-		{
-			UnitTestContext*			parent = nullptr;
-			WString						indentation;
-			WString						description;
-			UnitTestContextKind			kind = UnitTestContextKind::File;
-		};
+			struct UnitTestContext
+			{
+				UnitTestContext*			parent = nullptr;
+				WString						indentation;
+				UnitTestContextKind			kind = UnitTestContextKind::File;
+				bool						failed = false;
+			};
 
-		UnitTestContext*				testContext = nullptr;
+			UnitTestContext*				testContext = nullptr;
+			vint							totalFiles = 0;
+			vint							passedFiles = 0;
+			vint							totalCases = 0;
+			vint							passedCases = 0;
+			bool							suppressFailure = false;
+
+			void RecordFailure(const wchar_t* errorMessage)
+			{
+				UnitTest::PrintMessage(errorMessage, UnitTest::MessageKind::Error);
+				auto current = testContext;
+				while (current)
+				{
+					current->failed = true;
+					current = current->parent;
+				}
+			}
+
+			template<typename TCallback>
+			void SuppressCppFailure(TCallback&& callback)
+			{
+				try
+				{
+					callback();
+				}
+				catch (const UnitTestAssertError&)
+				{
+					RecordFailure(L"Assertion Failure Occurred!");
+				}
+				catch (const UnitTestConfigError&)
+				{
+					RecordFailure(L"Unit Test Configuration Error Occurred!");
+				}
+				catch (...)
+				{
+					RecordFailure(L"Custom Exception Occurred!");
+				}
+			}
+
+			template<typename TCallback>
+			void SuppressCFailure(TCallback&& callback)
+			{
+#ifdef VCZH_MSVC
+				__try
+				{
+					SuppressCppFailure(ForwardValue<TCallback&&>(callback));
+				}
+				__except (EXCEPTION_EXECUTE_HANDLER)
+				{
+					RecordFailure(L"Runtime Exception Occurred!");
+				}
+#else
+				SuppresCppFailure(callback);
+#endif
+			}
+
+			template<typename TCallback>
+			void ExecuteAndSuppressFailure(TCallback&& callback)
+			{
+				if (suppressFailure)
+				{
+					SuppressCFailure(ForwardValue<TCallback&&>(callback));
+				}
+				else
+				{
+					callback();
+				}
+			}
+		}
+		using namespace execution_impl;
 
 		void UnitTest::PrintMessage(const WString& string, MessageKind kind)
 		{
@@ -68,26 +142,79 @@ UnitTest
 		int UnitTest::RunAndDisposeTests(int argc, char* argv[])
 #endif
 		{
-			auto current = testHead;
-			testHead = nullptr;
-			testTail = nullptr;
-
-			UnitTestContext context;
-			testContext = &context;
-
-			while (current)
+			if (argc < 3)
 			{
-				PrintMessage(atow(current->fileName), MessageKind::File);
-				context.indentation = L"    ";
-				current->testProc();
-				context.indentation = L"";
-				auto temp = current;
-				current = current->next;
-				delete temp;
-			}
+				if (argc == 2)
+				{
+#ifdef VCZH_MSVC
+					WString option = argv[1];
+#else
+					WString option = atow(argv[1]);
+#endif
+					if (option == L"/D")
+					{
+						suppressFailure = false;
+					}
+					else if (option == L"/R")
+					{
+						suppressFailure = true;
+					}
+					else
+					{
+						goto PRINT_USAGE;
+					}
+				}
+				else
+				{
+#ifdef VCZH_MSVC
+					if (IsDebuggerPresent())
+					{
+						suppressFailure = false;
+					}
+					else
+					{
+						suppressFailure = true;
+					}
+#else
+					suppressFailure = true;
+#endif
+				}
 
-			testContext = nullptr;
-			return 0;
+				auto current = testHead;
+				testHead = nullptr;
+				testTail = nullptr;
+
+				UnitTestContext context;
+				testContext = &context;
+				totalFiles = 0;
+				passedFiles = 0;
+				totalCases = 0;
+				passedCases = 0;
+
+				while (current)
+				{
+					context.failed = false;
+					PrintMessage(atow(current->fileName), MessageKind::File);
+					context.indentation = L"    ";
+					ExecuteAndSuppressFailure(current->testProc);
+					if (!testContext->failed) passedFiles++;
+					totalFiles++;
+					context.indentation = L"";
+					auto temp = current;
+					current = current->next;
+					delete temp;
+				}
+
+				bool passed = totalFiles == passedFiles;
+				auto messageKind = passed ? MessageKind::Case : MessageKind::Error;
+				PrintMessage(L"Passed test files: " + itow(passedFiles) + L"/" + itow(totalFiles), messageKind);
+				PrintMessage(L"Passed test cases: " + itow(passedCases) + L"/" + itow(totalCases), messageKind);
+				testContext = nullptr;
+				return passed ? 0 : 1;
+			}
+		PRINT_USAGE:
+			PrintMessage(L"Usage: [/D | /R]", MessageKind::Error);
+			return 1;
 		}
 
 		void UnitTest::RegisterTestFile(const char* fileName, UnitTestFileProc testProc)
@@ -109,11 +236,15 @@ UnitTest
 			UnitTestContext context;
 			context.parent = testContext;
 			context.indentation = testContext->indentation + L"    ";
-			context.description = description;
 			context.kind = isCategory ? UnitTestContextKind::Category : UnitTestContextKind::Case;
 
 			testContext = &context;
-			callback();
+			ExecuteAndSuppressFailure(callback);
+			if (!isCategory)
+			{
+				if (!testContext->failed) passedCases++;
+				totalCases++;
+			}
 			testContext = context.parent;
 		}
 
