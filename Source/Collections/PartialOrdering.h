@@ -44,7 +44,7 @@ Partial Ordering
 		/// Partial ordering item sorter.
 		/// This class sorts items in a partial order using the given dependency information.
 		/// Node stored in this class using the index of items.
-		/// If a depends on b, then a.ins->Contains(b) &amp;&amp; b.outs->Contains(a).
+		/// If a depends on b, then a.ins-&gt;Contains(b) &amp;&amp; b.outs-&gt;Contains(a).
 		/// The sorting result is a list of strong connected components in order.
 		/// If a depends on b, then the component containing a appears after the component containing b.
 		/// Node could represent a sub class if InitWithSubClass is called.
