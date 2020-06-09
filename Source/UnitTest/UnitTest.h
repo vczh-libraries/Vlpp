@@ -62,6 +62,9 @@ namespace vl
 			static void PrintMessage(const WString& string, MessageKind kind);
 
 			/// <summary>Run all test cases.</summary>
+			/// <returns>The return value for the main function.</returns>
+			/// <param name="argc">Accept the first argument of the main function.</param>
+			/// <param name="argv">Accept the second argument of the main function.</param>
 #ifdef VCZH_MSVC
 			static int RunAndDisposeTests(int argc, wchar_t* argv[]);
 #else
