@@ -463,7 +463,7 @@ vl::function_combining::Combining<R1(TArgs...), R2(TArgs...), R(R1,R2)>
 		return function_combining::Combining<F1, F2, C>(function1, function2, converter);
 	}
 
-	/// <summary>Use the converter function to create a combiner, who will receive two function and use <see cref="Combine"/> to create a combined function. This function assumes the result types of the two provided function in the future are the same, and the converter function will not change the result type.</summary>
+	/// <summary>Use the converter function to create a combiner, who will receive two function and use <see cref="Combine`3"/> to create a combined function. This function assumes the result types of the two provided function in the future are the same, and the converter function will not change the result type.</summary>
 	/// <typeparam name="T">Type of the two functions to combine.</typeparam>
 	/// <returns>The combiner.</returns>
 	/// <param name="converter">The converter function.</param>
