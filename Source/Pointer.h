@@ -15,13 +15,22 @@ namespace vl
 ReferenceCounterOperator
 ***********************************************************************/
 
-	/// <summary>The strategy to get the pointer to the reference counter from an object. If you get the same pointer multiple times from the same object by calling [M:vl.ReferenceCounterOperator`2.CreateCounter], than it is safe to convert a object pointer to a [T:vl.Ptr`1]. Currently for reflectable C++ types which inherit from [T:vl.reflection.DescriptableObject] it is yet. For others it is no.</summary>
-	/// <typeparam name="T">The type of the object.</typeparam>
-	/// <typeparam name="Enabled">[T:vl.Ptr`1] will always use [T:vl.YesType] as the second type parameter. This parameter is useful when you want to do partial specialization in the SFINAE way.</typeparam>
+	/// <summary>
+	/// The strategy class to create and delete the reference counter of an object.
+	/// For any object inherits from [T:vl.reflection.DescriptableObject], the reference counter is stored inside the object.
+	/// For any other object, the reference counter is allocated separately.
+	/// You can create your own strategy by adding a new partial specialization to this class.
+	/// <typeparam name="T">
+	/// The type of the object.
+	/// </typeparam>
+	/// <typeparam name="Enabled">
+	/// [T:vl.Ptr`1] will always use [T:vl.YesType] as the second type parameter.
+	/// This parameter is useful when you want to do partial specialization in the SFINAE way.
+	/// </typeparam>
 	template<typename T, typename Enabled=YesType>
 	struct ReferenceCounterOperator
 	{
-		/// <summary>Create a pointer to the reference counter from an object.</summary>
+		/// <summary>Create the reference counter of an object.</summary>
 		/// <returns>The pointer to the reference counter.</returns>
 		/// <param name="reference">The object.</param>
 		static __forceinline volatile vint* CreateCounter(T* reference)
@@ -29,7 +38,7 @@ ReferenceCounterOperator
 			return new vint(0);
 		}
 
-		/// <summary>Destroy a pointer to the reference counter from an object.</summary>
+		/// <summary>Delete the reference counter from an object.</summary>
 		/// <param name="counter">The pointer to the reference counter.</param>
 		/// <param name="reference">The object.</param>
 		static __forceinline void DeleteReference(volatile vint* counter, void* reference)
@@ -43,7 +52,17 @@ ReferenceCounterOperator
 Ptr
 ***********************************************************************/
 
-	/// <summary>A smart pointer. It is always safe to convert a pointer to an object to a smart pointer once. If you do it multiple times, it may be wrong due to different implementation of [T:vl.ReferenceCounterOperator`2]. In case of wrong, disposing the smart pointer will cause an access violation.</summary>
+	/// <summary>
+	/// A shared pointer.
+	/// It maintains a reference counter to the object.
+	/// When no [T:vl.Ptr`1] is referencing the object, the object will be deleted automatically.
+	/// </summary>
+	/// <remarks>
+	/// It is safe to convert the same pointer to an object to a shared pointer once.
+	/// If you do it multiple times, it depends on [T:vl.ReferenceCounterOperator`2].
+	/// For built-in strategies, only pointer to [T:vl.reflection.DescriptableObject] or its derived classes can be safely converted to a shared pointer for multiple times.
+	/// For any other object, it will crash on the destructor of [T:vl.Ptr`1].
+	/// </remarks>
 	/// <typeparam name="T">The type of the object.</typeparam>
 	template<typename T>
 	class Ptr
@@ -105,11 +124,9 @@ Ptr
 	public:
 
 		/// <summary>Create a null pointer.</summary>
-		Ptr()
-		{
-		}
+		Ptr() = default;
 
-		/// <summary>Convert a pointer to an object to a smart pointer.</summary>
+		/// <summary>Convert a pointer to an object to a shared pointer.</summary>
 		/// <param name="pointer">The pointer to the object.</param>
 		Ptr(T* pointer)
 		{
@@ -123,8 +140,8 @@ Ptr
 			}
 		}
 
-		/// <summary>Copy a smart pointer.</summary>
-		/// <param name="pointer">The smart pointer to copy.</param>
+		/// <summary>Copy a shared pointer.</summary>
+		/// <param name="pointer">The shared pointer to copy.</param>
 		Ptr(const Ptr<T>& pointer)
 			:counter(pointer.counter)
 			, reference(pointer.reference)
@@ -134,8 +151,8 @@ Ptr
 			Inc();
 		}
 
-		/// <summary>Move a smart pointer.</summary>
-		/// <param name="pointer">The smart pointer to Move.</param>
+		/// <summary>Move a shared pointer.</summary>
+		/// <param name="pointer">The shared pointer to Move.</param>
 		Ptr(Ptr<T>&& pointer)
 			:counter(pointer.counter)
 			, reference(pointer.reference)
@@ -145,9 +162,9 @@ Ptr
 			pointer.SetEmptyNoIncDec();
 		}
 
-		/// <summary>Cast a smart pointer.</summary>
+		/// <summary>Cast a shared pointer implicitly by copying another shared pointer.</summary>
 		/// <typeparam name="C">The type of the object before casting.</typeparam>
-		/// <param name="pointer">The smart pointer to cast.</param>
+		/// <param name="pointer">The shared pointer to cast.</param>
 		template<typename C, typename = typename AcceptType<void, typename PointerConvertable<C, T>::YesNoType>::Type>
 		Ptr(const Ptr<C>& pointer)
 		{
@@ -161,9 +178,9 @@ Ptr
 			}
 		}
 
-		/// <summary>Cast a smart pointer.</summary>
+		/// <summary>Cast a shared pointer implicitly by moving another shared pointer.</summary>
 		/// <typeparam name="C">The type of the object before casting.</typeparam>
-		/// <param name="pointer">The smart pointer to cast.</param>
+		/// <param name="pointer">The shared pointer to cast.</param>
 		template<typename C, typename = typename AcceptType<void, typename PointerConvertable<C, T>::YesNoType>::Type>
 		Ptr(Ptr<C>&& pointer)
 		{
@@ -182,8 +199,11 @@ Ptr
 			Dec();
 		}
 
-		/// <summary>Detach the contained object from this smart pointer.</summary>
-		/// <returns>The detached object. Returns null if this smart pointer is empty.</returns>
+		/// <summary>
+		/// Detach the contained object from this shared pointer.
+		/// When no [T:vl.Ptr`1] is referencing to the object because of a call to Detach, the object will not be deleted.
+		/// </summary>
+		/// <returns>The detached object. Returns null if this shared pointer is empty.</returns>
 		T* Detach()
 		{
 			auto detached = reference;
@@ -191,9 +211,9 @@ Ptr
 			return detached;
 		}
 
-		/// <summary>Cast a smart pointer.</summary>
+		/// <summary>Cast a shared pointer explicitly.</summary>
 		/// <typeparam name="C">The type of the object after casting.</typeparam>
-		/// <returns>The casted smart pointer. Returns null if failed.</returns>
+		/// <returns>The casted shared pointer. Returns null for empty shared pointer or a failed cast.</returns>
 		template<typename C>
 		Ptr<C> Cast()const
 		{
@@ -201,9 +221,9 @@ Ptr
 			return Ptr<C>((converted ? counter : 0), converted, originalReference, originalDestructor);
 		}
 
-		/// <summary>Convert a pointer to an object to a smart pointer.</summary>
-		/// <returns>The converted smart pointer.</returns>
-		/// <param name="pointer">The pointer to the object.</param>
+		/// <summary>Replace the object inside this shared pointer.</summary>
+		/// <returns>The shared pointer itself.</returns>
+		/// <param name="pointer">The pointer to the new object.</param>
 		Ptr<T>& operator=(T* pointer)
 		{
 			Dec();
@@ -222,9 +242,9 @@ Ptr
 			return *this;
 		}
 
-		/// <summary>Copy a smart pointer.</summary>
-		/// <returns>The copied smart pointer.</returns>
-		/// <param name="pointer">The smart pointer to copy.</param>
+		/// <summary>Replace by copying another shared pointer.</summary>
+		/// <returns>The shared pointer itself.</returns>
+		/// <param name="pointer">The shared pointer to copy.</param>
 		Ptr<T>& operator=(const Ptr<T>& pointer)
 		{
 			if (this != &pointer)
@@ -239,9 +259,9 @@ Ptr
 			return *this;
 		}
 
-		/// <summary>Move a smart pointer.</summary>
-		/// <returns>The moved smart pointer.</returns>
-		/// <param name="pointer">The smart pointer to Move.</param>
+		/// <summary>Replace by moving another shared pointer.</summary>
+		/// <returns>The shared pointer itself.</returns>
+		/// <param name="pointer">The shared pointer to copy.</param>
 		Ptr<T>& operator=(Ptr<T>&& pointer)
 		{
 			if (this != &pointer)
@@ -316,22 +336,22 @@ Ptr
 			return reference <= pointer.reference;
 		}
 
-		/// <summary>Test if it is a null pointer.</summary>
-		/// <returns>Returns true if it is not null.</returns>
+		/// <summary>Test if it is an empty shared pointer.</summary>
+		/// <returns>Returns true if it is non-null.</returns>
 		operator bool()const
 		{
 			return reference != 0;
 		}
 
-		/// <summary>Get the pointer to the object.</summary>
-		/// <returns>The pointer to the object.</returns>
+		/// <summary>Get the pointer to the contained object.</summary>
+		/// <returns>The pointer to the contained object. Returns null for an empty shared pointer.</returns>
 		T* Obj()const
 		{
 			return reference;
 		}
 
-		/// <summary>Get the pointer to the object.</summary>
-		/// <returns>The pointer to the object.</returns>
+		/// <summary>Get the pointer to the contained object.</summary>
+		/// <returns>The pointer to the contained object. Returns null for an empty shared pointer.</returns>
 		T* operator->()const
 		{
 			return reference;

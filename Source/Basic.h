@@ -366,7 +366,7 @@ namespace vl
 	};
 
 	/// <summary>Type for representing nullable data.</summary>
-	/// <typeparam name="T">Type of the data, typically it is a value type, or [T:vl.Ptr] could be used here.</typeparam>
+	/// <typeparam name="T">Type of the data, typically it is a value type, or [T:vl.Ptr`1] could be used here.</typeparam>
 	template<typename T>
 	class Nullable
 	{
