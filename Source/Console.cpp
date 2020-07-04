@@ -1,3 +1,8 @@
+/***********************************************************************
+Author: Zihan Chen (vczh)
+License under https://github.com/vczh-libraries/License
+***********************************************************************/
+
 #include "Console.h"
 #if defined VCZH_MSVC
 #include <Windows.h>

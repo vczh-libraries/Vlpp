@@ -1,17 +1,6 @@
 /***********************************************************************
-Vczh Library++ 3.0
-Developer: Zihan Chen(vczh)
-Framework::Basic
-
-Classes:
-	NotCopyable									: Object inherits from this type cannot be copied
-	Error										: Error, unlike exception, is not encouraged to catch
-	Object										: Base class of all classes
-
-Macros:
-	CHECK_ERROR(CONDITION,DESCRIPTION)			: Assert, throws an Error if failed
-	CHECK_FAIL(DESCRIPTION)						: Force an assert failure
-	SCOPE_VARIABLE(TYPE,VARIABLE,VALUE){ ... }	: Scoped variable
+Author: Zihan Chen (vczh)
+License under https://github.com/vczh-libraries/License
 ***********************************************************************/
 
 #ifndef VCZH_BASIC

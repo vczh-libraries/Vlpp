@@ -1,10 +1,6 @@
 /***********************************************************************
-Vczh Library++ 3.0
-Developer: Zihan Chen(vczh)
-Framework::Event
-
-Classes:
-	Event<function-type>									: Event object, which is a functor with no return value, executing multiple functors stored inside
+Author: Zihan Chen (vczh)
+License under https://github.com/vczh-libraries/License
 ***********************************************************************/
 #ifndef VCZH_EVENT
 #define VCZH_EVENT
@@ -15,9 +11,7 @@ Classes:
 namespace vl
 {
 	template<typename T>
-	class Event
-	{
-	};
+	class Event;
  
 	class EventHandler : public Object
 	{
@@ -25,7 +19,7 @@ namespace vl
 		virtual bool							IsAttached() = 0;
 	};
 
-	/// <summary>Event.</summary>
+	/// <summary>An event for being subscribed using multiple callbacks. A callback is any functor that returns void.</summary>
 	/// <typeparam name="TArgs">Types of callback parameters.</typeparam>
 	template<typename ...TArgs>
 	class Event<void(TArgs...)> : public Object, private NotCopyable
@@ -70,9 +64,9 @@ namespace vl
 		}
  
 		/// <summary>Add a method callback to the event.</summary>
-		/// <typeparam name="C">Type of the class that has the method callback.</typeparam>
+		/// <typeparam name="C">Type of the class that the callback belongs to.</typeparam>
 		/// <returns>The event handler representing the callback.</returns>
-		/// <param name="sender">The object that has the method callback.</param>
+		/// <param name="sender">The object that the callback belongs to.</param>
 		/// <param name="function">The method callback.</param>
 		template<typename C>
 		Ptr<EventHandler> Add(C* sender, void(C::*function)(TArgs...))
@@ -80,12 +74,12 @@ namespace vl
 			return Add(Func<void(TArgs...)>(sender, function));
 		}
  
-		/// <summary>Remove a callback.</summary>
+		/// <summary>Remove a callback by an event handler returns from <see ref="Add"/>.</summary>
 		/// <returns>Returns true if this operation succeeded.</returns>
 		/// <param name="handler">The event handler representing the callback.</param>
 		bool Remove(Ptr<EventHandler> handler)
 		{
-			Ptr<EventHandlerImpl> impl = handler.Cast<EventHandlerImpl>();
+			auto impl = handler.Cast<EventHandlerImpl>();
 			if (!impl) return false;
 			vint index = handlers.IndexOf(impl.Obj());
 			if (index == -1) return false;
