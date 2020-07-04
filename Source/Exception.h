@@ -1,6 +1,6 @@
 /***********************************************************************
 Author: Zihan Chen (vczh)
-License under https://github.com/vczh-libraries/License
+Licensed under https://github.com/vczh-libraries/License
 ***********************************************************************/
 
 #ifndef VCZH_EXCEPTION
@@ -38,14 +38,14 @@ namespace vl
 	class ParsingException : public Exception
 	{
 	protected:
-		vint							position;
+		vint						position;
 		WString						expression;
 
 	public:
 		ParsingException(const WString& _message, const WString& _expression, vint _position);
 
 		const WString&				GetExpression()const;
-		vint							GetPosition()const;
+		vint						GetPosition()const;
 	};
 }
 

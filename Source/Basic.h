@@ -1,6 +1,6 @@
 /***********************************************************************
 Author: Zihan Chen (vczh)
-License under https://github.com/vczh-libraries/License
+Licensed under https://github.com/vczh-libraries/License
 ***********************************************************************/
 
 #ifndef VCZH_BASIC
