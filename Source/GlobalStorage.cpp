@@ -31,7 +31,6 @@ GlobalStorage
 ***********************************************************************/
 
 	GlobalStorage::GlobalStorage(const wchar_t* key)
-		:cleared(false)
 	{
 		InitializeGlobalStorage();
 		GetGlobalStorageManager().storages->Add(key, this);
@@ -62,21 +61,21 @@ Helper Functions
 
 	void InitializeGlobalStorage()
 	{
-		if(!GetGlobalStorageManager().storages)
+		if (!GetGlobalStorageManager().storages)
 		{
-			GetGlobalStorageManager().storages=new Dictionary<WString, GlobalStorage*>;
+			GetGlobalStorageManager().storages = new Dictionary<WString, GlobalStorage*>;
 		}
 	}
 
 	void FinalizeGlobalStorage()
 	{
-		if(GetGlobalStorageManager().storages)
+		if (GetGlobalStorageManager().storages)
 		{
-			for(vint i=0;i<GetGlobalStorageManager().storages->Count();i++)
+			for (vint i = 0; i < GetGlobalStorageManager().storages->Count(); i++)
 			{
 				GetGlobalStorageManager().storages->Values().Get(i)->ClearResource();
 			}
-			GetGlobalStorageManager().storages=0;
+			GetGlobalStorageManager().storages = nullptr;
 		}
 	}
 }
