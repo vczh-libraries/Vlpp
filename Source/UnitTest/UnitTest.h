@@ -16,30 +16,81 @@ namespace vl
 	{
 		using UnitTestFileProc = void(*)();
 
-		/// <summary><![CDATA[
-		/// A static class containing all unit test operations.
-		/// 1) Writing test cases:
-		///   TEST_FILE
-		///   {
-		///     TEST_CATEGORY(L"Category Description"){ ... });
-		///     TEST_CASE(L"Test Case Description"){ ... });
-		///   }
-		///   A category could contains other categories and cases, but a case should only contain assertions.
-		/// 2) Writing asserts:
-		///   TEST_CASE_ASSERT(condition): An assertion that is also a test case, only legal to call inside a category, with a description equivalents to the condition.
-		///   TEST_ASSERT(condition); Only legal to call inside a case. It passes when condition evaluates to true.
-		///   TEST_ERROR(condition); Only legal to call inside a case. It passes when condition throws vl::Error
-		///   TEST_EXCEPTION(statement, exception, callback); Only legal to call inside a case. It passes when an exception of the expected type is thrown, and callback(exception) passes.
-		/// 3) Other functions
-		///   TEST_PRINT(message); Print neutral message.
-		/// 4)
-		///   You should call [M:vl.unittest.UnitTest.RunAndDisposeTests] in your main function to run all test cases, and return the value from this function.
-		///   When "/D" is provided, the test program crashes at any failed assertiong.
-		///   When "/R" is provided, the test program consumes all failed assertions and run all cases. A test case stopped at the first failed assertion. Exit code will be 1 when any case fails.
-		///   When no argument is provided
-		///     In Windows, it becomes "/D" only when a debugger is attached, in other cases it becomes "/R".
-		///     In other platforms, it becomes "/R"
-		/// ]]></summary>
+		/// <summary>
+		/// <p>Unit test framework.</p>
+		/// <p>
+		/// Test cases could be defined in multiple cpp files. In each cpp file, there can be one <b>TEST_FILE</b> call
+		/// <program><code><![CDATA[
+		/// TEST_FILE
+		/// {
+		///     // here could be multiple TEST_CATEGORY and TEST_CASE
+		/// }
+		/// ]]></code></program>
+		/// </p>
+		/// <p>
+		/// Both <b>TEST_CATEGORY</b> could be used inside <b>TEST_FILE</b>, or nested inside another <b>TEST_CATEGORY</b>.
+		/// <b>TEST_CASE</b> could be used inside <b>TEST_FILE</b> or <b>TEST_CATEGORY</b>.
+		/// </p>
+		/// <p>
+		/// <b>TEST_ASSERT</b> is used to verify a boolean expression.
+		/// It could only be used in <b>TEST_CASE</b>.
+		/// <b>TEST_ASSERT</b> could not be used in <b>TEST_FILE</b> or <b>TEST_CATEGORY</b>.
+		/// </p>
+		/// <p>
+		/// When the test program is started in debug mode (Windows only), or by command line options "/D",
+		/// A <b>TEST_ASSERT</b> failure will trigger a break point, it could be catched by any debugger.
+		/// </p>
+		/// <p>
+		/// When the test program is started in release mode, or by command line options "/R", or without command line options,
+		/// A <b>TEST_ASSERT</b> failure will report an error and skip rest of the current <b>TEST_CASE</b>, the execution will continue.
+		/// </p>
+		/// <p>
+		/// <b>TEST_ERROR</b> execute one statement, it fails when no [T:vl.Error] is thrown.
+		/// </p>
+		/// <p>
+		/// <b>TEST_EXCEPTION</b> execute one statement, it fails when the specified exception type is not thrown.
+		/// Another callback will be called when the exception is thrown, given a chance to check data in the exception.
+		/// </p>
+		/// <b>TEST_CASE_ASSERT</b> is an abbreviation of <b>TEST_CASE</b> + <b>TEST_ASSERT</b>.
+		/// It is very common that are multiple independent assertions.
+		/// <b>TEST_CASE_ASSERT<b> is a test case, it can be used in <b>TEST_CATEGORY</b> or <b>TEST_FILE</b>.
+		/// In release mode, by failing this assertion, the execution does not stop.
+		/// <p>
+		/// <b>TEST_CATEGORY</b> is very useful when multiple assertions do not have dependencies.
+		/// During the execution of the test program, <b>TEST_FILE</b>, <b>TEST_CATEGORY</b>, <b>TEST_CASE</b> and failed <b>TEST_ASSERT</b> will be rendered with indentation and different colors.
+		/// </p>
+		/// <p>
+		/// <see cref="UnitTest::RunAndDisposeTests"/> is needed in the main function to execute test cases.
+		/// <b>TEST_PRINT</b> could be used during test cases to print debug information to a command-line application.
+		/// </p>
+		/// </summary>
+		/// <example><![CDATA[
+		/// TEST_FILE
+		/// {
+		///     TEST_CATEGORY(L"This is a test category)
+		///     {
+		///         TEST_CASE(L"This is a test case")
+		///         {
+		///             TEST_ASSERT(true);
+		///             TEST_ERROR({WString::Empty[0];});
+		///             TEST_EXCEPTION({throw Exception();}, Exception, [](const Exception&){});
+		///         }
+		///         TEST_CASE_ASSERT(true);
+		///     }
+		///
+		///     TEST_CATEGORY(L"This is another test category")
+		///     {
+		///         TEST_PRINT(L"some information");
+		///         TEST_CASE_ASSERT(true);
+		///     }
+		/// }
+		///
+		/// int main(int argc, wchar_t* argv[])
+		/// {
+		///     // in Linux or macOS, argv must be char*[]
+		///     return unittest::UnitTest::RunAndDisposeTests(argc, argv);
+		/// }
+		/// ]]></example>
 		class UnitTest
 		{
 		public:
@@ -54,13 +105,10 @@ namespace vl
 				Case,
 			};
 
-			/// <summary>Print a message with specified color.</summary>
-			/// <param name="string">The content.</param>
-			/// <param name="kind">The kind of the content.</param>
 			static void PrintMessage(const WString& string, MessageKind kind);
 
 			/// <summary>Run all test cases.</summary>
-			/// <returns>The return value for the main function.</returns>
+			/// <returns>The return value for the main function. If any assertion fails, it is non-zero.</returns>
 			/// <param name="argc">Accept the first argument of the main function.</param>
 			/// <param name="argv">Accept the second argument of the main function.</param>
 #ifdef VCZH_MSVC
