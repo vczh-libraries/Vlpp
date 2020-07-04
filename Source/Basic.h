@@ -109,18 +109,18 @@ namespace vl
 #endif
 
 #ifdef VCZH_64
-	/// <summary>Signed interface whose size is equal to sizeof(void*).</summary>
+	/// <summary>Signed interface whose size equals to sizeof(void*).</summary>
 	typedef vint64_t				vint;
-	/// <summary>Signed interface whose size is equal to sizeof(void*).</summary>
+	/// <summary>Signed interface whose size equals to sizeof(void*).</summary>
 	typedef vint64_t				vsint;
-	/// <summary>Unsigned interface whose size is equal to sizeof(void*).</summary>
+	/// <summary>Unsigned interface whose size equals to sizeof(void*).</summary>
 	typedef vuint64_t				vuint;
 #else
-	/// <summary>Signed interface whose size is equal to sizeof(void*).</summary>
+	/// <summary>Signed interface whose size equals to sizeof(void*).</summary>
 	typedef vint32_t				vint;
-	/// <summary>Signed interface whose size is equal to sizeof(void*).</summary>
+	/// <summary>Signed interface whose size equals to sizeof(void*).</summary>
 	typedef vint32_t				vsint;
-	/// <summary>Unsigned interface whose size is equal to sizeof(void*).</summary>
+	/// <summary>Unsigned interface whose size equals to sizeof(void*).</summary>
 	typedef vuint32_t				vuint;
 #endif
 	/// <summary>Signed interger representing position.</summary>
@@ -164,6 +164,7 @@ namespace vl
 	Basic Types
 	***********************************************************************/
 
+	/// <summary>Base type for all classes to stop generating default copy constructors.</summary>
 	class NotCopyable
 	{
 	private:
@@ -173,7 +174,7 @@ namespace vl
 		NotCopyable();
 	};
 
-	/// <summary>Base type of all errors. An error is an exception that you are not allowed to catch. Raising it means there is a fatal error in the code.</summary>
+	/// <summary>Base type of all errors. An error is an exception that is not recommended to catch. Raising it means there is a mistake in the code.</summary>
 	class Error
 	{
 	private:
@@ -299,210 +300,202 @@ namespace vl
 	Basic Types
 	***********************************************************************/
 
-	/// <summary>Base type of all classes.</summary>
+	/// <summary>
+	/// Base type of all classes.
+	/// This type has a virtual destructor, making all derived classes destructors virtual.
+	/// In this way an object is allowed to be deleted using a pointer of a qualified base type pointing to this object.
+	/// </summary>
 	class Object
 	{
 	public:
 		virtual ~Object();
 	};
 
-	/// <summary>Type for storing a value to wherever requiring a [T:vl.Ptr`1] to [T:vl.Object].</summary>
-	/// <typeparam name="T">Type of the value.</typeparam>
+	/// <summary>Store data of a value type in a reference type object. It is useful when the data is required to be stored in a pointer to [T:vl.Object].</summary>
+	/// <example><![CDATA[
+	/// int main()
+	/// {
+	///     Ptr<Object> boxed = MakePtr<ObjectBox<vint>>(100);
+	///     vint unboxed = boxed.Cast<ObjectBox<vint>>().UnBox();
+	///     Console::WriteLine(itow(unboxed));
+	/// }
+	/// ]]></example>
+	/// <typeparam name="T">Value type to use.</typeparam>
 	template<typename T>
 	class ObjectBox : public Object
 	{
 	private:
 		T					object;
 	public:
-		/// <summary>Box a value.</summary>
-		/// <param name="_object">The value to box.</param>
+		/// <summary>Create a boxed reference object from data of a value type.</summary>
+		/// <param name="_object">The data to box.</param>
 		ObjectBox(const T& _object)
 			:object(_object)
 		{
 		}
 
-		/// <summary>Box a movable value.</summary>
-		/// <param name="_object">The value to box.</param>
+		/// <summary>Create a boxed reference object by moving data of a value type.</summary>
+		/// <param name="_object">The data to move and box.</param>
 		ObjectBox(T&& _object)
 			:object(MoveValue(_object))
 		{
 		}
 
-		/// <summary>Copy a box.</summary>
-		/// <param name="value">The box.</param>
-		ObjectBox(const ObjectBox<T>& value)
-			:object(value.object)
-		{
-		}
+		/// <summary>Copy a boxed reference object.</summary>
+		/// <param name="value">The reference object to copy.</param>
+		ObjectBox(const ObjectBox<T>& value) = default;
 
-		/// <summary>Move a box.</summary>
-		/// <param name="value">The box.</param>
-		ObjectBox(ObjectBox<T>&& value)
-			:object(MoveValue(value.object))
-		{
-		}
+		/// <summary>Move a boxed reference object.</summary>
+		/// <param name="value">The reference object to move.</param>
+		ObjectBox(ObjectBox<T>&& value) = default;
 
-		/// <summary>Box a value.</summary>
-		/// <returns>The boxed value.</returns>
-		/// <param name="_object">The value to box.</param>
+		/// <summary>Replace the boxed data of a value type.</summary>
+		/// <returns>The reference object itself.</returns>
+		/// <param name="_object">The data to replace the original data.</param>
 		ObjectBox<T>& operator=(const T& _object)
 		{
 			object = _object;
 			return *this;
 		}
 
-		/// <summary>Copy a box.</summary>
-		/// <returns>The boxed value.</returns>
-		/// <param name="value">The box.</param>
-		ObjectBox<T>& operator=(const ObjectBox<T>& value)
-		{
-			object = value.object;
-			return *this;
-		}
+		/// <summary>Replace the boxed data from another reference object.</summary>
+		/// <returns>The reference object itself.</returns>
+		/// <param name="value">The reference object to copy.</param>
+		ObjectBox<T>& operator=(const ObjectBox<T>& value) = default;
 
-		/// <summary>Move a box.</summary>
-		/// <returns>The boxed value.</returns>
-		/// <param name="value">The box.</param>
-		ObjectBox<T>& operator=(ObjectBox<T>&& value)
-		{
-			object = MoveValue(value.object);
-			return *this;
-		}
+		/// <summary>Replace the boxed data by moving from another reference object.</summary>
+		/// <returns>The reference object itself.</returns>
+		/// <param name="value">The reference object to move.</param>
+		ObjectBox<T>& operator=(ObjectBox<T>&& value) = default;
 
-		/// <summary>Unbox the value.</summary>
-		/// <returns>The original value.</returns>
+		/// <summary>Get the boxed data of a value type.</summary>
+		/// <returns>The unboxed data of a value type.</returns>
 		const T& Unbox()
 		{
 			return object;
 		}
 	};
 
-	/// <summary>Type for optionally storing a value.</summary>
-	/// <typeparam name="T">Type of the value.</typeparam>
+	/// <summary>Type for representing nullable data.</summary>
+	/// <typeparam name="T">Type of the data, typically it is a value type, or [T:vl.Ptr] could be used here.</typeparam>
 	template<typename T>
 	class Nullable
 	{
 	private:
-		T*					object;
+		T*					object = nullptr;
 	public:
 		/// <summary>Create a null value.</summary>
-		Nullable()
-			:object(0)
-		{
-		}
+		Nullable() = default;
 
-		/// <summary>Create a non-null value.</summary>
-		/// <param name="value">The value to copy.</param>
+		/// <summary>Create a non-null value by copying data.</summary>
+		/// <param name="value">The data to copy.</param>
 		Nullable(const T& value)
 			:object(new T(value))
 		{
 		}
 
-		/// <summary>Create a non-null value.</summary>
-		/// <param name="value">The value to move.</param>
+		/// <summary>Create a non-null value by moving data.</summary>
+		/// <param name="value">The data to move.</param>
 		Nullable(T&& value)
 			:object(new T(MoveValue(value)))
 		{
 		}
 
-		/// <summary>Copy a nullable value.</summary>
+		/// <summary>Create a nullable value by copying from another nullable value.</summary>
 		/// <param name="nullable">The nullable value to copy.</param>
 		Nullable(const Nullable<T>& nullable)
-			:object(nullable.object ? new T(*nullable.object) : 0)
+			:object(nullable.object ? new T(*nullable.object) : nullptr)
 		{
 		}
 
-		/// <summary>Move a nullable value.</summary>
+		/// <summary>Create a nullable value by moving from another nullable value.</summary>
 		/// <param name="nullable">The nullable value to move.</param>
 		Nullable(Nullable<T>&& nullable)
 			:object(nullable.object)
 		{
-			nullable.object = 0;
+			nullable.object = nullptr;
 		}
 
 		~Nullable()
 		{
-			if (object)
-			{
-				delete object;
-				object = 0;
-			}
+			if (object) delete object;
 		}
 
-		/// <summary>Create a non-null value.</summary>
-		/// <returns>The created nullable value.</returns>
-		/// <param name="value">The value to copy.</param>
+		/// <summary>Replace the data inside this nullable value by copying from data.</summary>
+		/// <returns>The nullable value itself.</returns>
+		/// <param name="value">The data to copy.</param>
 		Nullable<T>& operator=(const T& value)
 		{
-			if (object)
-			{
-				delete object;
-				object = 0;
-			}
+			if (object) delete object;
 			object = new T(value);
 			return *this;
 		}
 
-		/// <summary>Copy a nullable value.</summary>
-		/// <returns>The created nullable value.</returns>
+		/// <summary>Replace the data inside this nullable value by copying from another nullable value.</summary>
+		/// <returns>The nullable value itself.</returns>
 		/// <param name="nullable">The nullable value to copy.</param>
 		Nullable<T>& operator=(const Nullable<T>& nullable)
 		{
 			if (this != &nullable)
 			{
-				if (object)
-				{
-					delete object;
-					object = 0;
-				}
+				if (object) delete object;
 				if (nullable.object)
 				{
 					object = new T(*nullable.object);
+				}
+				else
+				{
+					object = nullptr;
 				}
 			}
 			return *this;
 		}
 
-		/// <summary>Move a nullable value.</summary>
-		/// <returns>The created nullable value.</returns>
+		/// <summary>Replace the data inside this nullable value by moving from another nullable value.</summary>
+		/// <returns>The nullable value itself.</returns>
 		/// <param name="nullable">The nullable value to move.</param>
 		Nullable<T>& operator=(Nullable<T>&& nullable)
 		{
 			if (this != &nullable)
 			{
-				if (object)
-				{
-					delete object;
-					object = 0;
-				}
+				if (object) delete object;
 				object = nullable.object;
-				nullable.object = 0;
+				nullable.object = nullptr;
 			}
 			return *this;
 		}
 
+		/// <summary>Comparing two nullable values.</summary>
+		/// <returns>Returns true when these nullable values are all null, or the data inside them equals.</returns>
+		/// <param name="a">The first nullable value to compare.</param>
+		/// <param name="b">The second nullable value to compare.</param>
 		static bool Equals(const Nullable<T>& a, const Nullable<T>& b)
 		{
-			return
-				a.object
-				? b.object
-				? *a.object == *b.object
-				: false
-				: b.object
-				? false
-				: true;
+			if (!a.object && !b.object) return true;
+			if (a.object && b.object) returns *a.object == *b.object;
+			return false;
 		}
 
+		/// <summary>Comparing two nullable values.</summary>
+		/// <returns>
+		/// Returns a positive value when the first value is greater than the second value.
+		/// Returns a negative value when the first value is lesser than the second one.
+		/// Returns zero when the two value equals.
+		/// When one is null and another one is not, the non-null one is greater.
+		/// </returns>
+		/// <param name="a">The first nullable value to compare.</param>
+		/// <param name="b">The second nullable value to compare.</param>
 		static vint Compare(const Nullable<T>& a, const Nullable<T>& b)
 		{
-			return
-				a.object
-				? b.object
-				? (*a.object == *b.object ? 0 : *a.object < *b.object ? -1 : 1)
-				: 1
-				: b.object
-				? -1
-				: 0;
+			if (a.object && b.object)
+			{
+				if (*a.object > *b.object) return 1;
+				if (*a.object < *b.object) return -1;
+				return 0;
+			}
+			if (a.object) return 1;
+			if (b.object) return -1;
+			return 0;
 		}
 
 		bool operator==(const Nullable<T>& nullable)const
@@ -535,17 +528,18 @@ namespace vl
 			return Compare(*this, nullable) >= 0;
 		}
 
-		/// <summary>Convert the nullable value to a bool value.</summary>
-		/// <returns>Returns true if it is not null.</returns>
+		/// <summary>Test if this nullable value is non-null.</summary>
+		/// <returns>Returns true if it is non-null.</returns>
 		operator bool()const
 		{
-			return object != 0;
+			return object != nullptr;
 		}
 
-		/// <summary>Unbox the value. This operation will cause an access violation of it is null.</summary>
-		/// <returns>The original value.</returns>
+		/// <summary>Return the data inside this nullable value</summary>
+		/// <returns>The data inside this nullable value. It crashes when it is null.</returns>
 		const T& Value()const
 		{
+			if (!object) throw Error(L"Nullable<T>::Value()#Cannot unbox from null.");
 			return *object;
 		}
 	};
@@ -561,18 +555,18 @@ namespace vl
 	Type Traits
 	***********************************************************************/
 
-	/// <summary>Get the index type of a value for containers.</summary>
-	/// <typeparam name="T">Type of the value.</typeparam>
+	/// <summary>Type for specify and create a representative value for comparing another value of a specific type for containers.</summary>
+	/// <typeparam name="T">The element type for containers.</typeparam>
 	template<typename T>
 	struct KeyType
 	{
 	public:
-		/// <summary>The index type of a value for containers.</summary>
+		/// <summary>The type of the representative value.</summary>
 		typedef T Type;
 
-		/// <summary>Convert a value to its index type.</summary>
-		/// <returns>The corresponding index value.</returns>
-		/// <param name="value">The value.</param>
+		/// <summary>Convert a value in a container to its representative value.</summary>
+		/// <returns>The representative value.</returns>
+		/// <param name="value">The value in a container.</param>
 		static const T& GetKeyValue(const T& value)
 		{
 			return value;
@@ -615,18 +609,39 @@ namespace vl
 	/// <summary>A type representing the combination of date and time.</summary>
 	struct DateTime
 	{
+		/// </summary>The year.</summary>
 		vint				year;
+		/// </summary>The month, from 1 to 12.</summary>
 		vint				month;
-		vint				dayOfWeek;
+		/// </summary>The day, from 1 to 31.</summary>
 		vint				day;
+		/// </summary>The hour, from 0 to 23.</summary>
 		vint				hour;
+		/// </summary>The minute, from 0 to 59.</summary>
 		vint				minute;
+		/// </summary>The second, from 0 to 60.</summary>
 		vint				second;
+		/// </summary>The milliseconds, from 0 to 999.</summary>
 		vint				milliseconds;
 
+		/// <summary>
+		/// The calculated total milliseconds. It is OS dependent because the start time is different.
+		/// It is from 0 to 6, representing Sunday to Saturday.
+		/// </summary>
+		vint				dayOfWeek;
+
+		/// <summary>
+		/// The calculated total milliseconds. It is OS dependent because the start time is different.
+		/// You should not rely on the fact about how this value is created.
+		/// The only invariant thing is that, when an date time is earlier than another, the totalMilliseconds is lesser.
+		/// </summary>
 		vuint64_t			totalMilliseconds;
 
-		// in gcc, this will be mktime(t) * 1000 + gettimeofday().tv_usec / 1000
+		/// <summary>
+		/// The calculated file time for the date and time. It is OS dependent.
+		/// You should not rely on the fact about how this value is created.
+		/// The only invariant thing is that, when an date time is earlier than another, the filetime is lesser.
+		/// </summary>
 		vuint64_t			filetime;
 
 		/// <summary>Get the current local time.</summary>
@@ -648,9 +663,12 @@ namespace vl
 		/// <param name="_milliseconds">The millisecond.</param>
 		static DateTime		FromDateTime(vint _year, vint _month, vint _day, vint _hour = 0, vint _minute = 0, vint _second = 0, vint _milliseconds = 0);
 
+		/// <summary>Create a date time value from a file time.</summary>
+		/// <returns>The created date time value.</returns>
+		/// <param name="filetime">The file time.</param>
 		static DateTime		FromFileTime(vuint64_t filetime);
 
-		/// <summary>Create an empty date time value.</summary>
+		/// <summary>Create an empty date time value that is not meaningful.</summary>
 		DateTime();
 
 		/// <summary>Convert the UTC time to the local time.</summary>

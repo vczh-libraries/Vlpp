@@ -102,6 +102,8 @@ DateTime
 		dt.minute = timeinfo->tm_min;
 		dt.second = timeinfo->tm_sec;
 		dt.milliseconds = milliseconds;
+
+		// in Linux and macOS, filetime will be mktime(t) * 1000 + gettimeofday().tv_usec / 1000
         dt.filetime = (vuint64_t)timer * 1000 + milliseconds;
 		dt.totalMilliseconds = (vuint64_t)timer * 1000 + milliseconds;
 		return dt;
