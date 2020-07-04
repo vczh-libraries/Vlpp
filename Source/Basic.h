@@ -461,7 +461,7 @@ namespace vl
 		static bool Equals(const Nullable<T>& a, const Nullable<T>& b)
 		{
 			if (!a.object && !b.object) return true;
-			if (a.object && b.object) returns *a.object == *b.object;
+			if (a.object && b.object) return *a.object == *b.object;
 			return false;
 		}
 

@@ -12,9 +12,7 @@ namespace vl
 {
 
 	template<typename T>
-	class Func
-	{
-	};
+	class Func;
  
 /***********************************************************************
 vl::function_lambda::LambdaRetriveType<R(TArgs...)>
