@@ -1,10 +1,6 @@
 /***********************************************************************
-Vczh Library++ 3.0
-Developer: Zihan Chen(vczh)
-Framework::Exception
-
-Classes:
-	Exception									: Exception
+Author: Zihan Chen (vczh)
+License under https://github.com/vczh-libraries/License
 ***********************************************************************/
 
 #ifndef VCZH_EXCEPTION

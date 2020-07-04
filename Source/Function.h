@@ -1,15 +1,8 @@
 /***********************************************************************
-Vczh Library++ 3.0
-Developer: Zihan Chen(vczh)
-Framework::Function
-
-Classes:
-	Func<function-type>									: Functor
-
-Functions:
-	Curry :: (A->B) -> A -> B							: Currying
-	Combine :: (A->B) -> (A->C) -> (B->C->D) -> (A->D)	: Combine multiple functors using an operator
+Author: Zihan Chen (vczh)
+License under https://github.com/vczh-libraries/License
 ***********************************************************************/
+
 #ifndef VCZH_FUNCTION
 #define VCZH_FUNCTION
 #include <memory.h>

@@ -1,10 +1,6 @@
 /***********************************************************************
-Vczh Library++ 3.0
-Developer: Zihan Chen(vczh)
-Data Structure::Smart Pointer
-
-Classes:
-	Ptr<T>							: Shared Pointer
+Author: Zihan Chen (vczh)
+License under https://github.com/vczh-libraries/License
 ***********************************************************************/
 
 #ifndef VCZH_POINTER

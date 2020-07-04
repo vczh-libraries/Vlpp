@@ -1,11 +1,6 @@
 /***********************************************************************
-Vczh Library++ 3.0
-Developer: Zihan Chen(vczh)
-Data Structure::String
-
-Classes:
-	AString										: Mbcs using the code page of the current locale
-	WString										: UTF-16 (for Windows), or UTF-32 (for Linux and macOS)
+Author: Zihan Chen (vczh)
+License under https://github.com/vczh-libraries/License
 ***********************************************************************/
 
 #ifndef VCZH_STRING

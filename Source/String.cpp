@@ -1,3 +1,8 @@
+/***********************************************************************
+Author: Zihan Chen (vczh)
+License under https://github.com/vczh-libraries/License
+***********************************************************************/
+
 #include <stdlib.h>
 #include <time.h>
 #include "String.h"

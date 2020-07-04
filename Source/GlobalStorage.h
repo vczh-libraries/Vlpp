@@ -1,11 +1,6 @@
 /***********************************************************************
-Vczh Library++ 3.0
-Developer: Zihan Chen(vczh)
-Framework::Global Storage
-
-Classes:
-	GlobalStorage							: Global storage accessable by name, each storage will be initialized on the first access, and all storages will be released by FinalizeGlobalStorage
-
+Author: Zihan Chen (vczh)
+License under https://github.com/vczh-libraries/License
 ***********************************************************************/
 
 #ifndef VCZH_GLOBALSTORAGE
