@@ -1,14 +1,6 @@
 /***********************************************************************
-Vczh Library++ 3.0
-Developer: Zihan Chen(vczh)
-Data Structure::List
-
-Classes:
-	ListStore<T,PODType>				: Array copy helper functions
-	ListBase<T,K>						: Base class for array
-	Array<T,K>							: Array
-	List<T,K>							: List
-	SortedList<T,K>						: List with item order maintained
+Author: Zihan Chen (vczh)
+Licensed under https://github.com/vczh-libraries/License
 ***********************************************************************/
 
 #ifndef VCZH_COLLECTIONS_LIST

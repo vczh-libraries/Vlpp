@@ -1,12 +1,6 @@
 /***********************************************************************
-Vczh Library++ 3.0
-Developer: Zihan Chen(vczh)
-Data Structure::Operations
-
-In order to let a container support FOREACH and FOREACH_INDEXER£º
-	Implement a global function overloading: IteratorType vl::collections::CreateForEachIterator(const CollectionType& collection);
-	CollectionType is the container type
-	IteratorType should inherit from ForEachIterator<T>
+Author: Zihan Chen (vczh)
+Licensed under https://github.com/vczh-libraries/License
 ***********************************************************************/
 
 #ifndef VCZH_COLLECTIONS_FOREACH

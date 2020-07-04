@@ -1,11 +1,6 @@
 /***********************************************************************
-Vczh Library++ 3.0
-Developer: Zihan Chen(vczh)
-Data Structure::Interfaces
-
-Interfaces:
-	IEnumerator<T>									: Enumerator interface
-	IEnumerable<T>									: Enumerable object interface
+Author: Zihan Chen (vczh)
+Licensed under https://github.com/vczh-libraries/License
 ***********************************************************************/
 
 #ifndef VCZH_COLLECTIONS_INTERFACES
@@ -50,7 +45,7 @@ Interfaces
 			virtual bool								Evaluated()const{return false;}
 		};
 		
-		/// <summary>Enumerable.</summary>
+		/// <summary>Enumerable. Write something about FOREACH and FOREACH_INDEXER.</summary>
 		/// <typeparam name="T">Type of the elements in the enumerator.</typeparam>
 		template<typename T>
 		class IEnumerable : public virtual Interface

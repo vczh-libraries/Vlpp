@@ -1,11 +1,6 @@
 /***********************************************************************
-Vczh Library++ 3.0
-Developer: Zihan Chen(vczh)
-Framework::Lazy Evaluation
-
-Classes:
-	Lazy<T>									: Object with lazy evaluation
-
+Author: Zihan Chen (vczh)
+Licensed under https://github.com/vczh-libraries/License
 ***********************************************************************/
 
 #ifndef VCZH_LAZY
