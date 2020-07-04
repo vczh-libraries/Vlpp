@@ -42,6 +42,11 @@ namespace TestLinq_TestObjects
 		return Curry(dividable)(a);
 	}
 
+	Func<bool(vint)> dividableCombiner(Func<bool(vint)> a, Func<bool(vint)> b)
+	{
+		return [=](vint c) { return And(a(c), b(c)); };
+	}
+
 	vint Compare(vint a, vint b)
 	{
 		return a - b;
@@ -334,7 +339,7 @@ TEST_FILE
 		Func<bool(vint)> selector =
 			From(divider)
 			.Select(dividableConverter)
-			.Aggregate(Combiner<bool(vint)>(And));
+			.Aggregate(dividableCombiner);
 
 		List<vint> src;
 		List<vint> dst;

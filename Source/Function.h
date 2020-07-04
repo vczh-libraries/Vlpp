@@ -168,7 +168,7 @@ vl::Func<R(TArgs...)>
 		};
 	}
 
-	/// <summary>A type representing a function reference.</summary>
+	/// <summary>A type for functors.</summary>
 	/// <typeparam name="R">The return type.</typeparam>
 	/// <typeparam name="TArgs">Types of parameters.</typeparam>
 	template<typename R, typename ...TArgs>
@@ -198,45 +198,37 @@ vl::Func<R(TArgs...)>
 		typedef R FunctionType(TArgs...);
 		typedef R ResultType;
 
-		/// <summary>Create a null function reference.</summary>
-		Func()
-		{
-		}
+		/// <summary>Create a null functor.</summary>
+		Func() = default;
 
-		/// <summary>Copy a function reference.</summary>
-		/// <param name="function">The function reference to copy.</param>
-		Func(const Func<R(TArgs...)>& function)
-			:invoker(function.invoker)
-		{
-		}
+		/// <summary>Copy a functor.</summary>
+		/// <param name="function">The functor to copy.</param>
+		Func(const Func<R(TArgs...)>& function) = default;
 
-		/// <summary>Move a function reference.</summary>
-		/// <param name="function">The function reference to move.</param>
-		Func(Func<R(TArgs...)>&& function)
-			:invoker(MoveValue(function.invoker))
-		{
-		}
+		/// <summary>Move a functor.</summary>
+		/// <param name="function">The functor to move.</param>
+		Func(Func<R(TArgs...)>&& function) = default;
 
-		/// <summary>Create a reference using a function pointer.</summary>
+		/// <summary>Create a functor from a function pointer.</summary>
 		/// <param name="function">The function pointer.</param>
 		Func(R(*function)(TArgs...))
 		{
 			invoker = new internal_invokers::StaticInvoker<R, TArgs...>(function);
 		}
 
-		/// <summary>Create a reference using a method.</summary>
-		/// <typeparam name="C">Type of the class that has the method.</typeparam>
-		/// <param name="sender">The object that has the method.</param>
-		/// <param name="function">The function pointer.</param>
+		/// <summary>Create a functor from a method.</summary>
+		/// <typeparam name="C">Type of the class that this method belongs to.</typeparam>
+		/// <param name="sender">The object that this method belongs to.</param>
+		/// <param name="function">The method pointer.</param>
 		template<typename C>
 		Func(C* sender, R(C::*function)(TArgs...))
 		{
 			invoker = new internal_invokers::MemberInvoker<C, R, TArgs...>(sender, function);
 		}
 
-		/// <summary>Create a reference using a function object.</summary>
-		/// <typeparam name="C">Type of the function object.</typeparam>
-		/// <param name="function">The function object. It could be a lambda expression.</param>
+		/// <summary>Create a functor from another compatible functor.</summary>
+		/// <typeparam name="C">Type of the functor to copy.</typeparam>
+		/// <param name="function">The functor to copy. It could be a lambda expression, or any types that has operator() members.</param>
 		template<typename C, typename = typename AcceptType<void, typename ReturnConvertable<decltype(ValueOf<C>()(ValueOf<TArgs>()...)), R>::YesNoType>::Type>
 		Func(C&& function)
 		{
@@ -247,7 +239,7 @@ vl::Func<R(TArgs...)>
 		}
 
 		/// <summary>Invoke the function.</summary>
-		/// <returns>Returns the function result.</returns>
+		/// <returns>Returns the function result. It crashes when the functor is null.</returns>
 		/// <param name="args">Arguments to invoke the function.</param>
 		R operator()(TArgs ...args)const
 		{
@@ -276,8 +268,8 @@ vl::Func<R(TArgs...)>
 			return invoker != function.invoker;
 		}
 
-		/// <summary>Test is the reference a null reference.</summary>
-		/// <returns>Returns true if it is not a null reference.</returns>
+		/// <summary>Test is the functor is non-null.</summary>
+		/// <returns>Returns true if the functor is non-null.</returns>
 		operator bool()const
 		{
 			return invoker;
@@ -290,19 +282,19 @@ LAMBDA
  
 	namespace function_lambda
 	{
-		/// <summary>Create a function reference to a function object or a lambda expression, with all type information autotimatically inferred. You can use the macro called "LAMBDA" to refer to this function.</summary>
-		/// <typeparam name="T">Type of the function object or the lambda expression.</typeparam>
-		/// <returns>The function reference.</returns>
-		/// <param name="functionObject">The function object or the lambda expression.</param>
+		/// <summary>Create a functor in [T:vl.Func] from another functor, with all type arguments autotimatically inferred. The "LAMBDA" macro is recommended for the same purpose for writing compact code.</summary>
+		/// <typeparam name="T">Type of the functor to copy.</typeparam>
+		/// <returns>A copied functor in [T:vl.Func].</returns>
+		/// <param name="functionObject">The functor to copy.</param>
 		template<typename T>
 		typename LambdaRetriveType<decltype(&T::operator())>::Type Lambda(T functionObject)
 		{
 			return functionObject;
 		}
 
-		/// <summary>Create a function reference to a function pointer, with all type information autotimatically inferred. You can use the macro called "FUNCTION" to refer to this function.</summary>
+		/// <summary>Create a functor in [T:vl.Func] from a function pointer, with all type arguments autotimatically inferred. The "FUNCTION" macro is recommended for the same purpose for writing compact code.</summary>
 		/// <typeparam name="T">Type of the function pointer.</typeparam>
-		/// <returns>The function reference.</returns>
+		/// <returns>A copied functor in [T:vl.Func].</returns>
 		/// <param name="functionObject">The function pointer.</param>
 		template<typename T>
 		typename FunctionObjectRetriveType<T>::Type ConvertToFunction(T functionObject)
@@ -379,9 +371,14 @@ vl::function_binding::Binding<R(TArgs...)>
 		}; 
 	}
  
-	/// <summary>Currize a function. Currizing means to create a new function whose argument is the first argument of the original function. Calling this function will return another function reference whose arguments is all remain arguments of the original function. Calling the returned function will call the original function.</summary>
-	/// <typeparam name="T">Type of the function.</typeparam>
-	/// <returns>The currized function.</returns>
+	/// <summary>
+	/// Currize a function pointer.
+	/// Currizing means to create a new functor whose argument is the first argument of the original function.
+	/// Calling this functor will return another functor whose arguments are all remaining arguments of the original function.
+	/// Calling the returned function will call the original function.
+	/// </summary>
+	/// <typeparam name="T">Type of the function pointer.</typeparam>
+	/// <returns>The currized functor.</returns>
 	/// <param name="function">The function pointer to currize.</param>
 	template<typename T>
 	Func<Func<typename function_binding::Binding<T>::CurriedType>(typename function_binding::Binding<T>::FirstParameterType)>
@@ -389,80 +386,21 @@ vl::function_binding::Binding<R(TArgs...)>
 	{
 		return typename function_binding::Binding<T>::Currier(function);
 	}
- 
-	/// <summary>Currize a function. Currizing means to create a new function whose argument is the first argument of the original function. Calling this function will return another function reference whose arguments is all remain arguments of the original function. Calling the returned function will call the original function.</summary>
-	/// <typeparam name="T">Type of the function.</typeparam>
-	/// <returns>The currized function.</returns>
-	/// <param name="function">The function reference to currize.</param>
+
+	/// <summary>
+	/// Currize a functor in [T:vl.Func].
+	/// Currizing means to create a new functor whose argument is the first argument of the original function.
+	/// Calling this functor will return another functor whose arguments are all remaining arguments of the original function.
+	/// Calling the returned function will call the original function.
+	/// </summary>
+	/// <typeparam name="T">Type of the functor.</typeparam>
+	/// <returns>The currized functor.</returns>
+	/// <param name="function">The functor to currize.</param>
 	template<typename T>
 	Func<Func<typename function_binding::Binding<T>::CurriedType>(typename function_binding::Binding<T>::FirstParameterType)>
 	Curry(const Func<T>& function)
 	{
 		return typename function_binding::Binding<T>::Currier(function);
-	}
-
-/***********************************************************************
-vl::function_combining::Combining<R1(TArgs...), R2(TArgs...), R(R1,R2)>
-***********************************************************************/
- 
-	namespace function_combining
-	{
-		template<typename A, typename B, typename C>
-		class Combining
-		{
-		};
- 
-		template<typename R1, typename R2, typename R, typename ...TArgs>
-		class Combining<R1(TArgs...), R2(TArgs...), R(R1,R2)> : public Object
-		{
-		protected:
-			Func<R1(TArgs...)>			function1;
-			Func<R2(TArgs...)>			function2;
-			Func<R(R1, R2)>				converter;
-		public:
-			typedef R1 FirstFunctionType(TArgs...);
-			typedef R2 SecondFunctionType(TArgs...);
-			typedef R ConverterFunctionType(R1, R2);
-			typedef R FinalFunctionType(TArgs...);
-
-			Combining(const Func<R1(TArgs...)>& _function1, const Func<R2(TArgs...)>& _function2, const Func<R(R1,R2)>& _converter)
-				:function1(_function1)
-				,function2(_function2)
-				,converter(_converter)
-			{
-			}
-
-			R operator()(TArgs&& ...args)const
-			{
-				return converter(function1(ForwardValue<TArgs>(args)...), function2(ForwardValue<TArgs>(args)...));
-			}
-		};
-	}
-
-	/// <summary>Combine two functions with a converter function. The two functions to combine should have the same argument types. The converter function will use the return values of the two function to calculate the final value.</summary>
-	/// <typeparam name="F1">Type of the first function.</typeparam>
-	/// <typeparam name="F2">Type of the second function.</typeparam>
-	/// <typeparam name="C">Type of the converter function.</typeparam>
-	/// <returns>A new function whose argument list are the same of the two functions to provide. Calling this function will call function1, function2 and converter in order to calculate the final value.</returns>
-	/// <param name="converter">The converter function.</param>
-	/// <param name="function1">The first function.</param>
-	/// <param name="function2">The second function.</param>
-	template<typename F1, typename F2, typename C>
-	Func<typename function_combining::Combining<F1, F2, C>::FinalFunctionType>
-	Combine(Func<C> converter, Func<F1> function1, Func<F2> function2)
-	{
-		return function_combining::Combining<F1, F2, C>(function1, function2, converter);
-	}
-
-	/// <summary>Use the converter function to create a combiner, who will receive two function and use <see cref="Combine`3"/> to create a combined function. This function assumes the result types of the two provided function in the future are the same, and the converter function will not change the result type.</summary>
-	/// <typeparam name="T">Type of the two functions to combine.</typeparam>
-	/// <returns>The combiner.</returns>
-	/// <param name="converter">The converter function.</param>
-	template<typename T>
-	Func<Func<T>(Func<T>,Func<T>)> Combiner(const Func<typename Func<T>::ResultType(typename Func<T>::ResultType,typename Func<T>::ResultType)>& converter)
-	{
-		typedef typename Func<T>::ResultType R;
-		return Curry<Func<T>(Func<R(R,R)>,Func<T>,Func<T>)>(Combine)(converter);
 	}
 }
 #endif

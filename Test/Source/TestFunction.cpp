@@ -212,19 +212,6 @@ TEST_FILE
 			addr_1_2_3_4();
 			TEST_ASSERT(r == 6);
 		});
-
-		TEST_CASE(L"Test Func<T> with Combine()")
-		{
-			Func<vint(vint,vint)> add = MyAdd;
-			Func<vint(vint,vint)> mul = MyMul;
-			Func<vint(vint,vint)> sub = MySub;
-			Func<vint(vint,vint)> func = Combine(sub, add, mul);
-
-			TEST_ASSERT(add(3,4) == 7);
-			TEST_ASSERT(mul(3,4) == 12);
-			TEST_ASSERT(sub(3,4) == -1);
-			TEST_ASSERT(func(3,4) == -5);
-		});
 	});
 
 	TEST_CATEGORY(L"Event<T>")
