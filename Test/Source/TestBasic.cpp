@@ -152,9 +152,9 @@ TEST_FILE
 		TEST_ASSERT(b.IsEvaluated() == true);
 		TEST_ASSERT(b.Value() == 400);
 
-		TEST_ASSERT(a.IsAvailable() == true);
+		TEST_ASSERT(a == true);
 		a = Lazy<vint>();
-		TEST_ASSERT(a.IsAvailable() == false);
+		TEST_ASSERT(a == false);
 	});
 
 	TEST_CASE(L"Test DateTime")

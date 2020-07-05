@@ -28,11 +28,9 @@ namespace vl
 		Ptr<Internal>			internalValue;
 	public:
 		/// <summary>Create an empty evaluation.</summary>
-		Lazy()
-		{
-		}
+		Lazy() = default;
 
-		/// <summary>Create an evaluation using a function.</summary>
+		/// <summary>Create an evaluation using a function, which produces the evaluation result.</summary>
 		/// <param name="evaluator">The function.</param>
 		Lazy(const Func<T()>& evaluator)
 		{
@@ -41,8 +39,8 @@ namespace vl
 			internalValue->evaluator=evaluator;
 		}
 
-		/// <summary>Create an evaluation using the result directly.</summary>
-		/// <param name="value">The result that you have already known.</param>0
+		/// <summary>Create an evaluation with the immediate result.</summary>
+		/// <param name="value">The result.</param>0
 		Lazy(const T& value)
 		{
 			internalValue=new Internal;
@@ -50,12 +48,13 @@ namespace vl
 			internalValue->value=value;
 		}
 
-		/// <summary>Copy an evaluation.</summary>
+		/// <summary>Create an evaluation by copying another one.</summary>
 		/// <param name="lazy">The evaluation to copy.</param>
-		Lazy(const Lazy<T>& lazy)
-			:internalValue(lazy.internalValue)
-		{
-		}
+		Lazy(const Lazy<T>& lazy) = default;
+
+		/// <summary>Create an evaluation by moving another one.</summary>
+		/// <param name="lazy">The evaluation to move.</param>
+		Lazy(Lazy<T>&& lazy) = default;
 
 		Lazy<T>& operator=(const Func<T()>& evaluator)
 		{
@@ -79,7 +78,7 @@ namespace vl
 			return *this;
 		}
 
-		/// <summary>Get the evaluation result. If it has not been calculated yet, it will run the evaluation and cache the result. You will not need to calculate for the second time.</summary>
+		/// <summary>Get the evaluation result. If the evaluation has not been performed, it will run the evaluation function and cache the result.</summary>
 		/// <returns>The evaluation result.</returns>
 		const T& Value()const
 		{
@@ -94,14 +93,14 @@ namespace vl
 
 		/// <summary>Test if it has already been evaluated or not.</summary>
 		/// <returns>Returns true if it has already been evaluated.</returns>
-		const bool IsEvaluated()const
+		bool IsEvaluated()const
 		{
 			return internalValue->evaluated;
 		}
 
 		/// <summary>Test if it is an empty evaluation or not.</summary>
 		/// <returns>Returns true if it is not empty.</returns>
-		const bool IsAvailable()const
+		operator bool()const
 		{
 			return internalValue;
 		}
