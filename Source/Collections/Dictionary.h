@@ -494,25 +494,25 @@ GroupInnerJoin
 ***********************************************************************/
 
 		/// <summary>Perform inner join on two groups.</summary>
-		/// <typeparam name="TKey>The type of keys in two groups.</typeparam>
-		/// <typeparam name="TValueFirst>The type of values in the first group.</typeparam>
-		/// <typeparam name="TValueSecond>The type of values in the second group.</typeparam>
-		/// <typeparam name="TDiscardFirst>The type of the first callback.</typeparam>
-		/// <typeparam name="TDiscardSecond>The type of the second callback.</typeparam>
-		/// <typeparam name="TAccept>The type of the third callback.</typeparam>
+		/// <typeparam name="TKey">The type of keys in two groups.</typeparam>
+		/// <typeparam name="TValueFirst">The type of values in the first group.</typeparam>
+		/// <typeparam name="TValueSecond">The type of values in the second group.</typeparam>
+		/// <typeparam name="TDiscardFirst">The type of the first callback.</typeparam>
+		/// <typeparam name="TDiscardSecond">The type of the second callback.</typeparam>
+		/// <typeparam name="TAccept">The type of the third callback.</typeparam>
 		/// <param name="first">The first group.</param>
 		/// <param name="second">The second group.</param>
-		/// <param name="discardFirst>
+		/// <param name="discardFirst">
 		/// Callback that is called when a value in the first group is discarded.
 		/// This happens for values associated to a key in the first group, that no value is assocated to the same key in the second group.
 		/// The first argument is the key, the second argument is the discarded value in the first group.
 		/// </param>
-		/// <param name="discardSecond>
+		/// <param name="discardSecond">
 		/// Callback that is called when a value in the second group is discarded.
 		/// This happens for values associated to a key in the second group, that no value is assocated to the same key in the first group.
 		/// The first argument is the key, the second argument is the discarded value in the first group.
 		/// </param>
-		/// <param name="accept>
+		/// <param name="accept">
 		/// Callback that is called when a match of values in both groups are found.
 		/// This happens for any key that, values are associated to this key in both group.
 		/// If multiple values are associated to this key in both group, cartesian product applies on values.
@@ -520,7 +520,7 @@ GroupInnerJoin
 		/// </param>
 		/// <remarks>
 		/// This function does not change data in provided groups.
-		/// <remarks>
+		/// </remarks>
 		/// <example><![CDATA[
 		/// int main()
 		/// {

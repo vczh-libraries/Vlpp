@@ -56,7 +56,7 @@ namespace vl
 		/// It is very common that are multiple independent assertions.
 		/// </p>
 		/// <p>
-		/// <b>TEST_CASE_ASSERT<b> is a test case, it can be used in <b>TEST_CATEGORY</b> or <b>TEST_FILE</b>.
+		/// <b>TEST_CASE_ASSERT</b> is a test case, it can be used in <b>TEST_CATEGORY</b> or <b>TEST_FILE</b>.
 		/// In release mode, by failing this assertion, the execution does not stop.
 		/// </p>
 		/// <p>
