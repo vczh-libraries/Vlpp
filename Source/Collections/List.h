@@ -528,7 +528,7 @@ List
 
 		/// <summary>List: linear container with dynamic size in runtime for unordered values. All elements are contiguous in memory.</summary>
 		/// <typeparam name="T">Type of elements.</typeparam>
-		/// <typeparam name="K">Type of the key type of elements.</typeparam>
+		/// <typeparam name="K">Type of the key type of elements. It is recommended to use the default value.</typeparam>
 		template<typename T, typename K = typename KeyType<T>::Type>
 		class List : public ListBase<T, K>
 		{
@@ -633,7 +633,7 @@ SortedList
 
 		/// <summary>SortedList: linear container with dynamic size in runtime for ordered values. All elements are kept in order, and are contiguous in memory.</summary>
 		/// <typeparam name="T">Type of elements.</typeparam>
-		/// <typeparam name="K">Type of the key type of elements.</typeparam>
+		/// <typeparam name="K">Type of the key type of elements. It is recommended to use the default value.</typeparam>
 		template<typename T, typename K = typename KeyType<T>::Type>
 		class SortedList : public ListBase<T, K>
 		{
