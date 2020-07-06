@@ -418,6 +418,13 @@ namespace vl
 		/// <summary>Get the prefix of the string.</summary>
 		/// <returns>The prefix. It will crash when the specified size is out of range.</returns>
 		/// <param name="count">Size of the prefix.</param>
+		/// <example><![CDATA[
+		/// int main()
+		/// {
+		///     WString s = L"Hello, world!";
+		///     Console::WriteLine(s.Left(5));
+		/// }
+		/// ]]></example>
 		ObjectString<T> Left(vint count)const
 		{
 			CHECK_ERROR(count>=0 && count<=length, L"ObjectString<T>::Left(vint)#Argument count not in range.");
@@ -427,6 +434,13 @@ namespace vl
 		/// <summary>Get the postfix of the string.</summary>
 		/// <returns>The postfix. It will crash when the specified size is out of range.</returns>
 		/// <param name="count">Size of the prefix.</param>
+		/// <example><![CDATA[
+		/// int main()
+		/// {
+		///     WString s = L"Hello, world!";
+		///     Console::WriteLine(s.Right(6));
+		/// }
+		/// ]]></example>
 		ObjectString<T> Right(vint count)const
 		{
 			CHECK_ERROR(count>=0 && count<=length, L"ObjectString<T>::Right(vint)#Argument count not in range.");
@@ -437,6 +451,13 @@ namespace vl
 		/// <returns>The sub string. It will crash when the specified position or size is out of range.</returns>
 		/// <param name="index">The position of the first code point of the sub string.</param>
 		/// <param name="count">The size of the sub string.</param>
+		/// <example><![CDATA[
+		/// int main()
+		/// {
+		///     WString s = L"Hello, world!";
+		///     Console::WriteLine(s.Sub(7, 5));
+		/// }
+		/// ]]></example>
 		ObjectString<T> Sub(vint index, vint count)const
 		{
 			CHECK_ERROR(index>=0 && index<=length, L"ObjectString<T>::Sub(vint, vint)#Argument index not in range.");
@@ -448,6 +469,13 @@ namespace vl
 		/// <returns>The string without the sub string. It will crash when the specified position or size is out of range.</returns>
 		/// <param name="index">The position of the first code point of the sub string.</param>
 		/// <param name="count">The size of the sub string.</param>
+		/// <example><![CDATA[
+		/// int main()
+		/// {
+		///     WString s = L"Hello, world!";
+		///     Console::WriteLine(s.Remove(5, 7));
+		/// }
+		/// ]]></example>
 		ObjectString<T> Remove(vint index, vint count)const
 		{
 			CHECK_ERROR(index>=0 && index<length, L"ObjectString<T>::Remove(vint, vint)#Argument index not in range.");
@@ -459,6 +487,13 @@ namespace vl
 		/// <returns>The string with another string inserted. It will crash when the specified position is out of range.</returns>
 		/// <param name="index">The position to insert.</param>
 		/// <param name="string">The string to insert.</param>
+		/// <example><![CDATA[
+		/// int main()
+		/// {
+		///     WString s = L"Hello, world!";
+		///     Console::WriteLine(s.Insert(7, L"a great "));
+		/// }
+		/// ]]></example>
 		ObjectString<T> Insert(vint index, const ObjectString<T>& string)const
 		{
 			CHECK_ERROR(index>=0 && index<=length, L"ObjectString<T>::Insert(vint)#Argument count not in range.");
