@@ -59,8 +59,8 @@ Interfaces
 		/// <summary>
 		/// An enumerable interface representing all types that provide multiple values in order.
 		/// range-based for-loop is not supported on enumerable yet, current we have "FOREACH" and "FOREACH_INDEXER" for iterating values.
-		/// <see cref="CopyFrom"/> functions work for all enumerable implementation.
-		/// <see cref="LazyList"/> provides high-level operations for enumerables, you can create a lazy list by calling <see cref="From"/> on any enumerables.
+		/// <see cref="CopyFrom`*"/> functions work for all enumerable implementation.
+		/// <see cref="LazyList`1"/> provides high-level operations for enumerables, you can create a lazy list by calling <see cref="From`*"/> on any enumerables.
 		/// </summary>
 		/// <example><![CDATA[
 		/// int main()
@@ -101,7 +101,7 @@ Interfaces
 			/// </summary>
 			/// <remarks>
 			/// In most of the cases, you do not need to call this function.
-			/// "FOREACH", "FOREACH_INDEXER", <see cref="CopyFrom"/> and <see cref="LazyList"/> do all the jobs for you.
+			/// "FOREACH", "FOREACH_INDEXER", <see cref="CopyFrom`*"/> and <see cref="LazyList`1"/> do all the jobs for you.
 			/// </remarks>
 			/// <returns>The enumerator.</returns>
 			virtual IEnumerator<T>*						CreateEnumerator()const=0;
