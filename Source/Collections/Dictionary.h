@@ -494,12 +494,12 @@ GroupInnerJoin
 ***********************************************************************/
 
 		/// <summary>Perform inner join on two groups.</summary>
-		/// <typeparam name="TKey>The type of keys in two groups.</param>
-		/// <typeparam name="TValueFirst>The type of values in the first group.</param>
-		/// <typeparam name="TValueSecond>The type of values in the second group.</param>
-		/// <typeparam name="TDiscardFirst>The type of the first callback.</param>
-		/// <typeparam name="TDiscardSecond>The type of the second callback.</param>
-		/// <typeparam name="TAccept>The type of the third callback.</param>
+		/// <typeparam name="TKey>The type of keys in two groups.</typeparam>
+		/// <typeparam name="TValueFirst>The type of values in the first group.</typeparam>
+		/// <typeparam name="TValueSecond>The type of values in the second group.</typeparam>
+		/// <typeparam name="TDiscardFirst>The type of the first callback.</typeparam>
+		/// <typeparam name="TDiscardSecond>The type of the second callback.</typeparam>
+		/// <typeparam name="TAccept>The type of the third callback.</typeparam>
 		/// <param name="first">The first group.</param>
 		/// <param name="second">The second group.</param>
 		/// <param name="discardFirst>

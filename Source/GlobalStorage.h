@@ -20,7 +20,7 @@ namespace vl
 	/// All values are shared like global variables, but they are created at the first time when they need to be accessed.
 	/// <see cref="FinalizeGlobalStorage"/> is recommended after you don't need any global storages any more, it frees memory.
 	/// </remarks>
-	/// <example>
+	/// <example><![CDATA[
 	/// BEGIN_GLOBAL_STOREGE_CLASS(MyStorage)
 	///     Ptr<vint> data;
 	/// INITIALIZE_GLOBAL_STORAGE_CLASS
@@ -35,9 +35,7 @@ namespace vl
 	///     Console::WriteLine(itow(*GetMyStorage().data.Obj()));
 	///     FinalizeGlobalStorage();
 	/// }
-	/// Then you have a global storage. You can only use this global storage in the current cpp file. [M:vl.InitializeGlobalStorage] should be called before using any global storage. [M:vl.FinalizeGlobalStorage] is encouraged to call if you think you will not use any global storages anymore. It will reduce noices when you want to detect memory leaks.
-	/// If the key of the global variable is called Key, and the variable you want to access is called Variable, then you can use GetKey()->Variable to access that variable. The GetKey function is created in the macro calls before.
-	/// </example>
+	/// ]]></example>
 	class GlobalStorage : public Object, private NotCopyable
 	{
 	private:

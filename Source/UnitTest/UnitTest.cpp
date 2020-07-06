@@ -36,7 +36,7 @@ UnitTest
 				Category,
 				Case,
 			};
-
+			
 			struct UnitTestContext
 			{
 				UnitTestContext*			parent = nullptr;

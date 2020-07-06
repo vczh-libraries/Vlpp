@@ -30,7 +30,7 @@ namespace vl
 
 		/// <summary>Copy containers.</summary>
 		/// <typeparam name="D">Type of code points in the target string.</typeparam>
-		/// <typeparam name="S">Type of the source container.</typeparam>
+		/// <typeparam name="Ss">Type of the source container.</typeparam>
 		/// <param name="ds">The target string.</param>
 		/// <param name="ss">The source container.</param>
 		/// <param name="append">Set to true to perform appending instead of replacing.</param>

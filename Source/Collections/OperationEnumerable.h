@@ -179,12 +179,14 @@ ContainerEnumerator
 CompareEnumerable
 ***********************************************************************/
 
-		/// <summary>Compare two cnumerables.</summary>
+		/// <summary>Compare two enumerables.</summary>
+		/// <typeparam name="T">Type of elements in the first enumerable.</typeparam>
+		/// <typeparam name="U">Type of elements in the second enumerable.</typeparam>
 		/// <returns>
 		/// Returns a positive value when the first enumerable is greater than the second enumerable.
 		/// Returns a negative value when the first enumerable is lesser than the second enumerable.
 		/// Returns zero when the two enumerables equal.
-		/// <returns>
+		/// </returns>
 		/// <param name="a">The first enumerable to compare.</param>
 		/// <param name="b">The second enumerable to compare.</param>
 		/// <remarks>
@@ -193,7 +195,7 @@ CompareEnumerable
 		/// When an enumerable is the prefix of another one, the prefix is lesser.
 		/// When two enumerable contain the same values in the same order, they equals.
 		/// In other cases, the results represents the comparison result of the first pair of inequal values in enumerables.
-		/// <remarks>
+		/// </remarks>
 		template<typename T, typename U>
 		vint CompareEnumerable(const IEnumerable<T>& a, const IEnumerable<U>& b)
 		{

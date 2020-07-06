@@ -20,6 +20,7 @@ ReferenceCounterOperator
 	/// For any object inherits from [T:vl.reflection.DescriptableObject], the reference counter is stored inside the object.
 	/// For any other object, the reference counter is allocated separately.
 	/// You can create your own strategy by adding a new partial specialization to this class.
+	/// </summary>
 	/// <typeparam name="T">
 	/// The type of the object.
 	/// </typeparam>

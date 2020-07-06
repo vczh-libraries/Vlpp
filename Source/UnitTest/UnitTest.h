@@ -19,7 +19,7 @@ namespace vl
 		/// <summary>
 		/// <p>Unit test framework.</p>
 		/// <p>
-		/// Test cases could be defined in multiple cpp files. In each cpp file, there can be one <b>TEST_FILE</b> call
+		/// Test cases could be defined in multiple cpp files. In each cpp file, there can be one <b>TEST_FILE</b> call.
 		/// <program><code><![CDATA[
 		/// TEST_FILE
 		/// {
@@ -51,10 +51,14 @@ namespace vl
 		/// <b>TEST_EXCEPTION</b> execute one statement, it fails when the specified exception type is not thrown.
 		/// Another callback will be called when the exception is thrown, given a chance to check data in the exception.
 		/// </p>
+		/// <p>
 		/// <b>TEST_CASE_ASSERT</b> is an abbreviation of <b>TEST_CASE</b> + <b>TEST_ASSERT</b>.
 		/// It is very common that are multiple independent assertions.
+		/// </p>
+		/// <p>
 		/// <b>TEST_CASE_ASSERT<b> is a test case, it can be used in <b>TEST_CATEGORY</b> or <b>TEST_FILE</b>.
 		/// In release mode, by failing this assertion, the execution does not stop.
+		/// </p>
 		/// <p>
 		/// <b>TEST_CATEGORY</b> is very useful when multiple assertions do not have dependencies.
 		/// During the execution of the test program, <b>TEST_FILE</b>, <b>TEST_CATEGORY</b>, <b>TEST_CASE</b> and failed <b>TEST_ASSERT</b> will be rendered with indentation and different colors.

@@ -330,13 +330,14 @@ Array
 			}
 
 			/// <summary>Replace an element in the specified position.</summary>
+			/// <returns>Returns true if this operation succeeded. It will crash when the index is out of range</returns>
 			/// <param name="index">The position of the element to replace.</param>
 			/// <param name="item">The new value to replace.</param>
-			/// <remarks> It will crash when the index is out of range.</remarks>
-			void Set(vint index, const T& item)
+			bool Set(vint index, const T& item)
 			{
 				CHECK_ERROR(index >= 0 && index < this->count, L"Array<T, K>::Set(vint)#Argument index not in range.");
 				this->ItemOf(index) = item;
+				return true;
 			}
 
 			using ArrayBase<T>::operator[];
@@ -605,9 +606,9 @@ List
 			}
 
 			/// <summary>Replace an element in the specified position.</summary>
+			/// <returns>Returns true if this operation succeeded. It will crash when the index is out of range</returns>
 			/// <param name="index">The position of the element to replace.</param>
 			/// <param name="item">The new value to replace.</param>
-			/// <remarks> It will crash when the index is out of range.</remarks>
 			bool Set(vint index, const T& item)
 			{
 				CHECK_ERROR(index >= 0 && index < this->count, L"List<T, K>::Set(vint)#Argument index not in range.");

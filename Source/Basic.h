@@ -598,19 +598,19 @@ namespace vl
 	/// <summary>A type representing the combination of date and time.</summary>
 	struct DateTime
 	{
-		/// </summary>The year.</summary>
+		/// <summary>The year.</summary>
 		vint				year;
-		/// </summary>The month, from 1 to 12.</summary>
+		/// <summary>The month, from 1 to 12.</summary>
 		vint				month;
-		/// </summary>The day, from 1 to 31.</summary>
+		/// <summary>The day, from 1 to 31.</summary>
 		vint				day;
-		/// </summary>The hour, from 0 to 23.</summary>
+		/// <summary>The hour, from 0 to 23.</summary>
 		vint				hour;
-		/// </summary>The minute, from 0 to 59.</summary>
+		/// <summary>The minute, from 0 to 59.</summary>
 		vint				minute;
-		/// </summary>The second, from 0 to 60.</summary>
+		/// <summary>The second, from 0 to 60.</summary>
 		vint				second;
-		/// </summary>The milliseconds, from 0 to 999.</summary>
+		/// <summary>The milliseconds, from 0 to 999.</summary>
 		vint				milliseconds;
 
 		/// <summary>

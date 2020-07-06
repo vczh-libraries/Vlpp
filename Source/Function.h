@@ -282,9 +282,9 @@ LAMBDA
  
 	namespace function_lambda
 	{
-		/// <summary>Create a functor in [T:vl.Func] from another functor, with all type arguments autotimatically inferred. The "LAMBDA" macro is recommended for the same purpose for writing compact code.</summary>
+		/// <summary>Create a functor in [T:vl.Func`1] from another functor, with all type arguments autotimatically inferred. The "LAMBDA" macro is recommended for the same purpose for writing compact code.</summary>
 		/// <typeparam name="T">Type of the functor to copy.</typeparam>
-		/// <returns>A copied functor in [T:vl.Func].</returns>
+		/// <returns>A copied functor in [T:vl.Func`1].</returns>
 		/// <param name="functionObject">The functor to copy.</param>
 		template<typename T>
 		typename LambdaRetriveType<decltype(&T::operator())>::Type Lambda(T functionObject)
@@ -292,9 +292,9 @@ LAMBDA
 			return functionObject;
 		}
 
-		/// <summary>Create a functor in [T:vl.Func] from a function pointer, with all type arguments autotimatically inferred. The "FUNCTION" macro is recommended for the same purpose for writing compact code.</summary>
+		/// <summary>Create a functor in [T:vl.Func`1] from a function pointer, with all type arguments autotimatically inferred. The "FUNCTION" macro is recommended for the same purpose for writing compact code.</summary>
 		/// <typeparam name="T">Type of the function pointer.</typeparam>
-		/// <returns>A copied functor in [T:vl.Func].</returns>
+		/// <returns>A copied functor in [T:vl.Func`1].</returns>
 		/// <param name="functionObject">The function pointer.</param>
 		template<typename T>
 		typename FunctionObjectRetriveType<T>::Type ConvertToFunction(T functionObject)
@@ -388,7 +388,7 @@ vl::function_binding::Binding<R(TArgs...)>
 	}
 
 	/// <summary>
-	/// Currize a functor in [T:vl.Func].
+	/// Currize a functor in [T:vl.Func`1].
 	/// Currizing means to create a new functor whose argument is the first argument of the original function.
 	/// Calling this functor will return another functor whose arguments are all remaining arguments of the original function.
 	/// Calling the returned function will call the original function.

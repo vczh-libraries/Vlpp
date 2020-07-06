@@ -74,7 +74,7 @@ namespace vl
 			return Add(Func<void(TArgs...)>(sender, function));
 		}
  
-		/// <summary>Remove a callback by an event handler returns from <see ref="Add"/>.</summary>
+		/// <summary>Remove a callback by an event handler returns from <see cref="Add"/>.</summary>
 		/// <returns>Returns true if this operation succeeded.</returns>
 		/// <param name="handler">The event handler representing the callback.</param>
 		bool Remove(Ptr<EventHandler> handler)
