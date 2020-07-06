@@ -67,44 +67,67 @@ namespace vl
 	{
 
 /***********************************************************************
-OrderBy Quick Sort
+Quick Sort
 ***********************************************************************/
 
+		/// <summary>Quick sort.</summary>
+		/// <typeparam name="T">Type of elements.</typeparam>
+		/// <typeparam name="F">Type of the comparer.</typeparam>
+		/// <param name="items">Pointer to element array to sort.</param>
+		/// <param name="length">The number of elements to sort.</param>
+		/// <param name="orderer">
+		/// The comparar for two elements.
+		/// Both arguments are elements to compare.
+		/// Returns a positive number when the first argument is greater.
+		/// Returns a negative number when the second argument is greater.
+		/// Returns zero when two arguments equal.
+		/// </param>
 		template<typename T, typename F>
 		void SortLambda(T* items, vint length, F orderer)
 		{
-			if(length==0) return;
-			vint pivot=0;
-			vint left=0;
-			vint right=0;
-			bool flag=false;
+			if (length == 0) return;
+			vint pivot = 0;
+			vint left = 0;
+			vint right = 0;
+			bool flag = false;
 
-			while(left+right+1!=length)
+			while (left + right + 1 != length)
 			{
-				vint& mine=(flag?left:right);
-				vint& theirs=(flag?right:left);
-				vint candidate=(flag?left:length-right-1);
-				vint factor=(flag?-1:1);
+				vint& mine = (flag ? left : right);
+				vint& theirs = (flag ? right : left);
+				vint candidate = (flag ? left : length - right - 1);
+				vint factor = (flag ? -1 : 1);
 
-				if(orderer(items[pivot], items[candidate])*factor<=0)
+				if (orderer(items[pivot], items[candidate])*factor <= 0)
 				{
 					mine++;
 				}
 				else
 				{
 					theirs++;
-					T temp=items[pivot];
-					items[pivot]=items[candidate];
-					items[candidate]=temp;
-					pivot=candidate;
-					flag=!flag;
+					T temp = items[pivot];
+					items[pivot] = items[candidate];
+					items[candidate] = temp;
+					pivot = candidate;
+					flag = !flag;
 				}
 			}
 
 			SortLambda(items, left, orderer);
-			SortLambda(items+left+1, right, orderer);
+			SortLambda(items + left + 1, right, orderer);
 		}
 
+		/// <summary>Quick sort.</summary>
+		/// <typeparam name="T">Type of elements.</typeparam>
+		/// <param name="items">Pointer to element array to sort.</param>
+		/// <param name="length">The number of elements to sort.</param>
+		/// <param name="orderer">
+		/// The comparar for two elements.
+		/// Both arguments are elements to compare.
+		/// Returns a positive number when the first argument is greater.
+		/// Returns a negative number when the second argument is greater.
+		/// Returns zero when two arguments equal.
+		/// </param>
 		template<typename T>
 		void Sort(T* items, vint length, const Func<vint(T, T)>& orderer)
 		{
@@ -115,7 +138,7 @@ OrderBy Quick Sort
 LazyList
 ***********************************************************************/
 
-		/// <summary>A lazy evaluated readonly container.</summary>
+		/// <summary>A lazy evaluated container with rich operations. <see cref="From`*"/> is useful to create lazy list from arrays or containers.</summary>
 		/// <typeparam name="T">The type of elements.</typeparam>
 		template<typename T>
 		class LazyList : public Object, public IEnumerable<T>
@@ -128,35 +151,35 @@ LazyList
 				return enumeratorPrototype->Clone();
 			}
 		public:
-			/// <summary>Create a lazy list with an enumerator.</summary>
+			/// <summary>Create a lazy list from an enumerator. This enumerator will be deleted when this lazy list is deleted.</summary>
 			/// <param name="enumerator">The enumerator.</param>
 			LazyList(IEnumerator<T>* enumerator)
 				:enumeratorPrototype(enumerator)
 			{
 			}
 			
-			/// <summary>Create a lazy list with an enumerator.</summary>
+			/// <summary>Create a lazy list from an enumerator.</summary>
 			/// <param name="enumerator">The enumerator.</param>
 			LazyList(Ptr<IEnumerator<T>> enumerator)
 				:enumeratorPrototype(enumerator)
 			{
 			}
 			
-			/// <summary>Create a lazy list with an enumerable.</summary>
-			/// <param name="enumerable">The enumerator.</param>
+			/// <summary>Create a lazy list from an enumerable.</summary>
+			/// <param name="enumerable">The enumerable.</param>
 			LazyList(const IEnumerable<T>& enumerable)
 				:enumeratorPrototype(enumerable.CreateEnumerator())
 			{
 			}
 			
-			/// <summary>Create a lazy list with an lazy list.</summary>
+			/// <summary>Create a lazy list from another lazy list.</summary>
 			/// <param name="lazyList">The lazy list.</param>
 			LazyList(const LazyList<T>& lazyList)
 				:enumeratorPrototype(lazyList.enumeratorPrototype)
 			{
 			}
 			
-			/// <summary>Create a lazy list with a container.</summary>
+			/// <summary>Create a lazy list from a container. It is very useful to <see cref="MakePtr`2/> a container as an intermediate result and then put in a lazy list.</summary>
 			/// <typeparam name="TContainer">Type of the container.</typeparam>
 			/// <param name="container">The container.</param>
 			template<typename TContainer>
@@ -522,36 +545,64 @@ LazyList
 			}
 		};
 
+		/// <summary>Create a lazy list with a series of increasing number.</summary>
+		/// <typeparam name="T">Type of elements.</typeparam>
+		/// <returns>A lazy list of increasing numbers.</returns>
+		/// <param name="start">The first number.</param>
+		/// <param name="count">Total amount of increasing numbers.</param>
 		template<typename T>
 		LazyList<T> Range(T start, T count)
 		{
 			return new RangeEnumerator<T>(start, count);
 		}
 
+		/// <summary>Create a lazy list from an enumerable.</summary>
+		/// <typeparam name="T">Type of elements.</typeparam>
+		/// <returns>The created lazy list.</returns>
+		/// <param name="enumerable">The enumerable.</param>
 		template<typename T>
 		LazyList<T> From(const IEnumerable<T>& enumerable)
 		{
 			return enumerable;
 		}
 
+		/// <summary>Create a lazy list from another lazy list.</summary>
+		/// <typeparam name="T">Type of elements.</typeparam>
+		/// <returns>The created lazy list.</returns>
+		/// <param name="enumerable">The lazy list to copy.</param>
 		template<typename T>
 		LazyList<T> From(const LazyList<T>& enumerable)
 		{
 			return enumerable;
 		}
 
+		/// <summary>Create a lazy list from an array.</summary>
+		/// <typeparam name="T">Type of elements.</typeparam>
+		/// <returns>The created lazy list.</returns>
+		/// <param name="begin">Pointer to the first element in the array.</param>
+		/// <param name="end">Pointer to the element after the last element in the array.</param>
 		template<typename T>
 		LazyList<T> From(const T* begin, const T* end)
 		{
 			return FromPointer(begin, end);
 		}
 
+		/// <summary>Create a lazy list from an array.</summary>
+		/// <typeparam name="T">Type of elements.</typeparam>
+		/// <typeparam name="size">Size of the array.</typeparam>
+		/// <returns>The created lazy list.</returns>
+		/// <param name="items">The array.</param>
 		template<typename T, int size>
 		LazyList<T> From(T (&items)[size])
 		{
 			return FromArray(items);
 		}
 
+		/// <summary>Create a lazy list from an array.</summary>
+		/// <typeparam name="T">Type of elements.</typeparam>
+		/// <typeparam name="size">Size of the array.</typeparam>
+		/// <returns>The created lazy list.</returns>
+		/// <param name="items">The array.</param>
 		template<typename T, int size>
 		LazyList<T> From(const T (&items)[size])
 		{
