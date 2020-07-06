@@ -245,7 +245,7 @@ ArrayBase
 			}
 
 			/// <summary>Get the reference to the specified element.</summary>
-			/// <returns>The reference to the specified element.</returns>
+			/// <returns>The reference to the specified element. It will crash when the index is out of range.</returns>
 			/// <param name="index">The index of the element.</param>
 			const T& Get(vint index)const
 			{
@@ -254,7 +254,7 @@ ArrayBase
 			}
 
 			/// <summary>Get the reference to the specified element.</summary>
-			/// <returns>The reference to the specified element.</returns>
+			/// <returns>The reference to the specified element. It will crash when the index is out of range.</returns>
 			/// <param name="index">The index of the element.</param>
 			const T& operator[](vint index)const
 			{
@@ -267,27 +267,34 @@ ArrayBase
 Array
 ***********************************************************************/
 
-		/// <summary>Array.</summary>
+		/// <summary>Array: linear container with fixed size in runtime. All elements are contiguous in memory.</summary>
 		/// <typeparam name="T">Type of elements.</typeparam>
-		/// <typeparam name="K">Type of the key type of elements.</typeparam>
+		/// <typeparam name="K">Type of the key type of elements. It is recommended to use the default value.</typeparam>
 		template<typename T, typename K = typename KeyType<T>::Type>
 		class Array : public ArrayBase<T>
 		{
 		public:
 			/// <summary>Create an array.</summary>
 			/// <param name="size">The size of the array.</param>
+			/// <remarks>
+			/// The default value is zero. <see cref="Resize"/> can be called to determine the size later.
+			/// It will crash when the size is a negative number.
+			/// </remarks>
 			Array(vint size = 0)
 			{
+				CHECK_ERROR(size >= 0, L"Array<T>::Array(vint)#Size should not be negative.");
 				this->buffer = this->AllocateBuffer(size);
 				this->InitializeItemsByDefault(this->buffer, size);
 				this->count = size;
 			}
 
-			/// <summary>Create an array.</summary>
-			/// <param name="_buffer">Pointer to an array to copy.</param>
-			/// <param name="size">The size of the array.</param>
+			/// <summary>Create an array with elements provided.</summary>
+			/// <param name="_buffer">Pointer to values to copy.</param>
+			/// <param name="size">The number of values to copy.</param>
+			/// <remarks>It will crash when the size is a negative number.</remarks>
 			Array(const T* _buffer, vint size)
 			{
+				CHECK_ERROR(size >= 0, L"Array<T>::Array(const T*, vint)#Size should not be negative.");
 				this->buffer = this->AllocateBuffer(size);
 				this->InitializeItemsByCopy(this->buffer, (void*)_buffer, size);
 				this->count = size;
@@ -299,17 +306,17 @@ Array
 				this->DeallocateBuffer(this->buffer);
 			}
 
-			/// <summary>Test does the array contain an item or not.</summary>
-			/// <returns>Returns true if the array contains the specified item.</returns>
-			/// <param name="item">The item to test.</param>
+			/// <summary>Test does the array contain a value or not.</summary>
+			/// <returns>Returns true if the array contains the specified value.</returns>
+			/// <param name="item">The value to test.</param>
 			bool Contains(const K& item)const
 			{
 				return IndexOf(item) != -1;
 			}
 
-			/// <summary>Get the position of an item in this array.</summary>
-			/// <returns>Returns the position. Returns -1 if not exists</returns>
-			/// <param name="item">The item to find.</param>
+			/// <summary>Get the position of a value in this array.</summary>
+			/// <returns>Returns the position of first element that equals to the specified value. Returns -1 if failed to find.</returns>
+			/// <param name="item">The value to find.</param>
 			vint IndexOf(const K& item)const
 			{
 				for (vint i = 0; i < this->count; i++)
@@ -322,29 +329,33 @@ Array
 				return -1;
 			}
 
-			/// <summary>Replace an item.</summary>
-			/// <param name="index">The position of the item.</param>
-			/// <param name="item">The new item to put into the array.</param>
+			/// <summary>Replace an element in the specified position.</summary>
+			/// <param name="index">The position of the element to replace.</param>
+			/// <param name="item">The new value to replace.</param>
+			/// <remarks> It will crash when the index is out of range.</remarks>
 			void Set(vint index, const T& item)
 			{
 				CHECK_ERROR(index >= 0 && index < this->count, L"Array<T, K>::Set(vint)#Argument index not in range.");
 				this->ItemOf(index) = item;
 			}
 
-			/// <summary>Get the reference to the specified element.</summary>
-			/// <returns>The reference to the specified element.</returns>
-			/// <param name="index">The index of the element.</param>
 			using ArrayBase<T>::operator[];
+
+			/// <summary>Get the reference to the specified element.</summary>
+			/// <returns>The reference to the specified element. It will crash when the index is out of range.</returns>
+			/// <param name="index">The index of the element.</param>
 			T& operator[](vint index)
 			{
 				CHECK_ERROR(index >= 0 && index < this->count, L"Array<T, K>::operator[](vint)#Argument index not in range.");
 				return this->ItemOf(index);
 			}
 
-			/// <summary>Change the size of the array.</summary>
+			/// <summary>Change the size of the array. This function can be called multiple times to change the size.</summary>
 			/// <param name="size">The new size of the array.</param>
+			/// <remarks>It will crash when the size is a negative number.</remarks>
 			void Resize(vint size)
 			{
+				CHECK_ERROR(size >= 0, L"Array<T>::Resize(vint)#Size should not be negative.");
 				void* newBuffer = this->AllocateBuffer(size);
 				if (size < this->count)
 				{
@@ -367,9 +378,9 @@ Array
 ListBase
 ***********************************************************************/
 
-		/// <summary>Base type for a list container.</summary>
+		/// <summary>Base type for all list containers.</summary>
 		/// <typeparam name="T">Type of elements.</typeparam>
-		/// <typeparam name="K">Type of the key type of elements.</typeparam>
+		/// <typeparam name="K">Type of the key type of elements. It is recommended to use the default value.</typeparam>
 		template<typename T, typename K = typename KeyType<T>::Type>
 		class ListBase abstract : public ArrayBase<T>
 		{
@@ -453,14 +464,17 @@ ListBase
 			}
 
 			/// <summary>Set a preference of using memory.</summary>
-			/// <param name="mode">Set to true (by default) to let the container efficiently reduce memory usage when necessary.</param>
+			/// <param name="mode">
+			/// Set to true (by default) to let the container actively reduce memories when there is too much room for unused elements.
+			/// This could happen after removing a lot of elements.
+			/// </param>
 			void SetLessMemoryMode(bool mode)
 			{
 				this->lessMemoryMode = mode;
 			}
 
-			/// <summary>Remove an element.</summary>
-			/// <returns>Returns true if the element is removed.</returns>
+			/// <summary>Remove an element at a specified position.</summary>
+			/// <returns>Returns true if the element is removed. It will crash when the index is out of range.</returns>
 			/// <param name="index">The index of the element to remove.</param>
 			bool RemoveAt(vint index)
 			{
@@ -472,8 +486,8 @@ ListBase
 				return true;
 			}
 
-			/// <summary>Remove elements.</summary>
-			/// <returns>Returns true if the element is removed.</returns>
+			/// <summary>Remove contiguous elements at a specified psition.</summary>
+			/// <returns>Returns true if elements are removed. It will crash when the index or the size is out of range.</returns>
 			/// <param name="index">The index of the first element to remove.</param>
 			/// <param name="_count">The number of elements to remove.</param>
 			bool RemoveRange(vint index, vint _count)
@@ -512,29 +526,27 @@ ListBase
 List
 ***********************************************************************/
 
-		/// <summary>List.</summary>
+		/// <summary>List: linear container with dynamic size in runtime for unordered values. All elements are contiguous in memory.</summary>
 		/// <typeparam name="T">Type of elements.</typeparam>
 		/// <typeparam name="K">Type of the key type of elements.</typeparam>
 		template<typename T, typename K = typename KeyType<T>::Type>
 		class List : public ListBase<T, K>
 		{
 		public:
-			/// <summary>Create a list.</summary>
-			List()
-			{
-			}
+			/// <summary>Create an empty list.</summary>
+			List() = default;
 
-			/// <summary>Test does the list contain an item or not.</summary>
-			/// <returns>Returns true if the list contains the specified item.</returns>
-			/// <param name="item">The item to test.</param>
+			/// <summary>Test does the list contain a value or not.</summary>
+			/// <returns>Returns true if the list contains the specified value.</returns>
+			/// <param name="item">The value to test.</param>
 			bool Contains(const K& item)const
 			{
 				return IndexOf(item) != -1;
 			}
 
-			/// <summary>Get the position of an item in this list.</summary>
-			/// <returns>Returns the position. Returns -1 if not exists</returns>
-			/// <param name="item">The item to find.</param>
+			/// <summary>Get the position of a value in this list.</summary>
+			/// <returns>Returns the position of first element that equals to the specified value. Returns -1 if failed to find.</returns>
+			/// <param name="item">The value to find.</param>
 			vint IndexOf(const K& item)const
 			{
 				for (vint i = 0; i < this->count; i++)
@@ -547,18 +559,18 @@ List
 				return -1;
 			}
 
-			/// <summary>Add an item at the end of the list.</summary>
+			/// <summary>Append a value at the end of the list.</summary>
 			/// <returns>The index of the added item.</returns>
-			/// <param name="item">The item to add.</param>
+			/// <param name="item">The value to add.</param>
 			vint Add(const T& item)
 			{
 				return Insert(this->count, item);
 			}
 
-			/// <summary>Add an item at the specified position.</summary>
-			/// <returns>The index of the added item.</returns>
-			/// <param name="index">The position of the item to add.</param>
-			/// <param name="item">The item to add.</param>
+			/// <summary>Insert a value at the specified position.</summary>
+			/// <returns>The index of the added item. It will crash if the index is out of range</returns>
+			/// <param name="index">The position to insert the value.</param>
+			/// <param name="item">The value to add.</param>
 			vint Insert(vint index, const T& item)
 			{
 				CHECK_ERROR(index >= 0 && index <= this->count, L"List<T, K>::Insert(vint, const T&)#Argument index not in range.");
@@ -575,8 +587,8 @@ List
 				return index;
 			}
 
-			/// <summary>Remove an item.</summary>
-			/// <returns>Returns true if the item is removed.</returns>
+			/// <summary>Remove an element from the list. If multiple elements equal to the specified value, only the first one will be removed</summary>
+			/// <returns>Returns true if the element is removed.</returns>
 			/// <param name="item">The item to remove.</param>
 			bool Remove(const K& item)
 			{
@@ -592,10 +604,10 @@ List
 				}
 			}
 
-			/// <summary>Replace an item.</summary>
-			/// <returns>Returns true if this operation succeeded.</returns>
-			/// <param name="index">The position of the item.</param>
-			/// <param name="item">The new item to put into the array.</param>
+			/// <summary>Replace an element in the specified position.</summary>
+			/// <param name="index">The position of the element to replace.</param>
+			/// <param name="item">The new value to replace.</param>
+			/// <remarks> It will crash when the index is out of range.</remarks>
 			bool Set(vint index, const T& item)
 			{
 				CHECK_ERROR(index >= 0 && index < this->count, L"List<T, K>::Set(vint)#Argument index not in range.");
@@ -603,10 +615,11 @@ List
 				return true;
 			}
 
-			/// <summary>Get the reference to the specified element.</summary>
-			/// <returns>The reference to the specified element.</returns>
-			/// <param name="index">The index of the element.</param>
 			using ListBase<T, K>::operator[];
+
+			/// <summary>Get the reference to the specified element.</summary>
+			/// <returns>The reference to the specified element. It will crash when the index is out of range.</returns>
+			/// <param name="index">The index of the element.</param>
 			T& operator[](vint index)
 			{
 				CHECK_ERROR(index >= 0 && index < this->count, L"List<T, K>::operator[](vint)#Argument index not in range.");
@@ -618,7 +631,7 @@ List
 SortedList
 ***********************************************************************/
 
-		/// <summary>List that keeps everything in order.</summary>
+		/// <summary>SortedList: linear container with dynamic size in runtime for ordered values. All elements are kept in order, and are contiguous in memory.</summary>
 		/// <typeparam name="T">Type of elements.</typeparam>
 		/// <typeparam name="K">Type of the key type of elements.</typeparam>
 		template<typename T, typename K = typename KeyType<T>::Type>
@@ -626,11 +639,16 @@ SortedList
 		{
 		protected:
 
-			/// <summary>Get the position of an item in this list.</summary>
-			/// <typeparam name="Key">Type of the item to find.</typeparam>
-			/// <returns>Returns the position. Returns -1 if not exists</returns>
-			/// <param name="item">The item to find.</param>
-			/// <param name="index">Returns the last index.</param>
+			/// <summary>Get the position of an element in this list by performing binary search.</summary>
+			/// <typeparam name="Key">Type of the element to find.</typeparam>
+			/// <returns>Returns the position. Returns -1 if it does not exist.</returns>
+			/// <param name="item">The element to find.</param>
+			/// <param name="index">
+			/// If the element exist, this argument returns one of the element that equals to the specified value.
+			/// If the element doesn not exist,
+			/// this argument returns either the greatest element that less than the specified value,
+			/// or the lest element that greater than the specified value.
+			/// </param>
 			template<typename Key>
 			vint IndexOfInternal(const Key& item, vint& index)const
 			{
@@ -671,31 +689,29 @@ SortedList
 				return index;
 			}
 		public:
-			/// <summary>Create a list.</summary>
-			SortedList()
-			{
-			}
+			/// <summary>Create an empty list.</summary>
+			SortedList() = default;
 
-			/// <summary>Test does the list contain an item or not.</summary>
-			/// <returns>Returns true if the list contains the specified item.</returns>
-			/// <param name="item">The item to test.</param>
+			/// <summary>Test does the list contain a value or not.</summary>
+			/// <returns>Returns true if the list contains the specified value.</returns>
+			/// <param name="item">The value to test.</param>
 			bool Contains(const K& item)const
 			{
 				return IndexOf(item) != -1;
 			}
 
-			/// <summary>Get the position of an item in this list.</summary>
-			/// <returns>Returns the position. Returns -1 if not exists</returns>
-			/// <param name="item">The item to find.</param>
+			/// <summary>Get the position of a value in this list.</summary>
+			/// <returns>Returns the position of first element that equals to the specified value. Returns -1 if failed to find.</returns>
+			/// <param name="item">The value to find.</param>
 			vint IndexOf(const K& item)const
 			{
 				vint outputIndex = -1;
 				return IndexOfInternal<K>(item, outputIndex);
 			}
 
-			/// <summary>Add an item at a correct position to keep everying in order.</summary>
+			/// <summary>Add a value at the correct position, all elements will be kept in order.</summary>
 			/// <returns>The index of the added item.</returns>
-			/// <param name="item">The item to add.</param>
+			/// <param name="item">The value to add.</param>
 			vint Add(const T& item)
 			{
 				if (ArrayBase<T>::count == 0)
@@ -715,8 +731,8 @@ SortedList
 				}
 			}
 
-			/// <summary>Remove an item.</summary>
-			/// <returns>Returns true if the item is removed.</returns>
+			/// <summary>Remove an element from the list. If multiple elements equal to the specified value, only the first one will be removed</summary>
+			/// <returns>Returns true if the element is removed.</returns>
 			/// <param name="item">The item to remove.</param>
 			bool Remove(const K& item)
 			{
@@ -796,7 +812,7 @@ Special Containers
 				{
 					if (!root)
 					{
-						return 0;
+						return nullptr;
 					}
 					vint fragmentIndex = (index >> (2 * (Index - 1))) % 4;
 					TreeNode* fragmentRoot = root->nodes[fragmentIndex];
@@ -837,17 +853,11 @@ Special Containers
 		public:
 			typedef PushOnlyAllocator<bom_helper::TreeNode>			Allocator;
 		protected:
-			bom_helper::TreeNode*			root;
+			bom_helper::TreeNode*			root = nullptr;
 
 		public:
-			ByteObjectMap()
-				:root(0)
-			{
-			}
-
-			~ByteObjectMap()
-			{
-			}
+			ByteObjectMap() = default;
+			~ByteObjectMap() = default;
 
 			T* Get(vuint8_t index)
 			{
