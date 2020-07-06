@@ -135,42 +135,42 @@ Copy Functions for Containers
 		}
 
 		/// <summary>Copy containers.</summary>
-		/// <typeparam name="Ds">Type of the destination container.</typeparam>
+		/// <typeparam name="Ds">Type of the target container.</typeparam>
 		/// <typeparam name="Ss">Type of the source container.</typeparam>
-		/// <param name="ds">The destination container.</param>
+		/// <param name="ds">The target container.</param>
 		/// <param name="ss">The source container.</param>
-		/// <param name="append">Set to false to delete everything in the destination container before copying.</param>
+		/// <param name="append">Set to true to perform appending instead of replacing.</param>
 		template<typename Ds, typename Ss>
-		void CopyFrom(Ds& ds, const Ss& ss, bool append=false)
+		void CopyFrom(Ds& ds, const Ss& ss, bool append = false)
 		{
 			copyfrom_internal::CopyFromAlgorithm<Ds, Ss, randomaccess_internal::RandomAccessable<Ds>::CanResize, randomaccess_internal::RandomAccessable<Ss>::CanRead>::Perform(ds, ss, append);
 		}
 		
 		/// <summary>Copy containers.</summary>
-		/// <typeparam name="Ds">Type of the destination container.</typeparam>
-		/// <typeparam name="S">Type of the elements in the source container.</typeparam>
-		/// <param name="ds">The destination container.</param>
-		/// <param name="buffer">Pointer to the source array.</param>
-		/// <param name="count">The number of elements to copy.</param>
-		/// <param name="append">Set to false to delete everything in the destination container before copying.</param>
+		/// <typeparam name="Ds">Type of the target container.</typeparam>
+		/// <typeparam name="S">Type of values in the source container.</typeparam>
+		/// <param name="ds">The target container.</param>
+		/// <param name="buffer">Pointer to source values.</param>
+		/// <param name="count">The number of values to copy.</param>
+		/// <param name="append">Set to true to perform appending instead of replacing.</param>
 		template<typename Ds, typename S>
-		void CopyFrom(Ds& ds, const S* buffer, vint count, bool append=false)
+		void CopyFrom(Ds& ds, const S* buffer, vint count, bool append = false)
 		{
-			copyfrom_internal::Slice<S> slice={buffer, count};
+			copyfrom_internal::Slice<S> slice = { buffer, count };
 			CopyFrom(ds, slice, append);
 		}
-		
+
 		/// <summary>Copy containers.</summary>
-		/// <typeparam name="Ds">Type of the destination container.</typeparam>
-		/// <typeparam name="S">Type of the elements in the source container.</typeparam>
-		/// <param name="ds">The destination container.</param>
-		/// <param name="begin">Pointer to the first element in the source array.</param>
-		/// <param name="end">Pointer to the element after the last element in the source array.</param>
-		/// <param name="append">Set to false to delete everything in the destination container before copying.</param>
+		/// <typeparam name="Ds">Type of the target container.</typeparam>
+		/// <typeparam name="S">Type of values in the source container.</typeparam>
+		/// <param name="ds">The target container.</param>
+		/// <param name="begin">Pointer to the first source value.</param>
+		/// <param name="end">Pointer to the value after the last source value.</param>
+		/// <param name="append">Set to true to perform appending instead of replacing.</param>
 		template<typename Ds, typename S>
-		void CopyFrom(Ds& ds, const S* begin, const S* end, bool append=false)
+		void CopyFrom(Ds& ds, const S* begin, const S* end, bool append = false)
 		{
-			copyfrom_internal::Slice<S> slice={begin, end-begin};
+			copyfrom_internal::Slice<S> slice = { begin, end - begin };
 			CopyFrom(ds, slice, append);
 		}
 	}

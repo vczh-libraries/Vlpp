@@ -468,8 +468,8 @@ namespace vl
 		/// <summary>Comparing two nullable values.</summary>
 		/// <returns>
 		/// Returns a positive value when the first value is greater than the second value.
-		/// Returns a negative value when the first value is lesser than the second one.
-		/// Returns zero when the two value equals.
+		/// Returns a negative value when the first value is lesser than the second value.
+		/// Returns zero when the two values equal.
 		/// When one is null and another one is not, the non-null one is greater.
 		/// </returns>
 		/// <param name="a">The first nullable value to compare.</param>

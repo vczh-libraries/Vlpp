@@ -179,26 +179,41 @@ ContainerEnumerator
 CompareEnumerable
 ***********************************************************************/
 
+		/// <summary>Compare two cnumerables.</summary>
+		/// <returns>
+		/// Returns a positive value when the first enumerable is greater than the second enumerable.
+		/// Returns a negative value when the first enumerable is lesser than the second enumerable.
+		/// Returns zero when the two enumerables equal.
+		/// <returns>
+		/// <param name="a">The first enumerable to compare.</param>
+		/// <param name="b">The second enumerable to compare.</param>
+		/// <remarks>
+		/// The comparison result is similar to comparing two strings.
+		/// When an enumerable contains no value but another one does, the empty one is lesser.
+		/// When an enumerable is the prefix of another one, the prefix is lesser.
+		/// When two enumerable contain the same values in the same order, they equals.
+		/// In other cases, the results represents the comparison result of the first pair of inequal values in enumerables.
+		/// <remarks>
 		template<typename T, typename U>
 		vint CompareEnumerable(const IEnumerable<T>& a, const IEnumerable<U>& b)
 		{
-			Ptr<IEnumerator<T>> ator=a.CreateEnumerator();
-			Ptr<IEnumerator<U>> btor=b.CreateEnumerator();
-			while(true)
+			Ptr<IEnumerator<T>> ator = a.CreateEnumerator();
+			Ptr<IEnumerator<U>> btor = b.CreateEnumerator();
+			while (true)
 			{
-				bool a=ator->Next();
-				bool b=btor->Next();
-				if(a&&!b) return 1;
-				if(!a&&b) return -1;
-				if(!a&&!b) break;
+				bool a = ator->Next();
+				bool b = btor->Next();
+				if (a && !b) return 1;
+				if (!a&&b) return -1;
+				if (!a && !b) break;
 
-				const T& ac=ator->Current();
-				const U& bc=btor->Current();
-				if(ac<bc)
+				const T& ac = ator->Current();
+				const U& bc = btor->Current();
+				if (ac < bc)
 				{
 					return -1;
 				}
-				else if(ac>bc)
+				else if (ac > bc)
 				{
 					return 1;
 				}
