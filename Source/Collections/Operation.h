@@ -123,9 +123,6 @@ LazyList
 		protected:
 			Ptr<IEnumerator<T>>			enumeratorPrototype;
 
-			template<typename U>
-			static U Element(const IEnumerable<U>&);
-
 			IEnumerator<T>* xs()const
 			{
 				return enumeratorPrototype->Clone();
