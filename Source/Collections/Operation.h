@@ -143,11 +143,13 @@ LazyList
 		/// <summary>A lazy evaluated container with rich operations. <see cref="From`*"/> is useful to create lazy list from arrays or containers.</summary>
 		/// <typeparam name="T">The type of elements.</typeparam>
 		/// <remarks>
-		/// A lazy list is usually created directly from a container source, or from a calculation on a source.
-		/// Typically the lazy list cannot be used after the source is deleted.
+		/// <p>A lazy list is usually created directly from a container source, or from a calculation on a source.</p>
+		/// <p>Typically the lazy list cannot be used after the source is deleted.</p>
+		/// <p>
 		/// If this lazy list needs to be used after the source is deleted,
 		/// you are recommended to use [F:vl.collections.LazyList`1.Evaluate], <b>with forceCopy set to true</b>.
-		/// In this way you get a lazy list with all values copied, they do not rely on other objects.
+		/// </p>
+		/// <p>In this way you get a lazy list with all values copied, they do not rely on other objects.</p>
 		/// </remarks>
 		template<typename T>
 		class LazyList : public Object, public IEnumerable<T>
@@ -703,12 +705,12 @@ LazyList
 			/// </returns>
 			/// <param name="forceCopy">Set to true to force copying values, regardless of whether this lazy list is evaluated or not.</param>
 			/// <remarks>
-			/// "Evaluated" means reading from this lazy list cause no extra calculation.
-			/// In most of the cases, the created lazy list relies on its source.
-			/// For example, a lazy list can be created from a reference to a <see cref="List`*"/>, or from an array on stack.
-			/// If this list or array is deleted, then iterating the created lazy list will crash.
-			/// By calling the Evaluate function <b>with forceCopy set to true</b>, a new lazy list is created, with all values cached in it.
-			/// Its connection to the source list or array is removed, and can then be passed to everywhere.
+			/// <p>"Evaluated" means reading from this lazy list cause no extra calculation.</p>
+			/// <p>In most of the cases, the created lazy list relies on its source.</p>
+			/// <p>For example, a lazy list can be created from a reference to a <see cref="List`*"/>, or from an array on stack.</p>
+			/// <p>If this list or array is deleted, then iterating the created lazy list will crash.</p>
+			/// <p>By calling the Evaluate function <b>with forceCopy set to true</b>, a new lazy list is created, with all values cached in it.</p>
+			/// <p>Its connection to the source list or array is removed, and can then be passed to everywhere.</p>
 			/// </remarks>
 			LazyList<T> Evaluate(bool forceCopy = false)const
 			{
