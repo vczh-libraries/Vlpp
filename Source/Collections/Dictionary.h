@@ -51,32 +51,37 @@ namespace vl
 					index=_index;
 				}
 				
-				IEnumerator<Pair<KT, VT>>* Clone()const
+				IEnumerator<Pair<KT, VT>>* Clone()const override
 				{
 					return new Enumerator(container, index);
 				}
 
-				const Pair<KT, VT>& Current()const
+				const Pair<KT, VT>& Current()const override
 				{
 					return current;
 				}
 
-				vint Index()const
+				vint Index()const override
 				{
 					return index;
 				}
 
-				bool Next()
+				bool Next() override
 				{
 					index++;
 					UpdateCurrent();
 					return index>=0 && index<container->Count();
 				}
 
-				void Reset()
+				void Reset() override
 				{
 					index=-1;
 					UpdateCurrent();
+				}
+
+				bool Evaluated()const override
+				{
+					return true;
 				}
 			};
 
@@ -251,17 +256,17 @@ namespace vl
 					valueIndex=_valueIndex;
 				}
 				
-				IEnumerator<Pair<KT, VT>>* Clone()const
+				IEnumerator<Pair<KT, VT>>* Clone()const override
 				{
 					return new Enumerator(container, keyIndex, valueIndex);
 				}
 
-				const Pair<KT, VT>& Current()const
+				const Pair<KT, VT>& Current()const override
 				{
 					return current;
 				}
 
-				vint Index()const
+				vint Index()const override
 				{
 					if(0<=keyIndex && keyIndex<container->Count())
 					{
@@ -278,7 +283,7 @@ namespace vl
 					}
 				}
 
-				bool Next()
+				bool Next() override
 				{
 					if(keyIndex==-1)
 					{
@@ -302,11 +307,16 @@ namespace vl
 					return false;
 				}
 
-				void Reset()
+				void Reset() override
 				{
 					keyIndex=-1;
 					valueIndex=-1;
 					UpdateCurrent();
+				}
+
+				bool Evaluated()const override
+				{
+					return true;
 				}
 			};
 

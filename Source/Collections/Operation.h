@@ -23,14 +23,14 @@ Functions:
 	[T]			.Count() => vint
 	[T]			.IsEmpty() => bool
 
-	[T]			.Concat([T]) => [T]
-	[T]			.Take(vint) => [T]
-	[T]			.Skip(vint) => [T]
-	[T]			.Repeat(vint) => [T]
+	[T]			.Concat([T]) => [T]				(evaluated)
+	[T]			.Take(vint) => [T]				(evaluated)
+	[T]			.Skip(vint) => [T]				(evaluated)
+	[T]			.Repeat(vint) => [T]			(evaluated)
 	[T]			.Distinct() => [T]
-	[T]			.Reverse() => [T]
+	[T]			.Reverse() => [T]				(evaluated)
 
-	[T]			.Pairwise([K]) => [(T,K)]
+	[T]			.Pairwise([K]) => [(T,K)]		(evaluated)
 	[T]			.Intersect([T]) => [T]
 	[T]			.Except([T]) => [T]
 	[T]			.Union([T]) => [T]
@@ -38,6 +38,8 @@ Functions:
 	[T]			.Evaluate() => [T]
 	[T]			.SelectMany(T->[K]) => [K]
 	[T]			.GroupBy(T->K) => [(K, [T])]
+
+	(evaluated) means the lazy list is evaluated when all sources are evaluated
 
 	From(begin, end) => [T]
 	From(array) => [T]
@@ -140,6 +142,13 @@ LazyList
 
 		/// <summary>A lazy evaluated container with rich operations. <see cref="From`*"/> is useful to create lazy list from arrays or containers.</summary>
 		/// <typeparam name="T">The type of elements.</typeparam>
+		/// <remarks>
+		/// A lazy list is usually created directly from a container source, or from a calculation on a source.
+		/// Typically the lazy list cannot be used after the source is deleted.
+		/// If this lazy list needs to be used after the source is deleted,
+		/// you are recommended to use [F:vl.collections.LazyList`1.Evaluate], <b>with forceCopy set to true</b>.
+		/// In this way you get a lazy list with all values copied, they do not rely on other objects.
+		/// </remarks>
 		template<typename T>
 		class LazyList : public Object, public IEnumerable<T>
 		{
@@ -686,24 +695,55 @@ LazyList
 
 			//-------------------------------------------------------
 
-			LazyList<T> Evaluate()const
+			/// <summary>Get an evaluated copy of this lazy list.</summary>
+			/// <returns>
+			/// The created lazy list.
+			/// If this lazy list has been evaluated before, it returns a reference to this lazy list.
+			/// If this lazy list has not been evaluated before, it go through this lazy list and copy all values.
+			/// </returns>
+			/// <param name="forceCopy">Set to true to force copying values, regardless of whether this lazy list is evaluated or not.</param>
+			/// <remarks>
+			/// "Evaluated" means reading from this lazy list cause no extra calculation.
+			/// In most of the cases, the created lazy list relies on its source.
+			/// For example, a lazy list can be created from a reference to a <see cref="List`*"/>, or from an array on stack.
+			/// If this list or array is deleted, then iterating the created lazy list will crash.
+			/// By calling the Evaluate function <b>with forceCopy set to true</b>, a new lazy list is created, with all values cached in it.
+			/// Its connection to the source list or array is removed, and can then be passed to everywhere.
+			/// </remarks>
+			LazyList<T> Evaluate(bool forceCopy = false)const
 			{
-				if(enumeratorPrototype->Evaluated())
+				if (!forceCopy && enumeratorPrototype->Evaluated())
 				{
 					return *this;
 				}
 				else
 				{
-					Ptr<List<T>> xs=new List<T>;
+					Ptr<List<T>> xs = new List<T>;
 					CopyFrom(*xs.Obj(), *this);
 					return xs;
 				}
 			}
 
 			/// <summary>Create a new lazy list, whose elements are from transformed elements in this lazy list.</summary>
-			/// <typeparam name="F">Type of the lambda expression.</typeparam>
+			/// <typeparam name="F">Type of the transformer.</typeparam>
 			/// <returns>The created lazy list.</returns>
-			/// <param name="f">The lambda expression as a transformation function to transform one element to multiple elements.</param>
+			/// <param name="f">
+			/// The transformer.
+			/// The first argument is any element in this lazy list.
+			/// Returns the transformed lazy list from this argument.
+			/// </param>
+			/// <example><![CDATA[
+			/// int main()
+			/// {
+			///     vint xs[] = {1, 2, 3, 4, 5,};
+			///     auto ys = From(xs).SelectMany([](vint x)
+			///     {
+			///         vint factors[] = {1, 10, 100};
+			///         return From(factors).Select([](vint f){ return f * x; }).Evaluate(true);
+			///     });
+			///     FOREACH(vint, y, ys) Console::Write(itow(y) + L" ");
+			/// }
+			/// ]]></example>
 			template<typename F>
 			FUNCTION_RESULT_TYPE(F) SelectMany(F f)const
 			{

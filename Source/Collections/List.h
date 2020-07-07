@@ -183,30 +183,35 @@ ArrayBase
 					index = _index;
 				}
 
-				IEnumerator<T>* Clone()const
+				IEnumerator<T>* Clone()const override
 				{
 					return new Enumerator(container, index);
 				}
 
-				const T& Current()const
+				const T& Current()const override
 				{
 					return container->Get(index);
 				}
 
-				vint Index()const
+				vint Index()const override
 				{
 					return index;
 				}
 
-				bool Next()
+				bool Next() override
 				{
 					index++;
 					return index >= 0 && index < container->Count();
 				}
 
-				void Reset()
+				void Reset() override
 				{
 					index = -1;
+				}
+
+				bool Evaluated()const override
+				{
+					return true;
 				}
 			};
 
