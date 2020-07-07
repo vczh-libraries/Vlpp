@@ -52,7 +52,7 @@ Interfaces
 			virtual void								Reset()=0;
 			/// <summary>Test if all values of this enumerator have been evaluated.</summary>
 			/// <returns>Returns true if all values have been evaluated.</returns>
-			/// <remakrs>An evaluated enumerator typically means, there will be no more calculation happens in <see cref="Next"/> regardless if all values have been read or not.</remakrs>
+			/// <remarks>An evaluated enumerator typically means, there will be no more calculation happens in <see cref="Next"/> regardless if all values have been read or not.</remarks>
 			virtual bool								Evaluated()const{return false;}
 		};
 		
