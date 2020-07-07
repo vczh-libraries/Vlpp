@@ -648,7 +648,7 @@ LazyList
 			/// <example><![CDATA[
 			/// int main()
 			/// {
-			///     vint xs[] = {1, 2, 3, 4, 5,};
+			///     vint xs[] = {1, 2, 3, 4, 5};
 			///     vint ys[] = {3, 4, 5, 6, 7};
 			///     auto zs = From(xs).Intersect(From(ys));
 			///     FOREACH(vint, z, zs) Console::Write(itow(z) + L" ");
@@ -665,7 +665,7 @@ LazyList
 			/// <example><![CDATA[
 			/// int main()
 			/// {
-			///     vint xs[] = {1, 2, 3, 4, 5,};
+			///     vint xs[] = {1, 2, 3, 4, 5};
 			///     vint ys[] = {3, 4, 5, 6, 7};
 			///     auto zs = From(xs).Except(From(ys));
 			///     FOREACH(vint, z, zs) Console::Write(itow(z) + L" ");
@@ -682,7 +682,7 @@ LazyList
 			/// <example><![CDATA[
 			/// int main()
 			/// {
-			///     vint xs[] = {1, 2, 3, 4, 5,};
+			///     vint xs[] = {1, 2, 3, 4, 5};
 			///     vint ys[] = {3, 4, 5, 6, 7};
 			///     auto zs = From(xs).Union(From(ys));
 			///     FOREACH(vint, z, zs) Console::Write(itow(z) + L" ");
@@ -735,7 +735,7 @@ LazyList
 			/// <example><![CDATA[
 			/// int main()
 			/// {
-			///     vint xs[] = {1, 2, 3, 4, 5,};
+			///     vint xs[] = {1, 2, 3, 4, 5};
 			///     auto ys = From(xs).SelectMany([](vint x)
 			///     {
 			///         vint factors[] = {1, 10, 100};
@@ -752,10 +752,29 @@ LazyList
 				return Select(f).Aggregate(LazyList<U>(), [](const LazyList<U>& a, const IEnumerable<U>& b)->LazyList<U>{return a.Concat(b);});
 			}
 
-			/// <summary>Create a new lazy list, whose elements are groupd by from elements in this lazy list.</summary>
-			/// <typeparam name="F">Type of the lambda expression.</typeparam>
+			/// <summary>Create a new lazy list, with elements from this lazy list grouped by a key function.</summary>
+			/// <typeparam name="F">Type of the key function.</typeparam>
 			/// <returns>The created lazy list.</returns>
-			/// <param name="f">The lambda expression as a key retriver to calcuate a key from an element.</param>
+			/// <param name="f">
+			/// The key function.
+			/// The first argument is any element in this lazy list.
+			/// Returns a key calculated from this argument.
+			/// Elements that have the same key will be grouped together.
+			/// </param>
+			/// <example><![CDATA[
+			/// int main()
+			/// {
+			///     vint xs[] = {1, 2, 3, 4, 5, 6, 7, 8, 9};
+			///     auto ys = From(xs).GroupBy([](vint x){ return x % 3; });
+			///     using TY = Pair<vint, LazyList<vint>>;
+			///     FOREACH(TY, y, ys)
+			///     {
+			///         Console::Write(itow(y.key) + L":");
+			///         FOREACH(vint, z, y.value) Console::Write(L" " + itow(z));
+			///         Console::WriteLine(L"");
+			///     }
+			/// }
+			/// ]]></example>
 			template<typename F>
 			LazyList<Pair<FUNCTION_RESULT_TYPE(F), LazyList<T>>> GroupBy(F f)const
 			{
