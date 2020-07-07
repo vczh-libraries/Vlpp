@@ -4,40 +4,40 @@ Licensed under https://github.com/vczh-libraries/License
 
 Functions:
 	CopyFrom(TargetContainer, SourceContainer)
-	[T]		.Select(T->K) => [K]
-	[T]		.SelectMany(T->[K]) => [K]
-	[T]		.Where(T->bool) => [T]
-	[Ptr<T>].Cast<K>() => [Ptr<K>]
-	[Ptr<T>].FindType<K>() => [Ptr<K>]
-	[T]		.OrderBy(T->T->int) => [T]
+	[T]			.Select(T->K) => [K]
+	[T]			.Where(T->bool) => [T]
+	[Ptr<T>]	.Cast<K>() => [Ptr<K>]
+	[Ptr<T>]	.FindType<K>() => [Ptr<K>]
+	[T]			.OrderBy(T->T->int) => [T]
 
-	[T]		.Aggregate(T->T->T) => T
-	[T]		.Aggregate(T->T->T, T) => T
-	[T]		.All(T->bool) => bool
-	[T]		.Any(T->bool) => bool
-	[T]		.Max() => T
-	[T]		.Min() => T
-	[T]		.First() => T
-	[T]		.FirstOrDefault(T) => T
-	[T]		.Last() => T
-	[T]		.LastOrDefault(T) => T
-	[T]		.Count() => vint
-	[T]		.IsEmpty() => bool
+	[T]			.Aggregate(T->T->T) => T
+	[T]			.Aggregate(T->T->T, T) => T
+	[T]			.All(T->bool) => bool
+	[T]			.Any(T->bool) => bool
+	[T]			.Max() => T
+	[T]			.Min() => T
+	[T]			.First() => T
+	[T]			.FirstOrDefault(T) => T
+	[T]			.Last() => T
+	[T]			.LastOrDefault(T) => T
+	[T]			.Count() => vint
+	[T]			.IsEmpty() => bool
 
-	[T]		.Concat([T]) => [T]
-	[T]		.Repeat(vint) => [T]
-	[T]		.Take(vint) => [T]
-	[T]		.Skip(vint) => [T]
-	[T]		.Distinct() => [T]
-	[T]		.Reverse() => [T]
+	[T]			.Concat([T]) => [T]
+	[T]			.Take(vint) => [T]
+	[T]			.Skip(vint) => [T]
+	[T]			.Repeat(vint) => [T]
+	[T]			.Distinct() => [T]
+	[T]			.Reverse() => [T]
 
-	[T]		.Pairwise([K]) => [(T,K)]
-	[T]		.Intersect([T]) => [T]
-	[T]		.Union([T]) => [T]
-	[T]		.Except([T]) => [T]
+	[T]			.Pairwise([K]) => [(T,K)]
+	[T]			.Intersect([T]) => [T]
+	[T]			.Union([T]) => [T]
+	[T]			.Except([T]) => [T]
 
-	[T]		.Evaluate() => [T]
-	[T]		.GroupBy(T->K) => [(K, [T])]
+	[T]			.Evaluate() => [T]
+	[T]			.SelectMany(T->[K]) => [K]
+	[T]			.GroupBy(T->K) => [(K, [T])]
 
 	From(begin, end) => [T]
 	From(array) => [T]
@@ -208,19 +208,35 @@ LazyList
 			//-------------------------------------------------------
 
 			/// <summary>Create a new lazy list with all elements transformed.</summary>
-			/// <typeparam name="F">Type of the lambda expression.</typeparam>
+			/// <typeparam name="F">Type of the transformer.</typeparam>
 			/// <returns>The created lazy list.</returns>
-			/// <param name="f">The lambda expression as a transformation function.</param>
+			/// <param name="f">The transformer.</param>
+			/// <example><![CDATA[
+			/// int main()
+			/// {
+			///     vint xs[] = {1, 2, 3, 4, 5};
+			///     auto ys = From(xs).Select([](vint x){ return x * 2; });
+			///     FOREACH(vint, y, ys) Console::Write(itow(y) + L" ");
+			/// }
+			/// ]]></example>
 			template<typename F>
 			LazyList<FUNCTION_RESULT_TYPE(F)> Select(F f)const
 			{
 				return new SelectEnumerator<T, FUNCTION_RESULT_TYPE(F)>(xs(), f);
 			}
 			
-			/// <summary>Create a new lazy list with all elements that satisfy with a condition.</summary>
-			/// <typeparam name="F">Type of the lambda expression.</typeparam>
+			/// <summary>Create a new lazy list with all elements filtered.</summary>
+			/// <typeparam name="F">Type of the filter.</typeparam>
 			/// <returns>The created lazy list.</returns>
-			/// <param name="f">The lambda expression as a filter.</param>
+			/// <param name="f">The filter.</param>
+			/// <example><![CDATA[
+			/// int main()
+			/// {
+			///     vint xs[] = {1, 2, 3, 4, 5};
+			///     auto ys = From(xs).Where([](vint x){ return x % 2 == 0; });
+			///     FOREACH(vint, y, ys) Console::Write(itow(y) + L" ");
+			/// }
+			/// ]]></example>
 			template<typename F>
 			LazyList<T> Where(F f)const
 			{
@@ -230,6 +246,11 @@ LazyList
 			/// <summary>Create a new lazy list with all elements casted to a new type.</summary>
 			/// <typeparam name="U">The new type.</typeparam>
 			/// <returns>The created lazy list.</returns>
+			/// <remarks>
+			/// The lazy list being casted contains elements of type [T:vl.Ptr`1].
+			/// [F:vl.Ptr`1.Cast] is called on each elements.
+			/// If some elements fail to cast, they become empty shared pointers.
+			/// </remarks>
 			template<typename U>
 			LazyList<Ptr<U>> Cast()const
 			{
@@ -240,6 +261,11 @@ LazyList
 			/// <summary>Create a new lazy list with only elements that successfully casted to a new type.</summary>
 			/// <typeparam name="U">The new type.</typeparam>
 			/// <returns>The created lazy list.</returns>
+			/// <remarks>
+			/// The lazy list being casted contains elements of type [T:vl.Ptr`1].
+			/// [F:vl.Ptr`1.Cast] is called on each elements.
+			/// If some elements fail to cast, they are eliminated from the result.
+			/// </remarks>
 			template<typename U>
 			LazyList<Ptr<U>> FindType()const
 			{
@@ -247,9 +273,23 @@ LazyList
 			}
 			
 			/// <summary>Create a new lazy list with all elements sorted.</summary>
-			/// <typeparam name="F">Type of the lambda expression.</typeparam>
+			/// <typeparam name="F">Type of the comparer.</typeparam>
 			/// <returns>The created lazy list.</returns>
-			/// <param name="f">The lambda expression as a comparing function.</param>
+			/// <param name="f">
+			/// The comparar for two elements.
+			/// Both arguments are elements to compare.
+			/// Returns a positive number when the first argument is greater.
+			/// Returns a negative number when the second argument is greater.
+			/// Returns zero when two arguments equal.
+			/// </param>
+			/// <example><![CDATA[
+			/// int main()
+			/// {
+			///     vint xs[] = {1, 2, 3, 4, 5};
+			///     auto ys = From(xs).OrderBy([](vint x, vint y){ return x - y; });
+			///     FOREACH(vint, y, ys) Console::Write(itow(y) + L" ");
+			/// }
+			/// ]]></example>
 			template<typename F>
 			LazyList<T> OrderBy(F f)const
 			{
@@ -264,10 +304,24 @@ LazyList
 
 			//-------------------------------------------------------
 			
-			/// <summary>Aggregate a lazy list. An exception will raise if the lazy list is empty.</summary>
-			/// <typeparam name="F">Type of the lambda expression.</typeparam>
+			/// <summary>Aggregate a lazy list. It will crash if the lazy list is empty.</summary>
+			/// <typeparam name="F">Type of the aggregator.</typeparam>
 			/// <returns>The aggregated value.</returns>
-			/// <param name="f">The lambda expression as an aggregator.</param>
+			/// <param name="f">
+			/// The aggregator.
+			/// The first argument is the aggregated value of any prefix.
+			/// The second argument is the element right after a prefix.
+			/// Returns the aggregated value of the new prefix.
+			/// For the first call, the first argument is the first element in the lazy list.
+			/// </param>
+			/// <example><![CDATA[
+			/// int main()
+			/// {
+			///     vint xs[] = {1, 2, 3, 4, 5};
+			///     auto ys = From(xs).Aggregate([](vint x, vint y){ return x + y; });
+			///     Console::WriteLine(itow(ys));
+			/// }
+			/// ]]></example>
 			template<typename F>
 			T Aggregate(F f)const
 			{
@@ -286,10 +340,23 @@ LazyList
 			
 			/// <summary>Aggregate a lazy list.</summary>
 			/// <typeparam name="I">Type of the initial value.</typeparam>
-			/// <typeparam name="F">Type of the lambda expression.</typeparam>
+			/// <typeparam name="F">Type of the aggregator.</typeparam>
 			/// <returns>The aggregated value.</returns>
-			/// <param name="init">The initial value that is virtually added before the lazy list.</param>
-			/// <param name="f">The lambda expression as an aggregator.</param>
+			/// <param name="init">The aggregated value defined for the empty prefix.</param>
+			/// <param name="f">
+			/// The aggregator.
+			/// The first argument is the aggregated value of any prefix.
+			/// The second argument is the element right after a prefix.
+			/// Returns the aggregated value of the new prefix.
+			/// </param>
+			/// <example><![CDATA[
+			/// int main()
+			/// {
+			///     vint xs[] = {1, 2, 3, 4, 5};
+			///     auto ys = From(xs).Aggregate(1, [](vint x, vint y){ return x * y; });
+			///     Console::WriteLine(itow(ys));
+			/// }
+			/// ]]></example>
 			template<typename I, typename F>
 			I Aggregate(I init, F f)const
 			{
@@ -300,41 +367,73 @@ LazyList
 				return init;
 			}
 
-			/// <summary>Test does all elements in the lazy list satisfy with a condition.</summary>
-			/// <typeparam name="F">Type of the lambda expression.</typeparam>
-			/// <returns>Returns true if all elements satisfy with a condition.</returns>
-			/// <param name="f">The lambda expression as a filter.</param>
+			/// <summary>Test if all elements in the lazy list satisfy a filter.</summary>
+			/// <typeparam name="F">Type of the filter.</typeparam>
+			/// <returns>Returns true if all elements satisfy the filter.</returns>
+			/// <param name="f">The filter.</param>
+			/// <example><![CDATA[
+			/// int main()
+			/// {
+			///     vint xs[] = {1, 2, 3, 4, 5};
+			///     auto ys = From(xs).All([](vint x){ return x % 2 == 0; });
+			///     Console::WriteLine(ys ? L"All numbers are even" : L"Not all numbers are even");
+			/// }
+			/// ]]></example>
 			template<typename F>
 			bool All(F f)const
 			{
 				return Select(f).Aggregate(true, [](bool a, bool b){return a&&b;});
 			}
 			
-			/// <summary>Test does any elements in the lazy list satisfy with a condition.</summary>
-			/// <typeparam name="F">Type of the lambda expression.</typeparam>
-			/// <returns>Returns true if at least one element satisfies with a condition.</returns>
-			/// <param name="f">The lambda expression as a filter.</param>
+			/// <summary>Test if any elements in the lazy list satisfy a filter.</summary>
+			/// <typeparam name="F">Type of the filter.</typeparam>
+			/// <returns>Returns true if there is at least one element satisfies the filter.</returns>
+			/// <param name="f">The filter.</param>
+			/// <example><![CDATA[
+			/// int main()
+			/// {
+			///     vint xs[] = {1, 2, 3, 4, 5};
+			///     auto ys = From(xs).Any([](vint x){ return x % 2 == 0; });
+			///     Console::WriteLine(ys ? L"There are even numbers" : L"There is no even number");
+			/// }
+			/// ]]></example>
 			template<typename F>
 			bool Any(F f)const
 			{
 				return Select(f).Aggregate(false, [](bool a, bool b){return a||b;});
 			}
 
-			/// <summary>Get the maximum value in the lazy list. An exception will raise if the lazy list is empty.</summary>
+			/// <summary>Get the maximum value in the lazy list. It will crash if the lazy list is empty.</summary>
 			/// <returns>The maximum value.</returns>
+			/// <example><![CDATA[
+			/// int main()
+			/// {
+			///     vint xs[] = {1, 2, 3, 4, 5};
+			///     auto ys = From(xs).Max();
+			///     Console::WriteLine(itow(ys));
+			/// }
+			/// ]]></example>
 			T Max()const
 			{
 				return Aggregate([](T a, T b){return a>b?a:b;});
 			}
 			
-			/// <summary>Get the minimum value in the lazy list. An exception will raise if the lazy list is empty.</summary>
+			/// <summary>Get the minimum value in the lazy list. It will crash if the lazy list is empty.</summary>
 			/// <returns>The minimum value.</returns>
+			/// <example><![CDATA[
+			/// int main()
+			/// {
+			///     vint xs[] = {1, 2, 3, 4, 5};
+			///     auto ys = From(xs).Min();
+			///     Console::WriteLine(itow(ys));
+			/// }
+			/// ]]></example>
 			T Min()const
 			{
 				return Aggregate([](T a, T b){return a<b?a:b;});
 			}
 			
-			/// <summary>Get the first value in the lazy list. An exception will raise if the lazy list is empty.</summary>
+			/// <summary>Get the first value in the lazy list. It will crash if the lazy list is empty.</summary>
 			/// <returns>The first value.</returns>
 			T First()const
 			{
@@ -347,8 +446,8 @@ LazyList
 			}
 			
 			/// <summary>Get the first value in the lazy list.</summary>
-			/// <returns>The first value.</returns>
-			/// <param name="defaultValue">Returns this argument if the lazy list is empty.</param>
+			/// <returns>The first value. If the lazy list is empty, the argument is returned.</returns>
+			/// <param name="defaultValue">The argument to return if the lazy list is empty.</param>
 			T First(T defaultValue)const
 			{
 				Ptr<IEnumerator<T>> enumerator=CreateEnumerator();
@@ -358,8 +457,8 @@ LazyList
 				}
 				return enumerator->Current();
 			}
-			
-			/// <summary>Get the last value in the lazy list. An exception will raise if the lazy list is empty.</summary>
+
+			/// <summary>Get the last value in the lazy list. It will crash if the lazy list is empty.</summary>
 			/// <returns>The last value.</returns>
 			T Last()const
 			{
@@ -378,10 +477,10 @@ LazyList
 					return value;
 				}
 			}
-			
+
 			/// <summary>Get the last value in the lazy list.</summary>
-			/// <returns>The last value.</returns>
-			/// <param name="defaultValue">Returns this argument if the lazy list is empty.</param>
+			/// <returns>The last value. If the lazy list is empty, the argument is returned.</returns>
+			/// <param name="defaultValue">The argument to return if the lazy list is empty.</param>
 			T Last(T defaultValue)const
 			{
 				Ptr<IEnumerator<T>> enumerator=CreateEnumerator();
@@ -405,7 +504,7 @@ LazyList
 				return result;
 			}
 
-			/// <summary>Test is the lazy list empty.</summary>
+			/// <summary>Test if the lazy list is empty.</summary>
 			/// <returns>Returns true if the lazy list is empty.</returns>
 			bool IsEmpty()const
 			{
@@ -415,40 +514,81 @@ LazyList
 
 			//-------------------------------------------------------
 
-			/// <summary>Create a new lazy list containing elements of the two container one after another.</summary>
+			/// <summary>Create a new lazy list containing elements of the two container in order.</summary>
 			/// <returns>The created lazy list.</returns>
-			/// <param name="remains">Elements that put after this lazy list.</param>
+			/// <param name="remains">Elements to be appended.</param>
+			/// <example><![CDATA[
+			/// int main()
+			/// {
+			///     vint xs[] = {1, 2, 3, 4, 5};
+			///     vint ys[] = {6, 7, 8, 9, 10};
+			///     auto zs = From(xs).Concat(From(ys));
+			///     FOREACH(vint, z, zs) Console::Write(itow(z) + L" ");
+			/// }
+			/// ]]></example>
 			LazyList<T> Concat(const IEnumerable<T>& remains)const
 			{
 				return new ConcatEnumerator<T>(xs(), remains.CreateEnumerator());
 			}
 
-			/// <summary>Create a new lazy list with some prefix elements.</summary>
+			/// <summary>Create a new lazy list with a prefix of the lazy list.</summary>
 			/// <returns>The created lazy list.</returns>
 			/// <param name="count">The size of the prefix.</param>
+			/// <example><![CDATA[
+			/// int main()
+			/// {
+			///     vint xs[] = {1, 2, 3, 4, 5};
+			///     auto ys = From(xs).Take(3);
+			///     FOREACH(vint, y, ys) Console::Write(itow(y) + L" ");
+			/// }
+			/// ]]></example>
 			LazyList<T> Take(vint count)const
 			{
 				return new TakeEnumerator<T>(xs(), count);
 			}
 			
-			/// <summary>Create a new lazy list without some prefix elements.</summary>
+			/// <summary>Create a new lazy list with a postfix of the lazy list.</summary>
 			/// <returns>The created lazy list.</returns>
-			/// <param name="count">The size of the prefix.</param>
+			/// <param name="count">The number of elements to skip.</param>
+			/// <example><![CDATA[
+			/// int main()
+			/// {
+			///     vint xs[] = {1, 2, 3, 4, 5};
+			///     auto ys = From(xs).Skip(3);
+			///     FOREACH(vint, y, ys) Console::Write(itow(y) + L" ");
+			/// }
+			/// ]]></example>
 			LazyList<T> Skip(vint count)const
 			{
 				return new SkipEnumerator<T>(xs(), count);
 			}
 
-			/// <summary>Create a new lazy list with several copies of this lazy list one after another.</summary>
+			/// <summary>Create a new lazy list with several copies of the lazy list in order.</summary>
 			/// <returns>The created lazy list.</returns>
 			/// <param name="count">The numbers of copies.</param>
+			/// <example><![CDATA[
+			/// int main()
+			/// {
+			///     vint xs[] = {1, 2, 3, 4, 5};
+			///     auto ys = From(xs).Repeat(3);
+			///     FOREACH(vint, y, ys) Console::Write(itow(y) + L" ");
+			/// }
+			/// ]]></example>
 			LazyList<T> Repeat(vint count)const
 			{
 				return new RepeatEnumerator<T>(xs(), count);
 			}
 
-			/// <summary>Create a new lazy list with all elements in this lazy list. If some elements appear several times, only one will be kept.</summary>
+			/// <summary>Create a new lazy list with duplicated elements removed in this lazy list.</summary>
 			/// <returns>The created lazy list.</returns>
+			/// <example><![CDATA[
+			/// int main()
+			/// {
+			///     vint xs[] = {1, 2, 2, 3, 3, 3, 4, 4, 5};
+			///     auto ys = From(xs).Distinct();
+			///     FOREACH(vint, y, ys) Console::Write(itow(y) + L" ");
+			/// }
+			/// ]]></example>
 			LazyList<T> Distinct()const
 			{
 				return new DistinctEnumerator<T>(xs());
@@ -456,6 +596,14 @@ LazyList
 
 			/// <summary>Create a new lazy list with all elements in this lazy list in a reverse order.</summary>
 			/// <returns>The created lazy list.</returns>
+			/// <example><![CDATA[
+			/// int main()
+			/// {
+			///     vint xs[] = {1, 2, 3, 4, 5};
+			///     auto ys = From(xs).Reverse();
+			///     FOREACH(vint, y, ys) Console::Write(itow(y) + L" ");
+			/// }
+			/// ]]></example>
 			LazyList<T> Reverse()const
 			{
 				return new ReverseEnumerator<T>(*this);
