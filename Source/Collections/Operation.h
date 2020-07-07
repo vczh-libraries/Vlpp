@@ -634,7 +634,7 @@ LazyList
 			/// {
 			///     vint xs[] = {1, 2, 3, 4, 5, 6, 7};
 			///     vint ys[] = {60, 70, 80, 90, 100};
-			///     auto zs = From(xs).Pairwise(From(ys)).Select(Pair<vint, vint> p){ return p.key + p.value; });
+			///     auto zs = From(xs).Pairwise(From(ys)).Select([](Pair<vint, vint> p){ return p.key + p.value; });
 			///     FOREACH(vint, z, zs) Console::Write(itow(z) + L" ");
 			/// }
 			/// ]]></example>
@@ -741,7 +741,7 @@ LazyList
 			///     auto ys = From(xs).SelectMany([](vint x)
 			///     {
 			///         vint factors[] = {1, 10, 100};
-			///         return From(factors).Select([](vint f){ return f * x; }).Evaluate(true);
+			///         return From(factors).Select([=](vint f){ return f * x; }).Evaluate(true);
 			///     });
 			///     FOREACH(vint, y, ys) Console::Write(itow(y) + L" ");
 			/// }

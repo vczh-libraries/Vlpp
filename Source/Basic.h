@@ -305,7 +305,7 @@ namespace vl
 	/// int main()
 	/// {
 	///     Ptr<Object> boxed = MakePtr<ObjectBox<vint>>(100);
-	///     vint unboxed = boxed.Cast<ObjectBox<vint>>().UnBox();
+	///     vint unboxed = boxed.Cast<ObjectBox<vint>>()->Unbox();
 	///     Console::WriteLine(itow(unboxed));
 	/// }
 	/// ]]></example>

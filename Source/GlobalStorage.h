@@ -21,7 +21,7 @@ namespace vl
 	/// <see cref="FinalizeGlobalStorage"/> is recommended after you don't need any global storages any more, it frees memory.
 	/// </remarks>
 	/// <example><![CDATA[
-	/// BEGIN_GLOBAL_STOREGE_CLASS(MyStorage)
+	/// BEGIN_GLOBAL_STORAGE_CLASS(MyStorage)
 	///     Ptr<vint> data;
 	/// INITIALIZE_GLOBAL_STORAGE_CLASS
 	///     data = new vint(100);

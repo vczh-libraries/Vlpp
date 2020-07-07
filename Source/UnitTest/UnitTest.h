@@ -71,22 +71,22 @@ namespace vl
 		/// <example><![CDATA[
 		/// TEST_FILE
 		/// {
-		///     TEST_CATEGORY(L"This is a test category)
+		///     TEST_CATEGORY(L"This is a test category")
 		///     {
 		///         TEST_CASE(L"This is a test case")
 		///         {
 		///             TEST_ASSERT(true);
 		///             TEST_ERROR({WString::Empty[0];});
 		///             TEST_EXCEPTION({throw Exception();}, Exception, [](const Exception&){});
-		///         }
+		///         });
 		///         TEST_CASE_ASSERT(true);
-		///     }
+		///     });
 		///
 		///     TEST_CATEGORY(L"This is another test category")
 		///     {
 		///         TEST_PRINT(L"some information");
 		///         TEST_CASE_ASSERT(true);
-		///     }
+		///     });
 		/// }
 		///
 		/// int main(int argc, wchar_t* argv[])

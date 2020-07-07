@@ -515,18 +515,17 @@ GroupInnerJoin
 		/// <param name="discardFirst">
 		/// Callback that is called when a value in the first group is discarded.
 		/// This happens for values associated to a key in the first group, that no value is assocated to the same key in the second group.
-		/// The first argument is the key, the second argument is the discarded value in the first group.
+		/// The first argument is the key, the second argument is the discarded value list in the first group.
 		/// </param>
 		/// <param name="discardSecond">
 		/// Callback that is called when a value in the second group is discarded.
 		/// This happens for values associated to a key in the second group, that no value is assocated to the same key in the first group.
-		/// The first argument is the key, the second argument is the discarded value in the first group.
+		/// The first argument is the key, the second argument is the discarded value list in the first group.
 		/// </param>
 		/// <param name="accept">
 		/// Callback that is called when a match of values in both groups are found.
 		/// This happens for any key that, values are associated to this key in both group.
-		/// If multiple values are associated to this key in both group, cartesian product applies on values.
-		/// The first argument is the key, the second argument is the associated value in the first group, the third argument is the associated value in the second group.
+		/// The first argument is the key, the second argument is the associated value list in the first group, the third argument list is the associated value in the second group.
 		/// </param>
 		/// <remarks>
 		/// This function does not change data in provided groups.
@@ -534,15 +533,20 @@ GroupInnerJoin
 		/// <example><![CDATA[
 		/// int main()
 		/// {
+		///     auto printList = [](const List<WString>& values)
+		///     {
+		///         return L"[" + From(values).Aggregate([](const WString& a, const WString& b) { return a + L", " + b; }) + L"]";
+		///     };
+		/// 
 		///     Group<vint, WString> as, bs;
 		///     as.Add(1 ,L"A"); as.Add(1 ,L"B"); as.Add(2 ,L"C"); as.Add(2 ,L"D");
 		///     bs.Add(1 ,L"X"); bs.Add(1 ,L"Y"); as.Add(3 ,L"Z"); as.Add(3 ,L"W");
 		///     GroupInnerJoin(
 		///         as,
 		///         bs,
-		///         [](vint key, const WString& value) { Console::WriteLine(L"Discarded in as: " + itow(key) + L", " + value); },
-		///         [](vint key, const WString& value) { Console::WriteLine(L"Discarded in bs: " + itow(key) + L", " + value); },
-		///         [](vint key, const WString& value1, const WString& value 2) { Console::WriteLine(L"Accepted: " + itow(key) + L", " + value1 + L", " + value2); }
+		///         [&](vint key, const List<WString>& values) { Console::WriteLine(L"Discarded in as: " + itow(key) + printList(values)); },
+		///         [&](vint key, const List<WString>& values) { Console::WriteLine(L"Discarded in bs: " + itow(key) + printList(values)); },
+		///         [&](vint key, const List<WString>& values1, const List<WString>& values2) { Console::WriteLine(L"Accepted: " + itow(key) + printList(values1) + printList(values2)); }
 		///         );
 		/// }
 		/// ]]></example>
