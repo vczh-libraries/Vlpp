@@ -32,8 +32,8 @@ Functions:
 
 	[T]			.Pairwise([K]) => [(T,K)]
 	[T]			.Intersect([T]) => [T]
-	[T]			.Union([T]) => [T]
 	[T]			.Except([T]) => [T]
+	[T]			.Union([T]) => [T]
 
 	[T]			.Evaluate() => [T]
 	[T]			.SelectMany(T->[K]) => [K]
@@ -613,33 +613,72 @@ LazyList
 
 			/// <summary>Create a new lazy list of pairs from elements from two containers.</summary>
 			/// <typeparam name="U">Type of all elements in the second container.</typeparam>
-			/// <returns>The created lazy list.</returns>
+			/// <returns>
+			/// The created lazy list, which contains pairs of elements from two containers at the same position.
+			/// If the two container have different sizes, the created lazy list has the size of the shorter one.
+			/// </returns>
 			/// <param name="remains">The second container.</param>
+			/// <example><![CDATA[
+			/// int main()
+			/// {
+			///     vint xs[] = {1, 2, 3, 4, 5, 6, 7};
+			///     vint ys[] = {60, 70, 80, 90, 100};
+			///     auto zs = From(xs).Pairwise(From(ys)).Select(Pair<vint, vint> p){ return p.key + p.value; });
+			///     FOREACH(vint, z, zs) Console::Write(itow(z) + L" ");
+			/// }
+			/// ]]></example>
 			template<typename U>
 			LazyList<Pair<T, U>> Pairwise(const IEnumerable<U>& remains)const
 			{
 				return new PairwiseEnumerator<T, U>(xs(), remains.CreateEnumerator());
 			}
 
-			/// <summary>Create a new lazy list with only elements that appear in both containers.</summary>
-			/// <returns>The created lazy list.</returns>
+			/// <summary>Create a new lazy list with elements from the lazy list, which also appear in the second container.</summary>
+			/// <returns>The created lazy list. Elements in the create lazy list is in the same order as in this lazy list.</returns>
 			/// <param name="remains">The second container.</param>
+			/// <example><![CDATA[
+			/// int main()
+			/// {
+			///     vint xs[] = {1, 2, 3, 4, 5,};
+			///     vint ys[] = {3, 4, 5, 6, 7};
+			///     auto zs = From(xs).Intersect(From(ys));
+			///     FOREACH(vint, z, zs) Console::Write(itow(z) + L" ");
+			/// }
+			/// ]]></example>
 			LazyList<T> Intersect(const IEnumerable<T>& remains)const
 			{
 				return LazyList<T>(new IntersectExceptEnumerator<T, true>(xs(), remains)).Distinct();
 			}
-			
-			/// <summary>Create a new lazy list with only elements that appear in this lazy list but not in another container.</summary>
-			/// <returns>The created lazy list.</returns>
+
+			/// <summary>Create a new lazy list with elements from the lazy list, which do not appear in the second container.</summary>
+			/// <returns>The created lazy list. Elements in the create lazy list is in the same order as in this lazy list.</returns>
 			/// <param name="remains">The second container.</param>
+			/// <example><![CDATA[
+			/// int main()
+			/// {
+			///     vint xs[] = {1, 2, 3, 4, 5,};
+			///     vint ys[] = {3, 4, 5, 6, 7};
+			///     auto zs = From(xs).Except(From(ys));
+			///     FOREACH(vint, z, zs) Console::Write(itow(z) + L" ");
+			/// }
+			/// ]]></example>
 			LazyList<T> Except(const IEnumerable<T>& remains)const
 			{
 				return LazyList<T>(new IntersectExceptEnumerator<T, false>(xs(), remains)).Distinct();
 			}
 			
-			/// <summary>Create a new lazy list with elements in two containers. If some elements appear several times, only one will be kept.</summary>
+			/// <summary>Create a new lazy list with elements in two containers. Duplicated elements will be removed.</summary>
 			/// <returns>The created lazy list.</returns>
 			/// <param name="remains">The second container.</param>
+			/// <example><![CDATA[
+			/// int main()
+			/// {
+			///     vint xs[] = {1, 2, 3, 4, 5,};
+			///     vint ys[] = {3, 4, 5, 6, 7};
+			///     auto zs = From(xs).Union(From(ys));
+			///     FOREACH(vint, z, zs) Console::Write(itow(z) + L" ");
+			/// }
+			/// ]]></example>
 			LazyList<T> Union(const IEnumerable<T>& remains)const
 			{
 				return Concat(remains).Distinct();
