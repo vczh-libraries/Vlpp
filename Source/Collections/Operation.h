@@ -188,7 +188,7 @@ LazyList
 			{
 			}
 			
-			/// <summary>Create a lazy list from a container. It is very useful to <see cref="MakePtr`2/> a container as an intermediate result and then put in a lazy list.</summary>
+			/// <summary>Create a lazy list from a container. It is very useful to <see cref="MakePtr`2"/> a container as an intermediate result and then put in a lazy list.</summary>
 			/// <typeparam name="TContainer">Type of the container.</typeparam>
 			/// <param name="container">The container.</param>
 			template<typename TContainer>
@@ -257,7 +257,7 @@ LazyList
 			/// <returns>The created lazy list.</returns>
 			/// <remarks>
 			/// The lazy list being casted contains elements of type [T:vl.Ptr`1].
-			/// [F:vl.Ptr`1.Cast] is called on each elements.
+			/// [F:vl.Ptr`1.Cast`1] is called on each elements.
 			/// If some elements fail to cast, they become empty shared pointers.
 			/// </remarks>
 			template<typename U>
@@ -272,7 +272,7 @@ LazyList
 			/// <returns>The created lazy list.</returns>
 			/// <remarks>
 			/// The lazy list being casted contains elements of type [T:vl.Ptr`1].
-			/// [F:vl.Ptr`1.Cast] is called on each elements.
+			/// [F:vl.Ptr`1.Cast`1] is called on each elements.
 			/// If some elements fail to cast, they are eliminated from the result.
 			/// </remarks>
 			template<typename U>
