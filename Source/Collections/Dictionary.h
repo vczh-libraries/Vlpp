@@ -540,7 +540,7 @@ GroupInnerJoin
 		/// 
 		///     Group<vint, WString> as, bs;
 		///     as.Add(1 ,L"A"); as.Add(1 ,L"B"); as.Add(2 ,L"C"); as.Add(2 ,L"D");
-		///     bs.Add(1 ,L"X"); bs.Add(1 ,L"Y"); as.Add(3 ,L"Z"); as.Add(3 ,L"W");
+		///     bs.Add(1 ,L"X"); bs.Add(1 ,L"Y"); bs.Add(3 ,L"Z"); bs.Add(3 ,L"W");
 		///     GroupInnerJoin(
 		///         as,
 		///         bs,
