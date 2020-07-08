@@ -56,7 +56,10 @@ Partial Ordering
 			/// </summary>
 			struct Component
 			{
-				/// <summary>Pointer to the array of all nodes in this component.</summary>
+				/// <summary>
+				/// Pointer to the array of all indexes of nodes in this component.
+				/// Index is used in [F:vl.collections.PartialOrderingProcessor.nodes].
+				/// </summary>
 				const vint*				firstNode = nullptr;
 				/// <summary>The number of nodes in this component.</summary>
 				vint					nodeCount = 0;
@@ -115,6 +118,64 @@ Partial Ordering
 			/// <param name="items">List of objects for sorting.</param>
 			/// <param name="depGroup">Relationship of objects for sorting in <see cref="Group`*"/>. Both keys and values are elements in "items". To say that a depends on b, do depGroup.Add(a, b).</param>
 			/// <example><![CDATA[
+			/// int main()
+			/// {
+			///     //         apple
+			///     //           ^
+			///     //           |
+			///     //         ball
+			///     //         ^  \
+			///     //        /    V
+			///     //     cat <-- dog
+			///     //       ^     ^
+			///     //      /       \
+			///     //  elephant   fish
+			/// 
+			///     List<WString> items;
+			///     items.Add(L"elephant");
+			///     items.Add(L"fish");
+			///     items.Add(L"ball");
+			///     items.Add(L"cat");
+			///     items.Add(L"dog");
+			///     items.Add(L"apple");
+			/// 
+			///     Group<WString, WString> depGroup;
+			///     depGroup.Add(L"ball", L"apple");
+			///     depGroup.Add(L"cat", L"ball");
+			///     depGroup.Add(L"ball", L"dog");
+			///     depGroup.Add(L"dog", L"cat");
+			///     depGroup.Add(L"elephant", L"cat");
+			///     depGroup.Add(L"fish", L"dog");
+			/// 
+			///     PartialOrderingProcessor pop;
+			///     pop.InitWithGroup(items, depGroup);
+			///     pop.Sort();
+			/// 
+			///     for (vint i = 0; i < pop.components.Count(); i++)
+			///     {
+			///         auto& c = pop.components[i];
+			///         Console::WriteLine(
+			///             L"Component " + itow(i) + L": " +
+			///             Range<vint>(0, c.nodeCount)
+			///                 .Select([&](vint ni){ return items[c.firstNode[ni]]; })
+			///                 .Aggregate([](const WString& a, const WString& b){ return a + L" " + b; })
+			///         );
+			///     }
+			/// 
+			///     for (vint i = 0; i < pop.nodes.Count(); i++)
+			///     {
+			///         auto& n = pop.nodes[i];
+			///         if(n.outs->Count() > 0)
+			///         {
+			///             Console::WriteLine(
+			///                 L"Node " + items[i] + L" <- " +
+			///                 From(*n.outs)
+			///                     .Select([&](vint ni){ return items[ni]; })
+			///                     .Aggregate([](const WString& a, const WString& b){ return a + L" " + b; })
+			///             );
+			///         }
+			///     }
+			/// }
 			/// ]]></example>
 			template<typename TList>
 			void InitWithGroup(const TList& items, const GroupOf<TList>& depGroup)
@@ -146,6 +207,68 @@ Partial Ordering
 			/// <param name="items">List of objects for sorting.</param>
 			/// <param name="depFunc">Relationship of objects for sorting, both arguments are elements in "items". To say that a depends on b, depFunc(a, b) must returns true.</param>
 			/// <example><![CDATA[
+			/// int main()
+			/// {
+			///     //         apple
+			///     //           ^
+			///     //           |
+			///     //         ball
+			///     //         ^  \
+			///     //        /    V
+			///     //     cat <-- dog
+			///     //       ^     ^
+			///     //      /       \
+			///     //  elephant   fish
+			/// 
+			///     List<WString> items;
+			///     items.Add(L"elephant");
+			///     items.Add(L"fish");
+			///     items.Add(L"ball");
+			///     items.Add(L"cat");
+			///     items.Add(L"dog");
+			///     items.Add(L"apple");
+			/// 
+			///     auto depFunc = [](const WString& a, const WString& b)
+			///     {
+			///         return
+			///             (a == L"ball" && b == L"apple") ||
+			///             (a == L"cat" && b == L"ball") ||
+			///             (a == L"ball" && b == L"dog") ||
+			///             (a == L"dog" && b == L"cat") ||
+			///             (a == L"elephant" && b == L"cat") ||
+			///             (a == L"fish" && b == L"dog")
+			///             ;
+			///     };
+			/// 
+			///     PartialOrderingProcessor pop;
+			///     pop.InitWithFunc(items, depFunc);
+			///     pop.Sort();
+			/// 
+			///     for (vint i = 0; i < pop.components.Count(); i++)
+			///     {
+			///         auto& c = pop.components[i];
+			///         Console::WriteLine(
+			///             L"Component " + itow(i) + L": " +
+			///             Range<vint>(0, c.nodeCount)
+			///                 .Select([&](vint ni){ return items[c.firstNode[ni]]; })
+			///                 .Aggregate([](const WString& a, const WString& b){ return a + L" " + b; })
+			///         );
+			///     }
+			/// 
+			///     for (vint i = 0; i < pop.nodes.Count(); i++)
+			///     {
+			///         auto& n = pop.nodes[i];
+			///         if(n.outs->Count() > 0)
+			///         {
+			///             Console::WriteLine(
+			///                 L"Node " + items[i] + L" <- " +
+			///                 From(*n.outs)
+			///                     .Select([&](vint ni){ return items[ni]; })
+			///                     .Aggregate([](const WString& a, const WString& b){ return a + L" " + b; })
+			///             );
+			///         }
+			///     }
+			/// }
 			/// ]]></example>
 			template<typename TList, typename TFunc>
 			void InitWithFunc(const TList& items, TFunc&& depFunc)
