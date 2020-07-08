@@ -36,7 +36,7 @@ Partial Ordering
 				/// a node becomes a sub class representing objects.
 				/// An object will not be shared by different sub classes.
 				/// In this case, this field is a pointer to an array of indexes of objects.
-				/// The index is used in "items" argument in [M:vl.collections.PartialOrderingProcessor.InitWithSubClass]
+				/// The index is used in "items" argument in [M:vl.collections.PartialOrderingProcessor.InitWithSubClass`2]
 				/// </summary>
 				const vint*				firstSubClassItem = nullptr;
 				/// <summary>
@@ -98,7 +98,7 @@ Partial Ordering
 			/// a node represents a sub class of objects.
 			/// In this case, the order in this field does not matter,
 			/// [F:vl.collections.po.Node.firstSubClassItem] stores indexes of objects in this sub class.
-			/// <remarks>
+			/// </remarks>
 			Array<po::Node>				nodes;
 
 			/// <summary>After <see cref="Sort"/> is called, this field stores all sorted components in order.</summary>
