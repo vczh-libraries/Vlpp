@@ -18,19 +18,46 @@ Partial Ordering
 
 		namespace po
 		{
+			/// <summary>
+			/// Node contains extra information for sorted objects.
+			/// </summary>
 			struct Node
 			{
 				bool					visited = false;
+
+				/// <summary>The index used in [F:vl.collections.PartialOrderingProcessor.components], specifying the component that contain this node.</summary>
 				vint					component = -1;
-				const List<vint>*		ins = nullptr;					// all nodes that this node depends on
-				const List<vint>*		outs = nullptr;					// all nodes that depend on this node
-				const vint*				firstSubClassItem = nullptr;	// index of the first item in this sub class node
-				vint					subClassItemCount = 0;			// the number of items in this sub class node
+				/// <summary>All nodes that this node depends on.</summary>
+				const List<vint>*		ins = nullptr;
+				/// <summary>All nodes that this node is depended by.</summary>
+				const List<vint>*		outs = nullptr;
+				/// <summary>
+				/// If [M:vl.collections.PartialOrderingProcessor.InitWithSubClass`2] is used,
+				/// a node becomes a sub class representing objects.
+				/// An object will not be shared by different sub classes.
+				/// In this case, this field is a pointer to an array of indexes of objects.
+				/// </summary>
+				const vint*				firstSubClassItem = nullptr;
+				/// <summary>
+				/// When <see cref="firstSubClassItem"/> is available,
+				/// this field is the number of indexes in the array.
+				/// </summary>
+				vint					subClassItemCount = 0;
 			};
 
+			/// <summary>
+			/// Component is a unit in sorting result.
+			/// If a component contains more than one node,
+			/// it means that nodes in this component depend on each other by the given relationship.
+			/// It is not possible to tell which node should be place before others for all nodes in this component.
+			/// If all nodes are completely partial ordered,
+			/// there should be only one node in all components.
+			/// </summary>
 			struct Component
 			{
+				/// <summary>Pointer to the array of all nodes in this component.</summary>
 				const vint*				firstNode = nullptr;
+				/// <summary>The number of nodes in this component.</summary>
 				vint					nodeCount = 0;
 			};
 		}
@@ -39,36 +66,34 @@ Partial Ordering
 	namespace collections
 	{
 		/// <summary>
-		/// Partial ordering item sorter.
-		/// This class sorts items in a partial order using the given dependency information.
-		/// Node stored in this class using the index of items.
-		/// If a depends on b, then a.ins-&gt;Contains(b) &amp;&amp; b.outs-&gt;Contains(a).
-		/// The sorting result is a list of strong connected components in order.
-		/// If a depends on b, then the component containing a appears after the component containing b.
-		/// Node could represent a sub class if InitWithSubClass is called.
+		/// PartialOrderingProcessor is used to sort objects by given relationships among them.
+		/// The relationship is defined by dependance.
+		/// If A depends on B, then B will be place before A after sorting.
+		/// If a group of objects depends on each other by the given relationship,
+		/// they will be grouped together in the sorting result.
 		/// </summary>
 		class PartialOrderingProcessor : public Object
 		{
 			template<typename TList>
 			using GroupOf = Group<typename TList::ElementType, typename TList::ElementType>;
 		protected:
-			List<vint>					emptyList;
-			Group<vint, vint>			ins;
-			Group<vint, vint>			outs;
-			Array<vint>					firstNodesBuffer;
-			Array<vint>					subClassItemsBuffer;
+			List<vint>					emptyList;				// make a pointer to an empty list available
+			Group<vint, vint>			ins;					// if a depends on b, ins.Contains(a, b)
+			Group<vint, vint>			outs;					// if a depends on b, outs.Contains(b, a)
+			Array<vint>					firstNodesBuffer;		// one buffer for all Component::firstNode
+			Array<vint>					subClassItemsBuffer;	// one buffer for all Node::firstSubClassItem
 
 			void						InitNodes(vint itemCount);
 			void						VisitUnvisitedNode(po::Node& node, Array<vint>& reversedOrder, vint& used);
 			void						AssignUnassignedNode(po::Node& node, vint componentIndex, vint& used);
 		public:
-			/// <summary>Nodes.</summary>
+			/// <summary>After <see cref="Sort"/> is called, this field stores all nodes referenced by sorted components.</summary>
 			Array<po::Node>				nodes;
 
-			/// <summary>Strong connected components in order.</summary>
+			/// <summary>After <see cref="Sort"/> is called, this field stores all sorted components in order..</summary>
 			List<po::Component>			components;
 
-			/// <summary>Sort. This method can only be called once.</summary>
+			/// <summary>Sort objects by given relationships. It will crash if this method is called for more than once.</summary>
 			void						Sort();
 
 			/// <summary>Initialize the processor, specifying dependency relationships as a group.</summary>
