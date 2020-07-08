@@ -781,13 +781,14 @@ LazyList
 			LazyList<Pair<FUNCTION_RESULT_TYPE(F), LazyList<T>>> GroupBy(F f)const
 			{
 				typedef FUNCTION_RESULT_TYPE(F) K;
+				auto self = *this;
 				return Select(f)
 					.Distinct()
 					.Select([=](K k)
 					{
 						return Pair<K, LazyList<T>>(
 							k,
-							Where([=](T t){return k==f(t);})
+							self.Where([=](T t){return k==f(t);})
 							);
 					});
 			}
