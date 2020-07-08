@@ -93,13 +93,19 @@ Partial Ordering
 			/// <summary>After <see cref="Sort"/> is called, this field stores all sorted components in order..</summary>
 			List<po::Component>			components;
 
-			/// <summary>Sort objects by given relationships. It will crash if this method is called for more than once.</summary>
+			/// <summary>
+			/// Sort objects by given relationships. It will crash if this method is called for more than once.
+			/// </summary>
+			/// <remarks>
+			/// One and only one of <see cref="InitWithGroup`1"/>, <see cref="InitWithFunc`2"/>, <see cref="InitWithSubClass`2"/> must be called to set data for sorting.
+			/// And then call <see cref="Sort"/> to sort objects and store the result in <see cref="components"/>.
+			/// </remarks>
 			void						Sort();
 
-			/// <summary>Initialize the processor, specifying dependency relationships as a group.</summary>
-			/// <typeparam name="TList">Type of the first parameter.</typeparam>
-			/// <param name="items">Items.</param>
-			/// <param name="depGroup">Dependences. If a depends on b, then depGroups[a].Contains(b) == true.</param>
+			/// <summary>Set data for sorting, by providing a list for objects, and a group for their relationship.</summary>
+			/// <typeparam name="TList">Type of the list for objects. <see cref="Array`*"/>, <see cref="List`*"/> or <see cref="SortedList`*"/> are recommended.</typeparam>
+			/// <param name="items">List of objects for sorting.</param>
+			/// <param name="depGroup">Relationship of objects for sorting in <see cref="Group`*"/>. Both keys and values are elements in "items". To say that a depends on b, do depGroup.Add(a, b).</param>
 			template<typename TList>
 			void InitWithGroup(const TList& items, const GroupOf<TList>& depGroup)
 			{
@@ -124,11 +130,11 @@ Partial Ordering
 				InitNodes(items.Count());
 			}
 
-			/// <summary>Initialize the processor, specifying dependency relationships as a callback function.</summary>
-			/// <typeparam name="TList">Type of the first parameter.</typeparam>
-			/// <typeparam name="TFunc">Type of the second parameter.</typeparam>
-			/// <param name="items">Items.</param>
-			/// <param name="depFunc">Dependences. If a depends on b, then depFunc(a, b) == true.</param>
+			/// <summary>Set data for sorting, by providing a list for objects, and a function for their relationship.</summary>
+			/// <typeparam name="TList">Type of the list for objects. <see cref="Array`*"/>, <see cref="List`*"/> or <see cref="SortedList`*"/> are recommended.</typeparam>
+			/// <typeparam name="TFunc">Type of the function that defines relationships of objects.</typeparam>
+			/// <param name="items">List of objects for sorting.</param>
+			/// <param name="depFunc">Relationship of objects for sorting, both arguments are elements in "items". To say that a depends on b, depFunc(a, b) must returns true.</param>
 			template<typename TList, typename TFunc>
 			void InitWithFunc(const TList& items, TFunc&& depFunc)
 			{
