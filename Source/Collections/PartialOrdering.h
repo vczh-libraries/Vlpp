@@ -302,6 +302,84 @@ Partial Ordering
 			/// in this case, some components may contain multiple sub classes.
 			/// </remarks>
 			/// <example><![CDATA[
+			/// int main()
+			/// {
+			///     //         apple
+			///     //           ^
+			///     //           |
+			///     //         ball
+			///     //         ^  \
+			///     //        /    V
+			///     //     cat <-- dog
+			///     //       ^     ^
+			///     //      /       \
+			///     //  elephant   fish
+			/// 
+			///     List<WString> items;
+			///     for (vint i = 1; i <= 2; i++)
+			///     {
+			///         items.Add(L"apple_" + itow(i));
+			///         items.Add(L"ball_" + itow(i));
+			///         items.Add(L"cat_" + itow(i));
+			///         items.Add(L"dog_" + itow(i));
+			///         items.Add(L"elephant_" + itow(i));
+			///         items.Add(L"fish_" + itow(i));
+			///     }
+			/// 
+			///     Group<WString, WString> depGroup;
+			///     depGroup.Add(L"ball_2", L"apple_1");
+			///     depGroup.Add(L"cat_2", L"ball_1");
+			///     depGroup.Add(L"ball_2", L"dog_1");
+			///     depGroup.Add(L"dog_2", L"cat_1");
+			///     depGroup.Add(L"elephant_2", L"cat_1");
+			///     depGroup.Add(L"fish_2", L"dog_1");
+			/// 
+			///     Dictionary<WString, vint> subClass;
+			///     for (vint i = 1; i <= 2; i++)
+			///     {
+			///         subClass.Add(L"apple_" + itow(i), 1);
+			///         subClass.Add(L"ball_" + itow(i), 2);
+			///         subClass.Add(L"cat_" + itow(i), 3);
+			///         subClass.Add(L"dog_" + itow(i), 4);
+			///         subClass.Add(L"elephant_" + itow(i), 5);
+			///         subClass.Add(L"fish_" + itow(i), 6);
+			///     }
+			/// 
+			///     PartialOrderingProcessor pop;
+			///     pop.InitWithSubClass(items, depGroup, subClass);
+			///     pop.Sort();
+			/// 
+			///     for (vint i = 0; i < pop.components.Count(); i++)
+			///     {
+			///         auto& c = pop.components[i];
+			///         Console::WriteLine(
+			///             L"Component " + itow(i) + L": sub classes" +
+			///             Range<vint>(0, c.nodeCount)
+			///                 .Select([&](vint ni) { return c.firstNode[ni]; })
+			///                 .Aggregate<WString>(L"", [](const WString& a, vint b) { return a + L" " + itow(b); })
+			///         );
+			///     }
+			/// 
+			///     for (vint i = 0; i < pop.nodes.Count(); i++)
+			///     {
+			///         auto& n = pop.nodes[i];
+			///         Console::WriteLine(L"Sub class " + itow(i));
+			/// 
+			///         Console::WriteLine(
+			///             Range<vint>(0, n.subClassItemCount)
+			///                 .Select([&](vint si) { return n.firstSubClassItem[si]; })
+			///                 .Aggregate<WString>(L"    :", [&](const WString& a, vint b) { return a + L" " + items[b]; })
+			///         );
+			/// 
+			///         if (n.outs->Count() > 0)
+			///         {
+			///             Console::WriteLine(
+			///                 From(*n.outs)
+			///                     .Aggregate<WString>(L"    <- sub classes", [](const WString& a, vint b) { return a + L" " + itow(b); })
+			///             );
+			///         }
+			///     }
+			/// }
 			/// ]]></example>
 			template<typename TList, typename TSubClass>
 			void InitWithSubClass(const TList& items, const GroupOf<TList>& depGroup, const Dictionary<typename TList::ElementType, TSubClass>& subClasses)
