@@ -36,6 +36,7 @@ Partial Ordering
 				/// a node becomes a sub class representing objects.
 				/// An object will not be shared by different sub classes.
 				/// In this case, this field is a pointer to an array of indexes of objects.
+				/// The index is used in "items" argument in [M:vl.collections.PartialOrderingProcessor.InitWithSubClass]
 				/// </summary>
 				const vint*				firstSubClassItem = nullptr;
 				/// <summary>
@@ -88,16 +89,23 @@ Partial Ordering
 			void						AssignUnassignedNode(po::Node& node, vint componentIndex, vint& used);
 		public:
 			/// <summary>After <see cref="Sort"/> is called, this field stores all nodes referenced by sorted components.</summary>
+			/// <remarks>
+			/// The same order is kept as the "items" argument in <see cref="InitWithGroup`1"/>, and <see cref="InitWithFunc`2"/>.
+			/// If sub classing is enabled by calling <see cref="InitWithSubClass`2"/>,
+			/// a node represents a sub class of objects.
+			/// In this case, the order in this field does not matter,
+			/// [F:vl.collections.po.Node.firstSubClassItem] stores indexes of objects in this sub class.
+			/// <remarks>
 			Array<po::Node>				nodes;
 
-			/// <summary>After <see cref="Sort"/> is called, this field stores all sorted components in order..</summary>
+			/// <summary>After <see cref="Sort"/> is called, this field stores all sorted components in order.</summary>
 			List<po::Component>			components;
 
 			/// <summary>
 			/// Sort objects by given relationships. It will crash if this method is called for more than once.
 			/// </summary>
 			/// <remarks>
-			/// One and only one of <see cref="InitWithGroup`1"/>, <see cref="InitWithFunc`2"/>, <see cref="InitWithSubClass`2"/> must be called to set data for sorting.
+			/// One and only one of <see cref="InitWithGroup`1"/>, <see cref="InitWithFunc`2"/> or <see cref="InitWithSubClass`2"/> must be called to set data for sorting.
 			/// And then call <see cref="Sort"/> to sort objects and store the result in <see cref="components"/>.
 			/// </remarks>
 			void						Sort();
@@ -106,6 +114,8 @@ Partial Ordering
 			/// <typeparam name="TList">Type of the list for objects. <see cref="Array`*"/>, <see cref="List`*"/> or <see cref="SortedList`*"/> are recommended.</typeparam>
 			/// <param name="items">List of objects for sorting.</param>
 			/// <param name="depGroup">Relationship of objects for sorting in <see cref="Group`*"/>. Both keys and values are elements in "items". To say that a depends on b, do depGroup.Add(a, b).</param>
+			/// <example><![CDATA[
+			/// ]]></example>
 			template<typename TList>
 			void InitWithGroup(const TList& items, const GroupOf<TList>& depGroup)
 			{
@@ -135,6 +145,8 @@ Partial Ordering
 			/// <typeparam name="TFunc">Type of the function that defines relationships of objects.</typeparam>
 			/// <param name="items">List of objects for sorting.</param>
 			/// <param name="depFunc">Relationship of objects for sorting, both arguments are elements in "items". To say that a depends on b, depFunc(a, b) must returns true.</param>
+			/// <example><![CDATA[
+			/// ]]></example>
 			template<typename TList, typename TFunc>
 			void InitWithFunc(const TList& items, TFunc&& depFunc)
 			{
@@ -152,12 +164,22 @@ Partial Ordering
 				InitWithGroup(items, depGroup);
 			}
 
-			/// <summary>Initialize the processor, specifying dependency relationships and sub class classification as two groups.</summary>
-			/// <typeparam name="TList">Type of the first parameter.</typeparam>
-			/// <typeparam name="TSubClass">Type of the sub class.</typeparam>
-			/// <param name="items">Items.</param>
-			/// <param name="depGroup">Dependences. If a depends on b, then depGroups[a].Contains(b) == true.</param>
-			/// <param name="subClasses">To put multiple items in a node to represent a sub class, use these items as keys, use a unique value as a value, and put them in subClasses.</param>
+			/// <summary>Set data for sorting, by providing a list for objects, and a group for their relationship, and a dictionary for sub classing objects.</summary>
+			/// <typeparam name="TList">Type of the list for objects. <see cref="Array`*"/>, <see cref="List`*"/> or <see cref="SortedList`*"/> are recommended.</typeparam>
+			/// <typeparam name="TSubClass">Type of a sub class.</typeparam>
+			/// <param name="items">List of objects for sorting.</param>
+			/// <param name="depGroup">Relationship of objects for sorting in <see cref="Group`*"/>. Both keys and values are elements in "items". To say that a depends on b, do depGroup.Add(a, b).</param>
+			/// <param name="subClasses">Sub classing objects. Keys are elements in "items". If multiple keys have the same value in this dictionary, then these objects are in the same sub class.</param>
+			/// <remarks>
+			/// Relationships are defined on objects.
+			/// By sub classing objects,
+			/// relationships of sub classes are calculated from "depGroup".
+			/// If object A in sub class X depends on object B in sub class Y, then sub class X depends on sub class Y.
+			/// It is allowed that relatipnships on sub classes are not completely partial ordered,
+			/// in this case, some components may contain multiple sub classes.
+			/// </remarks>
+			/// <example><![CDATA[
+			/// ]]></example>
 			template<typename TList, typename TSubClass>
 			void InitWithSubClass(const TList& items, const GroupOf<TList>& depGroup, const Dictionary<typename TList::ElementType, TSubClass>& subClasses)
 			{
