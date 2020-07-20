@@ -10,10 +10,9 @@ This project is not open sourced and for development only. But you are able to u
 
 ## Document
 
-Unfortunately I don't have time to document the code at this moment.
-I promise I will do it before GacUI 1.0 get released.
-Please learn by unit test at this moment.
-Also note that there are comments before important classes.
+For **Gaclib**: click [here](http://vczh-libraries.github.io/doc/current/home.html)
+
+For **Vlpp**: click [here](http://vczh-libraries.github.io/doc/current/vlpp/home.html)
 
 ## Unit Test
 
