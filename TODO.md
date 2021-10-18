@@ -17,6 +17,7 @@
   - In `Workflow` generated code, when a collection instance is required from an interface:
     - Try to cast to the collection instance directly using the pointer inside the implementation of the interface.
     - Create the collection instance and copy all the data if the above step failed.
+    - Cancel the raw pointer version of generic collection interfaces.
 - Move platform-dependent code to like `*.Windows.cpp`.
   - If macOS and Linux shares the same code file, it becomes `*.Linux.cpp`, `CodePack.exe` will copy `*.Linux.cpp` to `*.MacOS.cpp` in Release folder.
 
