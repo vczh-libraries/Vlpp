@@ -15,24 +15,13 @@ namespace TestString_TestObjects
 		}
 		TEST_ASSERT(wcscmp(string.Buffer(), buffer) == 0);
 	}
-
-	void CheckString(const AString& string, const char* buffer)
-	{
-		size_t len = strlen(buffer);
-		TEST_ASSERT(string.Length() == len);
-		for (size_t i = 0; i < len; i++)
-		{
-			TEST_ASSERT(string[i] == buffer[i]);
-		}
-		TEST_ASSERT(strcmp(string.Buffer(), buffer) == 0);
-	}
 }
 
 using namespace TestString_TestObjects;
 
 TEST_FILE
 {
-	TEST_CATEGORY(L"String")
+	TEST_CATEGORY(L"WString")
 	{
 		TEST_CASE(L"Test string with default constructor")
 		{
@@ -157,56 +146,30 @@ TEST_FILE
 			CheckString(WString(L"[vczh is genius]").Sub(1,14).Insert(8,L" a ").Remove(4,4),L"vczh a genius");
 		});
 
-		TEST_CASE(L"Test wloer() / wupper() / alower() / aupper()")
+		TEST_CASE(L"Test wloer() / wupper()")
 		{
-			{
-				WString a = L"vczh IS genius";
-				WString b = L"VCZH is GENIUS";
-				WString c = L"vczh is genius";
-				WString d = L"VCZH IS GENIUS";
+			WString a = L"vczh IS genius";
+			WString b = L"VCZH is GENIUS";
+			WString c = L"vczh is genius";
+			WString d = L"VCZH IS GENIUS";
 
-				CheckString(wlower(a), L"vczh is genius");
-				CheckString(a, L"vczh IS genius");
-				CheckString(wlower(b), L"vczh is genius");
-				CheckString(b, L"VCZH is GENIUS");
-				CheckString(wlower(c), L"vczh is genius");
-				CheckString(c, L"vczh is genius");
-				CheckString(wlower(d), L"vczh is genius");
-				CheckString(d, L"VCZH IS GENIUS");
+			CheckString(wlower(a), L"vczh is genius");
+			CheckString(a, L"vczh IS genius");
+			CheckString(wlower(b), L"vczh is genius");
+			CheckString(b, L"VCZH is GENIUS");
+			CheckString(wlower(c), L"vczh is genius");
+			CheckString(c, L"vczh is genius");
+			CheckString(wlower(d), L"vczh is genius");
+			CheckString(d, L"VCZH IS GENIUS");
 
-				CheckString(wupper(a), L"VCZH IS GENIUS");
-				CheckString(a, L"vczh IS genius");
-				CheckString(wupper(b), L"VCZH IS GENIUS");
-				CheckString(b, L"VCZH is GENIUS");
-				CheckString(wupper(c), L"VCZH IS GENIUS");
-				CheckString(c, L"vczh is genius");
-				CheckString(wupper(d), L"VCZH IS GENIUS");
-				CheckString(d, L"VCZH IS GENIUS");
-			}
-			{
-				AString a = "vczh IS genius";
-				AString b = "VCZH is GENIUS";
-				AString c = "vczh is genius";
-				AString d = "VCZH IS GENIUS";
-
-				CheckString(alower(a), "vczh is genius");
-				CheckString(a, "vczh IS genius");
-				CheckString(alower(b), "vczh is genius");
-				CheckString(b, "VCZH is GENIUS");
-				CheckString(alower(c), "vczh is genius");
-				CheckString(c, "vczh is genius");
-				CheckString(alower(d), "vczh is genius");
-				CheckString(d, "VCZH IS GENIUS");
-
-				CheckString(aupper(a), "VCZH IS GENIUS");
-				CheckString(a, "vczh IS genius");
-				CheckString(aupper(b), "VCZH IS GENIUS");
-				CheckString(b, "VCZH is GENIUS");
-				CheckString(aupper(c), "VCZH IS GENIUS");
-				CheckString(c, "vczh is genius");
-				CheckString(aupper(d), "VCZH IS GENIUS");
-				CheckString(d, "VCZH IS GENIUS");
-			}
+			CheckString(wupper(a), L"VCZH IS GENIUS");
+			CheckString(a, L"vczh IS genius");
+			CheckString(wupper(b), L"VCZH IS GENIUS");
+			CheckString(b, L"VCZH is GENIUS");
+			CheckString(wupper(c), L"VCZH IS GENIUS");
+			CheckString(c, L"vczh is genius");
+			CheckString(wupper(d), L"VCZH IS GENIUS");
+			CheckString(d, L"VCZH IS GENIUS");
 		});
 	});
 }

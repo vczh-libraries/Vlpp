@@ -42,7 +42,19 @@
     <ClCompile Include="..\..\Source\Strings\TestLoremIpsum.cpp">
       <Filter>Source Files\Strings</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\Strings\TestString.cpp">
+    <ClCompile Include="..\..\Source\Strings\TestWString.cpp">
+      <Filter>Source Files\Strings</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Strings\TestU32String.cpp">
+      <Filter>Source Files\Strings</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Strings\TestAString.cpp">
+      <Filter>Source Files\Strings</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Strings\TestU8String.cpp">
+      <Filter>Source Files\Strings</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Strings\TestU16String.cpp">
       <Filter>Source Files\Strings</Filter>
     </ClCompile>
   </ItemGroup>
