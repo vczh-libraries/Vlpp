@@ -111,6 +111,9 @@
     <ClInclude Include="..\..\..\Source\Strings\LoremIpsum.h">
       <Filter>Common\Strings</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\Source\Strings\Conversion.h">
+      <Filter>Common\Strings</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\Source\Console.cpp">
@@ -135,6 +138,9 @@
       <Filter>Common\Strings</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\Source\Strings\LoremIpsum.cpp">
+      <Filter>Common\Strings</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Strings\Conversion.cpp">
       <Filter>Common\Strings</Filter>
     </ClCompile>
   </ItemGroup>

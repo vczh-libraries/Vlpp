@@ -1,6 +1,6 @@
 #include <string.h>
-#include "../../Source/UnitTest/UnitTest.h"
-#include "../../Source/Strings/LoremIpsum.h"
+#include "../../../Source/UnitTest/UnitTest.h"
+#include "../../../Source/Strings/LoremIpsum.h"
 
 using namespace vl;
 

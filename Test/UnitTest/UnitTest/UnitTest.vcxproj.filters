@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Source Files\Strings">
+      <UniqueIdentifier>{601122bd-b44f-48e4-aaa9-ee6136bc90bd}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Source\TestBasic.cpp">
@@ -27,9 +30,6 @@
     <ClCompile Include="..\..\Source\TestList.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\TestString.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -39,8 +39,11 @@
     <ClCompile Include="..\..\Source\TestLinq.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\TestLoremIpsum.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="..\..\Source\Strings\TestLoremIpsum.cpp">
+      <Filter>Source Files\Strings</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Strings\TestString.cpp">
+      <Filter>Source Files\Strings</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
