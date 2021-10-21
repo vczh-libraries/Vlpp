@@ -27,8 +27,18 @@ Licensed under https://github.com/vczh-libraries/License
 #endif
 #endif
 
-#if defined VCZH_CLANG_AST_DUMP
-#define abstract
+#if defined VCZH_MSVC
+#define VCZH_WCHAR_UTF16
+#elif VCZH_GCC
+#define VCZH_WCHAR_UTF32
+#endif
+
+#if defined VCZH_WCHAR_UTF16
+static_assert(sizeof(wchar_t) == sizeof(char16_t), "wchar_t is not UTF-16.");
+#elif defined VCZH_WCHAR_UTF32
+static_assert(sizeof(wchar_t) == sizeof(char32_t), "wchar_t is not UTF-32.");
+#else
+static_assert(false, "wchar_t configuration is not right.");
 #endif
 
 #if defined VCZH_MSVC

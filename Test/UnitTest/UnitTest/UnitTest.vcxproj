@@ -239,6 +239,7 @@
     <ClCompile Include="..\..\Source\Strings\TestU16String.cpp" />
     <ClCompile Include="..\..\Source\Strings\TestU32String.cpp" />
     <ClCompile Include="..\..\Source\Strings\TestU8String.cpp" />
+    <ClCompile Include="..\..\Source\Strings\TestUtfReader.cpp" />
     <ClCompile Include="..\..\Source\Strings\TestWString.cpp" />
     <ClCompile Include="..\..\Source\TestBasic.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>

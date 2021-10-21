@@ -57,6 +57,9 @@
     <ClCompile Include="..\..\Source\Strings\TestU16String.cpp">
       <Filter>Source Files\Strings</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\Strings\TestUtfReader.cpp">
+      <Filter>Source Files\Strings</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Source\AssertCollection.h">
