@@ -6,6 +6,13 @@
   - u8"Utf-8" -> `char8_t` (`U8String`).
   - u"Utf-16" -> `char16_t` (`U16String`).
   - U"Utf-32" -> `char32_t` (`U32String`).
+- String conversion
+  - `UtfLto32Reader`, `Utf8to32Reader`, `Utf16to32Reader`
+  - `Utf32toLReader`, `Utf32to8Reader`, `Utf32to16Reader`
+  - One char component is read for each time, used to calculate the buffer length and do string conversion.
+  - `vl::stream` in VlppOS will be refactored to use this construction.
+  - `vl::regex` in VlppRegex will use this construction to support surrogate pairs using Utf32.
+  - All conversion functions between `AString`, `WString`, `U8String`, `U16String`, `U32String`.
 - Remove `FOREACH` and `FOREACH_INDEXER`, replaced by range-based for loop.
 - Fix `Linq` so that lambda parameters can be `auto`.
 - Open backdoor for reflection implementation.
