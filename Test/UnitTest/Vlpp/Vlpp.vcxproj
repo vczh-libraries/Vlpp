@@ -179,7 +179,7 @@
     <ClInclude Include="..\..\..\Source\GlobalStorage.h" />
     <ClInclude Include="..\..\..\Source\Lazy.h" />
     <ClInclude Include="..\..\..\Source\Pointer.h" />
-    <ClInclude Include="..\..\..\Source\String.h" />
+    <ClInclude Include="..\..\..\Source\Strings\String.h" />
     <ClInclude Include="..\..\..\Source\Tuple.h" />
     <ClInclude Include="..\..\..\Source\UnitTest\UnitTest.h" />
   </ItemGroup>
@@ -189,7 +189,7 @@
     <ClCompile Include="..\..\..\Source\Console.cpp" />
     <ClCompile Include="..\..\..\Source\Exception.cpp" />
     <ClCompile Include="..\..\..\Source\GlobalStorage.cpp" />
-    <ClCompile Include="..\..\..\Source\String.cpp" />
+    <ClCompile Include="..\..\..\Source\Strings\String.cpp" />
     <ClCompile Include="..\..\..\Source\UnitTest\UnitTest.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

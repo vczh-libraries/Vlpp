@@ -7,7 +7,7 @@ Licensed under https://github.com/vczh-libraries/License
 #define VCZH_COLLECTIONS_OPERATIONSTRING
 
 #include "Interfaces.h"
-#include "../String.h"
+#include "../Strings/String.h"
 #include "OperationCopyFrom.h"
 
 namespace vl

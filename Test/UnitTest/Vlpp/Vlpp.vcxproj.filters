@@ -22,6 +22,9 @@
     <Filter Include="Common\UnitTest">
       <UniqueIdentifier>{cab459eb-ab4a-4989-b15d-b736bbcda070}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Common\Strings">
+      <UniqueIdentifier>{6ed5930c-1a5c-479d-aba9-e2af1fd41c58}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\Source\Basic.h">
@@ -46,9 +49,6 @@
       <Filter>Common</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Source\Pointer.h">
-      <Filter>Common</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Source\String.h">
       <Filter>Common</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Source\Tuple.h">
@@ -105,6 +105,9 @@
     <ClInclude Include="..\..\..\Source\Collections\OperationPair.h">
       <Filter>Common\Collections</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\Source\Strings\String.h">
+      <Filter>Common\Strings</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\Source\Console.cpp">
@@ -116,9 +119,6 @@
     <ClCompile Include="..\..\..\Source\GlobalStorage.cpp">
       <Filter>Common</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\Source\String.cpp">
-      <Filter>Common</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\Source\Basic.cpp">
       <Filter>Common</Filter>
     </ClCompile>
@@ -127,6 +127,9 @@
     </ClCompile>
     <ClCompile Include="..\..\..\Source\Collections\PartialOrdering.cpp">
       <Filter>Common\Collections</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Strings\String.cpp">
+      <Filter>Common\Strings</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -6,7 +6,7 @@ Licensed under https://github.com/vczh-libraries/License
 #ifndef VCZH_CONSOLE
 #define VCZH_CONSOLE
 
-#include "String.h"
+#include "Strings/String.h"
 
 namespace vl
 {

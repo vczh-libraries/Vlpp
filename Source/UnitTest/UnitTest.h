@@ -6,7 +6,7 @@ Licensed under https://github.com/vczh-libraries/License
 #ifndef VCZH_UNITTEST
 #define VCZH_UNITTEST
 
-#include "../String.h"
+#include "../Strings/String.h"
 #include "../Function.h"
 #include "../Exception.h"
 

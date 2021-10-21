@@ -7,7 +7,7 @@ Licensed under https://github.com/vczh-libraries/License
 #define VCZH_GLOBALSTORAGE
 
 #include "Pointer.h"
-#include "String.h"
+#include "Strings/String.h"
 
 namespace vl
 {

@@ -7,7 +7,7 @@ Licensed under https://github.com/vczh-libraries/License
 #define VCZH_STRING
 
 #include <memory.h>
-#include "Basic.h"
+#include "../Basic.h"
 
 namespace vl
 {
