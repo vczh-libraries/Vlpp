@@ -34,14 +34,14 @@ TEST_FILE
 {
 	TEST_CATEGORY(L"String")
 	{
-		TEST_CASE(L"Test WString with default constructor")
+		TEST_CASE(L"Test string with default constructor")
 		{
 			WString string;
 			TEST_ASSERT(*string.Buffer() == 0);
 			CheckString(string,L"");
 		});
 
-		TEST_CASE(L"Test WString with non-copied buffer")
+		TEST_CASE(L"Test string with non-copied buffer")
 		{
 			const wchar_t* buffer = L"vczh";
 			WString string(buffer,false);
@@ -49,7 +49,7 @@ TEST_FILE
 			CheckString(string,L"vczh");
 		});
 
-		TEST_CASE(L"Test WString with copied buffer")
+		TEST_CASE(L"Test string with copied buffer")
 		{
 			const wchar_t* buffer = L"vczh";
 			WString string(buffer,true);
@@ -57,13 +57,13 @@ TEST_FILE
 			CheckString(string,L"vczh");
 		});
 
-		TEST_CASE(L"Test WString with char")
+		TEST_CASE(L"Test string with char")
 		{
 			WString string = L'v';
 			CheckString(string,L"v");
 		});
 
-		TEST_CASE(L"Test WString with copy constructor")
+		TEST_CASE(L"Test string with copy constructor")
 		{
 			{
 				WString string;
@@ -83,7 +83,7 @@ TEST_FILE
 			}
 		});
 
-		TEST_CASE(L"Test WString with Left() / Sub() / Right()")
+		TEST_CASE(L"Test string with Left() / Sub() / Right()")
 		{
 			WString string = L"vczh is genius";
 			CheckString(string.Left(4),L"vczh");
@@ -96,19 +96,19 @@ TEST_FILE
 			CheckString(string.Sub(12,0),L"");
 		});
 
-		TEST_CASE(L"Test WString with operator+")
+		TEST_CASE(L"Test string with operator+")
 		{
 			WString string = L"vczh is genius";
 			CheckString(string.Left(7) + string.Right(7),L"vczh is genius");
 		});
 
-		TEST_CASE(L"Test WString with operator+ and buffer")
+		TEST_CASE(L"Test string with operator+ and buffer")
 		{
 			WString string = L"vczh is genius";
 			CheckString(L"vczh is" + string.Right(7),L"vczh is genius");
 		});
 
-		TEST_CASE(L"Test WString comparison")
+		TEST_CASE(L"Test string comparison")
 		{
 			WString full = L"VCZHgeniusvczh";
 			WString string[3] = {full.Left(4), full.Sub(4, 6), full.Right(4)};
@@ -126,7 +126,7 @@ TEST_FILE
 			}
 		});
 
-		TEST_CASE(L"Test WString comparison with buffer")
+		TEST_CASE(L"Test string comparison with buffer")
 		{
 			WString full = L"VCZHgeniusvczh";
 			const wchar_t* left[3] = {L"VCZH", L"genius", L"vczh"};
@@ -145,7 +145,7 @@ TEST_FILE
 			}
 		});
 
-		TEST_CASE(L"Test WString with Remove() / Insert()")
+		TEST_CASE(L"Test string with Remove() / Insert()")
 		{
 			CheckString(WString(L"vczh is genius").Remove(4,4),L"vczhgenius");
 			CheckString(WString(L"vczh is genius").Insert(8,L"a "),L"vczh is a genius");
