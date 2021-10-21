@@ -543,10 +543,14 @@ namespace vl
 
 	/// <summary>Ansi string in local code page.</summary>
 	typedef ObjectString<char>		AString;
-	/// <summary>
-	/// Unicode string, UTF-16 on Windows, UTF-32 on Linux and macOS.
-	/// </summary>
+	/// <summary>Unicode string, UTF-16 on Windows, UTF-32 on Linux and macOS.</summary>
 	typedef ObjectString<wchar_t>	WString;
+	/// <summary>Utf-8 String.</summary>
+	typedef ObjectString<char8_t>	U8String;
+	/// <summary>Utf-16 String.</summary>
+	typedef ObjectString<char16_t>	U16String;
+	/// <summary>Utf-32 String.</summary>
+	typedef ObjectString<char32_t>	U32String;
 
 	/// <summary>Convert a string to a signed integer.</summary>
 	/// <returns>The converted number. If the conversion failed, the result is undefined.</returns>
