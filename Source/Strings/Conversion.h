@@ -24,9 +24,9 @@ UtfConversion<T>
 		struct UtfConversion<wchar_t>
 		{
 #if defined VCZH_WCHAR_UTF16
-			static const vint		BufferLength = 1;
-#elif defined VCZH_WCHAR_UTF32
 			static const vint		BufferLength = 2;
+#elif defined VCZH_WCHAR_UTF32
+			static const vint		BufferLength = 1;
 #endif
 
 			static vint				From32(char32_t source, wchar_t(&dest)[BufferLength]);
@@ -47,8 +47,8 @@ UtfConversion<T>
 		{
 			static const vint		BufferLength = 2;
 
-			static vint				From32(char32_t source, char8_t(&dest)[BufferLength]);
-			static void				To32(const char8_t(&source)[BufferLength], char32_t& dest);
+			static vint				From32(char32_t source, char16_t(&dest)[BufferLength]);
+			static void				To32(const char16_t(&source)[BufferLength], char32_t& dest);
 		};
 
 /***********************************************************************
