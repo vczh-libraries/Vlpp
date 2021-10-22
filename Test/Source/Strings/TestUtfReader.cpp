@@ -17,8 +17,8 @@ namespace test_utf8_reader
 	{
 	}
 
-	template<typename T, vint DestLength>
-	void TestFrom32Boundary(const T(&st)[DestLength], char32_t c32, bool success)
+	template<typename T, typename TData, vint DestLength>
+	void TestFrom32Boundary(const TData(&st)[DestLength], char32_t c32, bool success)
 	{
 		T dest[UtfConversion<T>::BufferLength] = { 0 };
 		vint result = UtfConversion<T>::From32(c32, dest);
@@ -33,8 +33,8 @@ namespace test_utf8_reader
 		}
 	}
 
-	template<typename T, vint SourceLength>
-	void TestTo32Boundary(const T(&st)[SourceLength], char32_t c32, bool success)
+	template<typename T, typename TData, vint SourceLength>
+	void TestTo32Boundary(const TData(&st)[SourceLength], char32_t c32, bool success)
 	{
 		char32_t dest = 0;
 		vint result = UtfConversion<T>::To32(st, SourceLength - 1, dest);
@@ -90,6 +90,20 @@ TEST_FILE
 
 	TEST_CASE(L"char32_t -> char8_t boundary")
 	{
+		TestFrom32Boundary<char8_t>("\x01", 0x00000001UL, true);
+		TestFrom32Boundary<char8_t>("\x7F", 0x0000007FUL, true);
+		TestFrom32Boundary<char8_t>("\xC2\x80", 0x00000080UL, true);
+		TestFrom32Boundary<char8_t>("\xDF\xBF", 0x000007FFUL, true);
+		TestFrom32Boundary<char8_t>("\xE0\xA0\x80", 0x00000800UL, true);
+		TestFrom32Boundary<char8_t>("\xEF\xBF\xBF", 0x0000FFFFUL, true);
+		TestFrom32Boundary<char8_t>("\xF0\x90\x80\x80", 0x00010000UL, true);
+		TestFrom32Boundary<char8_t>("\xF7\xBF\xBF\xBF", 0x001FFFFFUL, true);
+		TestFrom32Boundary<char8_t>("\xF8\x88\x80\x80\x80", 0x00200000UL, true);
+		TestFrom32Boundary<char8_t>("\xFB\xBF\xBF\xBF\xBF", 0x03FFFFFFUL, true);
+		TestFrom32Boundary<char8_t>("\xFC\x84\x80\x80\x80\x80", 0x04000000UL, true);
+		TestFrom32Boundary<char8_t>("\xFD\xBF\xBF\xBF\xBF\xBF", 0x7FFFFFFFUL, true);
+		TestFrom32Boundary<char8_t>("", 0x80000000UL, false);
+		TestFrom32Boundary<char8_t>("", 0xFFFFFFFFUL, false);
 	});
 
 	TEST_CASE(L"char8_t -> char32_t boundary")
@@ -98,25 +112,27 @@ TEST_FILE
 
 	TEST_CASE(L"char32_t -> char16_t boundary")
 	{
-		TestFrom32Boundary(u"\x0001", 0x00000001ULL, true);
-		TestFrom32Boundary(u"\xD7FF", 0x0000D7FFULL, true);
-		TestFrom32Boundary(u"\xD800", 0x0000D800ULL, false);
-		TestFrom32Boundary(u"\xDFFF", 0x0000DFFFULL, false);
-		TestFrom32Boundary(u"\xE000", 0x0000E000ULL, true);
-		TestFrom32Boundary(u"\x7FFF", 0x00007FFFULL, true);
-		TestFrom32Boundary(u"\xD800\xDC00", 0x00010000ULL, true);
-		TestFrom32Boundary(u"\xDBFF\xDFFF", 0x0010FFFFULL, true);
+		TestFrom32Boundary<char16_t>(u"\x0001", 0x00000001UL, true);
+		TestFrom32Boundary<char16_t>(u"\xD7FF", 0x0000D7FFUL, true);
+		TestFrom32Boundary<char16_t>(u"\xD800", 0x0000D800UL, false);
+		TestFrom32Boundary<char16_t>(u"\xDFFF", 0x0000DFFFUL, false);
+		TestFrom32Boundary<char16_t>(u"\xE000", 0x0000E000UL, true);
+		TestFrom32Boundary<char16_t>(u"\x7FFF", 0x00007FFFUL, true);
+		TestFrom32Boundary<char16_t>(u"\xD800\xDC00", 0x00010000UL, true);
+		TestFrom32Boundary<char16_t>(u"\xDBFF\xDFFF", 0x0010FFFFUL, true);
+		TestFrom32Boundary<char16_t>(u"", 0x00110000UL, false);
+		TestFrom32Boundary<char16_t>(u"", 0xFFFFFFFFUL, false);
 	});
 
 	TEST_CASE(L"char16_t -> char32_t boundary")
 	{
-		TestTo32Boundary(u"\x0001", 0x00000001ULL, true);
-		TestTo32Boundary(u"\xD7FF", 0x0000D7FFULL, true);
-		TestTo32Boundary(u"\xD800", 0x0000D800ULL, false);
-		TestTo32Boundary(u"\xDFFF", 0x0000DFFFULL, false);
-		TestTo32Boundary(u"\xE000", 0x0000E000ULL, true);
-		TestTo32Boundary(u"\x7FFF", 0x00007FFFULL, true);
-		TestTo32Boundary(u"\xD800\xDC00", 0x00010000ULL, true);
-		TestTo32Boundary(u"\xDBFF\xDFFF", 0x0010FFFFULL, true);
+		TestTo32Boundary<char16_t>(u"\x0001", 0x00000001UL, true);
+		TestTo32Boundary<char16_t>(u"\xD7FF", 0x0000D7FFUL, true);
+		TestTo32Boundary<char16_t>(u"\xD800", 0x0000D800UL, false);
+		TestTo32Boundary<char16_t>(u"\xDFFF", 0x0000DFFFUL, false);
+		TestTo32Boundary<char16_t>(u"\xE000", 0x0000E000UL, true);
+		TestTo32Boundary<char16_t>(u"\x7FFF", 0x00007FFFUL, true);
+		TestTo32Boundary<char16_t>(u"\xD800\xDC00", 0x00010000UL, true);
+		TestTo32Boundary<char16_t>(u"\xDBFF\xDFFF", 0x0010FFFFUL, true);
 	});
 }

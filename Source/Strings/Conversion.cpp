@@ -59,25 +59,25 @@ UtfConversion<char8_t>
 			vuint32_t c = static_cast<vuint32_t>(source);
 			vuint8_t(&ds)[BufferLength] = reinterpret_cast<vuint8_t(&)[BufferLength]>(dest);
 
-			if (c < 0x0000007FUL)
+			if (c <= 0x0000007FUL)
 			{
 				ds[0] = static_cast<vuint8_t>(c);
 				return 1;
 			}
-			else if (c < 0x000007FFUL)
+			else if (c <= 0x000007FFUL)
 			{
 				ds[0] = static_cast<vuint8_t>((c >> 6) | 0b11000000U);
 				ds[1] = static_cast<vuint8_t>((c & 0b00111111U) | 0b10000000U);
 				return 2;
 			}
-			else if (c < 0x0000FFFFUL)
+			else if (c <= 0x0000FFFFUL)
 			{
 				ds[0] = static_cast<vuint8_t>((c >> 12) | 0b11100000U);
 				ds[1] = static_cast<vuint8_t>(((c >> 6) & 0b00111111U) | 0b10000000U);
 				ds[2] = static_cast<vuint8_t>((c & 0b00111111U) | 0b10000000U);
 				return 3;
 			}
-			else if (c < 0x0001FFFFUL)
+			else if (c <= 0x001FFFFFUL)
 			{
 				ds[0] = static_cast<vuint8_t>((c >> 18) | 0b11110000U);
 				ds[1] = static_cast<vuint8_t>(((c >> 12) & 0b00111111U) | 0b10000000U);
@@ -85,7 +85,7 @@ UtfConversion<char8_t>
 				ds[3] = static_cast<vuint8_t>((c & 0b00111111U) | 0b10000000U);
 				return 4;
 			}
-			else if (c < 0x03FFFFFFUL)
+			else if (c <= 0x03FFFFFFUL)
 			{
 				ds[0] = static_cast<vuint8_t>((c >> 24) | 0b11111000U);
 				ds[1] = static_cast<vuint8_t>(((c >> 18) & 0b00111111U) | 0b10000000U);
@@ -94,7 +94,7 @@ UtfConversion<char8_t>
 				ds[4] = static_cast<vuint8_t>((c & 0b00111111U) | 0b10000000U);
 				return 5;
 			}
-			else if (c < 0x7FFFFFFFUL)
+			else if (c <= 0x7FFFFFFFUL)
 			{
 				ds[0] = static_cast<vuint8_t>((c >> 30) | 0b11111100U);
 				ds[1] = static_cast<vuint8_t>(((c >> 24) & 0b00111111U) | 0b10000000U);
@@ -102,7 +102,7 @@ UtfConversion<char8_t>
 				ds[3] = static_cast<vuint8_t>(((c >> 12) & 0b00111111U) | 0b10000000U);
 				ds[4] = static_cast<vuint8_t>(((c >> 6) & 0b00111111U) | 0b10000000U);
 				ds[5] = static_cast<vuint8_t>((c & 0b00111111U) | 0b10000000U);
-				return 5;
+				return 6;
 			}
 			else
 			{
