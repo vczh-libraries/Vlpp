@@ -104,28 +104,22 @@ namespace vl
 			return MoveValue(str);
 		}
 
-		ObjectString(const ObjectString<T>& dest, const ObjectString<T>& source, vint index, vint count)
+		ObjectString<T> ReplaceUnsafe(const ObjectString<T>& source, vint index, vint count)const
 		{
-			if (index == 0 && count == dest.length && source.length == 0)
-			{
-				buffer = (T*)&zero;
-				counter = 0;
-				start = 0;
-				length = 0;
-				realLength = 0;
-			}
-			else
-			{
-				counter = new vint(1);
-				start = 0;
-				length = dest.length - count + source.length;
-				realLength = length;
-				buffer = new T[length + 1];
-				memcpy(buffer, dest.buffer + dest.start, sizeof(T) * index);
-				memcpy(buffer + index, source.buffer + source.start, sizeof(T) * source.length);
-				memcpy(buffer + index + source.length, (dest.buffer + dest.start + index + count), sizeof(T) * (dest.length - index - count));
-				buffer[length] = 0;
-			}
+			if (source.length == 0 && count == 0) return *this;
+			if (index == 0 && count == length) return source;
+
+			ObjectString<T> str;
+			str.counter = new vint(1);
+			str.start = 0;
+			str.length = length - count + source.length;
+			str.realLength = str.length;
+			str.buffer = new T[str.length + 1];
+			memcpy(str.buffer, buffer + start, sizeof(T) * index);
+			memcpy(str.buffer + index, source.buffer + source.start, sizeof(T) * source.length);
+			memcpy(str.buffer + index + source.length, (buffer + start + index + count), sizeof(T) * (length - index - count));
+			str.buffer[str.length] = 0;
+			return MoveValue(str);
 		}
 	public:
 		static ObjectString<T>	Empty;
@@ -323,7 +317,7 @@ namespace vl
 		/// <param name="string">The string to append.</param>
 		ObjectString<T> operator+(const ObjectString<T>& string)const
 		{
-			return ObjectString<T>(*this, string, length, 0);
+			return ReplaceUnsafe(string, length, 0);
 		}
 
 		bool operator==(const ObjectString<T>& string)const
@@ -481,7 +475,7 @@ namespace vl
 		{
 			CHECK_ERROR(index>=0 && index<length, L"ObjectString<T>::Remove(vint, vint)#Argument index not in range.");
 			CHECK_ERROR(index+count>=0 && index+count<=length, L"ObjectString<T>::Remove(vint, vint)#Argument count not in range.");
-			return ObjectString<T>(*this, ObjectString<T>(), index, count);
+			return ReplaceUnsafe(ObjectString<T>(), index, count);
 		}
 
 		/// <summary>Get a string by inserting another string.</summary>
@@ -498,7 +492,7 @@ namespace vl
 		ObjectString<T> Insert(vint index, const ObjectString<T>& string)const
 		{
 			CHECK_ERROR(index>=0 && index<=length, L"ObjectString<T>::Insert(vint)#Argument count not in range.");
-			return ObjectString<T>(*this, string, index, 0);
+			return ReplaceUnsafe(string, index, 0);
 		}
 
 		friend bool operator<(const T* left, const ObjectString<T>& right)
