@@ -9,7 +9,7 @@ namespace vl
 {
 	namespace encoding
 	{
-		bool IsInvalid(char32_t c)
+		__forceinline bool IsInvalid(char32_t c)
 		{
 			return 0xD800U <= c && c <= 0xDFFFU;
 		}
@@ -65,42 +65,42 @@ UtfConversion<char8_t>
 			}
 			else if (c < 0x000007FFULL)
 			{
-				ds[0] = static_cast<vuint8_t>((c >> 6) | 0b11000000);
-				ds[1] = static_cast<vuint8_t>((c & 0b00111111) | 0b10000000);
+				ds[0] = static_cast<vuint8_t>((c >> 6) | 0b11000000U);
+				ds[1] = static_cast<vuint8_t>((c & 0b00111111U) | 0b10000000U);
 				return 2;
 			}
 			else if (c < 0x0000FFFFULL)
 			{
-				ds[0] = static_cast<vuint8_t>((c >> 12) | 0b11100000);
-				ds[1] = static_cast<vuint8_t>(((c >> 6) & 0b00111111) | 0b10000000);
-				ds[2] = static_cast<vuint8_t>((c & 0b00111111) | 0b10000000);
+				ds[0] = static_cast<vuint8_t>((c >> 12) | 0b11100000U);
+				ds[1] = static_cast<vuint8_t>(((c >> 6) & 0b00111111U) | 0b10000000U);
+				ds[2] = static_cast<vuint8_t>((c & 0b00111111U) | 0b10000000U);
 				return 3;
 			}
 			else if (c < 0x0001FFFFULL)
 			{
-				ds[0] = static_cast<vuint8_t>((c >> 18) | 0b11110000);
-				ds[1] = static_cast<vuint8_t>(((c >> 12) & 0b00111111) | 0b10000000);
-				ds[2] = static_cast<vuint8_t>(((c >> 6) & 0b00111111) | 0b10000000);
-				ds[3] = static_cast<vuint8_t>((c & 0b00111111) | 0b10000000);
+				ds[0] = static_cast<vuint8_t>((c >> 18) | 0b11110000U);
+				ds[1] = static_cast<vuint8_t>(((c >> 12) & 0b00111111U) | 0b10000000U);
+				ds[2] = static_cast<vuint8_t>(((c >> 6) & 0b00111111U) | 0b10000000U);
+				ds[3] = static_cast<vuint8_t>((c & 0b00111111U) | 0b10000000U);
 				return 4;
 			}
 			else if (c < 0x03FFFFFFULL)
 			{
-				ds[0] = static_cast<vuint8_t>((c >> 24) | 0b11111000);
-				ds[1] = static_cast<vuint8_t>(((c >> 18) & 0b00111111) | 0b10000000);
-				ds[2] = static_cast<vuint8_t>(((c >> 12) & 0b00111111) | 0b10000000);
-				ds[3] = static_cast<vuint8_t>(((c >> 6) & 0b00111111) | 0b10000000);
-				ds[4] = static_cast<vuint8_t>((c & 0b00111111) | 0b10000000);
+				ds[0] = static_cast<vuint8_t>((c >> 24) | 0b11111000U);
+				ds[1] = static_cast<vuint8_t>(((c >> 18) & 0b00111111U) | 0b10000000U);
+				ds[2] = static_cast<vuint8_t>(((c >> 12) & 0b00111111U) | 0b10000000U);
+				ds[3] = static_cast<vuint8_t>(((c >> 6) & 0b00111111U) | 0b10000000U);
+				ds[4] = static_cast<vuint8_t>((c & 0b00111111U) | 0b10000000U);
 				return 5;
 			}
 			else if (c < 0x7FFFFFFFULL)
 			{
-				ds[0] = static_cast<vuint8_t>((c >> 30) | 0b11111100);
-				ds[1] = static_cast<vuint8_t>(((c >> 24) & 0b00111111) | 0b10000000);
-				ds[2] = static_cast<vuint8_t>(((c >> 18) & 0b00111111) | 0b10000000);
-				ds[3] = static_cast<vuint8_t>(((c >> 12) & 0b00111111) | 0b10000000);
-				ds[4] = static_cast<vuint8_t>(((c >> 6) & 0b00111111) | 0b10000000);
-				ds[5] = static_cast<vuint8_t>((c & 0b00111111) | 0b10000000);
+				ds[0] = static_cast<vuint8_t>((c >> 30) | 0b11111100U);
+				ds[1] = static_cast<vuint8_t>(((c >> 24) & 0b00111111U) | 0b10000000U);
+				ds[2] = static_cast<vuint8_t>(((c >> 18) & 0b00111111U) | 0b10000000U);
+				ds[3] = static_cast<vuint8_t>(((c >> 12) & 0b00111111U) | 0b10000000U);
+				ds[4] = static_cast<vuint8_t>(((c >> 6) & 0b00111111U) | 0b10000000U);
+				ds[5] = static_cast<vuint8_t>((c & 0b00111111U) | 0b10000000U);
 				return 5;
 			}
 			else
@@ -120,38 +120,38 @@ UtfConversion<char8_t>
 			}
 			else if (cs[0] < 0b11100000U)
 			{
-				d = ((static_cast<vuint64_t>(cs[0]) & static_cast<vuint64_t>(0b00011111U)) << 6) |
-					((static_cast<vuint64_t>(cs[1]) & static_cast<vuint64_t>(0b00111111U)));
+				d = ((static_cast<vuint64_t>(cs[0]) & 0b00011111U) << 6) |
+					((static_cast<vuint64_t>(cs[1]) & 0b00111111U));
 			}
 			else if (cs[0] < 0b11110000U)
 			{
-				d = ((static_cast<vuint64_t>(cs[0]) & static_cast<vuint64_t>(0b00001111U)) << 12) |
-					((static_cast<vuint64_t>(cs[1]) & static_cast<vuint64_t>(0b00111111U)) << 6) |
-					((static_cast<vuint64_t>(cs[2]) & static_cast<vuint64_t>(0b00111111U)));
+				d = ((static_cast<vuint64_t>(cs[0]) & 0b00001111U) << 12) |
+					((static_cast<vuint64_t>(cs[1]) & 0b00111111U) << 6) |
+					((static_cast<vuint64_t>(cs[2]) & 0b00111111U));
 			}
 			else if (cs[0] < 0b11111000U)
 			{
-				d = ((static_cast<vuint64_t>(cs[0]) & static_cast<vuint64_t>(0b00000111U)) << 18) |
-					((static_cast<vuint64_t>(cs[1]) & static_cast<vuint64_t>(0b00111111U)) << 12) |
-					((static_cast<vuint64_t>(cs[2]) & static_cast<vuint64_t>(0b00111111U)) << 6) |
-					((static_cast<vuint64_t>(cs[3]) & static_cast<vuint64_t>(0b00111111U)));
+				d = ((static_cast<vuint64_t>(cs[0]) & 0b00000111U) << 18) |
+					((static_cast<vuint64_t>(cs[1]) & 0b00111111U) << 12) |
+					((static_cast<vuint64_t>(cs[2]) & 0b00111111U) << 6) |
+					((static_cast<vuint64_t>(cs[3]) & 0b00111111U));
 			}
 			else if (cs[0] < 0b11111100U)
 			{
-				d = ((static_cast<vuint64_t>(cs[0]) & static_cast<vuint64_t>(0b00000011U)) << 24) |
-					((static_cast<vuint64_t>(cs[1]) & static_cast<vuint64_t>(0b00111111U)) << 18) |
-					((static_cast<vuint64_t>(cs[2]) & static_cast<vuint64_t>(0b00111111U)) << 12) |
-					((static_cast<vuint64_t>(cs[3]) & static_cast<vuint64_t>(0b00111111U)) << 6) |
-					((static_cast<vuint64_t>(cs[4]) & static_cast<vuint64_t>(0b00111111U)));
+				d = ((static_cast<vuint64_t>(cs[0]) & 0b00000011U) << 24) |
+					((static_cast<vuint64_t>(cs[1]) & 0b00111111U) << 18) |
+					((static_cast<vuint64_t>(cs[2]) & 0b00111111U) << 12) |
+					((static_cast<vuint64_t>(cs[3]) & 0b00111111U) << 6) |
+					((static_cast<vuint64_t>(cs[4]) & 0b00111111U));
 			}
 			else
 			{
-				d = ((static_cast<vuint64_t>(cs[0]) & static_cast<vuint64_t>(0b00000001U)) << 30) |
-					((static_cast<vuint64_t>(cs[1]) & static_cast<vuint64_t>(0b00111111U)) << 24) |
-					((static_cast<vuint64_t>(cs[2]) & static_cast<vuint64_t>(0b00111111U)) << 18) |
-					((static_cast<vuint64_t>(cs[3]) & static_cast<vuint64_t>(0b00111111U)) << 12) |
-					((static_cast<vuint64_t>(cs[4]) & static_cast<vuint64_t>(0b00111111U)) << 6) |
-					((static_cast<vuint64_t>(cs[5]) & static_cast<vuint64_t>(0b00111111U)));
+				d = ((static_cast<vuint64_t>(cs[0]) & 0b00000001U) << 30) |
+					((static_cast<vuint64_t>(cs[1]) & 0b00111111U) << 24) |
+					((static_cast<vuint64_t>(cs[2]) & 0b00111111U) << 18) |
+					((static_cast<vuint64_t>(cs[3]) & 0b00111111U) << 12) |
+					((static_cast<vuint64_t>(cs[4]) & 0b00111111U) << 6) |
+					((static_cast<vuint64_t>(cs[5]) & 0b00111111U));
 			}
 			if (IsInvalid(dest)) return -1;
 			return 1;
@@ -198,7 +198,19 @@ UtfConversion<char16_t>
 		{
 			const vuint16_t(&cs)[BufferLength] = reinterpret_cast<const vuint16_t(&)[BufferLength]>(source);
 			vuint64_t& d = reinterpret_cast<vuint64_t&>(dest);
+			if ((cs[0] & 0xFC00U) == 0xD800U && (cs[1] & 0xFC00U) == 0xDC00U)
+			{
+				d = 0x010000FULL + (
+					((static_cast<vuint32_t>(cs[0]) & 0x03FF) << 10) |
+					(static_cast<vuint32_t>(cs[1]) & 0x03FF)
+					);
+			}
+			else
+			{
+				d = cs[0];
+			}
 			if (IsInvalid(dest)) return -1;
+			return 1;
 		}
 	}
 }
