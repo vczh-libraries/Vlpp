@@ -37,7 +37,7 @@ namespace test_utf8_reader
 	void TestTo32Boundary(const TData(&st)[SourceLength], char32_t c32, bool success)
 	{
 		char32_t dest = 0;
-		vint result = UtfConversion<T>::To32(st, SourceLength - 1, dest);
+		vint result = UtfConversion<T>::To32(reinterpret_cast<const T*>(st), SourceLength - 1, dest);
 		if (success)
 		{
 			TEST_ASSERT(result == SourceLength - 1);
@@ -108,6 +108,18 @@ TEST_FILE
 
 	TEST_CASE(L"char8_t -> char32_t boundary")
 	{
+		TestTo32Boundary<char8_t>("\x01", 0x00000001UL, true);
+		TestTo32Boundary<char8_t>("\x7F", 0x0000007FUL, true);
+		TestTo32Boundary<char8_t>("\xC2\x80", 0x00000080UL, true);
+		TestTo32Boundary<char8_t>("\xDF\xBF", 0x000007FFUL, true);
+		TestTo32Boundary<char8_t>("\xE0\xA0\x80", 0x00000800UL, true);
+		TestTo32Boundary<char8_t>("\xEF\xBF\xBF", 0x0000FFFFUL, true);
+		TestTo32Boundary<char8_t>("\xF0\x90\x80\x80", 0x00010000UL, true);
+		TestTo32Boundary<char8_t>("\xF7\xBF\xBF\xBF", 0x001FFFFFUL, true);
+		TestTo32Boundary<char8_t>("\xF8\x88\x80\x80\x80", 0x00200000UL, true);
+		TestTo32Boundary<char8_t>("\xFB\xBF\xBF\xBF\xBF", 0x03FFFFFFUL, true);
+		TestTo32Boundary<char8_t>("\xFC\x84\x80\x80\x80\x80", 0x04000000UL, true);
+		TestTo32Boundary<char8_t>("\xFD\xBF\xBF\xBF\xBF\xBF", 0x7FFFFFFFUL, true);
 	});
 
 	TEST_CASE(L"char32_t -> char16_t boundary")
