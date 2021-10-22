@@ -40,15 +40,30 @@ namespace vl
 			const T* bufB=strB.buffer+strB.start;
 			const T* bufAOld=bufA;
 			vint length=strB.length;
-			while(length-- && *bufA)
+			while(true)
 			{
-				vint diff=*bufA++-*bufB++;
-				if(diff!=0)
+				if (*bufA && length)
 				{
-					return diff;
+					length--;
+					vint diff=*bufA++-*bufB++;
+					if(diff!=0)
+					{
+						return diff;
+					}
+				}
+				else if (*bufA)
+				{
+					return CalculateLength(bufA);
+				}
+				else if (length)
+				{
+					return -length;
+				}
+				else
+				{
+					return 0;
 				}
 			};
-			return CalculateLength(bufAOld)-strB.length;
 		}
 
 	public:
