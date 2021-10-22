@@ -236,6 +236,7 @@
   <ItemGroup>
     <ClCompile Include="..\..\Source\Strings\TestAString.cpp" />
     <ClCompile Include="..\..\Source\Strings\TestLoremIpsum.cpp" />
+    <ClCompile Include="..\..\Source\Strings\TestStringConversion.cpp" />
     <ClCompile Include="..\..\Source\Strings\TestU16String.cpp" />
     <ClCompile Include="..\..\Source\Strings\TestU32String.cpp" />
     <ClCompile Include="..\..\Source\Strings\TestU8String.cpp" />

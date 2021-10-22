@@ -242,9 +242,33 @@ String Conversions (direct)
 	constexpr auto& wtoa = ConvertStringDirect<wchar_t, char, _wtoa>;
 	constexpr auto& atow = ConvertStringDirect<char, wchar_t, _atow>;
 
+	constexpr auto& wtou32 = ConvertStringDirect<wchar_t, char32_t, _utftou32<wchar_t>>;
+	constexpr auto& u32tow = ConvertStringDirect<char32_t, wchar_t, _u32toutf<wchar_t>>;
+
+	constexpr auto& u8tou32 = ConvertStringDirect<char8_t, char32_t, _utftou32<char8_t>>;
+	constexpr auto& u32tou8 = ConvertStringDirect<char32_t, char8_t, _u32toutf<char8_t>>;
+
+	constexpr auto& u16tou32 = ConvertStringDirect<char16_t, char32_t, _utftou32<char16_t>>;
+	constexpr auto& u32tou16 = ConvertStringDirect<char32_t, char16_t, _u32toutf<char16_t>>;
+
 /***********************************************************************
 String Conversions (indirect)
 ***********************************************************************/
+
+	inline U8String wtou8(const WString& source) { return u32tou8(wtou32(source)); }
+	inline U16String wtou16(const WString& source) { return u32tou16(wtou32(source)); }
+	inline WString u8tow(const U8String& source) { return u32tow(u8tou32(source)); }
+	inline U16String u8tou16(const U8String& source) { return u32tou16(u8tou32(source)); }
+	inline WString u16tow(const U16String& source) { return u32tow(u16tou32(source)); }
+	inline U8String u16tou8(const U16String& source) { return u32tou8(u16tou32(source)); }
+
+	inline U8String atou8(const AString& source) { return u32tou8(wtou32(atow(source))); }
+	inline U16String atou16(const AString& source) { return u32tou16(wtou32(atow(source))); }
+	inline U32String atou32(const AString& source) { return wtou32(atow(source)); }
+
+	inline AString u8toa(const U8String& source) { return wtoa(u32tow(u8tou32(source))); }
+	inline AString u16toa(const U16String& source) { return wtoa(u32tow(u16tou32(source))); }
+	inline AString u32toa(const U32String& source) { return wtoa(u32tow(source)); }
 }
 
 #endif
