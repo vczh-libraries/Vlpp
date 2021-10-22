@@ -70,13 +70,13 @@ Utfto32ReaderBase<T> and UtfFrom32ReaerBase<T>
 					char32_t c = static_cast<TBase*>(this)->Consume();
 					if (c)
 					{
-						available = -1;
-						return 0;
+						available = UtfConversion<T>::From32(c, buffer);
+						if (available == -1) return 0;
 					}
 					else
 					{
-						available = UtfConversion<T>::From32(c, buffer);
-						if (available == -1) return 0;
+						available = -1;
+						return 0;
 					}
 					read = 0;
 				}
