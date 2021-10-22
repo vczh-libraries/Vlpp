@@ -87,48 +87,69 @@ Utfto32ReaderBase<T> and UtfFrom32ReaerBase<T>
 		template<typename T, typename TBase>
 		class Utfto32ReaderBase : public Object
 		{
+		public:
+			T Read()
+			{
+			}
 		};
 
 /***********************************************************************
 UtfStringTo32Reader<T> and UtfStringFrom32Reader<T>
 ***********************************************************************/
 
-		template<typename T>
-		class UtfStringFrom32Reader : public UtfFrom32ReaderBase<T, UtfStringFrom32Reader<T>>
+		template<typename T, typename TBase>
+		class UtfStringConsumer : public TBase
 		{
-			template<typename T, typename TBase>
-			friend class UtfFrom32ReaderBase;
 		protected:
-			const char32_t*			starting = nullptr;
-			const char32_t*			consuming = nullptr;
+			const T*				starting = nullptr;
+			const T*				consuming = nullptr;
 
-			char32_t Consume()
+			T Consume()
 			{
 				char32_t c = *consuming;
 				if (c) consuming++;
 				return c;
 			}
 		public:
-			UtfStringFrom32Reader(const char32_t* _starting)
+			UtfStringConsumer(const T* _starting)
 				: starting(_starting)
 				, consuming(_starting)
 			{
 			}
 
-			const char32_t* Starting() const
+			const T* Starting() const
 			{
 				return starting;
 			}
 
-			const char32_t* Current() const
+			const T* Current() const
 			{
 				return consuming;
 			}
 		};
 
 		template<typename T>
-		class UtfStringTo32Reader : public Utfto32ReaderBase<T, UtfStringTo32Reader<T>>
+		class UtfStringFrom32Reader : public UtfStringConsumer<char32_t, UtfFrom32ReaderBase<T, UtfStringFrom32Reader<T>>>
 		{
+			template<typename T, typename TBase>
+			friend class UtfFrom32ReaderBase;
+		public:
+			UtfStringFrom32Reader(const char32_t* _starting)
+				: UtfStringConsumer<char32_t, UtfFrom32ReaderBase<T, UtfStringFrom32Reader<T>>>(_starting)
+			{
+			}
+		};
+
+		template<typename T>
+		class UtfStringTo32Reader : public UtfStringConsumer<T, Utfto32ReaderBase<T, UtfStringTo32Reader<T>>>
+		{
+			template<typename T, typename TBase>
+			friend class UtfTo32ReaderBase;
+		public:
+			UtfStringTo32Reader(const T* _starting)
+				: UtfStringConsumer<T, Utfto32ReaderBase<T, UtfStringTo32Reader<T>>>(_starting)
+			{
+			}
 		};
 	}
 }

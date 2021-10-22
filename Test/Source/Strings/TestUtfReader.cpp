@@ -26,6 +26,17 @@ namespace test_utf8_reader
 	template<typename T, vint SourceLength, vint DestLength>
 	void TestTo32(const T(&st)[SourceLength], const char32_t(&s32)[DestLength])
 	{
+		UtfStringTo32Reader<T> reader(st);
+		TEST_ASSERT(reader.Starting() == st);
+		TEST_ASSERT(reader.Current() == st);
+		for (vint i = 0; i < DestLength; i++)
+		{
+			char32_t r = reader.Read();
+			TEST_ASSERT(r == s32[i]);
+		}
+		TEST_ASSERT(reader.Read() == 0);
+		TEST_ASSERT(reader.Starting() == st);
+		TEST_ASSERT(reader.Current() == st + (SourceLength - 1));
 	}
 
 	template<typename T, typename TData, vint DestLength>
