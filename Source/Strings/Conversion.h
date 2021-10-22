@@ -56,30 +56,78 @@ Utfto32ReaderBase<T> and UtfFrom32ReaerBase<T>
 ***********************************************************************/
 
 		template<typename T, typename TBase>
-		class Utfto32ReaderBase : Object
-		{
-		};
-
-		template<typename T, typename TBase>
-		class UtfFrom32ReaderBase : Object
+		class UtfFrom32ReaderBase : public Object
 		{
 			vint					read = 0;
 			vint					available = 0;
 			T						buffer[UtfConversion<T>::BufferLength];
 		public:
+			T Read()
+			{
+				if (available == -1) return 0;
+				if (read == available)
+				{
+					char32_t c = static_cast<TBase*>(this)->Consume();
+					if (c)
+					{
+						available = -1;
+						return 0;
+					}
+					else
+					{
+						available = UtfConversion<T>::From32(c, buffer);
+						if (available == -1) return 0;
+					}
+					read = 0;
+				}
+				return buffer[read++];
+			}
 		};
 
-/***********************************************************************
-UtfStringTo32ReaderBase<T> and UtfStringFrom32ReaderBase<T>
-***********************************************************************/
-
-		template<typename T>
-		class UtfStringTo32ReaderBase : Utfto32ReaderBase<T, UtfStringTo32ReaderBase<T>>
+		template<typename T, typename TBase>
+		class Utfto32ReaderBase : public Object
 		{
 		};
 
+/***********************************************************************
+UtfStringTo32Reader<T> and UtfStringFrom32Reader<T>
+***********************************************************************/
+
 		template<typename T>
-		class UtfStringFrom32ReaderBase : UtfFrom32ReaderBase<T, UtfStringFrom32ReaderBase<T>>
+		class UtfStringFrom32Reader : public UtfFrom32ReaderBase<T, UtfStringFrom32Reader<T>>
+		{
+			template<typename T, typename TBase>
+			friend class UtfFrom32ReaderBase;
+		protected:
+			const char32_t*			starting = nullptr;
+			const char32_t*			consuming = nullptr;
+
+			char32_t Consume()
+			{
+				char32_t c = *consuming;
+				if (c) consuming++;
+				return c;
+			}
+		public:
+			UtfStringFrom32Reader(const char32_t* _starting)
+				: starting(_starting)
+				, consuming(_starting)
+			{
+			}
+
+			const char32_t* Starting() const
+			{
+				return starting;
+			}
+
+			const char32_t* Current() const
+			{
+				return consuming;
+			}
+		};
+
+		template<typename T>
+		class UtfStringTo32Reader : public Utfto32ReaderBase<T, UtfStringTo32Reader<T>>
 		{
 		};
 	}
