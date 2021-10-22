@@ -30,5 +30,22 @@ TEST_FILE
 
 	TEST_CATEGORY(L"All String Conversion")
 	{
+		TEST_CASE_ASSERT(wtoa(text2L) == text2A);
+		TEST_CASE_ASSERT(atow(text2A) == text2L);
+
+		TEST_CASE_ASSERT(wtou8(text2L) == text2U8);
+		TEST_CASE_ASSERT(wtou16(text2L) == text2U16);
+		TEST_CASE_ASSERT(u8tow(text2U8) == text2L);
+		TEST_CASE_ASSERT(u8tou16(text2U8) == text2U16);
+		TEST_CASE_ASSERT(u16tow(text2U16) == text2L);
+		TEST_CASE_ASSERT(u16tou8(text2U16) == text2U8);
+
+		TEST_CASE_ASSERT(atou8(text2A) == text2U8);
+		TEST_CASE_ASSERT(atou16(text2A) == text2U16);
+		TEST_CASE_ASSERT(atou32(text2A) == text2U32);
+
+		TEST_CASE_ASSERT(u8toa(text2U8) == text2A);
+		TEST_CASE_ASSERT(u16toa(text2U16) == text2A);
+		TEST_CASE_ASSERT(u32toa(text2U32) == text2A);
 	});
 }
