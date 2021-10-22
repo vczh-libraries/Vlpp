@@ -17,7 +17,7 @@ clean:
 
 all:pre-build ./Bin/UnitTest
 
-./Bin/UnitTest:./Obj/TestAString.o ./Obj/TestLoremIpsum.o ./Obj/TestStringConversion.o ./Obj/TestU16String.o ./Obj/TestU32String.o ./Obj/TestU8String.o ./Obj/TestUtfReader.o ./Obj/TestWString.o ./Obj/TestBasic.o ./Obj/TestFunction.o ./Obj/TestGlobalStorage.o ./Obj/TestLinq.o ./Obj/TestList.o ./Obj/TestPartialOrdering.o ./Obj/Basic.o ./Obj/PartialOrdering.o ./Obj/Console.o ./Obj/Exception.o ./Obj/GlobalStorage.o ./Obj/Conversion.o ./Obj/LoremIpsum.o ./Obj/String.o ./Obj/UnitTest.o ./Obj/Main.o
+./Bin/UnitTest:./Obj/TestAString.o ./Obj/TestLoremIpsum.o ./Obj/TestStringConversion.o ./Obj/TestU16String.o ./Obj/TestU32String.o ./Obj/TestU8String.o ./Obj/TestUtfReader.o ./Obj/TestWString.o ./Obj/TestBasic.o ./Obj/TestFunction.o ./Obj/TestGlobalStorage.o ./Obj/TestLinq.o ./Obj/TestList.o ./Obj/TestPartialOrdering.o ./Obj/Main.o ./Obj/Basic.o ./Obj/PartialOrdering.o ./Obj/Console.o ./Obj/Exception.o ./Obj/GlobalStorage.o ./Obj/Conversion.o ./Obj/LoremIpsum.o ./Obj/String.o ./Obj/UnitTest.o
 	$(CPP_LINK)
 
 ./Obj/TestAString.o: ../Source/Strings/TestAString.cpp ../Source/Strings/../../../Source/UnitTest/UnitTest.h ../Source/Strings/../../../Source/UnitTest/../Strings/String.h ../Source/Strings/../../../Source/UnitTest/../Strings/../Basic.h ../Source/Strings/../../../Source/UnitTest/../Function.h ../Source/Strings/../../../Source/UnitTest/../Strings/../Pointer.h ../Source/Strings/../../../Source/UnitTest/../Exception.h ../Source/Strings/../../../Source/UnitTest/../Strings/../Strings/String.h
@@ -62,6 +62,9 @@ all:pre-build ./Bin/UnitTest
 ./Obj/TestPartialOrdering.o: ../Source/TestPartialOrdering.cpp ../Source/../../Source/UnitTest/UnitTest.h ../Source/../../Source/UnitTest/../Strings/String.h ../Source/../../Source/UnitTest/../Strings/../Basic.h ../Source/../../Source/UnitTest/../Function.h ../Source/../../Source/UnitTest/../Strings/../Pointer.h ../Source/../../Source/UnitTest/../Exception.h ../Source/../../Source/UnitTest/../Strings/../Strings/String.h ../Source/../../Source/Collections/PartialOrdering.h ../Source/../../Source/Collections/Dictionary.h ../Source/../../Source/Collections/List.h ../Source/../../Source/Collections/Interfaces.h ../Source/../../Source/Collections/../Basic.h ../Source/../../Source/Collections/../Pointer.h ../Source/../../Source/Collections/Pair.h ../Source/../../Source/Collections/Operation.h ../Source/../../Source/Collections/OperationCopyFrom.h ../Source/../../Source/Collections/OperationEnumerable.h ../Source/../../Source/Collections/OperationSelect.h ../Source/../../Source/Collections/../Function.h ../Source/../../Source/Collections/OperationWhere.h ../Source/../../Source/Collections/OperationConcat.h ../Source/../../Source/Collections/OperationSequence.h ../Source/../../Source/Collections/OperationSet.h ../Source/../../Source/Collections/OperationPair.h ../Source/../../Source/Collections/OperationString.h ../Source/../../Source/Collections/../Strings/String.h ../Source/../../Source/Collections/OperationForEach.h
 	$(CPP_COMPILE)
 
+./Obj/Main.o: ../UnitTest/UnitTest/Main.cpp ../UnitTest/UnitTest/../../../Source/GlobalStorage.h ../UnitTest/UnitTest/../../../Source/Pointer.h ../UnitTest/UnitTest/../../../Source/Basic.h ../UnitTest/UnitTest/../../../Source/Strings/String.h ../UnitTest/UnitTest/../../../Source/Strings/../Basic.h ../UnitTest/UnitTest/../../../Source/UnitTest/UnitTest.h ../UnitTest/UnitTest/../../../Source/UnitTest/../Strings/String.h ../UnitTest/UnitTest/../../../Source/UnitTest/../Function.h ../UnitTest/UnitTest/../../../Source/UnitTest/../Exception.h
+	$(CPP_COMPILE)
+
 ./Obj/Basic.o: ../../Source/Basic.cpp ../../Source/Basic.h
 	$(CPP_COMPILE)
 
@@ -87,7 +90,4 @@ all:pre-build ./Bin/UnitTest
 	$(CPP_COMPILE)
 
 ./Obj/UnitTest.o: ../../Source/UnitTest/UnitTest.cpp ../../Source/UnitTest/UnitTest.h ../../Source/UnitTest/../Strings/String.h ../../Source/UnitTest/../Strings/../Basic.h ../../Source/UnitTest/../Function.h ../../Source/UnitTest/../Strings/../Pointer.h ../../Source/UnitTest/../Exception.h ../../Source/UnitTest/../Strings/../Strings/String.h ../../Source/UnitTest/../Console.h ../../Source/UnitTest/../Strings/Conversion.h
-	$(CPP_COMPILE)
-
-./Obj/Main.o: Main.cpp ../../Source/UnitTest/UnitTest.h ../../Source/UnitTest/../Strings/String.h ../../Source/UnitTest/../Strings/../Basic.h ../../Source/UnitTest/../Function.h ../../Source/UnitTest/../Strings/../Pointer.h ../../Source/UnitTest/../Exception.h ../../Source/UnitTest/../Strings/../Strings/String.h
 	$(CPP_COMPILE)
