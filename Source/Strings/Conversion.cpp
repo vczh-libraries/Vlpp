@@ -30,7 +30,7 @@ UtfConversion<wchar_t>
 #if defined VCZH_WCHAR_UTF16
 			return UtfConversion<char16_t>::From32(source, reinterpret_cast<char16_t(&)[BufferLength]>(dest));
 #elif defined VCZH_WCHAR_UTF32
-			reinterpret_cast<char32_t(&)[BufferLength]>(dest)[0] = source;
+			dest[0] = static_cast<wchar_t>(source);
 			return 1;
 #endif
 		}
@@ -41,7 +41,7 @@ UtfConversion<wchar_t>
 			return UtfConversion<char16_t>::To32(reinterpret_cast<const char16_t*>(source), sourceLength, dest);
 #elif defined VCZH_WCHAR_UTF32
 			if (sourceLength <= 0) return -1;
-			dest = reinterpret_cast<const char32_t(&)[BufferLength]>(source)[0];
+			dest = static_cast<char32_t>(source[0]);
 			return 1;
 #endif
 		}

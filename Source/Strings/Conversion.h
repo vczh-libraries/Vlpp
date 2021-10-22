@@ -179,7 +179,7 @@ UtfStringTo32Reader<T> and UtfStringFrom32Reader<T>
 		template<typename T>
 		class UtfStringFrom32Reader : public UtfStringConsumer<char32_t, UtfFrom32ReaderBase<T, UtfStringFrom32Reader<T>>>
 		{
-			template<typename T, typename TBase>
+			template<typename T2, typename TBase>
 			friend class UtfFrom32ReaderBase;
 		public:
 			UtfStringFrom32Reader(const char32_t* _starting)
@@ -191,7 +191,7 @@ UtfStringTo32Reader<T> and UtfStringFrom32Reader<T>
 		template<typename T>
 		class UtfStringTo32Reader : public UtfStringConsumer<T, UtfTo32ReaderBase<T, UtfStringTo32Reader<T>>>
 		{
-			template<typename T, typename TBase>
+			template<typename T2, typename TBase>
 			friend class UtfTo32ReaderBase;
 		public:
 			UtfStringTo32Reader(const T* _starting)
@@ -239,36 +239,36 @@ String Conversions (direct)
 	extern template U32String	ConvertStringDirect<char16_t, char32_t, _utftou32<char16_t>>(const U16String& source);
 	extern template U16String	ConvertStringDirect<char32_t, char16_t, _u32toutf<char16_t>>(const U32String& source);
 
-	constexpr auto& wtoa = ConvertStringDirect<wchar_t, char, _wtoa>;
-	constexpr auto& atow = ConvertStringDirect<char, wchar_t, _atow>;
+	inline AString		wtoa	(const WString& source)		{ return ConvertStringDirect<wchar_t, char, _wtoa>(source); }
+	inline WString		atow	(const AString& source)		{ return ConvertStringDirect<char, wchar_t, _atow>(source); }
 
-	constexpr auto& wtou32 = ConvertStringDirect<wchar_t, char32_t, _utftou32<wchar_t>>;
-	constexpr auto& u32tow = ConvertStringDirect<char32_t, wchar_t, _u32toutf<wchar_t>>;
+	inline U32String	wtou32	(const WString& source)		{ return ConvertStringDirect<wchar_t, char32_t, _utftou32<wchar_t>>(source); }
+	inline WString		u32tow	(const U32String& source)	{ return ConvertStringDirect<char32_t, wchar_t, _u32toutf<wchar_t>>(source); }
 
-	constexpr auto& u8tou32 = ConvertStringDirect<char8_t, char32_t, _utftou32<char8_t>>;
-	constexpr auto& u32tou8 = ConvertStringDirect<char32_t, char8_t, _u32toutf<char8_t>>;
+	inline U32String	u8tou32	(const U8String& source)	{ return ConvertStringDirect<char8_t, char32_t, _utftou32<char8_t>>(source); }
+	inline U8String		u32tou8	(const U32String& source)	{ return ConvertStringDirect<char32_t, char8_t, _u32toutf<char8_t>>(source); }
 
-	constexpr auto& u16tou32 = ConvertStringDirect<char16_t, char32_t, _utftou32<char16_t>>;
-	constexpr auto& u32tou16 = ConvertStringDirect<char32_t, char16_t, _u32toutf<char16_t>>;
+	inline U32String	u16tou32(const U16String& source)	{ return ConvertStringDirect<char16_t, char32_t, _utftou32<char16_t>>(source); }
+	inline U16String	u32tou16(const U32String& source)	{ return ConvertStringDirect<char32_t, char16_t, _u32toutf<char16_t>>(source); }
 
 /***********************************************************************
 String Conversions (indirect)
 ***********************************************************************/
 
-	inline U8String wtou8(const WString& source) { return u32tou8(wtou32(source)); }
-	inline U16String wtou16(const WString& source) { return u32tou16(wtou32(source)); }
-	inline WString u8tow(const U8String& source) { return u32tow(u8tou32(source)); }
-	inline U16String u8tou16(const U8String& source) { return u32tou16(u8tou32(source)); }
-	inline WString u16tow(const U16String& source) { return u32tow(u16tou32(source)); }
-	inline U8String u16tou8(const U16String& source) { return u32tou8(u16tou32(source)); }
+	inline U8String		wtou8	(const WString& source)		{ return u32tou8(wtou32(source)); }
+	inline U16String	wtou16	(const WString& source)		{ return u32tou16(wtou32(source)); }
+	inline WString		u8tow	(const U8String& source)	{ return u32tow(u8tou32(source)); }
+	inline U16String	u8tou16	(const U8String& source)	{ return u32tou16(u8tou32(source)); }
+	inline WString		u16tow	(const U16String& source)	{ return u32tow(u16tou32(source)); }
+	inline U8String		u16tou8	(const U16String& source)	{ return u32tou8(u16tou32(source)); }
 
-	inline U8String atou8(const AString& source) { return wtou8(atow(source)); }
-	inline U16String atou16(const AString& source) { return wtou16(atow(source)); }
-	inline U32String atou32(const AString& source) { return wtou32(atow(source)); }
+	inline U8String		atou8	(const AString& source)		{ return wtou8(atow(source)); }
+	inline U16String	atou16	(const AString& source)		{ return wtou16(atow(source)); }
+	inline U32String	atou32	(const AString& source)		{ return wtou32(atow(source)); }
 
-	inline AString u8toa(const U8String& source) { return wtoa(u8tow(source)); }
-	inline AString u16toa(const U16String& source) { return wtoa(u16tow(source)); }
-	inline AString u32toa(const U32String& source) { return wtoa(u32tow(source)); }
+	inline AString		u8toa	(const U8String& source)	{ return wtoa(u8tow(source)); }
+	inline AString		u16toa	(const U16String& source)	{ return wtoa(u16tow(source)); }
+	inline AString		u32toa	(const U32String& source)	{ return wtoa(u32tow(source)); }
 }
 
 #endif

@@ -29,7 +29,7 @@ Licensed under https://github.com/vczh-libraries/License
 
 #if defined VCZH_MSVC
 #define VCZH_WCHAR_UTF16
-#elif VCZH_GCC
+#elif defined VCZH_GCC
 #define VCZH_WCHAR_UTF32
 #endif
 
