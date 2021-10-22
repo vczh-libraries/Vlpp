@@ -130,7 +130,7 @@ Utfto32ReaderBase<T> and UtfFrom32ReaerBase<T>
 				available -= result;
 				for (vint i = 0; i < available; i++)
 				{
-					buffer[i] = buffer[i + (BufferLength - available)];
+					buffer[i] = buffer[i + result];
 				}
 				return dest;
 			}
@@ -262,12 +262,12 @@ String Conversions (indirect)
 	inline WString u16tow(const U16String& source) { return u32tow(u16tou32(source)); }
 	inline U8String u16tou8(const U16String& source) { return u32tou8(u16tou32(source)); }
 
-	inline U8String atou8(const AString& source) { return u32tou8(wtou32(atow(source))); }
-	inline U16String atou16(const AString& source) { return u32tou16(wtou32(atow(source))); }
+	inline U8String atou8(const AString& source) { return wtou8(atow(source)); }
+	inline U16String atou16(const AString& source) { return wtou16(atow(source)); }
 	inline U32String atou32(const AString& source) { return wtou32(atow(source)); }
 
-	inline AString u8toa(const U8String& source) { return wtoa(u32tow(u8tou32(source))); }
-	inline AString u16toa(const U16String& source) { return wtoa(u32tow(u16tou32(source))); }
+	inline AString u8toa(const U8String& source) { return wtoa(u8tow(source)); }
+	inline AString u16toa(const U16String& source) { return wtoa(u16tow(source)); }
 	inline AString u32toa(const U32String& source) { return wtoa(u32tow(source)); }
 }
 
