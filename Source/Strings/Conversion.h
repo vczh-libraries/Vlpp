@@ -58,9 +58,10 @@ Utfto32ReaderBase<T> and UtfFrom32ReaerBase<T>
 		template<typename T, typename TBase>
 		class UtfFrom32ReaderBase : public Object
 		{
+			static const vint		BufferLength = UtfConversion<T>::BufferLength;
 			vint					read = 0;
 			vint					available = 0;
-			T						buffer[UtfConversion<T>::BufferLength];
+			T						buffer[BufferLength];
 		public:
 			T Read()
 			{
@@ -85,11 +86,46 @@ Utfto32ReaderBase<T> and UtfFrom32ReaerBase<T>
 		};
 
 		template<typename T, typename TBase>
-		class Utfto32ReaderBase : public Object
+		class UtfTo32ReaderBase : public Object
 		{
+			static const vint		BufferLength = UtfConversion<T>::BufferLength;
+			vint					available = 0;
+			T						buffer[BufferLength];
 		public:
-			T Read()
+			char32_t Read()
 			{
+				if (available == -1) return 0;
+				while (available < BufferLength)
+				{
+					T c = static_cast<TBase*>(this)->Consume();
+					if (c)
+					{
+						buffer[available++] = c;
+					}
+					else
+					{
+						if (available == 0)
+						{
+							available = -1;
+							return 0;
+						}
+						break;
+					}
+				}
+
+				char32_t dest = 0;
+				vint result = UtfConversion<T>::To32(buffer, available, dest);
+				if (result == -1)
+				{
+					available = -1;
+					return 0;
+				}
+				available -= result;
+				for (vint i = 0; i < available; i++)
+				{
+					buffer[i] = buffer[i + (BufferLength - available)];
+				}
+				return dest;
 			}
 		};
 
@@ -106,7 +142,7 @@ UtfStringTo32Reader<T> and UtfStringFrom32Reader<T>
 
 			T Consume()
 			{
-				char32_t c = *consuming;
+				T c = *consuming;
 				if (c) consuming++;
 				return c;
 			}
@@ -141,13 +177,13 @@ UtfStringTo32Reader<T> and UtfStringFrom32Reader<T>
 		};
 
 		template<typename T>
-		class UtfStringTo32Reader : public UtfStringConsumer<T, Utfto32ReaderBase<T, UtfStringTo32Reader<T>>>
+		class UtfStringTo32Reader : public UtfStringConsumer<T, UtfTo32ReaderBase<T, UtfStringTo32Reader<T>>>
 		{
 			template<typename T, typename TBase>
 			friend class UtfTo32ReaderBase;
 		public:
 			UtfStringTo32Reader(const T* _starting)
-				: UtfStringConsumer<T, Utfto32ReaderBase<T, UtfStringTo32Reader<T>>>(_starting)
+				: UtfStringConsumer<T, UtfTo32ReaderBase<T, UtfStringTo32Reader<T>>>(_starting)
 			{
 			}
 		};
