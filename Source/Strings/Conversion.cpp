@@ -271,16 +271,40 @@ String Conversions (buffer walkthrough)
 #endif
 	}
 
-	template<typename T>
-	vint _utftou32(const T* s, char32_t* d, vint chars)
+	template<typename TFrom, typename TTo, typename TReader>
+	vint _utftoutf(const TFrom* s, TTo* d, vint chars)
 	{
-		return -1;
+		TReader reader(s);
+		vint size = 0;
+		if (d == nullptr)
+		{
+			while (reader.Read()) size++;
+			return reader.HasIllegalChar() ? -1 : size + 1;
+		}
+		else
+		{
+			while (true)
+			{
+				if (chars == 0) break;
+				auto c = reader.Read();
+				*d++ = c;
+				size++;
+				if (!c) break;
+			}
+			return reader.HasIllegalChar() ? -1 : size;
+		}
 	}
 
 	template<typename T>
-	vint _u32toutf(const char32_t* d, T* s, vint chars)
+	vint _utftou32(const T* s, char32_t* d, vint chars)
 	{
-		return -1;
+		return _utftoutf<T, char32_t, encoding::UtfStringTo32Reader<T>>(s, d, chars);
+	}
+
+	template<typename T>
+	vint _u32toutf(const char32_t* s, T* d, vint chars)
+	{
+		return _utftoutf<char32_t, T, encoding::UtfStringFrom32Reader<T>>(s, d, chars);
 	}
 
 	template vint			_utftou32<wchar_t>(const wchar_t* s, char32_t* d, vint chars);
@@ -297,7 +321,7 @@ String Conversions (char <--> wchar_t)
 	template<typename TFrom, typename TTo, vint(*Convert)(const TFrom*, TTo*, vint)>
 	ObjectString<TTo> ConvertStringDirect(const ObjectString<TFrom>& source)
 	{
-		vint len = Convert(source.Buffer(), 0, 0);
+		vint len = Convert(source.Buffer(), nullptr, 0);
 		if (len < 1) return {};
 		TTo* buffer = new TTo[len];
 		memset(buffer, 0, len * sizeof(TTo));

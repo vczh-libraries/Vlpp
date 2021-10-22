@@ -62,6 +62,7 @@ Utfto32ReaderBase<T> and UtfFrom32ReaerBase<T>
 			vint					read = 0;
 			vint					available = 0;
 			T						buffer[BufferLength];
+			bool					error = false;
 		public:
 			T Read()
 			{
@@ -83,6 +84,11 @@ Utfto32ReaderBase<T> and UtfFrom32ReaerBase<T>
 				}
 				return buffer[read++];
 			}
+
+			bool HasIllegalChar() const
+			{
+				return error;
+			}
 		};
 
 		template<typename T, typename TBase>
@@ -91,6 +97,7 @@ Utfto32ReaderBase<T> and UtfFrom32ReaerBase<T>
 			static const vint		BufferLength = UtfConversion<T>::BufferLength;
 			vint					available = 0;
 			T						buffer[BufferLength];
+			bool					error = false;
 		public:
 			char32_t Read()
 			{
@@ -126,6 +133,11 @@ Utfto32ReaderBase<T> and UtfFrom32ReaerBase<T>
 					buffer[i] = buffer[i + (BufferLength - available)];
 				}
 				return dest;
+			}
+
+			bool HasIllegalChar() const
+			{
+				return error;
 			}
 		};
 
@@ -199,7 +211,7 @@ String Conversions (buffer walkthrough)
 	template<typename T>
 	vint						_utftou32(const T* s, char32_t* d, vint chars);
 	template<typename T>
-	vint						_u32toutf(const char32_t* d, T* s, vint chars);
+	vint						_u32toutf(const char32_t* s, T* d, vint chars);
 
 	extern template vint		_utftou32<wchar_t>(const wchar_t* s, char32_t* d, vint chars);
 	extern template vint		_utftou32<char8_t>(const char8_t* s, char32_t* d, vint chars);
