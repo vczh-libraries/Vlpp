@@ -48,6 +48,58 @@ UtfConversion<char8_t>
 
 		vint UtfConversion<char8_t>::From32(char32_t source, char8_t(&dest)[BufferLength])
 		{
+			vuint64_t& c = reinterpret_cast<vuint64_t&>(source);
+			vuint8_t(&ds)[BufferLength] = reinterpret_cast<vuint8_t(&)[BufferLength]>(dest);
+
+			if (c < 0x0000007FULL)
+			{
+				ds[0] = static_cast<vuint8_t>(c);
+				return 1;
+			}
+			else if (c < 0x000007FFULL)
+			{
+				ds[0] = static_cast<vuint8_t>((c >> 6) & 0b00011111);
+				ds[1] = static_cast<vuint8_t>(c & 0b00111111);
+				return 2;
+			}
+			else if (c < 0x0000FFFFULL)
+			{
+				ds[0] = static_cast<vuint8_t>((c >> 12) & 0b00001111);
+				ds[1] = static_cast<vuint8_t>((c >> 6) & 0b00111111);
+				ds[2] = static_cast<vuint8_t>(c & 0b00111111);
+				return 3;
+			}
+			else if (c < 0x0001FFFFULL)
+			{
+				ds[0] = static_cast<vuint8_t>((c >> 18) & 0b00000111);
+				ds[1] = static_cast<vuint8_t>((c >> 12) & 0b00111111);
+				ds[2] = static_cast<vuint8_t>((c >> 6) & 0b00111111);
+				ds[3] = static_cast<vuint8_t>(c & 0b00111111);
+				return 4;
+			}
+			else if (c < 0x03FFFFFFULL)
+			{
+				ds[0] = static_cast<vuint8_t>((c >> 24) & 0b00000011);
+				ds[1] = static_cast<vuint8_t>((c >> 18) & 0b00111111);
+				ds[2] = static_cast<vuint8_t>((c >> 12) & 0b00111111);
+				ds[3] = static_cast<vuint8_t>((c >> 6) & 0b00111111);
+				ds[4] = static_cast<vuint8_t>(c & 0b00111111);
+				return 5;
+			}
+			else if (c < 0x7FFFFFFFULL)
+			{
+				ds[0] = static_cast<vuint8_t>((c >> 30) & 0b00000001);
+				ds[1] = static_cast<vuint8_t>((c >> 24) & 0b00111111);
+				ds[2] = static_cast<vuint8_t>((c >> 18) & 0b00111111);
+				ds[3] = static_cast<vuint8_t>((c >> 12) & 0b00111111);
+				ds[4] = static_cast<vuint8_t>((c >> 6) & 0b00111111);
+				ds[5] = static_cast<vuint8_t>(c & 0b00111111);
+				return 5;
+			}
+			else
+			{
+				return -1;
+			}
 		}
 
 		void UtfConversion<char8_t>::To32(const char8_t(&source)[BufferLength], char32_t& dest)
