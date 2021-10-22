@@ -22,11 +22,11 @@ namespace vl
 	private:
 		static const T				zero;
 
-		mutable T*					buffer;
-		mutable volatile vint*		counter;
-		mutable vint				start;
-		mutable vint				length;
-		mutable vint				realLength;
+		mutable T*					buffer = (T*)&zero;
+		mutable volatile vint*		counter = nullptr;
+		mutable vint				start = 0;
+		mutable vint				length = 0;
+		mutable vint				realLength = 0;
 
 		static vint CalculateLength(const T* buffer)
 		{
@@ -93,156 +93,157 @@ namespace vl
 
 		ObjectString(const ObjectString<T>& string, vint _start, vint _length)
 		{
-			if(_length<=0)
+			if (_length > 0)
 			{
-				buffer=(T*)&zero;
-				counter=0;
-				start=0;
-				length=0;
-				realLength=0;
-			}
-			else
-			{
-				buffer=string.buffer;
-				counter=string.counter;
-				start=string.start+_start;
-				length=_length;
-				realLength=string.realLength;
+				buffer = string.buffer;
+				counter = string.counter;
+				start = string.start + _start;
+				length = _length;
+				realLength = string.realLength;
 				Inc();
 			}
 		}
 
 		ObjectString(const ObjectString<T>& dest, const ObjectString<T>& source, vint index, vint count)
 		{
-			if(index==0 && count==dest.length && source.length==0)
+			if (index == 0 && count == dest.length && source.length == 0)
 			{
-				buffer=(T*)&zero;
-				counter=0;
-				start=0;
-				length=0;
-				realLength=0;
+				buffer = (T*)&zero;
+				counter = 0;
+				start = 0;
+				length = 0;
+				realLength = 0;
 			}
 			else
 			{
-				counter=new vint(1);
-				start=0;
-				length=dest.length-count+source.length;
-				realLength=length;
-				buffer=new T[length+1];
-				memcpy(buffer, dest.buffer+dest.start, sizeof(T)*index);
-				memcpy(buffer+index, source.buffer+source.start, sizeof(T)*source.length);
-				memcpy(buffer+index+source.length, (dest.buffer+dest.start+index+count), sizeof(T)*(dest.length-index-count));
-				buffer[length]=0;
+				counter = new vint(1);
+				start = 0;
+				length = dest.length - count + source.length;
+				realLength = length;
+				buffer = new T[length + 1];
+				memcpy(buffer, dest.buffer + dest.start, sizeof(T) * index);
+				memcpy(buffer + index, source.buffer + source.start, sizeof(T) * source.length);
+				memcpy(buffer + index + source.length, (dest.buffer + dest.start + index + count), sizeof(T) * (dest.length - index - count));
+				buffer[length] = 0;
 			}
 		}
 	public:
 		static ObjectString<T>	Empty;
 
 		/// <summary>Create an empty string.</summary>
-		ObjectString()
-		{
-			buffer=(T*)&zero;
-			counter=0;
-			start=0;
-			length=0;
-			realLength=0;
-		}
+		ObjectString() = default;
 
-		/// <summary>Create a string continaing one code point.</summary>
-		/// <param name="_char">The code point.</param>
-		ObjectString(const T& _char)
-		{
-			counter=new vint(1);
-			start=0;
-			length=1;
-			buffer=new T[2];
-			buffer[0]=_char;
-			buffer[1]=0;
-			realLength=length;
-		}
-
-		/// <summary>Copy a string.</summary>
-		/// <param name="_buffer">Memory to copy. It is not required to be zero terminated.</param>
-		/// <param name="_length">Size of the content in code points.</param>
-		ObjectString(const T* _buffer, vint _length)
-		{
-			if(_length<=0)
-			{
-				buffer=(T*)&zero;
-				counter=0;
-				start=0;
-				length=0;
-				realLength=0;
-			}
-			else
-			{
-				buffer=new T[_length+1];
-				memcpy(buffer, _buffer, _length*sizeof(T));
-				buffer[_length]=0;
-				counter=new vint(1);
-				start=0;
-				length=_length;
-				realLength=_length;
-			}
-		}
-		
-		/// <summary>Copy a string.</summary>
-		/// <param name="_buffer">Memory to copy. It must be zero terminated.</param>
-		/// <param name="copy">Set to true to copy the memory. Set to false to use the memory directly.</param>
-		ObjectString(const T* _buffer, bool copy = true)
-		{
-			CHECK_ERROR(_buffer!=0, L"ObjectString<T>::ObjectString(const T*, bool)#Cannot construct a string from nullptr.");
-			if(copy)
-			{
-				counter=new vint(1);
-				start=0;
-				length=CalculateLength(_buffer);
-				buffer=new T[length+1];
-				memcpy(buffer, _buffer, sizeof(T)*(length+1));
-				realLength=length;
-			}
-			else
-			{
-				buffer=(T*)_buffer;
-				counter=0;
-				start=0;
-				length=CalculateLength(_buffer);
-				realLength=length;
-			}
-		}
-		
 		/// <summary>Copy a string.</summary>
 		/// <param name="string">The string to copy.</param>
-		ObjectString(const ObjectString<T>& string)
+		ObjectString(const ObjectString<T>&string)
 		{
-			buffer=string.buffer;
-			counter=string.counter;
-			start=string.start;
-			length=string.length;
-			realLength=string.realLength;
+			buffer = string.buffer;
+			counter = string.counter;
+			start = string.start;
+			length = string.length;
+			realLength = string.realLength;
 			Inc();
 		}
-		
+
 		/// <summary>Move a string.</summary>
 		/// <param name="string">The string to move.</param>
-		ObjectString(ObjectString<T>&& string)
+		ObjectString(ObjectString<T> && string)
 		{
-			buffer=string.buffer;
-			counter=string.counter;
-			start=string.start;
-			length=string.length;
-			realLength=string.realLength;
-			
-			string.buffer=(T*)&zero;
-			string.counter=0;
-			string.start=0;
-			string.length=0;
-			string.realLength=0;
+			buffer = string.buffer;
+			counter = string.counter;
+			start = string.start;
+			length = string.length;
+			realLength = string.realLength;
+
+			string.buffer = (T*)&zero;
+			string.counter = nullptr;
+			string.start = 0;
+			string.length = 0;
+			string.realLength = 0;
 		}
 
 		~ObjectString()
 		{
 			Dec();
+		}
+
+		/// <summary>Take over a character pointer with known length.</summary>
+		/// <returns>The created string.</returns>
+		/// <param name="_buffer">The zero-terminated character buffer which should be created using the global operator new[].</param>
+		/// <param name="_length">The number of available characters in the buffer.</param>
+		static ObjectString<T> TakeOver(T* _buffer, vint _length)
+		{
+			CHECK_ERROR(_length >= 0, L"ObjectString<T>::TakeOver(T*, vint)#Length should not be negative.");
+			CHECK_ERROR(_buffer[_length] == 0, L"ObjectString<T>::TakeOver(T*, vint)#Buffer is not properly zero-terminated.");
+			ObjectString<T> str;
+			str.counter = new vint(1);
+			str.length = _length;
+			str.realLength = _length;
+			str.buffer = _buffer;
+			return MoveValue(str);
+		}
+
+		/// <summary>Create a string continaing one code point.</summary>
+		/// <returns>The created string.</returns>
+		/// <param name="_char">The code point.</param>
+		static ObjectString<T> FromChar(const T& _char)
+		{
+			T buffer[2];
+			buffer[0] = _char;
+			buffer[1] = 0;
+			return buffer;
+		}
+
+		/// <summary>Copy a string.</summary>
+		/// <param name="_buffer">Memory to copy. It is not required to be zero terminated.</param>
+		/// <returns>The created string.</returns>
+		/// <param name="_length">Size of the content in code points.</param>
+		static ObjectString<T> CopyFrom(const T* _buffer, vint _length)
+		{
+			CHECK_ERROR(_length >= 0, L"ObjectString<T>::CopyFrom(const T*, vint)#Length should not be negative.");
+			if (_length > 0)
+			{
+				ObjectString<T> str;
+				str.buffer = new T[_length + 1];
+				memcpy(str.buffer, _buffer, _length * sizeof(T));
+				str.buffer[_length] = 0;
+				str.counter = new vint(1);
+				str.start = 0;
+				str.length = _length;
+				str.realLength = _length;
+				return MoveValue(str);
+			}
+			return {};
+		}
+		
+		/// <summary>
+		/// Create an unmanaged string.
+		/// Such string uses a piece of unmanaged memory,
+		/// hereby it doesn't release the memory when the string is destroyed.
+		/// </summary>
+		/// <returns>The created string.</returns>
+		/// <param name="_buffer">Unmanaged memory. It must be zero terminated.</param>
+		static ObjectString<T> Unmanaged(const T* _buffer, bool copy = true)
+		{
+			CHECK_ERROR(_buffer != 0, L"ObjectString<T>::Unmanaged(const T*)#Cannot construct a string from nullptr.");
+			ObjectString<T> str;
+			str.buffer = (T*)_buffer;
+			str.length = CalculateLength(_buffer);
+			str.realLength = str.length;
+			return MoveValue(str);
+		}
+		
+		/// <summary>Copy a string.</summary>
+		/// <param name="_buffer">Memory to copy. It must be zero terminated.</param>
+		ObjectString(const T* _buffer)
+		{
+			CHECK_ERROR(_buffer != 0, L"ObjectString<T>::ObjectString(const T*)#Cannot construct a string from nullptr.");
+			counter = new vint(1);
+			start = 0;
+			length = CalculateLength(_buffer);
+			buffer = new T[length + 1];
+			memcpy(buffer, _buffer, sizeof(T) * (length + 1));
+			realLength = length;
 		}
 
 		/// <summary>
@@ -532,7 +533,7 @@ namespace vl
 
 		friend ObjectString<T> operator+(const T* left, const ObjectString<T>& right)
 		{
-			return ObjectString<T>(left, false)+right;
+			return ObjectString<T>::Unmanaged(left)+right;
 		}
 	};
 

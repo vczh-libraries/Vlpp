@@ -41,11 +41,11 @@ namespace vl
 			CopyFrom(da, ss, append);
 			if (da.Count() == 0)
 			{
-				ds = ObjectString<D>();
+				ds = {};
 			}
 			else
 			{
-				ds = ObjectString<D>(&da[0], da.Count());
+				ds = ObjectString<D>::CopyFrom(&da[0], da.Count());
 			}
 		}
 	}

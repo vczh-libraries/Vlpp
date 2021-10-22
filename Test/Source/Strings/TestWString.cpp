@@ -33,7 +33,7 @@ TEST_FILE
 		TEST_CASE(L"Test string with non-copied buffer")
 		{
 			const wchar_t* buffer = L"vczh";
-			WString string(buffer,false);
+			WString string = WString::Unmanaged(buffer);
 			TEST_ASSERT(string.Buffer() == buffer);
 			CheckString(string,L"vczh");
 		});
@@ -41,14 +41,14 @@ TEST_FILE
 		TEST_CASE(L"Test string with copied buffer")
 		{
 			const wchar_t* buffer = L"vczh";
-			WString string(buffer,true);
+			WString string(buffer);
 			TEST_ASSERT(string.Buffer() != buffer);
 			CheckString(string,L"vczh");
 		});
 
 		TEST_CASE(L"Test string with char")
 		{
-			WString string = L'v';
+			WString string = WString::FromChar(L'v');
 			CheckString(string,L"v");
 		});
 
@@ -59,15 +59,15 @@ TEST_FILE
 				CheckString(WString(string),L"");
 			}
 			{
-				WString string(L"vczh",false);
+				WString string = WString::Unmanaged(L"vczh");
 				CheckString(WString(string),L"vczh");
 			}
 			{
-				WString string(L"vczh",true);
+				WString string(L"vczh");
 				CheckString(WString(string),L"vczh");
 			}
 			{
-				WString string = L'v';
+				WString string = WString::FromChar(L'v');
 				CheckString(WString(string),L"v");
 			}
 		});

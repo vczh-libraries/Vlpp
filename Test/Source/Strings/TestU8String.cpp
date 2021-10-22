@@ -37,7 +37,7 @@ TEST_FILE
 		TEST_CASE(L"Test string with non-copied buffer")
 		{
 			const char8_t* buffer = u8"vczh";
-			U8String string(buffer,false);
+			U8String string = U8String::Unmanaged(buffer);
 			TEST_ASSERT(string.Buffer() == buffer);
 			CheckString(string,u8"vczh");
 		});
@@ -45,14 +45,14 @@ TEST_FILE
 		TEST_CASE(L"Test string with copied buffer")
 		{
 			const char8_t* buffer = u8"vczh";
-			U8String string(buffer,true);
+			U8String string(buffer);
 			TEST_ASSERT(string.Buffer() != buffer);
 			CheckString(string,u8"vczh");
 		});
 
 		TEST_CASE(L"Test string with char")
 		{
-			U8String string = u8'v';
+			U8String string = U8String::FromChar(u8'v');
 			CheckString(string,u8"v");
 		});
 
@@ -63,15 +63,15 @@ TEST_FILE
 				CheckString(U8String(string), u8"");
 			}
 			{
-				U8String string(u8"vczh",false);
+				U8String string = U8String::Unmanaged(u8"vczh");
 				CheckString(U8String(string),u8"vczh");
 			}
 			{
-				U8String string(u8"vczh",true);
+				U8String string(u8"vczh");
 				CheckString(U8String(string),u8"vczh");
 			}
 			{
-				U8String string = u8'v';
+				U8String string = U8String::FromChar(u8'v');
 				CheckString(U8String(string),u8"v");
 			}
 		});

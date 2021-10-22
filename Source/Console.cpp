@@ -82,7 +82,7 @@ Console
 				}
 				else
 				{
-					result=result+buffer;
+					result=result+WString::FromChar(buffer);
 				}
 			}
 			return result;

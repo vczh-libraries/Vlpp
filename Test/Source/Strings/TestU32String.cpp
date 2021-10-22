@@ -37,7 +37,7 @@ TEST_FILE
 		TEST_CASE(L"Test string with non-copied buffer")
 		{
 			const char32_t* buffer = U"vczh";
-			U32String string(buffer,false);
+			U32String string = U32String::Unmanaged(buffer);
 			TEST_ASSERT(string.Buffer() == buffer);
 			CheckString(string,U"vczh");
 		});
@@ -45,14 +45,14 @@ TEST_FILE
 		TEST_CASE(L"Test string with copied buffer")
 		{
 			const char32_t* buffer = U"vczh";
-			U32String string(buffer,true);
+			U32String string(buffer);
 			TEST_ASSERT(string.Buffer() != buffer);
 			CheckString(string,U"vczh");
 		});
 
 		TEST_CASE(L"Test string with char")
 		{
-			U32String string = U'v';
+			U32String string = U32String::FromChar(U'v');
 			CheckString(string,U"v");
 		});
 
@@ -63,15 +63,15 @@ TEST_FILE
 				CheckString(U32String(string), U"");
 			}
 			{
-				U32String string(U"vczh",false);
+				U32String string = U32String::Unmanaged(U"vczh");
 				CheckString(U32String(string),U"vczh");
 			}
 			{
-				U32String string(U"vczh",true);
+				U32String string(U"vczh");
 				CheckString(U32String(string),U"vczh");
 			}
 			{
-				U32String string = U'v';
+				U32String string = U32String::FromChar(U'v');
 				CheckString(U32String(string),U"v");
 			}
 		});

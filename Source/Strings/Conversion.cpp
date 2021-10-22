@@ -250,7 +250,7 @@ UtfConversion<char16_t>
 	}
 
 /***********************************************************************
-String Conversions (char <--> wchar_t)
+String Conversions (buffer walkthrough)
 ***********************************************************************/
 
 	vint _wtoa(const wchar_t* w, char* a, vint chars)
@@ -262,6 +262,58 @@ String Conversions (char <--> wchar_t)
 #endif
 	}
 
+	vint _atow(const char* a, wchar_t* w, vint chars)
+	{
+#if defined VCZH_MSVC
+		return MultiByteToWideChar(CP_THREAD_ACP, 0, a, -1, w, (int)(w ? chars : 0));
+#elif defined VCZH_GCC
+		return mbstowcs(w, a, chars - 1) + 1;
+#endif
+	}
+
+	template<typename T>
+	vint _utftou32(const T* s, char32_t* d, vint chars)
+	{
+		return -1;
+	}
+
+	template<typename T>
+	vint _u32toutf(const char32_t* d, T* s, vint chars)
+	{
+		return -1;
+	}
+
+	template vint			_utftou32<wchar_t>(const wchar_t* s, char32_t* d, vint chars);
+	template vint			_utftou32<char8_t>(const char8_t* s, char32_t* d, vint chars);
+	template vint			_utftou32<char16_t>(const char16_t* s, char32_t* d, vint chars);
+	template vint			_u32toutf<wchar_t>(const char32_t* s, wchar_t* d, vint chars);
+	template vint			_u32toutf<char8_t>(const char32_t* s, char8_t* d, vint chars);
+	template vint			_u32toutf<char16_t>(const char32_t* s, char16_t* d, vint chars);
+
+/***********************************************************************
+String Conversions (char <--> wchar_t)
+***********************************************************************/
+
+	template<typename TFrom, typename TTo, vint(*Convert)(const TFrom*, TTo*, vint)>
+	ObjectString<TTo> ConvertStringDirect(const ObjectString<TFrom>& source)
+	{
+		vint len = Convert(source.Buffer(), 0, 0);
+		if (len < 1) return {};
+		TTo* buffer = new TTo[len];
+		memset(buffer, 0, len * sizeof(TTo));
+		Convert(source.Buffer(), buffer, len);
+		return ObjectString<TTo>::TakeOver(buffer, len);
+	}
+
+	template AString		ConvertStringDirect<wchar_t, char, _wtoa>(const WString& source);
+	template WString		ConvertStringDirect<char, wchar_t, _atow>(const AString& source);
+	template U32String		ConvertStringDirect<wchar_t, char32_t, _utftou32<wchar_t>>(const WString& source);
+	template WString		ConvertStringDirect<char32_t, wchar_t, _u32toutf<wchar_t>>(const U32String& source);
+	template U32String		ConvertStringDirect<char8_t, char32_t, _utftou32<char8_t>>(const U8String& source);
+	template U8String		ConvertStringDirect<char32_t, char8_t, _u32toutf<char8_t>>(const U32String& source);
+	template U32String		ConvertStringDirect<char16_t, char32_t, _utftou32<char16_t>>(const U16String& source);
+	template U16String		ConvertStringDirect<char32_t, char16_t, _u32toutf<char16_t>>(const U32String& source);
+
 	AString wtoa(const WString& string)
 	{
 		vint len = _wtoa(string.Buffer(), 0, 0);
@@ -271,15 +323,6 @@ String Conversions (char <--> wchar_t)
 		AString s = buffer;
 		delete[] buffer;
 		return s;
-	}
-
-	vint _atow(const char* a, wchar_t* w, vint chars)
-	{
-#if defined VCZH_MSVC
-		return MultiByteToWideChar(CP_THREAD_ACP, 0, a, -1, w, (int)(w ? chars : 0));
-#elif defined VCZH_GCC
-		return mbstowcs(w, a, chars - 1) + 1;
-#endif
 	}
 
 	WString atow(const AString& string)

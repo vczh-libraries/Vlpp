@@ -33,7 +33,7 @@ TEST_FILE
 		TEST_CASE(L"Test string with non-copied buffer")
 		{
 			const char* buffer = "vczh";
-			AString string(buffer,false);
+			AString string = AString::Unmanaged(buffer);
 			TEST_ASSERT(string.Buffer() == buffer);
 			CheckString(string,"vczh");
 		});
@@ -41,14 +41,14 @@ TEST_FILE
 		TEST_CASE(L"Test string with copied buffer")
 		{
 			const char* buffer = "vczh";
-			AString string(buffer,true);
+			AString string(buffer);
 			TEST_ASSERT(string.Buffer() != buffer);
 			CheckString(string,"vczh");
 		});
 
 		TEST_CASE(L"Test string with char")
 		{
-			AString string = 'v';
+			AString string = AString::FromChar('v');
 			CheckString(string,"v");
 		});
 
@@ -59,15 +59,15 @@ TEST_FILE
 				CheckString(AString(string),"");
 			}
 			{
-				AString string("vczh",false);
+				AString string = AString::Unmanaged("vczh");
 				CheckString(AString(string),"vczh");
 			}
 			{
-				AString string("vczh",true);
+				AString string("vczh");
 				CheckString(AString(string),"vczh");
 			}
 			{
-				AString string = 'v';
+				AString string = AString::FromChar('v');
 				CheckString(AString(string),"v");
 			}
 		});

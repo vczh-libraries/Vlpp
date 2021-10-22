@@ -51,7 +51,7 @@ Helper Functions
 
 	GlobalStorage* GetGlobalStorage(const wchar_t* key)
 	{
-		return GetGlobalStorage(WString(key, false));
+		return GetGlobalStorage(WString::Unmanaged(key));
 	}
 
 	GlobalStorage* GetGlobalStorage(const WString& key)

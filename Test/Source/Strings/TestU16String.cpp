@@ -37,7 +37,7 @@ TEST_FILE
 		TEST_CASE(L"Test string with non-copied buffer")
 		{
 			const char16_t* buffer = u"vczh";
-			U16String string(buffer,false);
+			U16String string = U16String::Unmanaged(buffer);
 			TEST_ASSERT(string.Buffer() == buffer);
 			CheckString(string,u"vczh");
 		});
@@ -45,14 +45,14 @@ TEST_FILE
 		TEST_CASE(L"Test string with copied buffer")
 		{
 			const char16_t* buffer = u"vczh";
-			U16String string(buffer,true);
+			U16String string(buffer);
 			TEST_ASSERT(string.Buffer() != buffer);
 			CheckString(string,u"vczh");
 		});
 
 		TEST_CASE(L"Test string with char")
 		{
-			U16String string = u'v';
+			U16String string = U16String::FromChar(u'v');
 			CheckString(string,u"v");
 		});
 
@@ -63,15 +63,15 @@ TEST_FILE
 				CheckString(U16String(string), u"");
 			}
 			{
-				U16String string(u"vczh",false);
+				U16String string = U16String::Unmanaged(u"vczh");
 				CheckString(U16String(string),u"vczh");
 			}
 			{
-				U16String string(u"vczh",true);
+				U16String string(u"vczh");
 				CheckString(U16String(string),u"vczh");
 			}
 			{
-				U16String string = u'v';
+				U16String string = U16String::FromChar(u'v');
 				CheckString(U16String(string),u"v");
 			}
 		});
