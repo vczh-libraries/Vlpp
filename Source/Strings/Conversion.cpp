@@ -55,7 +55,7 @@ UtfConversion<char8_t>
 		vint UtfConversion<char8_t>::From32(char32_t source, char8_t(&dest)[BufferLength])
 		{
 			if (IsInvalid(source)) return -1;
-			vuint64_t& c = reinterpret_cast<vuint64_t&>(source);
+			vuint64_t c = reinterpret_cast<vuint64_t&>(source);
 			vuint8_t(&ds)[BufferLength] = reinterpret_cast<vuint8_t(&)[BufferLength]>(dest);
 
 			if (c < 0x0000007FULL)
@@ -65,42 +65,42 @@ UtfConversion<char8_t>
 			}
 			else if (c < 0x000007FFULL)
 			{
-				ds[0] = static_cast<vuint8_t>((c >> 6) & 0b00011111);
-				ds[1] = static_cast<vuint8_t>(c & 0b00111111);
+				ds[0] = static_cast<vuint8_t>((c >> 6) | 0b11000000);
+				ds[1] = static_cast<vuint8_t>((c & 0b00111111) | 0b10000000);
 				return 2;
 			}
 			else if (c < 0x0000FFFFULL)
 			{
-				ds[0] = static_cast<vuint8_t>((c >> 12) & 0b00001111);
-				ds[1] = static_cast<vuint8_t>((c >> 6) & 0b00111111);
-				ds[2] = static_cast<vuint8_t>(c & 0b00111111);
+				ds[0] = static_cast<vuint8_t>((c >> 12) | 0b11100000);
+				ds[1] = static_cast<vuint8_t>(((c >> 6) & 0b00111111) | 0b10000000);
+				ds[2] = static_cast<vuint8_t>((c & 0b00111111) | 0b10000000);
 				return 3;
 			}
 			else if (c < 0x0001FFFFULL)
 			{
-				ds[0] = static_cast<vuint8_t>((c >> 18) & 0b00000111);
-				ds[1] = static_cast<vuint8_t>((c >> 12) & 0b00111111);
-				ds[2] = static_cast<vuint8_t>((c >> 6) & 0b00111111);
-				ds[3] = static_cast<vuint8_t>(c & 0b00111111);
+				ds[0] = static_cast<vuint8_t>((c >> 18) | 0b11110000);
+				ds[1] = static_cast<vuint8_t>(((c >> 12) & 0b00111111) | 0b10000000);
+				ds[2] = static_cast<vuint8_t>(((c >> 6) & 0b00111111) | 0b10000000);
+				ds[3] = static_cast<vuint8_t>((c & 0b00111111) | 0b10000000);
 				return 4;
 			}
 			else if (c < 0x03FFFFFFULL)
 			{
-				ds[0] = static_cast<vuint8_t>((c >> 24) & 0b00000011);
-				ds[1] = static_cast<vuint8_t>((c >> 18) & 0b00111111);
-				ds[2] = static_cast<vuint8_t>((c >> 12) & 0b00111111);
-				ds[3] = static_cast<vuint8_t>((c >> 6) & 0b00111111);
-				ds[4] = static_cast<vuint8_t>(c & 0b00111111);
+				ds[0] = static_cast<vuint8_t>((c >> 24) | 0b11111000);
+				ds[1] = static_cast<vuint8_t>(((c >> 18) & 0b00111111) | 0b10000000);
+				ds[2] = static_cast<vuint8_t>(((c >> 12) & 0b00111111) | 0b10000000);
+				ds[3] = static_cast<vuint8_t>(((c >> 6) & 0b00111111) | 0b10000000);
+				ds[4] = static_cast<vuint8_t>((c & 0b00111111) | 0b10000000);
 				return 5;
 			}
 			else if (c < 0x7FFFFFFFULL)
 			{
-				ds[0] = static_cast<vuint8_t>((c >> 30) & 0b00000001);
-				ds[1] = static_cast<vuint8_t>((c >> 24) & 0b00111111);
-				ds[2] = static_cast<vuint8_t>((c >> 18) & 0b00111111);
-				ds[3] = static_cast<vuint8_t>((c >> 12) & 0b00111111);
-				ds[4] = static_cast<vuint8_t>((c >> 6) & 0b00111111);
-				ds[5] = static_cast<vuint8_t>(c & 0b00111111);
+				ds[0] = static_cast<vuint8_t>((c >> 30) | 0b11111100);
+				ds[1] = static_cast<vuint8_t>(((c >> 24) & 0b00111111) | 0b10000000);
+				ds[2] = static_cast<vuint8_t>(((c >> 18) & 0b00111111) | 0b10000000);
+				ds[3] = static_cast<vuint8_t>(((c >> 12) & 0b00111111) | 0b10000000);
+				ds[4] = static_cast<vuint8_t>(((c >> 6) & 0b00111111) | 0b10000000);
+				ds[5] = static_cast<vuint8_t>((c & 0b00111111) | 0b10000000);
 				return 5;
 			}
 			else
@@ -168,10 +168,36 @@ UtfConversion<char16_t>
 		vint UtfConversion<char16_t>::From32(char32_t source, char16_t(&dest)[BufferLength])
 		{
 			if (IsInvalid(source)) return -1;
+			vuint64_t c = reinterpret_cast<vuint64_t&>(source);
+			vuint16_t(&ds)[BufferLength] = reinterpret_cast<vuint16_t(&)[BufferLength]>(dest);
+
+			if (0x000000ULL <= c && c <= 0x00D7FFULL)
+			{
+				ds[0] = static_cast<vuint16_t>(c);
+				return 1;
+			}
+			else if (0x00E000ULL <= c && c <= 0x00FFFFULL)
+			{
+				ds[0] = static_cast<vuint16_t>(c);
+				return 1;
+			}
+			else if (0x010000ULL <= c && c <= 0x10FFFFULL)
+			{
+				c -= 0x010000FULL;
+				ds[0] = static_cast<vuint16_t>((c >> 10) | 0xD800U);
+				ds[1] = static_cast<vuint16_t>((c & 0x03FFU) | 0xDC00U);
+				return 2;
+			}
+			else
+			{
+				return -1;
+			}
 		}
 
 		vint UtfConversion<char16_t>::To32(const char16_t(&source)[BufferLength], char32_t& dest)
 		{
+			const vuint16_t(&cs)[BufferLength] = reinterpret_cast<const vuint16_t(&)[BufferLength]>(source);
+			vuint64_t& d = reinterpret_cast<vuint64_t&>(dest);
 			if (IsInvalid(dest)) return -1;
 		}
 	}
