@@ -28,11 +28,12 @@ UtfConversion<wchar_t>
 #endif
 		}
 
-		vint UtfConversion<wchar_t>::To32(const wchar_t(&source)[BufferLength], char32_t& dest)
+		vint UtfConversion<wchar_t>::To32(const wchar_t* source, vint sourceLength, char32_t& dest)
 		{
 #if defined VCZH_WCHAR_UTF16
-			return UtfConversion<char16_t>::To32(reinterpret_cast<const char16_t(&)[BufferLength]>(source), dest);
+			return UtfConversion<char16_t>::To32(reinterpret_cast<const char16_t*>(source), sourceLength, dest);
 #elif defined VCZH_WCHAR_UTF32
+			if (sourceLength <= 0) return -1;
 			dest = reinterpret_cast<const char32_t(&)[BufferLength]>(source)[0];
 			return 1;
 #endif
@@ -109,49 +110,61 @@ UtfConversion<char8_t>
 			}
 		}
 
-		vint UtfConversion<char8_t>::To32(const char8_t(&source)[BufferLength], char32_t& dest)
+		vint UtfConversion<char8_t>::To32(const char8_t* source, vint sourceLength, char32_t& dest)
 		{
 			const vuint8_t(&cs)[BufferLength] = reinterpret_cast<const vuint8_t(&)[BufferLength]>(source);
 			vuint64_t& d = reinterpret_cast<vuint64_t&>(dest);
+			if (sourceLength <= 0) return -1;
 
 			if (cs[0] < 0b10000000U)
 			{
 				d = cs[0];
+				return 1;
 			}
 			else if (cs[0] < 0b11100000U)
 			{
+				if (sourceLength < 2) return -1;
 				d = ((static_cast<vuint64_t>(cs[0]) & 0b00011111U) << 6) |
 					((static_cast<vuint64_t>(cs[1]) & 0b00111111U));
+				return 2;
 			}
 			else if (cs[0] < 0b11110000U)
 			{
+				if (sourceLength < 3) return -1;
 				d = ((static_cast<vuint64_t>(cs[0]) & 0b00001111U) << 12) |
 					((static_cast<vuint64_t>(cs[1]) & 0b00111111U) << 6) |
 					((static_cast<vuint64_t>(cs[2]) & 0b00111111U));
+				return 3;
 			}
 			else if (cs[0] < 0b11111000U)
 			{
+				if (sourceLength < 4) return -1;
 				d = ((static_cast<vuint64_t>(cs[0]) & 0b00000111U) << 18) |
 					((static_cast<vuint64_t>(cs[1]) & 0b00111111U) << 12) |
 					((static_cast<vuint64_t>(cs[2]) & 0b00111111U) << 6) |
 					((static_cast<vuint64_t>(cs[3]) & 0b00111111U));
+				return 4;
 			}
 			else if (cs[0] < 0b11111100U)
 			{
+				if (sourceLength < 5) return -1;
 				d = ((static_cast<vuint64_t>(cs[0]) & 0b00000011U) << 24) |
 					((static_cast<vuint64_t>(cs[1]) & 0b00111111U) << 18) |
 					((static_cast<vuint64_t>(cs[2]) & 0b00111111U) << 12) |
 					((static_cast<vuint64_t>(cs[3]) & 0b00111111U) << 6) |
 					((static_cast<vuint64_t>(cs[4]) & 0b00111111U));
+				return 5;
 			}
 			else
 			{
+				if (sourceLength < 6) return -1;
 				d = ((static_cast<vuint64_t>(cs[0]) & 0b00000001U) << 30) |
 					((static_cast<vuint64_t>(cs[1]) & 0b00111111U) << 24) |
 					((static_cast<vuint64_t>(cs[2]) & 0b00111111U) << 18) |
 					((static_cast<vuint64_t>(cs[3]) & 0b00111111U) << 12) |
 					((static_cast<vuint64_t>(cs[4]) & 0b00111111U) << 6) |
 					((static_cast<vuint64_t>(cs[5]) & 0b00111111U));
+				return 6;
 			}
 			if (IsInvalid(dest)) return -1;
 			return 1;
@@ -194,20 +207,25 @@ UtfConversion<char16_t>
 			}
 		}
 
-		vint UtfConversion<char16_t>::To32(const char16_t(&source)[BufferLength], char32_t& dest)
+		vint UtfConversion<char16_t>::To32(const char16_t* source, vint sourceLength, char32_t& dest)
 		{
 			const vuint16_t(&cs)[BufferLength] = reinterpret_cast<const vuint16_t(&)[BufferLength]>(source);
 			vuint64_t& d = reinterpret_cast<vuint64_t&>(dest);
+			if (sourceLength <= 0) return -1;
+
 			if ((cs[0] & 0xFC00U) == 0xD800U && (cs[1] & 0xFC00U) == 0xDC00U)
 			{
+				if (sourceLength < 2) return -1;
 				d = 0x010000FULL + (
 					((static_cast<vuint32_t>(cs[0]) & 0x03FF) << 10) |
 					(static_cast<vuint32_t>(cs[1]) & 0x03FF)
 					);
+				return 2;
 			}
 			else
 			{
 				d = cs[0];
+				return 1;
 			}
 			if (IsInvalid(dest)) return -1;
 			return 1;

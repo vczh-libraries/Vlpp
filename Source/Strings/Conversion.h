@@ -30,7 +30,7 @@ UtfConversion<T>
 #endif
 
 			static vint				From32(char32_t source, wchar_t(&dest)[BufferLength]);
-			static vint				To32(const wchar_t(&source)[BufferLength], char32_t& dest);
+			static vint				To32(const wchar_t* source, vint sourceLength, char32_t& dest);
 		};
 
 		template<>
@@ -39,7 +39,7 @@ UtfConversion<T>
 			static const vint		BufferLength = 6;
 
 			static vint				From32(char32_t source, char8_t(&dest)[BufferLength]);
-			static vint				To32(const char8_t(&source)[BufferLength], char32_t& dest);
+			static vint				To32(const char8_t* source, vint sourceLength, char32_t& dest);
 		};
 
 		template<>
@@ -48,7 +48,7 @@ UtfConversion<T>
 			static const vint		BufferLength = 2;
 
 			static vint				From32(char32_t source, char16_t(&dest)[BufferLength]);
-			static vint				To32(const char16_t(&source)[BufferLength], char32_t& dest);
+			static vint				To32(const char16_t* source, vint sourceLength, char32_t& dest);
 		};
 
 /***********************************************************************
