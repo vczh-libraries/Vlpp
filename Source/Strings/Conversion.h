@@ -286,10 +286,10 @@ String Conversions (unicode indirect)
 ***********************************************************************/
 
 	extern U8String				wtou8	(const WString& source);
-	extern U16String			wtou16	(const WString& source);
 	extern WString				u8tow	(const U8String& source);
-	extern U16String			u8tou16	(const U8String& source);
+	extern U16String			wtou16	(const WString& source);
 	extern WString				u16tow	(const U16String& source);
+	extern U16String			u8tou16	(const U8String& source);
 	extern U8String				u16tou8	(const U16String& source);
 
 /***********************************************************************

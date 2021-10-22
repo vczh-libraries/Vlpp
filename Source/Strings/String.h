@@ -19,6 +19,8 @@ namespace vl
 	template<typename T>
 	class ObjectString : public Object
 	{
+		template<typename T2>
+		friend class ObjectString;
 	private:
 		static const T				zero;
 
@@ -176,6 +178,19 @@ namespace vl
 			Dec();
 		}
 
+		/// <summary>Copy a string.</summary>
+		/// <param name="_buffer">Memory to copy. It must be zero terminated.</param>
+		ObjectString(const T* _buffer)
+		{
+			CHECK_ERROR(_buffer != 0, L"ObjectString<T>::ObjectString(const T*)#Cannot construct a string from nullptr.");
+			counter = new vint(1);
+			start = 0;
+			length = CalculateLength(_buffer);
+			buffer = new T[length + 1];
+			memcpy(buffer, _buffer, sizeof(T) * (length + 1));
+			realLength = length;
+		}
+
 		/// <summary>Take over a character pointer with known length.</summary>
 		/// <returns>The created string.</returns>
 		/// <param name="_buffer">The zero-terminated character buffer which should be created using the global operator new[].</param>
@@ -241,18 +256,26 @@ namespace vl
 			str.realLength = str.length;
 			return MoveValue(str);
 		}
-		
-		/// <summary>Copy a string.</summary>
-		/// <param name="_buffer">Memory to copy. It must be zero terminated.</param>
-		ObjectString(const T* _buffer)
+
+		/// <summary>
+		/// Unsafe convert one string to another if their character components are in the same size.
+		/// </summary>
+		/// <typeparam name="T2">The type of the character component of the string to cast.</typeparam>
+		/// <returns>The created string</returns>
+		/// <param name="_string">The string to cast</param>
+		template<typename T2>
+		static ObjectString<T> UnsafeCastFrom(const ObjectString<T2>& _string)
 		{
-			CHECK_ERROR(_buffer != 0, L"ObjectString<T>::ObjectString(const T*)#Cannot construct a string from nullptr.");
-			counter = new vint(1);
-			start = 0;
-			length = CalculateLength(_buffer);
-			buffer = new T[length + 1];
-			memcpy(buffer, _buffer, sizeof(T) * (length + 1));
-			realLength = length;
+			static_assert(sizeof(T) == sizeof(T2), "ObjectString<T>::UnsafeCastFrom<T2> cannot be used on a string with a different size of the character component.");
+			if (_string.Length() == 0) return {};
+			ObjectString<T> str;
+			str.buffer = (T*)_string.buffer;
+			str.counter = _string.counter;
+			str.start = _string.start;
+			str.length = _string.length;
+			str.realLength = _string.realLength;
+			str.Inc();
+			return MoveValue(str);
 		}
 
 		/// <summary>

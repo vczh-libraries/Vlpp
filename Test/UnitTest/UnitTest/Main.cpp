@@ -3,7 +3,7 @@
 
 using namespace vl;
 
-int wmain(vint argc , wchar_t* argv[])
+int wmain(int argc , wchar_t* argv[])
 {
 	int result = unittest::UnitTest::RunAndDisposeTests(argc, argv);
 	FinalizeGlobalStorage();

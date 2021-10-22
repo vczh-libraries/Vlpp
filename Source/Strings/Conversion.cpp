@@ -332,8 +332,13 @@ String Conversions (direct)
 
 	AString					wtoa	(const WString& source)		{ return ConvertStringDirect<wchar_t, char, _wtoa>(source); }
 	WString					atow	(const AString& source)		{ return ConvertStringDirect<char, wchar_t, _atow>(source); }
+#if defined VCZH_WCHAR_UTF16
 	U32String				wtou32	(const WString& source)		{ return ConvertStringDirect<wchar_t, char32_t, _utftou32<wchar_t>>(source); }
 	WString					u32tow	(const U32String& source)	{ return ConvertStringDirect<char32_t, wchar_t, _u32toutf<wchar_t>>(source); }
+#elif defined VCZH_WCHAR_UTF32
+	U32String				wtou32	(const WString& source)		{ return U32String::UnsafeCastFrom(source); }
+	WString					u32tow	(const U32String& source)	{ return WString::UnsafeCastFrom(source); }
+#endif
 	U32String				u8tou32	(const U8String& source)	{ return ConvertStringDirect<char8_t, char32_t, _utftou32<char8_t>>(source); }
 	U8String				u32tou8	(const U32String& source)	{ return ConvertStringDirect<char32_t, char8_t, _u32toutf<char8_t>>(source); }
 	U32String				u16tou32(const U16String& source)	{ return ConvertStringDirect<char16_t, char32_t, _utftou32<char16_t>>(source); }
@@ -361,9 +366,14 @@ String Conversions (unicode indirect)
 ***********************************************************************/
 
 	U8String				wtou8	(const WString& source)		{ return ConvertStringDirect<wchar_t, char8_t, _utftoutf<wchar_t, char8_t>>(source); }
-	U16String				wtou16	(const WString& source)		{ return ConvertStringDirect<wchar_t, char16_t, _utftoutf<wchar_t, char16_t>>(source); }
 	WString					u8tow	(const U8String& source)	{ return ConvertStringDirect<char8_t, wchar_t, _utftoutf<char8_t, wchar_t>>(source); }
-	U16String				u8tou16	(const U8String& source)	{ return ConvertStringDirect<char8_t, char16_t, _utftoutf<char8_t, char16_t>>(source); }
+#if defined VCZH_WCHAR_UTF16
+	U16String				wtou16	(const WString& source)		{ return U16String::UnsafeCastFrom(source); }
+	WString					u16tow	(const U16String& source)	{ return WString::UnsafeCastFrom(source); }
+#elif defined VCZH_WCHAR_UTF32
+	U16String				wtou16	(const WString& source)		{ return ConvertStringDirect<wchar_t, char16_t, _utftoutf<wchar_t, char16_t>>(source); }
 	WString					u16tow	(const U16String& source)	{ return ConvertStringDirect<char16_t, wchar_t, _utftoutf<char16_t, wchar_t>>(source); }
+#endif
+	U16String				u8tou16	(const U8String& source)	{ return ConvertStringDirect<char8_t, char16_t, _utftoutf<char8_t, char16_t>>(source); }
 	U8String				u16tou8	(const U16String& source)	{ return ConvertStringDirect<char16_t, char8_t, _utftoutf<char16_t, char8_t>>(source); }
 }
