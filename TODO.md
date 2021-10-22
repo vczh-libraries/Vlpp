@@ -2,6 +2,11 @@
 
 ## 2.0
 
+- Nest `UtfStringTo32Reader<T>` and `UtfStringFrom32Reader<T>` together to implement conversion between `wchar_t`, `char8_t` and `char16_t`.
+  - Such constructions could be reused by `vl::stream` for unicode encoders and decoders.
+- Optimize and eliminate unnecessary calculation when:
+  - `VCZH_WCHAR_UTF16`
+  - `VCZH_WCHAR_UTF32`
 - Remove `FOREACH` and `FOREACH_INDEXER`, replaced by range-based for loop.
 - Fix `Linq` so that lambda parameters can be `auto`.
 - Open backdoor for reflection implementation.
