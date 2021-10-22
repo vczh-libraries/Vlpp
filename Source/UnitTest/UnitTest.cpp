@@ -5,6 +5,7 @@ Licensed under https://github.com/vczh-libraries/License
 
 #include "UnitTest.h"
 #include "../Console.h"
+#include "../Strings/Conversion.h"
 #ifdef VCZH_MSVC
 #include <Windows.h>
 #endif

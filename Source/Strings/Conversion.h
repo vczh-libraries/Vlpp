@@ -188,6 +188,29 @@ UtfStringTo32Reader<T> and UtfStringFrom32Reader<T>
 			}
 		};
 	}
+
+/***********************************************************************
+String Conversions (char <--> wchar_t)
+***********************************************************************/
+
+	extern vint					_wtoa(const wchar_t* w, char* a, vint chars);
+	/// <summary>Convert a Unicode string to an Ansi string.</summary>
+	/// <returns>The converted string.</returns>
+	/// <param name="string">The string to convert.</param>
+	extern AString				wtoa(const WString& string);
+	extern vint					_atow(const char* a, wchar_t* w, vint chars);
+	/// <summary>Convert an Ansi string to an Unicode string.</summary>
+	/// <returns>The converted string.</returns>
+	/// <param name="string">The string to convert.</param>
+	extern WString				atow(const AString& string);
+
+/***********************************************************************
+String Conversions (wchar_t/char8_t/char16_t <--> char32_t)
+***********************************************************************/
+
+/***********************************************************************
+String Conversions (others)
+***********************************************************************/
 }
 
 #endif

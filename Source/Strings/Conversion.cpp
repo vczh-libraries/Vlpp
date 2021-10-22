@@ -4,6 +4,13 @@ Licensed under https://github.com/vczh-libraries/License
 ***********************************************************************/
 
 #include "Conversion.h"
+#if defined VCZH_MSVC
+#include <Windows.h>
+#elif defined VCZH_GCC
+#include <stdio.h>
+#include <ctype.h>
+#include <wctype.h>
+#endif
 
 namespace vl
 {
@@ -241,4 +248,56 @@ UtfConversion<char16_t>
 			}
 		}
 	}
+
+/***********************************************************************
+String Conversions (char <--> wchar_t)
+***********************************************************************/
+
+	vint _wtoa(const wchar_t* w, char* a, vint chars)
+	{
+#if defined VCZH_MSVC
+		return WideCharToMultiByte(CP_THREAD_ACP, 0, w, -1, a, (int)(a ? chars : 0), 0, 0);
+#elif defined VCZH_GCC
+		return wcstombs(a, w, chars - 1) + 1;
+#endif
+	}
+
+	AString wtoa(const WString& string)
+	{
+		vint len = _wtoa(string.Buffer(), 0, 0);
+		char* buffer = new char[len];
+		memset(buffer, 0, len * sizeof(*buffer));
+		_wtoa(string.Buffer(), buffer, (int)len);
+		AString s = buffer;
+		delete[] buffer;
+		return s;
+	}
+
+	vint _atow(const char* a, wchar_t* w, vint chars)
+	{
+#if defined VCZH_MSVC
+		return MultiByteToWideChar(CP_THREAD_ACP, 0, a, -1, w, (int)(w ? chars : 0));
+#elif defined VCZH_GCC
+		return mbstowcs(w, a, chars - 1) + 1;
+#endif
+	}
+
+	WString atow(const AString& string)
+	{
+		vint len = _atow(string.Buffer(), 0, 0);
+		wchar_t* buffer = new wchar_t[len];
+		memset(buffer, 0, len * sizeof(*buffer));
+		_atow(string.Buffer(), buffer, (int)len);
+		WString s = buffer;
+		delete[] buffer;
+		return s;
+	}
+
+/***********************************************************************
+String Conversions (wchar_t/char8_t/char16_t <--> char32_t)
+***********************************************************************/
+
+/***********************************************************************
+String Conversions (others)
+***********************************************************************/
 }
