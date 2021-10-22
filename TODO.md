@@ -2,8 +2,6 @@
 
 ## 2.0
 
-- String conversion
-  - All conversion functions between `AString`, `WString`, `U8String`, `U16String`, `U32String`.
 - Remove `FOREACH` and `FOREACH_INDEXER`, replaced by range-based for loop.
 - Fix `Linq` so that lambda parameters can be `auto`.
 - Open backdoor for reflection implementation.
