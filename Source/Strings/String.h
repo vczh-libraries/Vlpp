@@ -91,17 +91,17 @@ namespace vl
 			}
 		}
 
-		ObjectString(const ObjectString<T>& string, vint _start, vint _length)
+		ObjectString<T> SubUnsafe(vint _start, vint _length)const
 		{
-			if (_length > 0)
-			{
-				buffer = string.buffer;
-				counter = string.counter;
-				start = string.start + _start;
-				length = _length;
-				realLength = string.realLength;
-				Inc();
-			}
+			if (_length <= 0) return {};
+			ObjectString<T> str;
+			str.buffer = buffer;
+			str.counter = counter;
+			str.start = start + _start;
+			str.length = _length;
+			str.realLength = realLength;
+			Inc();
+			return MoveValue(str);
 		}
 
 		ObjectString(const ObjectString<T>& dest, const ObjectString<T>& source, vint index, vint count)
@@ -429,7 +429,7 @@ namespace vl
 		ObjectString<T> Left(vint count)const
 		{
 			CHECK_ERROR(count>=0 && count<=length, L"ObjectString<T>::Left(vint)#Argument count not in range.");
-			return ObjectString<T>(*this, 0, count);
+			return SubUnsafe(0, count);
 		}
 		
 		/// <summary>Get the postfix of the string.</summary>
@@ -445,7 +445,7 @@ namespace vl
 		ObjectString<T> Right(vint count)const
 		{
 			CHECK_ERROR(count>=0 && count<=length, L"ObjectString<T>::Right(vint)#Argument count not in range.");
-			return ObjectString<T>(*this, length-count, count);
+			return SubUnsafe(length-count, count);
 		}
 		
 		/// <summary>Get a sub string.</summary>
@@ -463,7 +463,7 @@ namespace vl
 		{
 			CHECK_ERROR(index>=0 && index<=length, L"ObjectString<T>::Sub(vint, vint)#Argument index not in range.");
 			CHECK_ERROR(index+count>=0 && index+count<=length, L"ObjectString<T>::Sub(vint, vint)#Argument count not in range.");
-			return ObjectString<T>(*this, index, count);
+			return SubUnsafe(index, count);
 		}
 
 		/// <summary>Get a string by removing a sub string.</summary>
