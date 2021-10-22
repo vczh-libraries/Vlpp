@@ -239,14 +239,8 @@ String Conversions (direct)
 	extern template U32String	ConvertStringDirect<char16_t, char32_t, _utftou32<char16_t>>(const U16String& source);
 	extern template U16String	ConvertStringDirect<char32_t, char16_t, _u32toutf<char16_t>>(const U32String& source);
 
-	/// <summary>Convert a Unicode string to an Ansi string.</summary>
-	/// <returns>The converted string.</returns>
-	/// <param name="string">The string to convert.</param>
-	extern AString				wtoa(const WString& string);
-	/// <summary>Convert an Ansi string to an Unicode string.</summary>
-	/// <returns>The converted string.</returns>
-	/// <param name="string">The string to convert.</param>
-	extern WString				atow(const AString& string);
+	constexpr auto& wtoa = ConvertStringDirect<wchar_t, char, _wtoa>;
+	constexpr auto& atow = ConvertStringDirect<char, wchar_t, _atow>;
 
 /***********************************************************************
 String Conversions (indirect)

@@ -289,6 +289,7 @@ String Conversions (buffer walkthrough)
 				auto c = reader.Read();
 				*d++ = c;
 				size++;
+				chars--;
 				if (!c) break;
 			}
 			return reader.HasIllegalChar() ? -1 : size;
@@ -326,7 +327,7 @@ String Conversions (char <--> wchar_t)
 		TTo* buffer = new TTo[len];
 		memset(buffer, 0, len * sizeof(TTo));
 		Convert(source.Buffer(), buffer, len);
-		return ObjectString<TTo>::TakeOver(buffer, len);
+		return ObjectString<TTo>::TakeOver(buffer, len - 1);
 	}
 
 	template AString		ConvertStringDirect<wchar_t, char, _wtoa>(const WString& source);
@@ -337,28 +338,6 @@ String Conversions (char <--> wchar_t)
 	template U8String		ConvertStringDirect<char32_t, char8_t, _u32toutf<char8_t>>(const U32String& source);
 	template U32String		ConvertStringDirect<char16_t, char32_t, _utftou32<char16_t>>(const U16String& source);
 	template U16String		ConvertStringDirect<char32_t, char16_t, _u32toutf<char16_t>>(const U32String& source);
-
-	AString wtoa(const WString& string)
-	{
-		vint len = _wtoa(string.Buffer(), 0, 0);
-		char* buffer = new char[len];
-		memset(buffer, 0, len * sizeof(*buffer));
-		_wtoa(string.Buffer(), buffer, (int)len);
-		AString s = buffer;
-		delete[] buffer;
-		return s;
-	}
-
-	WString atow(const AString& string)
-	{
-		vint len = _atow(string.Buffer(), 0, 0);
-		wchar_t* buffer = new wchar_t[len];
-		memset(buffer, 0, len * sizeof(*buffer));
-		_atow(string.Buffer(), buffer, (int)len);
-		WString s = buffer;
-		delete[] buffer;
-		return s;
-	}
 
 /***********************************************************************
 String Conversions (wchar_t/char8_t/char16_t <--> char32_t)
