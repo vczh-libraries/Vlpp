@@ -35,18 +35,18 @@ namespace vl
 			return result;
 		}
 
-		static vint Compare(const T* bufA, const ObjectString<T>& strB)
+		static vint64_t Compare(const T* bufA, const ObjectString<T>& strB)
 		{
-			const T* bufB=strB.buffer+strB.start;
-			const T* bufAOld=bufA;
-			vint length=strB.length;
-			while(true)
+			const T* bufB = strB.buffer + strB.start;
+			const T* bufAOld = bufA;
+			vint length = strB.length;
+			while (true)
 			{
 				if (*bufA && length)
 				{
 					length--;
-					vint diff=*bufA++-*bufB++;
-					if(diff!=0)
+					vint64_t diff = (vint64_t)(*bufA++) - (vint64_t)(*bufB++);
+					if (diff != 0)
 					{
 						return diff;
 					}
@@ -68,20 +68,20 @@ namespace vl
 
 	public:
 
-		static vint Compare(const ObjectString<T>& strA, const ObjectString<T>& strB)
+		static vint64_t Compare(const ObjectString<T>& strA, const ObjectString<T>& strB)
 		{
-			const T* bufA=strA.buffer+strA.start;
-			const T* bufB=strB.buffer+strB.start;
-			vint length=strA.length<strB.length?strA.length:strB.length;
-			while(length--)
+			const T* bufA = strA.buffer + strA.start;
+			const T* bufB = strB.buffer + strB.start;
+			vint length = strA.length < strB.length ? strA.length : strB.length;
+			while (length--)
 			{
-				vint diff=*bufA++-*bufB++;
-				if(diff!=0)
+				vint64_t diff = (vint64_t)(*bufA++) - (vint64_t)(*bufB++);
+				if (diff != 0)
 				{
 					return diff;
 				}
 			};
-			return strA.length-strB.length;
+			return strA.length - strB.length;
 		}
 
 	private:
