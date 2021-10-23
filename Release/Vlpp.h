@@ -6380,7 +6380,7 @@ namespace vl
 		/// </summary>
 		/// <returns>The created string.</returns>
 		/// <param name="_buffer">Unmanaged memory. It must be zero terminated.</param>
-		static ObjectString<T> Unmanaged(const T* _buffer, bool copy = true)
+		static ObjectString<T> Unmanaged(const T* _buffer)
 		{
 			CHECK_ERROR(_buffer != 0, L"ObjectString<T>::Unmanaged(const T*)#Cannot construct a string from nullptr.");
 			ObjectString<T> str;
