@@ -5,6 +5,7 @@ Licensed under https://github.com/vczh-libraries/License
 
 #include <string.h>
 #include <time.h>
+#include <stdlib.h>
 #include "LoremIpsum.h"
 
 namespace vl
