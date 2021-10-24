@@ -491,6 +491,28 @@ TEST_FILE
 		CHECK_DICTIONARY_ITEMS(b, {0 _ 1 _ 2 _ 3 _ 4 _ 5 _ 6 _ 7 _ 8 _ 9}, {0 _ 1 _ 4 _ 9 _ 16 _ 25 _ 36 _ 49 _ 64 _ 81});
 	});
 
+	TEST_CASE(L"Test for loop on Linq")
+	{
+		List<vint> a, b;
+		for (vint i = 0; i < 10; i++) a.Add(i);
+		for (auto i : From(a).Where([](vint x) {return x % 2 == 0; }))
+		{
+			b.Add(i);
+		}
+		CHECK_LIST_ITEMS(b, { 0 _ 2 _ 4 _ 6 _ 8 });
+	});
+
+	TEST_CASE(L"Test indexed for loop on Linq")
+	{
+		List<vint> a, b;
+		for (vint i = 0; i < 10; i++) a.Add(i);
+		for (auto [i, j] : indexed(From(a).Where([](vint x) {return x % 2 == 0; })))
+		{
+			b.Add(i * 10 + j);
+		}
+		CHECK_LIST_ITEMS(b, { 0 _ 21 _ 42 _ 63 _ 84 });
+	});
+
 	TEST_CASE(L"Test Range<T>()")
 	{
 		List<vint> list;
