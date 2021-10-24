@@ -6,7 +6,6 @@ Licensed under https://github.com/vczh-libraries/License
 #ifndef VCZH_COLLECTIONS_FOREACH
 #define VCZH_COLLECTIONS_FOREACH
 #include "../Basic.h"
-#include "../Pointer.h"
 #include "Interfaces.h"
 
 namespace vl
@@ -14,80 +13,19 @@ namespace vl
 	namespace collections
 	{
 
-/***********************************************************************
-ForEachIterator
-***********************************************************************/
-
-		template<typename T>
-		class ForEachIterator : public Object
-		{
-		public:
-			virtual bool				Next(T& variable)const=0;
-
-			operator bool()const
-			{
-				return true;
-			}
-		};
-
-/***********************************************************************
-ForEachIterator for IEnumerable
-***********************************************************************/
-
-		template<typename T>
-		class EnumerableForEachIterator : public ForEachIterator<T>
-		{
-		protected:
-			Ptr<IEnumerator<T>>			enumerator;
-		public:
-			EnumerableForEachIterator(const IEnumerable<T>& enumerable)
-				:enumerator(enumerable.CreateEnumerator())
-			{
-			}
-
-			EnumerableForEachIterator(const EnumerableForEachIterator<T>& enumerableIterator)
-				:enumerator(enumerableIterator.enumerator)
-			{
-			}
-
-			bool Next(T& variable)const
-			{
-				if(enumerator->Next())
-				{
-					variable=enumerator->Current();
-					return true;
-				}
-				else
-				{
-					return false;
-				}
-			}
-		};
-
-		template<typename T>
-		EnumerableForEachIterator<T> CreateForEachIterator(const IEnumerable<T>& enumerable)
-		{
-			return enumerable;
-		}
-
-/***********************************************************************
-FOREACH and FOREACH_INDEXER
-***********************************************************************/
-
-#define FOREACH(TYPE, VARIABLE, COLLECTION) for (auto& VARIABLE : COLLECTION)
+#define FOREACH(TYPE, VARIABLE, COLLECTION)\
+		for (auto& VARIABLE : COLLECTION)
 
 #define FOREACH_INDEXER(TYPE, VARIABLE, INDEXER, COLLECTION)\
-		SCOPE_VARIABLE(const ::vl::collections::ForEachIterator<TYPE>&, __foreach_iterator__, ::vl::collections::CreateForEachIterator(COLLECTION))\
-		SCOPE_VARIABLE(vint, INDEXER, 0)\
-		for(TYPE VARIABLE;__foreach_iterator__.Next(VARIABLE);INDEXER++)
-
-/***********************************************************************
-Range-Based For-Loop Iterator
-***********************************************************************/
+		for (auto [VARIABLE, INDEXER] : ::vl::collections::indexed(COLLECTION))
 
 		struct RangeBasedForLoopEnding
 		{
 		};
+
+/***********************************************************************
+Range-Based For-Loop Iterator
+***********************************************************************/
 
 		template<typename T>
 		struct RangeBasedForLoopIterator
@@ -138,7 +76,96 @@ Range-Based For-Loop Iterator
 		{
 			return {};
 		}
+
+/***********************************************************************
+Range-Based For-Loop Iterator with Index
+***********************************************************************/
+
+		template<typename T>
+		struct RangeBasedForLoopIteratorWithIndex
+		{
+			struct Tuple
+			{
+				const T&			value;
+				vint				index;
+
+				Tuple(const T& _value, vint _index)
+					: value(_value)
+					, index(_index)
+				{
+				}
+			};
+		private:
+			IEnumerator<T>*			iterator;
+			vint					index;
+
+		public:
+			RangeBasedForLoopIteratorWithIndex(const IEnumerable<T>& enumerable)
+				: iterator(enumerable.CreateEnumerator())
+				, index(-1)
+			{
+				operator++();
+			}
+
+			~RangeBasedForLoopIteratorWithIndex()
+			{
+				if (iterator) delete iterator;
+			}
+
+			void operator++()
+			{
+				if (!iterator->Next())
+				{
+					delete iterator;
+					iterator = nullptr;
+				}
+				index++;
+			}
+
+			Tuple operator*() const
+			{
+				return { iterator->Current(),index };
+			}
+
+			bool operator==(RangeBasedForLoopEnding) const
+			{
+				return iterator == nullptr;
+			}
+		};
+
+		template<typename T>
+		struct EnumerableWithIndex
+		{
+			const IEnumerable<T>&	enumerable;
+
+			EnumerableWithIndex(const IEnumerable<T>& _enumerable)
+				: enumerable(_enumerable)
+			{
+			}
+		};
+
+		template<typename T>
+		EnumerableWithIndex<T> indexed(const IEnumerable<T>& enumerable)
+		{
+			return { enumerable };
+		}
+
+		template<typename T>
+		RangeBasedForLoopIteratorWithIndex<T> begin(const EnumerableWithIndex<T>& enumerable)
+		{
+			return { enumerable.enumerable };
+		}
+
+		template<typename T>
+		RangeBasedForLoopEnding end(const EnumerableWithIndex<T>& enumerable)
+		{
+			return {};
+		}
 	}
 }
+
+/***********************************************************************
+Structured Binding
+***********************************************************************/
 
 #endif
