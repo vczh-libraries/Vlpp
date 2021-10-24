@@ -45,8 +45,8 @@ Functions:
 	From(array) => [T]
 	Range(start, count) => [vint]
 
-	FOREACH(X, a, XList)
-	FOREACH_INDEXER(X, a, index, XList)
+	for (auto x : xs);
+	for (auto [x, i] : indexed(xs));
 ***********************************************************************/
 
 #ifndef VCZH_COLLECTIONS_OPERATION
@@ -227,7 +227,7 @@ LazyList
 			/// {
 			///     vint xs[] = {1, 2, 3, 4, 5};
 			///     auto ys = From(xs).Select([](vint x){ return x * 2; });
-			///     FOREACH(vint, y, ys) Console::Write(itow(y) + L" ");
+			///     for (auto y : ys) Console::Write(itow(y) + L" ");
 			/// }
 			/// ]]></example>
 			template<typename F>
@@ -245,7 +245,7 @@ LazyList
 			/// {
 			///     vint xs[] = {1, 2, 3, 4, 5};
 			///     auto ys = From(xs).Where([](vint x){ return x % 2 == 0; });
-			///     FOREACH(vint, y, ys) Console::Write(itow(y) + L" ");
+			///     for (auto y : ys) Console::Write(itow(y) + L" ");
 			/// }
 			/// ]]></example>
 			template<typename F>
@@ -298,7 +298,7 @@ LazyList
 			/// {
 			///     vint xs[] = {1, 2, 3, 4, 5};
 			///     auto ys = From(xs).OrderBy([](vint x, vint y){ return x - y; });
-			///     FOREACH(vint, y, ys) Console::Write(itow(y) + L" ");
+			///     for (auto y : ys) Console::Write(itow(y) + L" ");
 			/// }
 			/// ]]></example>
 			template<typename F>
@@ -371,9 +371,9 @@ LazyList
 			template<typename I, typename F>
 			I Aggregate(I init, F f)const
 			{
-				FOREACH(T, t, *this)
+				for (auto& t : *this)
 				{
-					init=f(init, t);
+					init = f(init, t);
 				}
 				return init;
 			}
@@ -534,7 +534,7 @@ LazyList
 			///     vint xs[] = {1, 2, 3, 4, 5};
 			///     vint ys[] = {6, 7, 8, 9, 10};
 			///     auto zs = From(xs).Concat(From(ys));
-			///     FOREACH(vint, z, zs) Console::Write(itow(z) + L" ");
+			///     for (auto z : zs) Console::Write(itow(z) + L" ");
 			/// }
 			/// ]]></example>
 			LazyList<T> Concat(const IEnumerable<T>& remains)const
@@ -550,7 +550,7 @@ LazyList
 			/// {
 			///     vint xs[] = {1, 2, 3, 4, 5};
 			///     auto ys = From(xs).Take(3);
-			///     FOREACH(vint, y, ys) Console::Write(itow(y) + L" ");
+			///     for (auto y : ys) Console::Write(itow(y) + L" ");
 			/// }
 			/// ]]></example>
 			LazyList<T> Take(vint count)const
@@ -566,7 +566,7 @@ LazyList
 			/// {
 			///     vint xs[] = {1, 2, 3, 4, 5};
 			///     auto ys = From(xs).Skip(3);
-			///     FOREACH(vint, y, ys) Console::Write(itow(y) + L" ");
+			///     for (auto y : ys) Console::Write(itow(y) + L" ");
 			/// }
 			/// ]]></example>
 			LazyList<T> Skip(vint count)const
@@ -582,7 +582,7 @@ LazyList
 			/// {
 			///     vint xs[] = {1, 2, 3, 4, 5};
 			///     auto ys = From(xs).Repeat(3);
-			///     FOREACH(vint, y, ys) Console::Write(itow(y) + L" ");
+			///     for (auto y : ys) Console::Write(itow(y) + L" ");
 			/// }
 			/// ]]></example>
 			LazyList<T> Repeat(vint count)const
@@ -597,7 +597,7 @@ LazyList
 			/// {
 			///     vint xs[] = {1, 2, 2, 3, 3, 3, 4, 4, 5};
 			///     auto ys = From(xs).Distinct();
-			///     FOREACH(vint, y, ys) Console::Write(itow(y) + L" ");
+			///     for (auto y : ys) Console::Write(itow(y) + L" ");
 			/// }
 			/// ]]></example>
 			LazyList<T> Distinct()const
@@ -612,7 +612,7 @@ LazyList
 			/// {
 			///     vint xs[] = {1, 2, 3, 4, 5};
 			///     auto ys = From(xs).Reverse();
-			///     FOREACH(vint, y, ys) Console::Write(itow(y) + L" ");
+			///     for (auto y : ys) Console::Write(itow(y) + L" ");
 			/// }
 			/// ]]></example>
 			LazyList<T> Reverse()const
@@ -635,7 +635,7 @@ LazyList
 			///     vint xs[] = {1, 2, 3, 4, 5, 6, 7};
 			///     vint ys[] = {60, 70, 80, 90, 100};
 			///     auto zs = From(xs).Pairwise(From(ys)).Select([](Pair<vint, vint> p){ return p.key + p.value; });
-			///     FOREACH(vint, z, zs) Console::Write(itow(z) + L" ");
+			///     for (auto z : zs) Console::Write(itow(z) + L" ");
 			/// }
 			/// ]]></example>
 			template<typename U>
@@ -653,7 +653,7 @@ LazyList
 			///     vint xs[] = {1, 2, 3, 4, 5};
 			///     vint ys[] = {3, 4, 5, 6, 7};
 			///     auto zs = From(xs).Intersect(From(ys));
-			///     FOREACH(vint, z, zs) Console::Write(itow(z) + L" ");
+			///     for (auto z : zs) Console::Write(itow(z) + L" ");
 			/// }
 			/// ]]></example>
 			LazyList<T> Intersect(const IEnumerable<T>& remains)const
@@ -670,7 +670,7 @@ LazyList
 			///     vint xs[] = {1, 2, 3, 4, 5};
 			///     vint ys[] = {3, 4, 5, 6, 7};
 			///     auto zs = From(xs).Except(From(ys));
-			///     FOREACH(vint, z, zs) Console::Write(itow(z) + L" ");
+			///     for (auto z : zs) Console::Write(itow(z) + L" ");
 			/// }
 			/// ]]></example>
 			LazyList<T> Except(const IEnumerable<T>& remains)const
@@ -687,7 +687,7 @@ LazyList
 			///     vint xs[] = {1, 2, 3, 4, 5};
 			///     vint ys[] = {3, 4, 5, 6, 7};
 			///     auto zs = From(xs).Union(From(ys));
-			///     FOREACH(vint, z, zs) Console::Write(itow(z) + L" ");
+			///     for (auto z : zs) Console::Write(itow(z) + L" ");
 			/// }
 			/// ]]></example>
 			LazyList<T> Union(const IEnumerable<T>& remains)const
@@ -743,7 +743,7 @@ LazyList
 			///         vint factors[] = {1, 10, 100};
 			///         return From(factors).Select([=](vint f){ return f * x; }).Evaluate(true);
 			///     });
-			///     FOREACH(vint, y, ys) Console::Write(itow(y) + L" ");
+			///     for (auto y : ys) Console::Write(itow(y) + L" ");
 			/// }
 			/// ]]></example>
 			template<typename F>
@@ -769,10 +769,10 @@ LazyList
 			///     vint xs[] = {1, 2, 3, 4, 5, 6, 7, 8, 9};
 			///     auto ys = From(xs).GroupBy([](vint x){ return x % 3; });
 			///     using TY = Pair<vint, LazyList<vint>>;
-			///     FOREACH(TY, y, ys)
+			///     for (auto y : ys)
 			///     {
 			///         Console::Write(itow(y.key) + L":");
-			///         FOREACH(vint, z, y.value) Console::Write(L" " + itow(z));
+			///         for (auto z : y.value) Console::Write(L" " + itow(z));
 			///         Console::WriteLine(L"");
 			///     }
 			/// }

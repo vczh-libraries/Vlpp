@@ -2,7 +2,6 @@
 
 ## 2.0
 
-- Remove `FOREACH` and `FOREACH_INDEXER`, replaced by range-based for loop.
 - Fix `Linq` so that lambda parameters can be `auto`.
 - Open backdoor for reflection implementation.
   - Each collection class stores a `Ptr<IReflectableCollectionBase>`, if a reflectable object is not created for this instance, it is `nullptr`.

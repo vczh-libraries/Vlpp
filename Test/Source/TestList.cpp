@@ -457,7 +457,7 @@ TEST_FILE
 		TEST_ASSERT(string == L"abcde");
 	});
 
-	TEST_CASE(L"Test FOREACH()")
+	TEST_CASE(L"Test for (auto x : xs)")
 	{
 		List<vint> a;
 		List<vint> b;
@@ -468,15 +468,14 @@ TEST_FILE
 			b.Add(i);
 		}
 
-		FOREACH(vint, i, a)
-			FOREACH(vint, j, b)
-			{
-				c.Add(i + j);
-			}
+		for (auto i : a) for (auto j : b)
+		{
+			c.Add(i + j);
+		}
 		CHECK_LIST_ITEMS(c, {0 _ 1 _ 2 _ 1 _ 2 _ 3 _ 2 _ 3 _ 4});
 	});
 
-	TEST_CASE(L"Test FOREACH_INDEXER()")
+	TEST_CASE(L"Test for (auto [x, i] : indexed(xs))")
 	{
 		List<vint> a;
 		for (vint i = 0; i < 10; i++)
@@ -485,7 +484,7 @@ TEST_FILE
 		}
 		Dictionary<vint, vint> b;
 
-		FOREACH_INDEXER(vint, num, i, a)
+		for (auto [num, i] : indexed(a))
 		{
 			b.Add(i, num);
 		}

@@ -58,7 +58,8 @@ Interfaces
 		
 		/// <summary>
 		/// An enumerable interface representing all types that provide multiple values in order.
-		/// range-based for-loop is not supported on enumerable yet, current we have "FOREACH" and "FOREACH_INDEXER" for iterating values.
+		/// range-based for-loop is available on enumerable yet.
+		/// by applying the indexed function on the collection, a tuple of value and index is returned, structured binding could apply.
 		/// <see cref="CopyFrom`*"/> functions work for all enumerable implementation.
 		/// <see cref="LazyList`1"/> provides high-level operations for enumerables, you can create a lazy list by calling <see cref="From`*"/> on any enumerables.
 		/// </summary>
@@ -74,17 +75,17 @@ Interfaces
 		///     CopyFrom(ys, xs);
 		///
 		///     // print ys
-		///     FOREACH(vint, y, ys)
+		///     for (auto y : ys)
 		///         Console::Write(itow(y) + L" ");
 		///     Console::WriteLine(L"");
 		///
 		///     // print ys, added by the position
-		///     FOREACH_INDEXER(vint, y, i, ys)
+		///     for (auto [y, i] : indexed(ys))
 		///         Console::Write(itow(y + i) + L" ");
 		///     Console::WriteLine(L"");
 		///
 		///     // print all odd numbers in ys
-		///     FOREACH(vint, y, From(ys).Where([](int a){return a % 2 == 1;}))
+		///     for (auto y : From(ys).Where([](int a){return a % 2 == 1;}))
 		///         Console::Write(itow(y) + L" ");
 		///     Console::WriteLine(L"");
 		/// }
@@ -101,7 +102,7 @@ Interfaces
 			/// </summary>
 			/// <remarks>
 			/// In most of the cases, you do not need to call this function.
-			/// "FOREACH", "FOREACH_INDEXER", <see cref="CopyFrom`*"/> and <see cref="LazyList`1"/> do all the jobs for you.
+			/// "for (auto x : xs);", "for (auto [x, i] : indexed(xs));", <see cref="CopyFrom`*"/> and <see cref="LazyList`1"/> do all the jobs for you.
 			/// </remarks>
 			/// <returns>The enumerator.</returns>
 			virtual IEnumerator<T>*						CreateEnumerator()const=0;

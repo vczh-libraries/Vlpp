@@ -12,13 +12,6 @@ namespace vl
 {
 	namespace collections
 	{
-
-#define FOREACH(TYPE, VARIABLE, COLLECTION)\
-		for (auto& VARIABLE : COLLECTION)
-
-#define FOREACH_INDEXER(TYPE, VARIABLE, INDEXER, COLLECTION)\
-		for (auto [VARIABLE, INDEXER] : ::vl::collections::indexed(COLLECTION))
-
 		struct RangeBasedForLoopEnding
 		{
 		};
