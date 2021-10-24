@@ -131,9 +131,9 @@ Quick Sort
 		/// Returns zero when two arguments equal.
 		/// </param>
 		template<typename T>
-		void Sort(T* items, vint length, const Func<vint(T, T)>& orderer)
+		void Sort(T* items, vint length, const Func<vint64_t(T, T)>& orderer)
 		{
-			SortLambda<T, Func<vint(T, T)>>(items, length, orderer);
+			SortLambda<T, Func<vint64_t(T, T)>>(items, length, orderer);
 		}
 
 /***********************************************************************
