@@ -74,14 +74,70 @@ ForEachIterator for IEnumerable
 FOREACH and FOREACH_INDEXER
 ***********************************************************************/
 
-#define FOREACH(TYPE, VARIABLE, COLLECTION)\
-		SCOPE_VARIABLE(const ::vl::collections::ForEachIterator<TYPE>&, __foreach_iterator__, ::vl::collections::CreateForEachIterator(COLLECTION))\
-		for(TYPE VARIABLE;__foreach_iterator__.Next(VARIABLE);)
+#define FOREACH(TYPE, VARIABLE, COLLECTION) for (auto& VARIABLE : COLLECTION)
 
 #define FOREACH_INDEXER(TYPE, VARIABLE, INDEXER, COLLECTION)\
 		SCOPE_VARIABLE(const ::vl::collections::ForEachIterator<TYPE>&, __foreach_iterator__, ::vl::collections::CreateForEachIterator(COLLECTION))\
 		SCOPE_VARIABLE(vint, INDEXER, 0)\
 		for(TYPE VARIABLE;__foreach_iterator__.Next(VARIABLE);INDEXER++)
+
+/***********************************************************************
+Range-Based For-Loop Iterator
+***********************************************************************/
+
+		struct RangeBasedForLoopEnding
+		{
+		};
+
+		template<typename T>
+		struct RangeBasedForLoopIterator
+		{
+		private:
+			IEnumerator<T>*			iterator;
+
+		public:
+			RangeBasedForLoopIterator(const IEnumerable<T>& enumerable)
+				: iterator(enumerable.CreateEnumerator())
+			{
+				operator++();
+			}
+
+			~RangeBasedForLoopIterator()
+			{
+				if (iterator) delete iterator;
+			}
+
+			void operator++()
+			{
+				if (!iterator->Next())
+				{
+					delete iterator;
+					iterator = nullptr;
+				}
+			}
+
+			const T& operator*() const
+			{
+				return iterator->Current();
+			}
+
+			bool operator==(RangeBasedForLoopEnding) const
+			{
+				return iterator == nullptr;
+			}
+		};
+
+		template<typename T>
+		RangeBasedForLoopIterator<T> begin(const IEnumerable<T>& enumerable)
+		{
+			return { enumerable };
+		}
+
+		template<typename T>
+		RangeBasedForLoopEnding end(const IEnumerable<T>& enumerable)
+		{
+			return {};
+		}
 	}
 }
 
