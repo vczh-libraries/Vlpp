@@ -69,6 +69,9 @@ static_assert(false, "wchar_t configuration is not right.");
 #define _UI64_MAX   ((vuint64_t)0xFFFFFFFFFFFFFFFFL)
 #endif
 
+#include <type_traits>
+#include <utility>
+
 #define L_(x) L__(x)
 #define L__(x) L ## x
 
@@ -223,7 +226,7 @@ Basic Types
 		/// <summary>Create a non-null value by moving data.</summary>
 		/// <param name="value">The data to move.</param>
 		Nullable(T&& value)
-			:object(new T(MoveValue(value)))
+			:object(new T(std::move(value)))
 		{
 		}
 
@@ -410,6 +413,7 @@ Interface
 		Interface(const Interface&) = delete;
 		Interface(Interface&&) = delete;
 
+		Interface() = default;
 		virtual ~Interface() = default;
 	};
 }

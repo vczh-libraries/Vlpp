@@ -36,13 +36,15 @@ namespace vl
 	///     FinalizeGlobalStorage();
 	/// }
 	/// ]]></example>
-	class GlobalStorage : public Object, private NotCopyable
+	class GlobalStorage : public Object
 	{
 	private:
 		bool					cleared = false;
 	public:
 		GlobalStorage(const wchar_t* key);
 		~GlobalStorage();
+		GlobalStorage(const GlobalStorage&) = delete;
+		GlobalStorage(GlobalStorage&&) = delete;
 
 		bool					Cleared();
 		virtual void			ClearResource() = 0;

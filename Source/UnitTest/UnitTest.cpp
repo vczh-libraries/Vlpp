@@ -100,7 +100,7 @@ UnitTest
 #ifdef VCZH_MSVC
 				__try
 				{
-					SuppressCppFailure(ForwardValue<TCallback&&>(callback));
+					SuppressCppFailure(std::forward<TCallback&&>(callback));
 				}
 				__except (EXCEPTION_EXECUTE_HANDLER)
 				{
@@ -116,7 +116,7 @@ UnitTest
 			{
 				if (suppressFailure)
 				{
-					SuppressCFailure(ForwardValue<TCallback&&>(callback));
+					SuppressCFailure(std::forward<TCallback&&>(callback));
 				}
 				else
 				{

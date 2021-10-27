@@ -91,7 +91,7 @@ vl::Func<R(TArgs...)>
 
 			R Invoke(TArgs&& ...args)override
 			{
-				return function(ForwardValue<TArgs>(args)...);
+				return function(std::forward<TArgs>(args)...);
 			}
 		};
 
@@ -113,7 +113,7 @@ vl::Func<R(TArgs...)>
 
 			R Invoke(TArgs&& ...args)override
 			{
-				return (sender->*function)(ForwardValue<TArgs>(args)...);
+				return (sender->*function)(std::forward<TArgs>(args)...);
 			}
 		};
 
@@ -132,13 +132,13 @@ vl::Func<R(TArgs...)>
 			}
 
 			ObjectInvoker(C&& _function)
-				:function(MoveValue(_function))
+				:function(std::move(_function))
 			{
 			}
 
 			R Invoke(TArgs&& ...args)override
 			{
-				return function(ForwardValue<TArgs>(args)...);
+				return function(std::forward<TArgs>(args)...);
 			}
 		};
 
@@ -157,13 +157,13 @@ vl::Func<R(TArgs...)>
 			}
 
 			ObjectInvoker(C&& _function)
-				:function(MoveValue(_function))
+				:function(std::move(_function))
 			{
 			}
 
 			void Invoke(TArgs&& ...args)override
 			{
-				function(ForwardValue<TArgs>(args)...);
+				function(std::forward<TArgs>(args)...);
 			}
 		};
 	}
@@ -229,12 +229,12 @@ vl::Func<R(TArgs...)>
 		/// <summary>Create a functor from another compatible functor.</summary>
 		/// <typeparam name="C">Type of the functor to copy.</typeparam>
 		/// <param name="function">The functor to copy. It could be a lambda expression, or any types that has operator() members.</param>
-		template<typename C, typename = typename AcceptType<void, typename ReturnConvertable<decltype(ValueOf<C>()(ValueOf<TArgs>()...)), R>::YesNoType>::Type>
+		template<typename C, typename=std::enable_if<std::is_convertible_v<decltype(std::declval<C>(std::declval<TArgs>()...)), R>>>
 		Func(C&& function)
 		{
 			if (!IsEmptyFunc(function))
 			{
-				invoker = new internal_invokers::ObjectInvoker<typename RemoveCVR<C>::Type, R, TArgs...>(ForwardValue<C&&>(function));
+				invoker = new internal_invokers::ObjectInvoker<std::remove_cvref_t<C>, R, TArgs...>(std::forward<C&&>(function));
 			}
 		}
 
@@ -243,7 +243,7 @@ vl::Func<R(TArgs...)>
 		/// <param name="args">Arguments to invoke the function.</param>
 		R operator()(TArgs ...args)const
 		{
-			return invoker->Invoke(ForwardValue<TArgs>(args)...);
+			return invoker->Invoke(std::forward<TArgs>(args)...);
 		}
 
 		Func<R(TArgs...)>& operator=(const Func<R(TArgs...)>& function)
@@ -254,7 +254,7 @@ vl::Func<R(TArgs...)>
 
 		Func<R(TArgs...)>& operator=(const Func<R(TArgs...)>&& function)
 		{
-			invoker = MoveValue(function.invoker);
+			invoker = std::move(function.invoker);
 			return *this;
 		}
 
@@ -343,7 +343,7 @@ vl::function_binding::Binding<R(TArgs...)>
 			public:
 				Binder(const Func<FunctionType>& _target, T0 _firstArgument)
 					:target(_target)
-					,firstArgument(ForwardValue<T0>(_firstArgument))
+					,firstArgument(std::forward<T0>(_firstArgument))
 				{
 				}
 

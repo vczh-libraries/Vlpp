@@ -28,7 +28,7 @@ ReferenceCounterOperator
 	/// [T:vl.Ptr`1] will always use [T:vl.YesType] as the second type parameter.
 	/// This parameter is useful when you want to do partial specialization in the SFINAE way.
 	/// </typeparam>
-	template<typename T, typename Enabled=YesType>
+	template<typename T, typename=void>
 	struct ReferenceCounterOperator
 	{
 		/// <summary>Create the reference counter of an object.</summary>

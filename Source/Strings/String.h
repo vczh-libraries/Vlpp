@@ -118,7 +118,7 @@ namespace vl
 			str.length = _length;
 			str.realLength = realLength;
 			Inc();
-			return MoveValue(str);
+			return std::move(str);
 		}
 
 		ObjectString<T> ReplaceUnsafe(const ObjectString<T>& source, vint index, vint count)const
@@ -136,7 +136,7 @@ namespace vl
 			memcpy(str.buffer + index, source.buffer + source.start, sizeof(T) * source.length);
 			memcpy(str.buffer + index + source.length, (buffer + start + index + count), sizeof(T) * (length - index - count));
 			str.buffer[str.length] = 0;
-			return MoveValue(str);
+			return std::move(str);
 		}
 	public:
 		static ObjectString<T>	Empty;
@@ -204,7 +204,7 @@ namespace vl
 			str.length = _length;
 			str.realLength = _length;
 			str.buffer = _buffer;
-			return MoveValue(str);
+			return std::move(str);
 		}
 
 		/// <summary>Create a string continaing one code point.</summary>
@@ -235,7 +235,7 @@ namespace vl
 				str.start = 0;
 				str.length = _length;
 				str.realLength = _length;
-				return MoveValue(str);
+				return std::move(str);
 			}
 			return {};
 		}
@@ -254,7 +254,7 @@ namespace vl
 			str.buffer = (T*)_buffer;
 			str.length = CalculateLength(_buffer);
 			str.realLength = str.length;
-			return MoveValue(str);
+			return std::move(str);
 		}
 
 		/// <summary>
@@ -275,7 +275,7 @@ namespace vl
 			str.length = _string.length;
 			str.realLength = _string.realLength;
 			str.Inc();
-			return MoveValue(str);
+			return std::move(str);
 		}
 
 		/// <summary>

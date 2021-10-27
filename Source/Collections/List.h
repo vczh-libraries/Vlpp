@@ -24,10 +24,8 @@ namespace vl
 Memory Management
 ***********************************************************************/
 
-		template<typename T, bool PODType>
-		class ListStore abstract : public Object
-		{
-		};
+		template<typename T, bool PODType = std::is_trivially_constructible_v<T>>
+		class ListStore;
 
 		template<typename T>
 		class ListStore<T, false> abstract : public Object
@@ -50,7 +48,7 @@ Memory Management
 
 				for (vint i = 0; i < count; i++)
 				{
-					new(&ds[i])T(MoveValue(ss[i]));
+					new(&ds[i])T(std::move(ss[i]));
 				}
 			}
 
@@ -74,14 +72,14 @@ Memory Management
 				{
 					for (vint i = 0; i < count; i++)
 					{
-						ds[i] = MoveValue(ss[i]);
+						ds[i] = std::move(ss[i]);
 					}
 				}
 				else if (ds > ss)
 				{
 					for (vint i = count - 1; i >= 0; i--)
 					{
-						ds[i] = MoveValue(ss[i]);
+						ds[i] = std::move(ss[i]);
 					}
 				}
 			}
@@ -167,7 +165,7 @@ ArrayBase
 		/// <summary>Base type of all linear container.</summary>
 		/// <typeparam name="T">Type of elements.</typeparam>
 		template<typename T>
-		class ArrayBase abstract : public ListStore<T, POD<T>::Result>, public virtual IEnumerable<T>
+		class ArrayBase abstract : public ListStore<T>, public virtual IEnumerable<T>
 		{
 		protected:
 			class Enumerator : public Object, public virtual IEnumerator<T>
@@ -760,7 +758,7 @@ Special Containers
 ***********************************************************************/
 
 		template<typename T>
-		class PushOnlyAllocator : public Object, private NotCopyable
+		class PushOnlyAllocator : public Object
 		{
 		protected:
 			vint							blockSize;
@@ -768,6 +766,9 @@ Special Containers
 			List<T*>						blocks;
 
 		public:
+			PushOnlyAllocator(const PushOnlyAllocator&) = delete;
+			PushOnlyAllocator(PushOnlyAllocator&&) = delete;
+
 			PushOnlyAllocator(vint _blockSize = 65536)
 				:blockSize(_blockSize)
 				, allocatedSize(0)
@@ -854,7 +855,7 @@ Special Containers
 		}
 
 		template<typename T>
-		class ByteObjectMap : public Object, private NotCopyable
+		class ByteObjectMap : public Object
 		{
 		public:
 			typedef PushOnlyAllocator<bom_helper::TreeNode>			Allocator;
@@ -864,6 +865,8 @@ Special Containers
 		public:
 			ByteObjectMap() = default;
 			~ByteObjectMap() = default;
+			ByteObjectMap(const ByteObjectMap&) = delete;
+			ByteObjectMap(ByteObjectMap&&) = delete;
 
 			T* Get(vuint8_t index)
 			{
