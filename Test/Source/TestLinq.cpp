@@ -290,23 +290,23 @@ TEST_FILE
 	TEST_CASE(L"Test Cast()")
 	{
 		List<Ptr<Object>> src;
-		src.Add(new ObjectBox<vint>(0));
-		src.Add(new ObjectBox<vint>(1));
-		src.Add(new ObjectBox<vint>(2));
-		src.Add(new ObjectBox<vuint>(3));
-		src.Add(new ObjectBox<vuint>(4));
-		src.Add(new ObjectBox<vuint>(5));
+		src.Add(new WString(L"0"));
+		src.Add(new WString(L"1"));
+		src.Add(new WString(L"2"));
+		src.Add(new AString("3"));
+		src.Add(new AString("4"));
+		src.Add(new AString("5"));
 
 		List<vint> dst;
 		CopyFrom(dst, From(src)
-			.Cast<ObjectBox<vint>>()
-			.Select([](Ptr<ObjectBox<vint>> o) {return o ? o->Unbox() : -1; })
+			.Cast<WString>()
+			.Select([](Ptr<WString> o) {return o ? wtoi(*o.Obj()) : -1; })
 			);
 		CHECK_LIST_ITEMS(dst, {0 _ 1 _ 2 _ - 1 _ - 1 _ - 1});
 
 		CopyFrom(dst, From(src)
-			.FindType<ObjectBox<vint>>()
-			.Select([](Ptr<ObjectBox<vint>> o) {return o ? o->Unbox() : -1; })
+			.FindType<AString>()
+			.Select([](Ptr<AString> o) {return o ? atoi(*o.Obj()) : -1; })
 			);
 		CHECK_LIST_ITEMS(dst, {0 _ 1 _ 2});
 	});

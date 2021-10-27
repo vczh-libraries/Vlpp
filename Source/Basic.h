@@ -159,9 +159,9 @@ namespace vl
 #endif
 #endif
 
-	/***********************************************************************
-	Basic Types
-	***********************************************************************/
+/***********************************************************************
+Basic Types
+***********************************************************************/
 
 	/// <summary>Base type for all classes to stop generating default copy constructors.</summary>
 	class NotCopyable
@@ -196,9 +196,9 @@ namespace vl
 	if(bool __scope_variable_flag__=true)\
 		for(TYPE VARIABLE = VALUE;__scope_variable_flag__;__scope_variable_flag__=false)
 
-	/***********************************************************************
-	Type Traits
-	***********************************************************************/
+/***********************************************************************
+Type Traits
+***********************************************************************/
 
 	template<typename T>
 	struct RemoveReference
@@ -295,9 +295,9 @@ namespace vl
 	{
 	};
 
-	/***********************************************************************
-	Basic Types
-	***********************************************************************/
+/***********************************************************************
+Basic Types
+***********************************************************************/
 
 	/// <summary>
 	/// Base type of all classes.
@@ -308,71 +308,6 @@ namespace vl
 	{
 	public:
 		virtual ~Object();
-	};
-
-	/// <summary>Store data of a value type in a reference type object. It is useful when the data is required to be stored in a pointer to [T:vl.Object].</summary>
-	/// <example><![CDATA[
-	/// int main()
-	/// {
-	///     Ptr<Object> boxed = MakePtr<ObjectBox<vint>>(100);
-	///     vint unboxed = boxed.Cast<ObjectBox<vint>>()->Unbox();
-	///     Console::WriteLine(itow(unboxed));
-	/// }
-	/// ]]></example>
-	/// <typeparam name="T">Value type to use.</typeparam>
-	template<typename T>
-	class ObjectBox : public Object
-	{
-	private:
-		T					object;
-	public:
-		/// <summary>Create a boxed reference object from data of a value type.</summary>
-		/// <param name="_object">The data to box.</param>
-		ObjectBox(const T& _object)
-			:object(_object)
-		{
-		}
-
-		/// <summary>Create a boxed reference object by moving data of a value type.</summary>
-		/// <param name="_object">The data to move and box.</param>
-		ObjectBox(T&& _object)
-			:object(MoveValue(_object))
-		{
-		}
-
-		/// <summary>Copy a boxed reference object.</summary>
-		/// <param name="value">The reference object to copy.</param>
-		ObjectBox(const ObjectBox<T>& value) = default;
-
-		/// <summary>Move a boxed reference object.</summary>
-		/// <param name="value">The reference object to move.</param>
-		ObjectBox(ObjectBox<T>&& value) = default;
-
-		/// <summary>Replace the boxed data of a value type.</summary>
-		/// <returns>The reference object itself.</returns>
-		/// <param name="_object">The data to replace the original data.</param>
-		ObjectBox<T>& operator=(const T& _object)
-		{
-			object = _object;
-			return *this;
-		}
-
-		/// <summary>Replace the boxed data from another reference object.</summary>
-		/// <returns>The reference object itself.</returns>
-		/// <param name="value">The reference object to copy.</param>
-		ObjectBox<T>& operator=(const ObjectBox<T>& value) = default;
-
-		/// <summary>Replace the boxed data by moving from another reference object.</summary>
-		/// <returns>The reference object itself.</returns>
-		/// <param name="value">The reference object to move.</param>
-		ObjectBox<T>& operator=(ObjectBox<T>&& value) = default;
-
-		/// <summary>Get the boxed data of a value type.</summary>
-		/// <returns>The unboxed data of a value type.</returns>
-		const T& Unbox()
-		{
-			return object;
-		}
 	};
 
 	/// <summary>Type for representing nullable data.</summary>
@@ -550,9 +485,9 @@ namespace vl
 		char binary[sizeof(T) > minSize ? sizeof(T) : minSize];
 	};
 
-	/***********************************************************************
-	Type Traits
-	***********************************************************************/
+/***********************************************************************
+Type Traits
+***********************************************************************/
 
 	/// <summary>Type for specify and create a representative value for comparing another value of a specific type for containers.</summary>
 	/// <typeparam name="T">The element type for containers.</typeparam>
@@ -601,101 +536,9 @@ namespace vl
 	template<typename T>struct POD<volatile T> { static const bool Result = POD<T>::Result; };
 	template<typename T>struct POD<const volatile T> { static const bool Result = POD<T>::Result; };
 
-	/***********************************************************************
-	Date and Time
-	***********************************************************************/
-
-	/// <summary>A type representing the combination of date and time.</summary>
-	struct DateTime
-	{
-		/// <summary>The year.</summary>
-		vint				year;
-		/// <summary>The month, from 1 to 12.</summary>
-		vint				month;
-		/// <summary>The day, from 1 to 31.</summary>
-		vint				day;
-		/// <summary>The hour, from 0 to 23.</summary>
-		vint				hour;
-		/// <summary>The minute, from 0 to 59.</summary>
-		vint				minute;
-		/// <summary>The second, from 0 to 60.</summary>
-		vint				second;
-		/// <summary>The milliseconds, from 0 to 999.</summary>
-		vint				milliseconds;
-
-		/// <summary>
-		/// The calculated total milliseconds. It is OS dependent because the start time is different.
-		/// It is from 0 to 6, representing Sunday to Saturday.
-		/// </summary>
-		vint				dayOfWeek;
-
-		/// <summary>
-		/// The calculated total milliseconds. It is OS dependent because the start time is different.
-		/// You should not rely on the fact about how this value is created.
-		/// The only invariant thing is that, when an date time is earlier than another, the totalMilliseconds is lesser.
-		/// </summary>
-		vuint64_t			totalMilliseconds;
-
-		/// <summary>
-		/// The calculated file time for the date and time. It is OS dependent.
-		/// You should not rely on the fact about how this value is created.
-		/// The only invariant thing is that, when an date time is earlier than another, the filetime is lesser.
-		/// </summary>
-		vuint64_t			filetime;
-
-		/// <summary>Get the current local time.</summary>
-		/// <returns>The current local time.</returns>
-		static DateTime		LocalTime();
-
-		/// <summary>Get the current UTC time.</summary>
-		/// <returns>The current UTC time.</returns>
-		static DateTime		UtcTime();
-
-		/// <summary>Create a date time value.</summary>
-		/// <returns>The created date time value.</returns>
-		/// <param name="_year">The year.</param>
-		/// <param name="_month">The month.</param>
-		/// <param name="_day">The day.</param>
-		/// <param name="_hour">The hour.</param>
-		/// <param name="_minute">The minute.</param>
-		/// <param name="_second">The second.</param>
-		/// <param name="_milliseconds">The millisecond.</param>
-		static DateTime		FromDateTime(vint _year, vint _month, vint _day, vint _hour = 0, vint _minute = 0, vint _second = 0, vint _milliseconds = 0);
-
-		/// <summary>Create a date time value from a file time.</summary>
-		/// <returns>The created date time value.</returns>
-		/// <param name="filetime">The file time.</param>
-		static DateTime		FromFileTime(vuint64_t filetime);
-
-		/// <summary>Create an empty date time value that is not meaningful.</summary>
-		DateTime();
-
-		/// <summary>Convert the UTC time to the local time.</summary>
-		/// <returns>The UTC time.</returns>
-		DateTime			ToLocalTime();
-		/// <summary>Convert the local time to the UTC time.</summary>
-		/// <returns>The local time.</returns>
-		DateTime			ToUtcTime();
-		/// <summary>Move forward.</summary>
-		/// <returns>The moved time.</returns>
-		/// <param name="milliseconds">The delta in milliseconds.</param>
-		DateTime			Forward(vuint64_t milliseconds);
-		/// <summary>Move Backward.</summary>
-		/// <returns>The moved time.</returns>
-		/// <param name="milliseconds">The delta in milliseconds.</param>
-		DateTime			Backward(vuint64_t milliseconds);
-
-		bool operator==(const DateTime& value)const { return filetime == value.filetime; }
-		bool operator!=(const DateTime& value)const { return filetime != value.filetime; }
-		bool operator<(const DateTime& value)const { return filetime < value.filetime; }
-		bool operator<=(const DateTime& value)const { return filetime <= value.filetime; }
-		bool operator>(const DateTime& value)const { return filetime > value.filetime; }
-		bool operator>=(const DateTime& value)const { return filetime >= value.filetime; }
-	};
-
-	/***********************************************************************
-	Interface
-	***********************************************************************/
+/***********************************************************************
+Interface
+***********************************************************************/
 
 	/// <summary>Base type of all interfaces. All interface types are encouraged to be virtual inherited.</summary>
 	class Interface : private NotCopyable
@@ -704,9 +547,9 @@ namespace vl
 		virtual ~Interface();
 	};
 
-	/***********************************************************************
-	Type Traits
-	***********************************************************************/
+/***********************************************************************
+Type Traits
+***********************************************************************/
 
 	struct YesType {};
 	struct NoType {};

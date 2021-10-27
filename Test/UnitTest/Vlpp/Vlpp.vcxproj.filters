@@ -114,6 +114,9 @@
     <ClInclude Include="..\..\..\Source\Strings\Conversion.h">
       <Filter>Common\Strings</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\Source\DateTime.h">
+      <Filter>Common</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\Source\Console.cpp">
@@ -142,6 +145,9 @@
     </ClCompile>
     <ClCompile Include="..\..\..\Source\Strings\Conversion.cpp">
       <Filter>Common\Strings</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\DateTime.cpp">
+      <Filter>Common</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
