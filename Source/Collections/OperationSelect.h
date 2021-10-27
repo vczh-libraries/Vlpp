@@ -24,12 +24,11 @@ Select
 		protected:
 			IEnumerator<T>*		enumerator;
 			Func<K(T)>			selector;
-			K					current;
+			Nullable<K>			current;
 		public:
-			SelectEnumerator(IEnumerator<T>* _enumerator, const Func<K(T)>& _selector, K _current=K())
+			SelectEnumerator(IEnumerator<T>* _enumerator, const Func<K(T)>& _selector)
 				:enumerator(_enumerator)
 				,selector(_selector)
-				,current(_current)
 			{
 			}
 
@@ -45,7 +44,7 @@ Select
 
 			const K& Current()const override
 			{
-				return current;
+				return current.Value();
 			}
 
 			vint Index()const override
@@ -55,9 +54,9 @@ Select
 
 			bool Next()override
 			{
-				if(enumerator->Next())
+				if (enumerator->Next())
 				{
-					current=selector(enumerator->Current());
+					current = selector(enumerator->Current());
 					return true;
 				}
 				else

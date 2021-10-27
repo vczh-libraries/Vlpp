@@ -23,7 +23,7 @@ Pairwise
 		protected:
 			IEnumerator<S>*					enumerator1;
 			IEnumerator<T>*					enumerator2;
-			Pair<S, T>						current;
+			Nullable<Pair<S, T>>			current;
 		public:
 			PairwiseEnumerator(IEnumerator<S>* _enumerator1, IEnumerator<T>* _enumerator2, Pair<S, T> _current=Pair<S, T>())
 				:enumerator1(_enumerator1)
@@ -45,7 +45,7 @@ Pairwise
 
 			const Pair<S, T>& Current()const override
 			{
-				return current;
+				return current.Value();
 			}
 
 			vint Index()const override
@@ -55,9 +55,9 @@ Pairwise
 
 			bool Next()override
 			{
-				if(enumerator1->Next() && enumerator2->Next())
+				if (enumerator1->Next() && enumerator2->Next())
 				{
-					current=Pair<S, T>(enumerator1->Current(), enumerator2->Current());
+					current = Pair<S, T>(enumerator1->Current(), enumerator2->Current());
 					return true;
 				}
 				else

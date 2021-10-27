@@ -215,7 +215,7 @@ Distinct
 		protected:
 			IEnumerator<T>*		enumerator;
 			SortedList<T>		distinct;
-			T					lastValue;
+			Nullable<T>			lastValue;
 
 		public:
 			DistinctEnumerator(IEnumerator<T>* _enumerator)
@@ -226,7 +226,7 @@ Distinct
 			DistinctEnumerator(const DistinctEnumerator& _enumerator)
 				:lastValue(_enumerator.lastValue)
 			{
-				enumerator=_enumerator.enumerator->Clone();
+				enumerator = _enumerator.enumerator->Clone();
 				CopyFrom(distinct, _enumerator.distinct);
 			}
 
@@ -242,7 +242,7 @@ Distinct
 
 			const T& Current()const override
 			{
-				return lastValue;
+				return lastValue.Value();
 			}
 
 			vint Index()const override
@@ -252,12 +252,12 @@ Distinct
 
 			bool Next()override
 			{
-				while(enumerator->Next())
+				while (enumerator->Next())
 				{
-					const T& current=enumerator->Current();
-					if(!SortedListOperations<T>::Contains(distinct, current))
+					const T& current = enumerator->Current();
+					if (!SortedListOperations<T>::Contains(distinct, current))
 					{
-						lastValue=current;
+						lastValue = current;
 						distinct.Add(current);
 						return true;
 					}
@@ -391,7 +391,7 @@ FromIterator
 		public:
 			IEnumerator<T>* CreateEnumerator()const
 			{
-				return new Enumerator(begin, end, begin-1);
+				return new Enumerator(begin, end, begin - 1);
 			}
 
 			FromIteratorEnumerable(I _begin, I _end)
