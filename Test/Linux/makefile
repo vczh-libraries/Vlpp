@@ -17,7 +17,7 @@ clean:
 
 all:pre-build ./Bin/UnitTest
 
-./Bin/UnitTest:./Obj/TestAString.o ./Obj/TestLoremIpsum.o ./Obj/TestStringConversion.o ./Obj/TestU16String.o ./Obj/TestU32String.o ./Obj/TestU8String.o ./Obj/TestUtfReader.o ./Obj/TestWString.o ./Obj/TestBasic.o ./Obj/TestFunction.o ./Obj/TestGlobalStorage.o ./Obj/TestLinq.o ./Obj/TestList.o ./Obj/TestPartialOrdering.o ./Obj/Main.o ./Obj/Basic.o ./Obj/PartialOrdering.o ./Obj/Console.o ./Obj/Exception.o ./Obj/GlobalStorage.o ./Obj/Conversion.o ./Obj/LoremIpsum.o ./Obj/String.o ./Obj/UnitTest.o
+./Bin/UnitTest:./Obj/TestAString.o ./Obj/TestLoremIpsum.o ./Obj/TestStringConversion.o ./Obj/TestU16String.o ./Obj/TestU32String.o ./Obj/TestU8String.o ./Obj/TestUtfReader.o ./Obj/TestWString.o ./Obj/TestBasic.o ./Obj/TestFunction.o ./Obj/TestGlobalStorage.o ./Obj/TestLinq.o ./Obj/TestList.o ./Obj/TestPartialOrdering.o ./Obj/Main.o ./Obj/Basic.o ./Obj/PartialOrdering.o ./Obj/Console.o ./Obj/DateTime.o ./Obj/Exception.o ./Obj/GlobalStorage.o ./Obj/Conversion.o ./Obj/LoremIpsum.o ./Obj/String.o ./Obj/UnitTest.o
 	$(CPP_LINK)
 
 ./Obj/TestAString.o: ../Source/Strings/TestAString.cpp ../Source/Strings/../../../Source/UnitTest/UnitTest.h ../Source/Strings/../../../Source/UnitTest/../Strings/String.h ../Source/Strings/../../../Source/UnitTest/../Strings/../Basic.h ../Source/Strings/../../../Source/UnitTest/../Function.h ../Source/Strings/../../../Source/UnitTest/../Strings/../Pointer.h ../Source/Strings/../../../Source/UnitTest/../Exception.h ../Source/Strings/../../../Source/UnitTest/../Strings/../Strings/String.h
@@ -44,7 +44,7 @@ all:pre-build ./Bin/UnitTest
 ./Obj/TestWString.o: ../Source/Strings/TestWString.cpp ../Source/Strings/../../../Source/UnitTest/UnitTest.h ../Source/Strings/../../../Source/UnitTest/../Strings/String.h ../Source/Strings/../../../Source/UnitTest/../Strings/../Basic.h ../Source/Strings/../../../Source/UnitTest/../Function.h ../Source/Strings/../../../Source/UnitTest/../Strings/../Pointer.h ../Source/Strings/../../../Source/UnitTest/../Exception.h ../Source/Strings/../../../Source/UnitTest/../Strings/../Strings/String.h
 	$(CPP_COMPILE)
 
-./Obj/TestBasic.o: ../Source/TestBasic.cpp ../Source/../../Source/UnitTest/UnitTest.h ../Source/../../Source/UnitTest/../Strings/String.h ../Source/../../Source/UnitTest/../Strings/../Basic.h ../Source/../../Source/UnitTest/../Function.h ../Source/../../Source/UnitTest/../Strings/../Pointer.h ../Source/../../Source/UnitTest/../Exception.h ../Source/../../Source/UnitTest/../Strings/../Strings/String.h ../Source/../../Source/Pointer.h ../Source/../../Source/Tuple.h ../Source/../../Source/Lazy.h ../Source/../../Source/UnitTest/../Strings/../Function.h
+./Obj/TestBasic.o: ../Source/TestBasic.cpp ../Source/../../Source/UnitTest/UnitTest.h ../Source/../../Source/UnitTest/../Strings/String.h ../Source/../../Source/UnitTest/../Strings/../Basic.h ../Source/../../Source/UnitTest/../Function.h ../Source/../../Source/UnitTest/../Strings/../Pointer.h ../Source/../../Source/UnitTest/../Exception.h ../Source/../../Source/UnitTest/../Strings/../Strings/String.h ../Source/../../Source/DateTime.h ../Source/../../Source/Pointer.h ../Source/../../Source/Tuple.h ../Source/../../Source/Lazy.h ../Source/../../Source/UnitTest/../Strings/../Function.h
 	$(CPP_COMPILE)
 
 ./Obj/TestFunction.o: ../Source/TestFunction.cpp ../Source/../../Source/UnitTest/UnitTest.h ../Source/../../Source/UnitTest/../Strings/String.h ../Source/../../Source/UnitTest/../Strings/../Basic.h ../Source/../../Source/UnitTest/../Function.h ../Source/../../Source/UnitTest/../Strings/../Pointer.h ../Source/../../Source/UnitTest/../Exception.h ../Source/../../Source/UnitTest/../Strings/../Strings/String.h ../Source/../../Source/Function.h ../Source/../../Source/Event.h ../Source/../../Source/UnitTest/../Strings/../Function.h ../Source/../../Source/UnitTest/../Strings/../Collections/List.h ../Source/../../Source/UnitTest/../Strings/../Collections/Interfaces.h ../Source/../../Source/UnitTest/../Strings/../Collections/../Basic.h ../Source/../../Source/UnitTest/../Strings/../Collections/../Pointer.h ../Source/../../Source/UnitTest/../Strings/../Collections/Pair.h ../Source/../../Source/Collections/List.h
@@ -72,6 +72,9 @@ all:pre-build ./Bin/UnitTest
 	$(CPP_COMPILE)
 
 ./Obj/Console.o: ../../Source/Console.cpp ../../Source/Console.h ../../Source/Strings/String.h ../../Source/Strings/../Basic.h
+	$(CPP_COMPILE)
+
+./Obj/DateTime.o: ../../Source/DateTime.cpp ../../Source/DateTime.h ../../Source/Basic.h
 	$(CPP_COMPILE)
 
 ./Obj/Exception.o: ../../Source/Exception.cpp ../../Source/Exception.h ../../Source/Strings/String.h ../../Source/Strings/../Basic.h
