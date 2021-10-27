@@ -586,12 +586,6 @@ Traits
 	};
 
 	template<typename T>
-	struct POD<Ptr<T>>
-	{
-		static const bool Result=false;
-	};
-
-	template<typename T>
 	struct KeyType<ComPtr<T>>
 	{
 		typedef T* Type;
@@ -600,12 +594,6 @@ Traits
 		{
 			return key.Obj();
 		}
-	};
-
-	template<typename T>
-	struct POD<ComPtr<T>>
-	{
-		static const bool Result=false;
 	};
 }
 
