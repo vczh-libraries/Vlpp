@@ -161,6 +161,8 @@ LazyList
 			{
 				return enumeratorPrototype->Clone();
 			}
+
+			using TInput = decltype(std::declval<IEnumerator<T>>().Current());
 		public:
 			/// <summary>Create a lazy list from an enumerator. This enumerator will be deleted when this lazy list is deleted.</summary>
 			/// <param name="enumerator">The enumerator.</param>
@@ -231,9 +233,9 @@ LazyList
 			/// }
 			/// ]]></example>
 			template<typename F>
-			LazyList<FUNCTION_RESULT_TYPE(F)> Select(F f)const
+			auto Select(F f) const -> LazyList<decltype(f(std::declval<TInput>()))>
 			{
-				return new SelectEnumerator<T, FUNCTION_RESULT_TYPE(F)>(xs(), f);
+				return new SelectEnumerator<T, decltype(f(std::declval<TInput>()))>(xs(), f);
 			}
 			
 			/// <summary>Create a new lazy list with all elements filtered.</summary>

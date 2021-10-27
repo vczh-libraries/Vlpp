@@ -10,57 +10,8 @@ Licensed under https://github.com/vczh-libraries/License
 #include "Pointer.h"
 namespace vl
 {
-
 	template<typename T>
 	class Func;
- 
-/***********************************************************************
-vl::function_lambda::LambdaRetriveType<R(TArgs...)>
-***********************************************************************/
- 
-	namespace function_lambda
-	{
-		template<typename T>
-		struct LambdaRetriveType
-		{
-		};
-
-		template<typename T>
-		struct FunctionObjectRetriveType
-		{
-			typedef typename LambdaRetriveType<decltype(&T::operator())>::Type Type;
-			typedef typename LambdaRetriveType<decltype(&T::operator())>::FunctionType FunctionType;
-			typedef typename LambdaRetriveType<decltype(&T::operator())>::ResultType ResultType;
-			typedef typename LambdaRetriveType<decltype(&T::operator())>::ParameterTypes ParameterTypes;
-		};
-
-		template<typename TObject, typename R, typename ...TArgs>
-		struct LambdaRetriveType<R(__thiscall TObject::*)(TArgs...)const>
-		{
-			typedef Func<R(TArgs...)> Type;
-			typedef R(FunctionType)(TArgs...);
-			typedef R ResultType;
-			typedef TypeTuple<TArgs...> ParameterTypes;
-		};
-
-		template<typename TObject, typename R, typename ...TArgs>
-		struct LambdaRetriveType<R(__thiscall TObject::*)(TArgs...)>
-		{
-			typedef Func<R(TArgs...)> Type;
-			typedef R(FunctionType)(TArgs...);
-			typedef R ResultType;
-			typedef TypeTuple<TArgs...> ParameterTypes;
-		};
-
-		template<typename R, typename ...TArgs>
-		struct FunctionObjectRetriveType<R(*)(TArgs...)>
-		{
-			typedef Func<R(TArgs...)> Type;
-			typedef R(FunctionType)(TArgs...);
-			typedef R ResultType;
-			typedef TypeTuple<TArgs...> ParameterTypes;
-		};
-	}
  
 /***********************************************************************
 vl::Func<R(TArgs...)>
@@ -280,11 +231,34 @@ vl::Func<R(TArgs...)>
 	};
  
 /***********************************************************************
-LAMBDA
+vl::function_lambda::LambdaRetriveType<R(TArgs...)>
 ***********************************************************************/
  
 	namespace function_lambda
 	{
+		template<typename T>
+		struct LambdaRetriveType
+		{
+		};
+
+		template<typename TObject, typename R, typename ...TArgs>
+		struct LambdaRetriveType<R(__thiscall TObject::*)(TArgs...)const>
+		{
+			typedef Func<R(TArgs...)> Type;
+			typedef R(FunctionType)(TArgs...);
+			typedef R ResultType;
+			typedef TypeTuple<TArgs...> ParameterTypes;
+		};
+
+		template<typename TObject, typename R, typename ...TArgs>
+		struct LambdaRetriveType<R(__thiscall TObject::*)(TArgs...)>
+		{
+			typedef Func<R(TArgs...)> Type;
+			typedef R(FunctionType)(TArgs...);
+			typedef R ResultType;
+			typedef TypeTuple<TArgs...> ParameterTypes;
+		};
+
 		/// <summary>Create a functor in [T:vl.Func`1] from another functor, with all type arguments autotimatically inferred. The "LAMBDA" macro is recommended for the same purpose for writing compact code.</summary>
 		/// <typeparam name="T">Type of the functor to copy.</typeparam>
 		/// <returns>A copied functor in [T:vl.Func`1].</returns>
@@ -295,6 +269,34 @@ LAMBDA
 			return functionObject;
 		}
 
+#define LAMBDA vl::function_lambda::Lambda
+	}
+ 
+/***********************************************************************
+vl::function_lambda::FunctionObjectRetriveType<R(TArgs...)>
+(to be removed)
+***********************************************************************/
+ 
+	namespace function_lambda
+	{
+		template<typename T>
+		struct FunctionObjectRetriveType
+		{
+			typedef typename LambdaRetriveType<decltype(&T::operator())>::Type Type;
+			typedef typename LambdaRetriveType<decltype(&T::operator())>::FunctionType FunctionType;
+			typedef typename LambdaRetriveType<decltype(&T::operator())>::ResultType ResultType;
+			typedef typename LambdaRetriveType<decltype(&T::operator())>::ParameterTypes ParameterTypes;
+		};
+
+		template<typename R, typename ...TArgs>
+		struct FunctionObjectRetriveType<R(*)(TArgs...)>
+		{
+			typedef Func<R(TArgs...)> Type;
+			typedef R(FunctionType)(TArgs...);
+			typedef R ResultType;
+			typedef TypeTuple<TArgs...> ParameterTypes;
+		};
+
 		/// <summary>Create a functor in [T:vl.Func`1] from a function pointer, with all type arguments autotimatically inferred. The "FUNCTION" macro is recommended for the same purpose for writing compact code.</summary>
 		/// <typeparam name="T">Type of the function pointer.</typeparam>
 		/// <returns>A copied functor in [T:vl.Func`1].</returns>
@@ -304,8 +306,6 @@ LAMBDA
 		{
 			return functionObject;
 		}
-
-#define LAMBDA vl::function_lambda::Lambda
 #define FUNCTION vl::function_lambda::ConvertToFunction
 #define FUNCTION_TYPE(T) typename vl::function_lambda::FunctionObjectRetriveType<T>::Type
 #define FUNCTION_RESULT_TYPE(T) typename vl::function_lambda::FunctionObjectRetriveType<T>::ResultType
