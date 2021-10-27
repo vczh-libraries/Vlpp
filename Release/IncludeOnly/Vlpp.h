@@ -4,6 +4,7 @@ DEVELOPER: Zihan Chen(vczh)
 ***********************************************************************/
 
 #include "..\..\Source\Basic.h"
+#include "..\..\Source\DateTime.h"
 #include "..\..\Source\Pointer.h"
 #include "..\..\Source\Function.h"
 #include "..\..\Source\Lazy.h"
