@@ -9,7 +9,7 @@ TEST_FILE
 	auto And = [](auto x, auto y) { return x && y; };
 	auto Or = [](auto x, auto y) { return x || y; };
 	auto dividable = [](auto x, auto y) { return y % x == 0; };
-	auto dividableConverter = [](auto x) { return [=](auto y) { return y % x == 0; }; };
+	auto dividableConverter = [](auto x)->Func<bool(vint)> { return [=](auto y) { return y % x == 0; }; };
 	auto dividableCombiner = [=](auto x, auto y) { return [=](auto z) { return And(x(z), y(z)); }; };
 	auto Compare = [](auto x, auto y) { return x - y; };
 	

@@ -25,7 +25,7 @@ Pairwise
 			IEnumerator<T>*					enumerator2;
 			Nullable<Pair<S, T>>			current;
 		public:
-			PairwiseEnumerator(IEnumerator<S>* _enumerator1, IEnumerator<T>* _enumerator2, Pair<S, T> _current=Pair<S, T>())
+			PairwiseEnumerator(IEnumerator<S>* _enumerator1, IEnumerator<T>* _enumerator2, Nullable<Pair<S, T>> _current = {})
 				:enumerator1(_enumerator1)
 				,enumerator2(_enumerator2)
 				,current(_current)

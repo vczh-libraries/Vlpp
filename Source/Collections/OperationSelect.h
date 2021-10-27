@@ -26,9 +26,10 @@ Select
 			Func<K(T)>			selector;
 			Nullable<K>			current;
 		public:
-			SelectEnumerator(IEnumerator<T>* _enumerator, const Func<K(T)>& _selector)
+			SelectEnumerator(IEnumerator<T>* _enumerator, const Func<K(T)>& _selector, Nullable<K> _current = {})
 				:enumerator(_enumerator)
 				,selector(_selector)
+				,current(_current)
 			{
 			}
 
