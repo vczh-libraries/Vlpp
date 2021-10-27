@@ -3,7 +3,6 @@
 ## 2.0
 
 - Fix `Linq` so that lambda parameters can be `auto`.
-- Remove type traits, use c++ built-in ones.
 - Open backdoor for reflection implementation.
   - Each collection class stores a `Ptr<IReflectableCollectionBase>`, if a reflectable object is not created for this instance, it is `nullptr`.
   - When the collection class is disposed, call `IReflectableCollectionBase::OnDisposed`, notifying that this collection is no longer available.
