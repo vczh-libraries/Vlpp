@@ -9,7 +9,7 @@ using namespace vl::collections;
 #define _ ,
 
 #define EMPTY_ARRAY(CONTAINER, NAME)\
-	(RemoveCVR<decltype(CONTAINER)>::Type::NAME::ElementType*)nullptr\
+	(typename std::remove_cvref_t<decltype(CONTAINER)>::NAME::ElementType*)nullptr\
 
 #define CHECK_EMPTY_LIST(CONTAINER)\
 	TestReadonlyList(CONTAINER, 0, 0)\

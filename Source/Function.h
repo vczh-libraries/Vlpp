@@ -229,7 +229,10 @@ vl::Func<R(TArgs...)>
 		/// <summary>Create a functor from another compatible functor.</summary>
 		/// <typeparam name="C">Type of the functor to copy.</typeparam>
 		/// <param name="function">The functor to copy. It could be a lambda expression, or any types that has operator() members.</param>
-		template<typename C, typename=std::enable_if<std::is_convertible_v<decltype(std::declval<C>(std::declval<TArgs>()...)), R>>>
+		template<typename C, typename=std::enable_if_t<
+			std::is_same_v<void, R> ||
+			std::is_convertible_v<decltype(std::declval<C>()(std::declval<TArgs>()...)), R>
+			>>
 		Func(C&& function)
 		{
 			if (!IsEmptyFunc(function))

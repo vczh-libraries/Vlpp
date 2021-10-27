@@ -41,10 +41,9 @@ namespace vl
 	private:
 		bool					cleared = false;
 	public:
+		NOT_COPYABLE(GlobalStorage);
 		GlobalStorage(const wchar_t* key);
 		~GlobalStorage();
-		GlobalStorage(const GlobalStorage&) = delete;
-		GlobalStorage(GlobalStorage&&) = delete;
 
 		bool					Cleared();
 		virtual void			ClearResource() = 0;

@@ -766,8 +766,7 @@ Special Containers
 			List<T*>						blocks;
 
 		public:
-			PushOnlyAllocator(const PushOnlyAllocator&) = delete;
-			PushOnlyAllocator(PushOnlyAllocator&&) = delete;
+			NOT_COPYABLE(PushOnlyAllocator);
 
 			PushOnlyAllocator(vint _blockSize = 65536)
 				:blockSize(_blockSize)
@@ -863,10 +862,9 @@ Special Containers
 			bom_helper::TreeNode*			root = nullptr;
 
 		public:
+			NOT_COPYABLE(ByteObjectMap);
 			ByteObjectMap() = default;
 			~ByteObjectMap() = default;
-			ByteObjectMap(const ByteObjectMap&) = delete;
-			ByteObjectMap(ByteObjectMap&&) = delete;
 
 			T* Get(vuint8_t index)
 			{

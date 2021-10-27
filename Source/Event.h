@@ -22,7 +22,7 @@ namespace vl
 	/// <summary>An event for being subscribed using multiple callbacks. A callback is any functor that returns void.</summary>
 	/// <typeparam name="TArgs">Types of callback parameters.</typeparam>
 	template<typename ...TArgs>
-	class Event<void(TArgs...)> : public Object, private NotCopyable
+	class Event<void(TArgs...)> : public Object
 	{
 	protected:
 		class EventHandlerImpl : public EventHandler
@@ -45,6 +45,9 @@ namespace vl
  
 		collections::SortedList<Ptr<EventHandlerImpl>>	handlers;
 	public:
+		NOT_COPYABLE(Event);
+		Event() = default;
+
 		/// <summary>Add a callback to the event.</summary>
 		/// <returns>The event handler representing the callback.</returns>
 		/// <param name="function">The callback.</param>

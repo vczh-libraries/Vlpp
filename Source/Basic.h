@@ -406,12 +406,17 @@ Type Traits
 Interface
 ***********************************************************************/
 
+#define NOT_COPYABLE(TYPE)\
+	TYPE(const TYPE&) = delete;\
+	TYPE(TYPE&&) = delete;\
+	TYPE& operator=(const TYPE&) = delete;\
+	TYPE& operator=(TYPE&&) = delete
+
 	/// <summary>Base type of all interfaces. All interface types are encouraged to be virtual inherited.</summary>
 	class Interface
 	{
 	public:
-		Interface(const Interface&) = delete;
-		Interface(Interface&&) = delete;
+		NOT_COPYABLE(Interface);
 
 		Interface() = default;
 		virtual ~Interface() = default;
