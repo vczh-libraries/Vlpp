@@ -305,8 +305,8 @@ TEST_FILE
 		CHECK_LIST_ITEMS(dst, {0 _ 1 _ 2 _ - 1 _ - 1 _ - 1});
 
 		CopyFrom(dst, From(src)
-			.FindType<AString>()
-			.Select([](Ptr<AString> o) {return o ? atoi(*o.Obj()) : -1; })
+			.FindType<WString>()
+			.Select([](Ptr<WString> o) {return o ? wtoi(*o.Obj()) : -1; })
 			);
 		CHECK_LIST_ITEMS(dst, {0 _ 1 _ 2});
 	});
