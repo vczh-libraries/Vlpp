@@ -368,4 +368,64 @@ TEST_FILE
 		CopyFrom(keys, groups[L"2"]);
 		CHECK_LIST_ITEMS(keys, {2 _ 5 _ 8});
 	});
+
+	TEST_CASE(L"Test First() / Last() / Count() / IsEmpty()")
+	{
+		{
+			List<vint> src;
+			for (vint i = 1; i <= 10; i++)
+			{
+				src.Add(i);
+			}
+			auto dst = From(src).Select(Square).Select(Double);
+			TEST_ASSERT(dst.First() == 2);
+			TEST_ASSERT(dst.Last() == 200);
+			TEST_ASSERT(dst.Count() == 10);
+			TEST_ASSERT(dst.IsEmpty() == false);
+		}
+		{
+			List<vint> src;
+			for (vint i = 1; i <= 10; i++)
+			{
+				src.Add(i);
+			}
+			auto dst = From(src).Where([](vint i) { return false; });
+			TEST_ASSERT(dst.Count() == 0);
+			TEST_ASSERT(dst.IsEmpty() == true);
+		}
+	});
+
+	TEST_CASE(L"Test Evaluate(false)")
+	{
+		LazyList<vint> dst;
+		{
+			List<vint> src;
+			for (vint i = 1; i <= 10; i++)
+			{
+				src.Add(i);
+			}
+			dst = From(src).Select(Square).Select(Double).Evaluate(false);
+		}
+		TEST_ASSERT(dst.First() == 2);
+		TEST_ASSERT(dst.Last() == 200);
+		TEST_ASSERT(dst.Count() == 10);
+		TEST_ASSERT(dst.IsEmpty() == false);
+	});
+
+	TEST_CASE(L"Test Evaluate(true)")
+	{
+		LazyList<vint> dst;
+		{
+			List<vint> src;
+			for (vint i = 1; i <= 10; i++)
+			{
+				src.Add(i);
+			}
+			dst = From(src).Evaluate(true);
+		}
+		TEST_ASSERT(dst.First() == 1);
+		TEST_ASSERT(dst.Last() == 10);
+		TEST_ASSERT(dst.Count() == 10);
+		TEST_ASSERT(dst.IsEmpty() == false);
+	});
 }

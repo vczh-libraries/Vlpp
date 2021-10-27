@@ -31,13 +31,13 @@ TEST_FILE
 		vint src[] = {1,2,3};
 		List<vint> dst;
 
-		CopyFrom(dst, From(src).SelectMany([](vint i)
+		CopyFrom(dst, From(src).SelectMany([](auto i)
 		{
-			Ptr<List<vint>> xs = new List<vint>();
+			auto xs = MakePtr<List<decltype(i)>>();
 			xs->Add(i);
 			xs->Add(i * 2);
 			xs->Add(i * 3);
-			return LazyList<vint>(xs);
+			return LazyList<decltype(i)>(xs);
 		}));
 		CHECK_LIST_ITEMS(dst, {1 _ 2 _ 3 _ 2 _ 4 _ 6 _ 3 _ 6 _ 9});
 	});
@@ -71,153 +71,6 @@ TEST_FILE
 		TEST_ASSERT(From(src).Min() == 1);
 	});
 
-	TEST_CASE(L"Test Concat()")
-	{
-		{
-			List<vint> first;
-			List<vint> second;
-			List<vint> result;
-			for (vint i = 0; i < 5; i++)
-			{
-				first.Add(i);
-			}
-			for (vint i = 5; i < 10; i++)
-			{
-				second.Add(i);
-			}
-			CopyFrom(result, From(first).Concat(second));
-			CHECK_LIST_ITEMS(result, {0 _ 1 _ 2 _ 3 _ 4 _ 5 _ 6 _ 7 _ 8 _ 9});
-			CompareEnumerable(result, From(first).Concat(second));
-		}
-		{
-			List<vint> first;
-			List<vint> second;
-			List<vint> result;
-			for (vint i = 5; i < 10; i++)
-			{
-				second.Add(i);
-			}
-			CopyFrom(result, From(first).Concat(second));
-			CHECK_LIST_ITEMS(result, {5 _ 6 _ 7 _ 8 _ 9});
-			CompareEnumerable(result, From(first).Concat(second));
-		}
-		{
-			List<vint> first;
-			List<vint> second;
-			List<vint> result;
-			for (vint i = 0; i < 5; i++)
-			{
-				first.Add(i);
-			}
-			CopyFrom(result, From(first).Concat(second));
-			CHECK_LIST_ITEMS(result, {0 _ 1 _ 2 _ 3 _ 4});
-			CompareEnumerable(result, From(first).Concat(second));
-		}
-		{
-			List<vint> first;
-			List<vint> second;
-			List<vint> result;
-			CopyFrom(result, From(first).Concat(second));
-			TEST_ASSERT(result.Count() == 0);
-			CompareEnumerable(result, From(first).Concat(second));
-		}
-	});
-
-	TEST_CASE(L"Test Take() / Skip() / Repeat() / ")
-	{
-		List<vint> src;
-		List<vint> dst;
-		for (vint i = 0; i < 10; i++)
-		{
-			src.Add(i);
-		}
-
-		CopyFrom(dst, From(src).Take(5));
-		CHECK_LIST_ITEMS(dst, {0 _ 1 _ 2 _ 3 _ 4});
-		CompareEnumerable(dst, From(src).Take(5));
-		CopyFrom(dst, From(src).Take(15));
-		CHECK_LIST_ITEMS(dst, {0 _ 1 _ 2 _ 3 _ 4 _ 5 _ 6 _ 7 _ 8 _ 9});
-		CompareEnumerable(dst, From(src).Take(15));
-
-		CopyFrom(dst, From(src).Skip(5));
-		CHECK_LIST_ITEMS(dst, {5 _ 6 _ 7 _ 8 _ 9});
-		CompareEnumerable(dst, From(src).Skip(5));
-		CopyFrom(dst, From(src).Skip(15));
-		CHECK_EMPTY_LIST(dst);
-		CompareEnumerable(dst, From(src).Skip(15));
-
-		src.Clear();
-		for (vint i = 0; i < 3; i++)
-		{
-			src.Add(i);
-		}
-		CopyFrom(dst, From(src).Repeat(0));
-		CHECK_EMPTY_LIST(dst);
-		CompareEnumerable(dst, From(src).Repeat(0));
-		CopyFrom(dst, From(src).Repeat(1));
-		CHECK_LIST_ITEMS(dst, {0 _ 1 _ 2});
-		CompareEnumerable(dst, From(src).Repeat(1));
-		CopyFrom(dst, From(src).Repeat(2));
-		CHECK_LIST_ITEMS(dst, {0 _ 1 _ 2 _ 0 _ 1 _ 2});
-		CompareEnumerable(dst, From(src).Repeat(2));
-
-		src.Clear();
-		CopyFrom(dst, From(src).Repeat(0));
-		CHECK_EMPTY_LIST(dst);
-		CompareEnumerable(dst, From(src).Repeat(0));
-		CopyFrom(dst, From(src).Repeat(1));
-		CHECK_EMPTY_LIST(dst);
-		CompareEnumerable(dst, From(src).Repeat(1));
-		CopyFrom(dst, From(src).Repeat(2));
-		CHECK_EMPTY_LIST(dst);
-		CompareEnumerable(dst, From(src).Repeat(2));
-	});
-
-	TEST_CASE(L"Test Distinct()")
-	{
-		List<vint> first;
-		List<vint> second;
-		List<vint> result;
-		for (vint i = 0; i < 8; i++)
-		{
-			first.Add(i);
-		}
-		for (vint i = 2; i < 10; i++)
-		{
-			second.Add(i);
-		}
-		CopyFrom(result, From(first).Concat(second).Distinct());
-		CHECK_LIST_ITEMS(result, {0 _ 1 _ 2 _ 3 _ 4 _ 5 _ 6 _ 7 _ 8 _ 9});
-		CompareEnumerable(result, From(first).Concat(second).Distinct());
-		CopyFrom(result, From(first).Concat(second).Distinct().Reverse());
-		CHECK_LIST_ITEMS(result, {9 _ 8 _ 7 _ 6 _ 5 _ 4 _ 3 _ 2 _ 1 _ 0});
-		CompareEnumerable(result, From(first).Concat(second).Distinct().Reverse());
-	});
-
-	TEST_CASE(L"Test Intersect() / Except() / Union()")
-	{
-		List<vint> first;
-		List<vint> second;
-		List<vint> result;
-		for (vint i = 0; i < 8; i++)
-		{
-			first.Add(i);
-		}
-		for (vint i = 2; i < 10; i++)
-		{
-			second.Add(i);
-		}
-		CopyFrom(result, From(first).Intersect(second));
-		CHECK_LIST_ITEMS(result, {2 _ 3 _ 4 _ 5 _ 6 _ 7});
-		CompareEnumerable(result, From(first).Intersect(second));
-		CopyFrom(result, From(first).Except(second));
-		CHECK_LIST_ITEMS(result, {0 _ 1});
-		CompareEnumerable(result, From(first).Except(second));
-		CopyFrom(result, From(first).Union(second));
-		CHECK_LIST_ITEMS(result, {0 _ 1 _ 2 _ 3 _ 4 _ 5 _ 6 _ 7 _ 8 _ 9});
-		CompareEnumerable(result, From(first).Union(second));
-	});
-
 	TEST_CASE(L"Test Pairwise()")
 	{
 		List<vint> src;
@@ -235,52 +88,6 @@ TEST_FILE
 		CHECK_LIST_ITEMS(dst.Get(false), {4 _ 16 _ 36 _ 64 _ 100});
 		CopyFrom(pair, From(src).Select(Odd).Pairwise(From(src).Select(Square)));
 		CompareEnumerable(pair, From(src).Select(Odd).Pairwise(From(src).Select(Square)));
-	});
-
-	TEST_CASE(L"Test Cast()")
-	{
-		List<Ptr<Object>> src;
-		src.Add(new WString(L"0"));
-		src.Add(new WString(L"1"));
-		src.Add(new WString(L"2"));
-		src.Add(new AString("3"));
-		src.Add(new AString("4"));
-		src.Add(new AString("5"));
-
-		List<vint> dst;
-		CopyFrom(dst, From(src)
-			.Cast<WString>()
-			.Select([](Ptr<WString> o) {return o ? wtoi(*o.Obj()) : -1; })
-			);
-		CHECK_LIST_ITEMS(dst, {0 _ 1 _ 2 _ - 1 _ - 1 _ - 1});
-
-		CopyFrom(dst, From(src)
-			.FindType<WString>()
-			.Select([](Ptr<WString> o) {return o ? wtoi(*o.Obj()) : -1; })
-			);
-		CHECK_LIST_ITEMS(dst, {0 _ 1 _ 2});
-	});
-
-	TEST_CASE(L"Test Linq with List<Nullable<T>>")
-	{
-		List<Nullable<vint>> src;
-		src.Add(1);
-		src.Add(Nullable<vint>());
-		src.Add(2);
-		src.Add(Nullable<vint>());
-		src.Add(3);
-
-		List<vint> dst;
-		CopyFrom(dst, From(src)
-			.Select([](Nullable<vint> i) {return i ? i.Value() : -1; })
-			);
-		CHECK_LIST_ITEMS(dst, {1 _ - 1 _ 2 _ - 1 _ 3});
-
-		CopyFrom(dst, From(src)
-			.Where([](Nullable<vint> i) {return i; })
-			.Select([](Nullable<vint> i) {return i.Value(); })
-			);
-		CHECK_LIST_ITEMS(dst, {1 _ 2 _ 3});
 	});
 
 	TEST_CASE(L"Test Linq with functions")
@@ -313,7 +120,7 @@ TEST_FILE
 	{
 		Dictionary<WString, LazyList<vint>> groups;
 		List<vint> keys;
-		CopyFrom(groups, Range<vint>(1, 10).GroupBy([](vint i) {return itow(i % 3); }));
+		CopyFrom(groups, Range<vint>(1, 10).GroupBy([](auto i) {return itow(i % 3); }));
 
 		CopyFrom(keys, From(groups.Keys()).Select(wtoi));
 		CHECK_LIST_ITEMS(keys, {0 _ 1 _ 2});
@@ -323,5 +130,31 @@ TEST_FILE
 		CHECK_LIST_ITEMS(keys, {1 _ 4 _ 7 _ 10});
 		CopyFrom(keys, groups[L"2"]);
 		CHECK_LIST_ITEMS(keys, {2 _ 5 _ 8});
+	});
+
+	TEST_CASE(L"Test First() / Last() / Count() / IsEmpty()")
+	{
+		{
+			List<vint> src;
+			for (vint i = 1; i <= 10; i++)
+			{
+				src.Add(i);
+			}
+			auto dst = From(src).Select(Square).Select(Double);
+			TEST_ASSERT(dst.First() == 2);
+			TEST_ASSERT(dst.Last() == 200);
+			TEST_ASSERT(dst.Count() == 10);
+			TEST_ASSERT(dst.IsEmpty() == false);
+		}
+		{
+			List<vint> src;
+			for (vint i = 1; i <= 10; i++)
+			{
+				src.Add(i);
+			}
+			auto dst = From(src).Where([](auto) { return false; });
+			TEST_ASSERT(dst.Count() == 0);
+			TEST_ASSERT(dst.IsEmpty() == true);
+		}
 	});
 }
