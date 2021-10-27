@@ -749,10 +749,9 @@ LazyList
 			/// }
 			/// ]]></example>
 			template<typename F>
-			FUNCTION_RESULT_TYPE(F) SelectMany(F f)const
+			auto SelectMany(F f)const -> LazyList<typename decltype(f(std::declval<TInput>()))::ElementType>
 			{
-				typedef FUNCTION_RESULT_TYPE(F) LazyListU;
-				typedef typename LazyListU::ElementType U;
+				using  U = typename decltype(f(std::declval<TInput>()))::ElementType;
 				return Select(f).Aggregate(LazyList<U>(), [](const LazyList<U>& a, const IEnumerable<U>& b)->LazyList<U> {return a.Concat(b); });
 			}
 
@@ -780,9 +779,9 @@ LazyList
 			/// }
 			/// ]]></example>
 			template<typename F>
-			LazyList<Pair<FUNCTION_RESULT_TYPE(F), LazyList<T>>> GroupBy(F f)const
+			auto GroupBy(F f)const -> LazyList<Pair<decltype(f(std::declval<TInput>())), LazyList<T>>>
 			{
-				typedef FUNCTION_RESULT_TYPE(F) K;
+				using K = decltype(f(std::declval<TInput>()));
 				auto self = *this;
 				return Select(f)
 					.Distinct()
