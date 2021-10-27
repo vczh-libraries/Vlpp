@@ -63,6 +63,9 @@
     <ClCompile Include="..\..\Source\Strings\TestStringConversion.cpp">
       <Filter>Source Files\Strings</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\TestLinq_GenericLambda.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Source\AssertCollection.h">

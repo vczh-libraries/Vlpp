@@ -59,12 +59,6 @@ TEST_FILE
 {
 	TEST_CASE(L"Test Select()")
 	{
-		LazyList<vint> xs;
-		auto x = xs.Select(&Square);
-	});
-
-	TEST_CASE(L"Test Select() sequence")
-	{
 		List<vint> src;
 		List<vint> dst;
 		for (vint i = 1; i <= 10; i++)
