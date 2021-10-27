@@ -2,6 +2,8 @@
 
 ## 2.0
 
+- Add test cases for `First`, `Last`, `Count`, `IsEmpty`, `Evaluate`.
+- Try to support generic lambda on `Curry`.
 - Open backdoor for reflection implementation.
   - Each collection class stores a `Ptr<IReflectableCollectionBase>`, if a reflectable object is not created for this instance, it is `nullptr`.
   - When the collection class is disposed, call `IReflectableCollectionBase::OnDisposed`, notifying that this collection is no longer available.
