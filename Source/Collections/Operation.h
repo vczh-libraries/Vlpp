@@ -100,7 +100,7 @@ Quick Sort
 				vint candidate = (flag ? left : length - right - 1);
 				vint factor = (flag ? -1 : 1);
 
-				if (orderer(items[pivot], items[candidate])*factor <= 0)
+				if (orderer(items[pivot], items[candidate]) * factor <= 0)
 				{
 					mine++;
 				}
@@ -267,7 +267,7 @@ LazyList
 			template<typename U>
 			LazyList<Ptr<U>> Cast()const
 			{
-				Func<Ptr<U>(T)> f=[](T t)->Ptr<U>{return t.template Cast<U>();};
+				Func<Ptr<U>(T)> f = [](T t)->Ptr<U> {return t.template Cast<U>(); };
 				return new SelectEnumerator<T, Ptr<U>>(xs(), f);
 			}
 			
@@ -282,7 +282,7 @@ LazyList
 			template<typename U>
 			LazyList<Ptr<U>> FindType()const
 			{
-				return Cast<U>().Where([](Ptr<U> t){return t;});
+				return Cast<U>().Where([](Ptr<U> t) {return t; });
 			}
 			
 			/// <summary>Create a new lazy list with all elements sorted.</summary>
@@ -306,9 +306,9 @@ LazyList
 			template<typename F>
 			LazyList<T> OrderBy(F f)const
 			{
-				Ptr<List<T>> sorted=new List<T>;
+				Ptr<List<T>> sorted = new List<T>;
 				CopyFrom(*sorted.Obj(), *this);
-				if(sorted->Count()>0)
+				if (sorted->Count() > 0)
 				{
 					SortLambda<T, F>(&sorted->operator[](0), sorted->Count(), f);
 				}
@@ -338,15 +338,15 @@ LazyList
 			template<typename F>
 			T Aggregate(F f)const
 			{
-				Ptr<IEnumerator<T>> enumerator=CreateEnumerator();
-				if(!enumerator->Next())
+				Ptr<IEnumerator<T>> enumerator = CreateEnumerator();
+				if (!enumerator->Next())
 				{
 					throw Error(L"LazyList<T>::Aggregate(F)#Aggregate failed to calculate from an empty container.");
 				}
-				T result=enumerator->Current();
-				while(enumerator->Next())
+				T result = enumerator->Current();
+				while (enumerator->Next())
 				{
-					result=f(result, enumerator->Current());
+					result = f(result, enumerator->Current());
 				}
 				return result;
 			}
@@ -395,7 +395,7 @@ LazyList
 			template<typename F>
 			bool All(F f)const
 			{
-				return Select(f).Aggregate(true, [](bool a, bool b){return a&&b;});
+				return Select(f).Aggregate(true, [](bool a, bool b) { return a && b; });
 			}
 			
 			/// <summary>Test if any elements in the lazy list satisfy a filter.</summary>
@@ -413,7 +413,7 @@ LazyList
 			template<typename F>
 			bool Any(F f)const
 			{
-				return Select(f).Aggregate(false, [](bool a, bool b){return a||b;});
+				return Select(f).Aggregate(false, [](bool a, bool b) { return a || b; });
 			}
 
 			/// <summary>Get the maximum value in the lazy list. It will crash if the lazy list is empty.</summary>
@@ -428,7 +428,7 @@ LazyList
 			/// ]]></example>
 			T Max()const
 			{
-				return Aggregate([](T a, T b){return a>b?a:b;});
+				return Aggregate([](T a, T b) { return a > b ? a : b; });
 			}
 			
 			/// <summary>Get the minimum value in the lazy list. It will crash if the lazy list is empty.</summary>
@@ -443,15 +443,15 @@ LazyList
 			/// ]]></example>
 			T Min()const
 			{
-				return Aggregate([](T a, T b){return a<b?a:b;});
+				return Aggregate([](T a, T b) { return a < b ? a : b; });
 			}
 			
 			/// <summary>Get the first value in the lazy list. It will crash if the lazy list is empty.</summary>
 			/// <returns>The first value.</returns>
 			T First()const
 			{
-				Ptr<IEnumerator<T>> enumerator=CreateEnumerator();
-				if(!enumerator->Next())
+				Ptr<IEnumerator<T>> enumerator = CreateEnumerator();
+				if (!enumerator->Next())
 				{
 					throw Error(L"LazyList<T>::First(F)#First failed to calculate from an empty container.");
 				}
@@ -463,8 +463,8 @@ LazyList
 			/// <param name="defaultValue">The argument to return if the lazy list is empty.</param>
 			T First(T defaultValue)const
 			{
-				Ptr<IEnumerator<T>> enumerator=CreateEnumerator();
-				if(!enumerator->Next())
+				Ptr<IEnumerator<T>> enumerator = CreateEnumerator();
+				if (!enumerator->Next())
 				{
 					return defaultValue;
 				}
@@ -475,17 +475,17 @@ LazyList
 			/// <returns>The last value.</returns>
 			T Last()const
 			{
-				Ptr<IEnumerator<T>> enumerator=CreateEnumerator();
-				if(!enumerator->Next())
+				Ptr<IEnumerator<T>> enumerator = CreateEnumerator();
+				if (!enumerator->Next())
 				{
 					throw Error(L"LazyList<T>::Last(F)#Last failed to calculate from an empty container.");
 				}
 				else
 				{
-					T value=enumerator->Current();
-					while(enumerator->Next())
+					T value = enumerator->Current();
+					while (enumerator->Next())
 					{
-						value=enumerator->Current();
+						value = enumerator->Current();
 					}
 					return value;
 				}
@@ -496,10 +496,10 @@ LazyList
 			/// <param name="defaultValue">The argument to return if the lazy list is empty.</param>
 			T Last(T defaultValue)const
 			{
-				Ptr<IEnumerator<T>> enumerator=CreateEnumerator();
-				while(enumerator->Next())
+				Ptr<IEnumerator<T>> enumerator = CreateEnumerator();
+				while (enumerator->Next())
 				{
-					defaultValue=enumerator->Current();
+					defaultValue = enumerator->Current();
 				}
 				return defaultValue;
 			}
@@ -508,9 +508,9 @@ LazyList
 			/// <returns>The number of elements.</returns>
 			vint Count()const
 			{
-				vint result=0;
-				Ptr<IEnumerator<T>> enumerator=CreateEnumerator();
-				while(enumerator->Next())
+				vint result = 0;
+				Ptr<IEnumerator<T>> enumerator = CreateEnumerator();
+				while (enumerator->Next())
 				{
 					result++;
 				}
@@ -521,7 +521,7 @@ LazyList
 			/// <returns>Returns true if the lazy list is empty.</returns>
 			bool IsEmpty()const
 			{
-				Ptr<IEnumerator<T>> enumerator=CreateEnumerator();
+				Ptr<IEnumerator<T>> enumerator = CreateEnumerator();
 				return !enumerator->Next();
 			}
 
@@ -753,7 +753,7 @@ LazyList
 			{
 				typedef FUNCTION_RESULT_TYPE(F) LazyListU;
 				typedef typename LazyListU::ElementType U;
-				return Select(f).Aggregate(LazyList<U>(), [](const LazyList<U>& a, const IEnumerable<U>& b)->LazyList<U>{return a.Concat(b);});
+				return Select(f).Aggregate(LazyList<U>(), [](const LazyList<U>& a, const IEnumerable<U>& b)->LazyList<U> {return a.Concat(b); });
 			}
 
 			/// <summary>Create a new lazy list, with elements from this lazy list grouped by a key function.</summary>
@@ -790,7 +790,7 @@ LazyList
 					{
 						return Pair<K, LazyList<T>>(
 							k,
-							self.Where([=](T t){return k==f(t);})
+							self.Where([=](T t) {return k == f(t); })
 							);
 					});
 			}
