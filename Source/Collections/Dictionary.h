@@ -23,7 +23,7 @@ namespace vl
 			typename KK=typename KeyType<KT>::Type, 
 			typename VK=typename KeyType<VT>::Type
 		>
-		class Dictionary : public Object, public virtual IEnumerable<Pair<KT, VT>>
+		class Dictionary : public EnumerableBase<Pair<KT, VT>>
 		{
 		public:
 			typedef SortedList<KT, KK>			KeyContainer;
@@ -90,6 +90,11 @@ namespace vl
 		public:
 			/// <summary>Create an empty dictionary.</summary>
 			Dictionary() = default;
+
+			CollectionEntity GetCollectionEntity() const override
+			{
+				return CollectionEntity::Dictionary;
+			}
 
 			IEnumerator<Pair<KT, VT>>* CreateEnumerator()const
 			{
@@ -222,7 +227,7 @@ namespace vl
 			typename KK=typename KeyType<KT>::Type,
 			typename VK=typename KeyType<VT>::Type
 		>
-		class Group : public Object, public virtual IEnumerable<Pair<KT, VT>>
+		class Group : public EnumerableBase<Pair<KT, VT>>
 		{
 		public:
 			typedef SortedList<KT, KK>		KeyContainer;
@@ -329,6 +334,11 @@ namespace vl
 			~Group()
 			{
 				Clear();
+			}
+
+			CollectionEntity GetCollectionEntity() const override
+			{
+				return CollectionEntity::Group;
 			}
 
 			IEnumerator<Pair<KT, VT>>* CreateEnumerator()const

@@ -28,7 +28,7 @@ Memory Management
 		class ListStore;
 
 		template<typename T>
-		class ListStore<T, false> abstract : public Object
+		class ListStore<T, false> abstract : public EnumerableBase<T>
 		{
 		protected:
 			static void InitializeItemsByDefault(void* dst, vint count)
@@ -109,7 +109,7 @@ Memory Management
 		};
 
 		template<typename T>
-		class ListStore<T, true> abstract : public Object
+		class ListStore<T, true> abstract : public EnumerableBase<T>
 		{
 		protected:
 			static void InitializeItemsByDefault(void* dst, vint count)
@@ -165,7 +165,7 @@ ArrayBase
 		/// <summary>Base type of all linear container.</summary>
 		/// <typeparam name="T">Type of elements.</typeparam>
 		template<typename T>
-		class ArrayBase abstract : public ListStore<T>, public virtual IEnumerable<T>
+		class ArrayBase abstract : public ListStore<T>
 		{
 		protected:
 			class Enumerator : public Object, public virtual IEnumerator<T>
@@ -231,9 +231,6 @@ ArrayBase
 				return *(T*)AddressOf(buffer, index);
 			}
 		public:
-			ArrayBase()
-			{
-			}
 
 			IEnumerator<T>* CreateEnumerator()const
 			{
@@ -307,6 +304,11 @@ Array
 			{
 				this->ReleaseItems(this->buffer, this->count);
 				this->DeallocateBuffer(this->buffer);
+			}
+
+			CollectionEntity GetCollectionEntity() const override
+			{
+				return CollectionEntity::Array;
 			}
 
 			/// <summary>Test does the array contain a value or not.</summary>
@@ -457,9 +459,6 @@ ListBase
 				}
 			}
 		public:
-			ListBase()
-			{
-			}
 
 			~ListBase()
 			{
@@ -539,6 +538,11 @@ List
 		public:
 			/// <summary>Create an empty list.</summary>
 			List() = default;
+
+			CollectionEntity GetCollectionEntity() const override
+			{
+				return CollectionEntity::List;
+			}
 
 			/// <summary>Test does the list contain a value or not.</summary>
 			/// <returns>Returns true if the list contains the specified value.</returns>
@@ -695,6 +699,11 @@ SortedList
 		public:
 			/// <summary>Create an empty list.</summary>
 			SortedList() = default;
+
+			CollectionEntity GetCollectionEntity() const override
+			{
+				return CollectionEntity::SortedList;
+			}
 
 			/// <summary>Test does the list contain a value or not.</summary>
 			/// <returns>Returns true if the list contains the specified value.</returns>

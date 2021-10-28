@@ -152,7 +152,7 @@ LazyList
 		/// <p>In this way you get a lazy list with all values copied, they do not rely on other objects.</p>
 		/// </remarks>
 		template<typename T>
-		class LazyList : public Object, public IEnumerable<T>
+		class LazyList : public EnumerableBase<T>
 		{
 		protected:
 			Ptr<IEnumerator<T>>			enumeratorPrototype;
@@ -203,8 +203,13 @@ LazyList
 			
 			/// <summary>Create an empty lazy list.</summary>
 			LazyList()
-				:enumeratorPrototype(EmptyEnumerable<T>().CreateEnumerator())
+				:enumeratorPrototype(new EmptyEnumerator<T>())
 			{
+			}
+
+			CollectionEntity GetCollectionEntity() const override
+			{
+				return CollectionEntity::Unknown;
 			}
 
 			LazyList<T>& operator=(const LazyList<T>& lazyList)

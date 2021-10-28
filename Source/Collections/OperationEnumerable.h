@@ -19,44 +19,35 @@ EmptyEnumerable
 ***********************************************************************/
 
 		template<typename T>
-		class EmptyEnumerable : public Object, public IEnumerable<T>
+		class EmptyEnumerator : public Object, public virtual IEnumerator<T>
 		{
-		private:
-			class Enumerator : public Object, public virtual IEnumerator<T>
+			IEnumerator<T>* Clone()const override
 			{
-				IEnumerator<T>* Clone()const override
-				{
-					return new Enumerator;
-				}
+				return new EmptyEnumerator<T>();
+			}
 
-				const T& Current()const override
-				{
-					CHECK_FAIL(L"EmptyEnumerable<T>::Enumerator::Current()#This collection is empty.");
-				}
-
-				vint Index()const override
-				{
-					return -1;
-				}
-
-				bool Next()override
-				{
-					return false;
-				}
-
-				void Reset()override
-				{
-				}
-
-				bool Evaluated()const override
-				{
-					return true;
-				}
-			};
-		public:
-			IEnumerator<T>* CreateEnumerator()const
+			const T& Current()const override
 			{
-				return new Enumerator;
+				CHECK_FAIL(L"EmptyEnumerable<T>::Enumerator::Current()#This collection is empty.");
+			}
+
+			vint Index()const override
+			{
+				return -1;
+			}
+
+			bool Next()override
+			{
+				return false;
+			}
+
+			void Reset()override
+			{
+			}
+
+			bool Evaluated()const override
+			{
+				return true;
 			}
 		};
 

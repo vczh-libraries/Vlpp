@@ -336,7 +336,7 @@ FromIterator
 ***********************************************************************/
 
 		template<typename T, typename I>
-		class FromIteratorEnumerable : public Object, public IEnumerable<T>
+		class FromIteratorEnumerable : public EnumerableBase<T>
 		{
 		private:
 			class Enumerator : public Object, public IEnumerator<T>
@@ -389,6 +389,11 @@ FromIterator
 			I					begin;
 			I					end;
 		public:
+			CollectionEntity GetCollectionEntity() const override
+			{
+				return CollectionEntity::Unknown;
+			}
+
 			IEnumerator<T>* CreateEnumerator()const
 			{
 				return new Enumerator(begin, end, begin - 1);

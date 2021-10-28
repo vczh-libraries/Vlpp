@@ -14,6 +14,28 @@ namespace vl
 {
 	namespace collections
 	{
+/***********************************************************************
+Reflection
+***********************************************************************/
+
+		/// <summary>
+		/// Collection type
+		/// </summary>
+		enum class CollectionEntity
+		{
+			Array,
+			List,
+			SortedList,
+			Dictionary,
+			Group,
+			Unknown,
+		};
+
+		class ICollectionReference : public virtual Interface
+		{
+		public:
+			virtual void								OnDisposed() = 0;
+		};
 
 /***********************************************************************
 Interfaces
@@ -105,7 +127,76 @@ Interfaces
 			/// "for (auto x : xs);", "for (auto [x, i] : indexed(xs));", <see cref="CopyFrom`*"/> and <see cref="LazyList`1"/> do all the jobs for you.
 			/// </remarks>
 			/// <returns>The enumerator.</returns>
-			virtual IEnumerator<T>*						CreateEnumerator()const=0;
+			virtual IEnumerator<T>*						CreateEnumerator() const = 0;
+
+			/// <summary>Get the underlying collection type.</summary>
+			/// <returns>The underlying collection type.</returns>
+			virtual CollectionEntity					GetCollectionEntity() const = 0;
+
+			/// <summary>Get the underlying collection object.</summary>
+			/// <returns>
+			/// The underlying collection object.
+			/// It could returns nullptr when <see cref="GetCollectionEntity"/> returns <see cref="CollectionEntity::Unknown"/>.
+			/// </returns>
+			virtual const Object*						GetCollectionObject() const = 0;
+
+			/// <summary>Get the associated collection reference.</summary>
+			/// <returns>The associated collection reference.</returns>
+			virtual Ptr<ICollectionReference>			GetCollectionReference() const = 0;
+
+			/// <summary>
+			/// Associate a collection reference to this collection.
+			/// It will crash if one has been associated.
+			/// <see cref="ICollectionReference::OnDisposed"/> will be called when this collection is no longer available.
+			/// </summary>
+			/// <param name="ref">The associated collection reference.</param>
+			virtual void								SetCollectionReference(Ptr<ICollectionReference> ref) const = 0;
+
+			/// <summary>
+			/// Get the strong-typed associated collection reference.
+			/// It returns nullptr when none has been associated.
+			/// It throws when one has been associated but the type is unexpected.
+			/// </summary>
+			/// <typeparam name="T">The expected type of the associated collection reference.</typeparam>
+			/// <returns>The strong-typed associated collection reference.</returns>
+			template<typename U>
+			Ptr<U> TryGetCollectionReference()
+			{
+				auto ref = GetCollectionReference();
+				if (!ref) return nullptr;
+				auto sref = ref.Cast<U>();
+				CHECK_ERROR(sref, L"IEnumerable<T>::TryGetCollectionReference<U>()#The associated collection reference has an unexpected type.");
+				return sref;
+			}
+		};
+
+		template<typename T>
+		class EnumerableBase : public Object, public virtual IEnumerable<T>
+		{
+		private:
+			mutable Ptr<ICollectionReference>			colref;
+
+		public:
+			~EnumerableBase()
+			{
+				if (colref) colref->OnDisposed();
+			}
+
+			const Object* GetCollectionObject() const override
+			{
+				return this;
+			}
+
+			Ptr<ICollectionReference> GetCollectionReference() const override
+			{
+				return colref;
+			}
+
+			void SetCollectionReference(Ptr<ICollectionReference> ref) const override
+			{
+				CHECK_ERROR(!colref, L"EnumerableBase<T>::SetCollectionReference(Ptr<ICollectionReference>)#Cannot associate another collection reference to this collection.");
+				colref = ref;
+			}
 		};
 
 /***********************************************************************
