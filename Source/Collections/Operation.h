@@ -190,6 +190,15 @@ LazyList
 			LazyList(const LazyList<T>& lazyList)
 				:enumeratorPrototype(lazyList.enumeratorPrototype)
 			{
+				// no need to clone enumeratorPrototype as it will never be iterated
+			}
+
+			/// <summary>Create a lazy list from another lazy list.</summary>
+			/// <param name="lazyList">The lazy list.</param>
+			LazyList(LazyList<T>&& lazyList)
+				:enumeratorPrototype(lazyList.enumeratorPrototype)
+			{
+				lazyList.enumeratorPrototype = nullptr;
 			}
 			
 			/// <summary>Create a lazy list from a container. It is very useful to <see cref="MakePtr`2"/> a container as an intermediate result and then put in a lazy list.</summary>
@@ -214,7 +223,15 @@ LazyList
 
 			LazyList<T>& operator=(const LazyList<T>& lazyList)
 			{
-				enumeratorPrototype=lazyList.enumeratorPrototype;
+				// no need to clone enumeratorPrototype as it will never be iterated
+				enumeratorPrototype = lazyList.enumeratorPrototype;
+				return *this;
+			}
+
+			LazyList<T>& operator=(LazyList<T>&& lazyList)
+			{
+				enumeratorPrototype = lazyList.enumeratorPrototype;
+				lazyList.enumeratorPrototype = nullptr;
 				return *this;
 			}
 
@@ -317,7 +334,7 @@ LazyList
 				{
 					SortLambda<T, F>(&sorted->operator[](0), sorted->Count(), f);
 				}
-				return new ContainerEnumerator<T, List<T>>(sorted);
+				return sorted;
 			}
 
 			//-------------------------------------------------------
