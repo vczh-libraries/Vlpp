@@ -28,6 +28,8 @@ Reflection
 			SortedList,
 			Dictionary,
 			Group,
+			ObservableListBase,
+			ObservableList,
 			Unknown,
 		};
 
