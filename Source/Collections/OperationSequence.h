@@ -389,11 +389,6 @@ FromIterator
 			I					begin;
 			I					end;
 		public:
-			CollectionEntity GetCollectionEntity() const override
-			{
-				return CollectionEntity::Unknown;
-			}
-
 			IEnumerator<T>* CreateEnumerator()const
 			{
 				return new Enumerator(begin, end, begin - 1);

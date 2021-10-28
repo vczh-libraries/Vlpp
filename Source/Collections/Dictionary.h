@@ -91,11 +91,6 @@ namespace vl
 			/// <summary>Create an empty dictionary.</summary>
 			Dictionary() = default;
 
-			CollectionEntity GetCollectionEntity() const override
-			{
-				return CollectionEntity::Dictionary;
-			}
-
 			IEnumerator<Pair<KT, VT>>* CreateEnumerator()const
 			{
 				return new Enumerator(this);
@@ -334,11 +329,6 @@ namespace vl
 			~Group()
 			{
 				Clear();
-			}
-
-			CollectionEntity GetCollectionEntity() const override
-			{
-				return CollectionEntity::Group;
 			}
 
 			IEnumerator<Pair<KT, VT>>* CreateEnumerator()const

@@ -18,21 +18,6 @@ namespace vl
 Reflection
 ***********************************************************************/
 
-		/// <summary>
-		/// Collection type
-		/// </summary>
-		enum class CollectionEntity
-		{
-			Array,
-			List,
-			SortedList,
-			Dictionary,
-			Group,
-			ObservableListBase,
-			ObservableList,
-			Unknown,
-		};
-
 		class ICollectionReference : public virtual Interface
 		{
 		public:
@@ -130,10 +115,6 @@ Interfaces
 			/// </remarks>
 			/// <returns>The enumerator.</returns>
 			virtual IEnumerator<T>*						CreateEnumerator() const = 0;
-
-			/// <summary>Get the underlying collection type.</summary>
-			/// <returns>The underlying collection type.</returns>
-			virtual CollectionEntity					GetCollectionEntity() const = 0;
 
 			/// <summary>Get the underlying collection object.</summary>
 			/// <returns>

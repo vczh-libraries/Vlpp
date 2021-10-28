@@ -306,11 +306,6 @@ Array
 				this->DeallocateBuffer(this->buffer);
 			}
 
-			CollectionEntity GetCollectionEntity() const override
-			{
-				return CollectionEntity::Array;
-			}
-
 			/// <summary>Test does the array contain a value or not.</summary>
 			/// <returns>Returns true if the array contains the specified value.</returns>
 			/// <param name="item">The value to test.</param>
@@ -539,11 +534,6 @@ List
 			/// <summary>Create an empty list.</summary>
 			List() = default;
 
-			CollectionEntity GetCollectionEntity() const override
-			{
-				return CollectionEntity::List;
-			}
-
 			/// <summary>Test does the list contain a value or not.</summary>
 			/// <returns>Returns true if the list contains the specified value.</returns>
 			/// <param name="item">The value to test.</param>
@@ -699,11 +689,6 @@ SortedList
 		public:
 			/// <summary>Create an empty list.</summary>
 			SortedList() = default;
-
-			CollectionEntity GetCollectionEntity() const override
-			{
-				return CollectionEntity::SortedList;
-			}
 
 			/// <summary>Test does the list contain a value or not.</summary>
 			/// <returns>Returns true if the list contains the specified value.</returns>

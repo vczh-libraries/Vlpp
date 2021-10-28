@@ -216,11 +216,6 @@ LazyList
 			{
 			}
 
-			CollectionEntity GetCollectionEntity() const override
-			{
-				return CollectionEntity::Unknown;
-			}
-
 			LazyList<T>& operator=(const LazyList<T>& lazyList)
 			{
 				// no need to clone enumeratorPrototype as it will never be iterated
