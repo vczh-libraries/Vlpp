@@ -68,6 +68,8 @@ Utfto32ReaderBase<T> and UtfFrom32ReaerBase<T>
 			vint					read = 0;
 			vint					available = 0;
 			T						buffer[BufferLength];
+
+			vint					consumeCounter = 0;
 			vint					readCounter = 0;
 			bool					error = false;
 		public:
@@ -81,6 +83,7 @@ Utfto32ReaderBase<T> and UtfFrom32ReaerBase<T>
 					{
 						available = UtfConversion<T>::From32(c, buffer);
 						if (available == -1) return 0;
+						consumeCounter++;
 					}
 					else
 					{
@@ -100,7 +103,7 @@ Utfto32ReaderBase<T> and UtfFrom32ReaerBase<T>
 
 			UtfCharCluster SourceCluster() const
 			{
-				return { -1,-1 };
+				return { consumeCounter - 1,1 };
 			}
 
 			bool HasIllegalChar() const
@@ -115,6 +118,8 @@ Utfto32ReaderBase<T> and UtfFrom32ReaerBase<T>
 			static const vint		BufferLength = UtfConversion<T>::BufferLength;
 			vint					available = 0;
 			T						buffer[BufferLength];
+
+			UtfCharCluster			sourceCluster = { 0,0 };
 			vint					readCounter = 0;
 			bool					error = false;
 		public:
@@ -152,6 +157,8 @@ Utfto32ReaderBase<T> and UtfFrom32ReaerBase<T>
 					buffer[i] = buffer[i + result];
 				}
 				readCounter++;
+				sourceCluster.index += sourceCluster.size;
+				sourceCluster.size = result;
 				return dest;
 			}
 
@@ -162,7 +169,7 @@ Utfto32ReaderBase<T> and UtfFrom32ReaerBase<T>
 
 			UtfCharCluster SourceCluster() const
 			{
-				return { -1,-1 };
+				return sourceCluster;
 			}
 
 			bool HasIllegalChar() const
