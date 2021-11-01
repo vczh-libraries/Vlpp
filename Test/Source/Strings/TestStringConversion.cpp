@@ -20,6 +20,42 @@ namespace TestString_TestObjects
 	{
 		return size;
 	}
+
+	template<typename TFrom, typename TTo>
+	struct ReaderOf { using Type = UtfStringToStringReader<TFrom, TTo>; };
+	template<typename TTo>
+	struct ReaderOf<char32_t, TTo> { using Type = UtfStringFrom32Reader<TTo>; };
+	template<typename TFrom>
+	struct ReaderOf<TFrom, char32_t> { using Type = UtfStringTo32Reader<TFrom>; };
+
+	template<typename TFrom, typename TTo, vint TextSizeFrom, vint TextSizeTo, vint ClusterSize>
+	void TestCluster(
+		const TFrom(&textFrom)[TextSizeFrom],
+		const vint(&clusterFrom)[ClusterSize],
+		const TTo(&textTo)[TextSizeTo],
+		const vint(&clusterTo)[ClusterSize]
+		)
+	{
+		typename ReaderOf<TFrom, TTo>::Type reader(textFrom);
+		vint iFrom = 0;
+		vint iTo = 0;
+		for (vint c = 0; c < ClusterSize; c++)
+		{
+			vint cFrom = clusterFrom[c];
+			vint cTo = clusterTo[c];
+			for (vint i = 0; i < cTo; i++)
+			{
+				TEST_ASSERT(reader.Read() == textTo[iTo + i]);
+				TEST_ASSERT(reader.ReadingIndex() == iTo + i);
+				TEST_ASSERT(reader.SourceCluster().index == iFrom);
+				TEST_ASSERT(reader.SourceCluster().size == cFrom);
+			}
+			iFrom += cFrom;
+			iTo += cTo;
+		}
+		TEST_ASSERT(reader.Read() == 0);
+		TEST_ASSERT(reader.HasIllegalChar() == false);
+	}
 }
 using namespace TestString_TestObjects;
 
@@ -32,11 +68,19 @@ TEST_FILE
 
 	constexpr vint clusterU8[] = { 4,3,4,4,1,4,4,4,4,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,3,3,3 };
 	constexpr vint clusterU16[] = { 2,1,2,2,1,2,2,2,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1 };
+	constexpr vint clusterU32[] = { 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1 };
+#if defined VCZH_WCHAR_UTF16
+#define clusterL clusterU16
+#elif defined VCZH_WCHAR_UTF32
+#define clusterL clusterU32
+#endif
 
 	static_assert(Sum(clusterU8) + 1 == sizeof(textU8) / sizeof(*textU8));
 	static_assert(Sum(clusterU16) + 1 == sizeof(textU16) / sizeof(*textU16));
+	static_assert(Sum(clusterU32) + 1 == sizeof(textU32) / sizeof(*textU32));
 	static_assert(sizeof(clusterU8) / sizeof(vint) + 1 == sizeof(textU32) / sizeof(*textU32));
 	static_assert(sizeof(clusterU16) / sizeof(vint) + 1 == sizeof(textU32) / sizeof(*textU32));
+	static_assert(sizeof(clusterU32) / sizeof(vint) + 1 == sizeof(textU32) / sizeof(*textU32));
 
 	TEST_CATEGORY(L"Unicode String Conversion")
 	{
@@ -99,5 +143,24 @@ TEST_FILE
 				}
 			}
 		});
+
+#define TEST_CASE_CLUSTER(FROM, TO)\
+		TEST_CASE(L"Text Cluster " L#FROM L" -> " L#TO)\
+		{\
+			TestCluster(text##FROM, cluster##FROM, text##TO, cluster##TO);\
+		})\
+
+		TEST_CASE_CLUSTER(L, U8);
+		TEST_CASE_CLUSTER(L, U16);
+		TEST_CASE_CLUSTER(L, U32);
+		TEST_CASE_CLUSTER(U8, L);
+		TEST_CASE_CLUSTER(U8, U16);
+		TEST_CASE_CLUSTER(U8, U32);
+		TEST_CASE_CLUSTER(U16, L);
+		TEST_CASE_CLUSTER(U16, U8);
+		TEST_CASE_CLUSTER(U16, U32);
+		TEST_CASE_CLUSTER(U32, L);
+		TEST_CASE_CLUSTER(U32, U8);
+		TEST_CASE_CLUSTER(U32, U16);
 	});
 }

@@ -55,6 +55,12 @@ UtfConversion<T>
 Utfto32ReaderBase<T> and UtfFrom32ReaerBase<T>
 ***********************************************************************/
 
+		struct UtfCharCluster
+		{
+			vint		index;
+			vint		size;
+		};
+
 		template<typename T, typename TBase>
 		class UtfFrom32ReaderBase : public Object
 		{
@@ -62,6 +68,7 @@ Utfto32ReaderBase<T> and UtfFrom32ReaerBase<T>
 			vint					read = 0;
 			vint					available = 0;
 			T						buffer[BufferLength];
+			vint					readCounter = 0;
 			bool					error = false;
 		public:
 			T Read()
@@ -82,7 +89,18 @@ Utfto32ReaderBase<T> and UtfFrom32ReaerBase<T>
 					}
 					read = 0;
 				}
+				readCounter++;
 				return buffer[read++];
+			}
+
+			vint ReadingIndex() const
+			{
+				return readCounter - 1;
+			}
+
+			UtfCharCluster SourceCluster() const
+			{
+				return { -1,-1 };
 			}
 
 			bool HasIllegalChar() const
@@ -97,6 +115,7 @@ Utfto32ReaderBase<T> and UtfFrom32ReaerBase<T>
 			static const vint		BufferLength = UtfConversion<T>::BufferLength;
 			vint					available = 0;
 			T						buffer[BufferLength];
+			vint					readCounter = 0;
 			bool					error = false;
 		public:
 			char32_t Read()
@@ -132,7 +151,18 @@ Utfto32ReaderBase<T> and UtfFrom32ReaerBase<T>
 				{
 					buffer[i] = buffer[i + result];
 				}
+				readCounter++;
 				return dest;
+			}
+
+			vint ReadingIndex() const
+			{
+				return readCounter - 1;
+			}
+
+			UtfCharCluster SourceCluster() const
+			{
+				return { -1,-1 };
 			}
 
 			bool HasIllegalChar() const
