@@ -11,32 +11,36 @@ namespace test_utf8_reader
 	void TestFrom32(const T(&st)[DestLength], const char32_t(&s32)[SourceLength])
 	{
 		UtfStringFrom32Reader<T> reader(s32);
-		TEST_ASSERT(reader.Starting() == s32);
-		TEST_ASSERT(reader.Current() == s32);
+		TEST_ASSERT(reader.ReadingIndex() == -1);
+		TEST_ASSERT(reader.SourceCluster().index == 0);
+		TEST_ASSERT(reader.SourceCluster().size == 0);
 		for (vint i = 0; i < DestLength; i++)
 		{
 			T r = reader.Read();
 			TEST_ASSERT(r == st[i]);
 		}
 		TEST_ASSERT(reader.Read() == 0);
-		TEST_ASSERT(reader.Starting() == s32);
-		TEST_ASSERT(reader.Current() == s32 + (SourceLength - 1));
+		TEST_ASSERT(reader.ReadingIndex() == DestLength - 1);
+		TEST_ASSERT(reader.SourceCluster().index == SourceLength - 1);
+		TEST_ASSERT(reader.SourceCluster().size == 0);
 	}
 
 	template<typename T, vint SourceLength, vint DestLength>
 	void TestTo32(const T(&st)[SourceLength], const char32_t(&s32)[DestLength])
 	{
 		UtfStringTo32Reader<T> reader(st);
-		TEST_ASSERT(reader.Starting() == st);
-		TEST_ASSERT(reader.Current() == st);
+		TEST_ASSERT(reader.ReadingIndex() == -1);
+		TEST_ASSERT(reader.SourceCluster().index == 0);
+		TEST_ASSERT(reader.SourceCluster().size == 0);
 		for (vint i = 0; i < DestLength; i++)
 		{
 			char32_t r = reader.Read();
 			TEST_ASSERT(r == s32[i]);
 		}
 		TEST_ASSERT(reader.Read() == 0);
-		TEST_ASSERT(reader.Starting() == st);
-		TEST_ASSERT(reader.Current() == st + (SourceLength - 1));
+		TEST_ASSERT(reader.ReadingIndex() == DestLength - 1);
+		TEST_ASSERT(reader.SourceCluster().index == SourceLength - 1);
+		TEST_ASSERT(reader.SourceCluster().size == 0);
 	}
 
 	template<typename T, typename TData, vint DestLength>

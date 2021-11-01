@@ -54,6 +54,9 @@ namespace TestString_TestObjects
 			iTo += cTo;
 		}
 		TEST_ASSERT(reader.Read() == 0);
+		TEST_ASSERT(reader.ReadingIndex() == iTo);
+		TEST_ASSERT(reader.SourceCluster().index == iFrom);
+		TEST_ASSERT(reader.SourceCluster().size == 0);
 		TEST_ASSERT(reader.HasIllegalChar() == false);
 	}
 }

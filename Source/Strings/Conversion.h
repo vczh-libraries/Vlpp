@@ -69,8 +69,8 @@ Utfto32ReaderBase<T> and UtfFrom32ReaerBase<T>
 			vint					available = 0;
 			T						buffer[BufferLength];
 
-			vint					consumeCounter = 0;
-			vint					readCounter = 0;
+			UtfCharCluster			sourceCluster = { 0,0 };
+			vint					readCounter = -1;
 			bool					error = false;
 		public:
 			T Read()
@@ -83,11 +83,15 @@ Utfto32ReaderBase<T> and UtfFrom32ReaerBase<T>
 					{
 						available = UtfConversion<T>::From32(c, buffer);
 						if (available == -1) return 0;
-						consumeCounter++;
+						sourceCluster.index += sourceCluster.size;
+						sourceCluster.size = 1;
 					}
 					else
 					{
 						available = -1;
+						readCounter++;
+						sourceCluster.index += sourceCluster.size;
+						sourceCluster.size = 0;
 						return 0;
 					}
 					read = 0;
@@ -98,12 +102,12 @@ Utfto32ReaderBase<T> and UtfFrom32ReaerBase<T>
 
 			vint ReadingIndex() const
 			{
-				return readCounter - 1;
+				return readCounter;
 			}
 
 			UtfCharCluster SourceCluster() const
 			{
-				return { consumeCounter - 1,1 };
+				return sourceCluster;
 			}
 
 			bool HasIllegalChar() const
@@ -120,7 +124,7 @@ Utfto32ReaderBase<T> and UtfFrom32ReaerBase<T>
 			T						buffer[BufferLength];
 
 			UtfCharCluster			sourceCluster = { 0,0 };
-			vint					readCounter = 0;
+			vint					readCounter = -1;
 			bool					error = false;
 		public:
 			char32_t Read()
@@ -138,6 +142,9 @@ Utfto32ReaderBase<T> and UtfFrom32ReaerBase<T>
 						if (available == 0)
 						{
 							available = -1;
+							readCounter++;
+							sourceCluster.index += sourceCluster.size;
+							sourceCluster.size = 0;
 							return 0;
 						}
 						break;
@@ -164,7 +171,7 @@ Utfto32ReaderBase<T> and UtfFrom32ReaerBase<T>
 
 			vint ReadingIndex() const
 			{
-				return readCounter - 1;
+				return readCounter;
 			}
 
 			UtfCharCluster SourceCluster() const
@@ -200,16 +207,6 @@ UtfStringTo32Reader<T> and UtfStringFrom32Reader<T>
 				: starting(_starting)
 				, consuming(_starting)
 			{
-			}
-
-			const T* Starting() const
-			{
-				return starting;
-			}
-
-			const T* Current() const
-			{
-				return consuming;
 			}
 		};
 
@@ -255,14 +252,9 @@ UtfStringTo32Reader<T> and UtfStringFrom32Reader<T>
 			{
 			}
 
-			const TFrom* Starting() const
+			UtfCharCluster SourceCluster() const
 			{
-				return internalReader.Starting();
-			}
-
-			const TFrom* Current() const
-			{
-				return internalReader.Current();
+				return internalReader.SourceCluster();
 			}
 
 			bool HasIllegalChar() const
