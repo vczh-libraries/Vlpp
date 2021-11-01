@@ -148,7 +148,7 @@ TEST_FILE
 		});
 
 #define TEST_CASE_CLUSTER(FROM, TO)\
-		TEST_CASE(L"Text Cluster " L#FROM L" -> " L#TO)\
+		TEST_CASE(L"Text Cluster " L ## #FROM L" -> " L ## #TO)\
 		{\
 			TestCluster(text##FROM, cluster##FROM, text##TO, cluster##TO);\
 		})\
