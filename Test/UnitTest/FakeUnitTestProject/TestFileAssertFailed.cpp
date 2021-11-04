@@ -23,7 +23,7 @@ TEST_FILE
 
 		TEST_CASE(L"Expect an Exception but get unexpected type")
 		{
-			TEST_EXCEPTION(throw ArgumentException(), ParsingException, [](const Exception&) {});
+			TEST_EXCEPTION(throw Exception(), ArgumentException, [](const Exception&) {});
 		});
 
 		TEST_CASE(L"Expect an Exception but the information is not correct")
