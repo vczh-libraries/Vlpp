@@ -4,9 +4,7 @@ Licensed under https://github.com/vczh-libraries/License
 ***********************************************************************/
 
 #include "Conversion.h"
-#if defined VCZH_MSVC
-#include <Windows.h>
-#elif defined VCZH_GCC
+#if defined VCZH_GCC
 #include <stdio.h>
 #include <ctype.h>
 #include <wctype.h>
@@ -252,24 +250,6 @@ UtfConversion<char16_t>
 /***********************************************************************
 String Conversions (buffer walkthrough)
 ***********************************************************************/
-
-	vint _wtoa(const wchar_t* w, char* a, vint chars)
-	{
-#if defined VCZH_MSVC
-		return WideCharToMultiByte(CP_THREAD_ACP, 0, w, -1, a, (int)(a ? chars : 0), 0, 0);
-#elif defined VCZH_GCC
-		return wcstombs(a, w, chars - 1) + 1;
-#endif
-	}
-
-	vint _atow(const char* a, wchar_t* w, vint chars)
-	{
-#if defined VCZH_MSVC
-		return MultiByteToWideChar(CP_THREAD_ACP, 0, a, -1, w, (int)(w ? chars : 0));
-#elif defined VCZH_GCC
-		return mbstowcs(w, a, chars - 1) + 1;
-#endif
-	}
 
 	template<typename TFrom, typename TTo, typename TReader>
 	vint _utftoutf_reader(const TFrom* s, TTo* d, vint chars)

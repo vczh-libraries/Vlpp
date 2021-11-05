@@ -149,8 +149,29 @@
     <ClCompile Include="..\..\..\Source\Strings\Conversion.cpp">
       <Filter>Common\Strings</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\Source\Primitives\DateTime.cpp">
+    <ClCompile Include="..\..\..\Source\Primitives\DateTime.Windows.cpp">
       <Filter>Common\Primitives</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Console.Windows.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Console.Linux.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\UnitTest\UnitTest.Windows.cpp">
+      <Filter>Common\UnitTest</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\UnitTest\UnitTest.Linux.cpp">
+      <Filter>Common\UnitTest</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Primitives\DateTime.Linux.cpp">
+      <Filter>Common\Primitives</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Strings\Conversion.Linux.cpp">
+      <Filter>Common\Strings</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Source\Strings\Conversion.Windows.cpp">
+      <Filter>Common\Strings</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

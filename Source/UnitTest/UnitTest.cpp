@@ -6,9 +6,6 @@ Licensed under https://github.com/vczh-libraries/License
 #include "UnitTest.h"
 #include "../Console.h"
 #include "../Strings/Conversion.h"
-#ifdef VCZH_MSVC
-#include <Windows.h>
-#endif
 
 namespace vl
 {
@@ -102,7 +99,7 @@ UnitTest
 				{
 					SuppressCppFailure(std::forward<TCallback&&>(callback));
 				}
-				__except (EXCEPTION_EXECUTE_HANDLER)
+				__except (/*EXCEPTION_EXECUTE_HANDLER*/ 1)
 				{
 					RecordFailure(L"Runtime exception occurred!");
 				}
@@ -155,50 +152,39 @@ UnitTest
 			Console::SetColor(true, true, true, false);
 		}
 
-#ifdef VCZH_MSVC
-		int UnitTest::RunAndDisposeTests(int argc, wchar_t* argv[])
-#else
-		int UnitTest::RunAndDisposeTests(int argc, char* argv[])
-#endif
+		int UnitTest::PrintUsages()
 		{
-			if (argc < 3)
+			PrintMessage(L"Usage: [/D | /R]", MessageKind::Error);
+			return 1;
+		}
+
+		int UnitTest::RunAndDisposeTests(Nullable<WString> option)
+		{
+			if (option)
 			{
-				if (argc == 2)
+				if (option.Value() == L"/D")
 				{
-#ifdef VCZH_MSVC
-					WString option = argv[1];
-#else
-					WString option = atow(argv[1]);
-#endif
-					if (option == L"/D")
-					{
-						suppressFailure = false;
-					}
-					else if (option == L"/R")
-					{
-						suppressFailure = true;
-					}
-					else
-					{
-						goto PRINT_USAGE;
-					}
+					suppressFailure = false;
+				}
+				else if (option.Value() == L"/R")
+				{
+					suppressFailure = true;
 				}
 				else
 				{
-#ifdef VCZH_MSVC
-					if (IsDebuggerPresent())
-					{
-						suppressFailure = false;
-					}
-					else
-					{
-						suppressFailure = true;
-					}
-#else
-					suppressFailure = true;
-#endif
+					return PrintUsages();
 				}
+			}
+			else if (IsDebuggerAttached())
+			{
+				suppressFailure = false;
+			}
+			else
+			{
+				suppressFailure = true;
+			}
 
+			{
 				auto current = testHead;
 				testHead = nullptr;
 				testTail = nullptr;
@@ -240,9 +226,44 @@ UnitTest
 				testContext = nullptr;
 				return passed ? 0 : 1;
 			}
-		PRINT_USAGE:
-			PrintMessage(L"Usage: [/D | /R]", MessageKind::Error);
-			return 1;
+		}
+
+		int UnitTest::RunAndDisposeTests(int argc, wchar_t* argv[])
+		{
+			if (argc < 3)
+			{
+				if (argc == 2)
+				{
+					return RunAndDisposeTests({ argv[1] });
+				}
+				else
+				{
+					return RunAndDisposeTests({});
+				}
+			}
+			else
+			{
+				return PrintUsages();
+			}
+		}
+
+		int UnitTest::RunAndDisposeTests(int argc, char* argv[])
+		{
+			if (argc < 3)
+			{
+				if (argc == 2)
+				{
+					return RunAndDisposeTests({ atow(argv[1]) });
+				}
+				else
+				{
+					return RunAndDisposeTests({});
+				}
+			}
+			else
+			{
+				return PrintUsages();
+			}
 		}
 
 		void UnitTest::RegisterTestFile(const char* fileName, UnitTestFileProc testProc)

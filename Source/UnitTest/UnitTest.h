@@ -97,6 +97,11 @@ namespace vl
 		/// ]]></example>
 		class UnitTest
 		{
+		protected:
+			static bool IsDebuggerAttached();
+			static int PrintUsages();
+			static int RunAndDisposeTests(Nullable<WString> option);
+
 		public:
 			UnitTest() = delete;
 
@@ -115,11 +120,13 @@ namespace vl
 			/// <returns>The return value for the main function. If any assertion fails, it is non-zero.</returns>
 			/// <param name="argc">Accept the first argument of the main function.</param>
 			/// <param name="argv">Accept the second argument of the main function.</param>
-#ifdef VCZH_MSVC
 			static int RunAndDisposeTests(int argc, wchar_t* argv[]);
-#else
+
+			/// <summary>Run all test cases.</summary>
+			/// <returns>The return value for the main function. If any assertion fails, it is non-zero.</returns>
+			/// <param name="argc">Accept the first argument of the main function.</param>
+			/// <param name="argv">Accept the second argument of the main function.</param>
 			static int RunAndDisposeTests(int argc, char* argv[]);
-#endif
 
 			static void RegisterTestFile(const char* fileName, UnitTestFileProc testProc);
 			static void RunCategoryOrCase(const WString& description, bool isCategory, Func<void()>&& callback);

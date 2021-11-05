@@ -3,31 +3,24 @@ Author: Zihan Chen (vczh)
 Licensed under https://github.com/vczh-libraries/License
 ***********************************************************************/
 
-#include "Console.h"
+#include "Conversion.h"
+#include <stdio.h>
+#include <ctype.h>
+#include <wctype.h>
 
 namespace vl
 {
-	namespace console
-	{
-		
 /***********************************************************************
-Console
+String Conversions (buffer walkthrough)
 ***********************************************************************/
 
-		void Console::Write(const wchar_t* string)
-		{
-			Write(string, wcslen(string));
-		}
+	vint _wtoa(const wchar_t* w, char* a, vint chars)
+	{
+		return wcstombs(a, w, chars - 1) + 1;
+	}
 
-		void Console::Write(const WString& string)
-		{
-			Write(string.Buffer(), string.Length());
-		}
-
-		void Console::WriteLine(const WString& string)
-		{
-			Write(string);
-			Write(L"\r\n");
-		}
+	vint _atow(const char* a, wchar_t* w, vint chars)
+	{
+		return mbstowcs(w, a, chars - 1) + 1;
 	}
 }

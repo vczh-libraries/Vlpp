@@ -3,31 +3,24 @@ Author: Zihan Chen (vczh)
 Licensed under https://github.com/vczh-libraries/License
 ***********************************************************************/
 
-#include "Console.h"
+#include "UnitTest.h"
+#include <Windows.h>
+
+#ifndef VCZH_GCC
+static_assert(false, "Do not build this file for Windows applications.");
+#endif
 
 namespace vl
 {
-	namespace console
+	namespace unittest
 	{
-		
 /***********************************************************************
-Console
+UnitTest
 ***********************************************************************/
 
-		void Console::Write(const wchar_t* string)
+		bool UnitTest::IsDebuggerAttached()
 		{
-			Write(string, wcslen(string));
-		}
-
-		void Console::Write(const WString& string)
-		{
-			Write(string.Buffer(), string.Length());
-		}
-
-		void Console::WriteLine(const WString& string)
-		{
-			Write(string);
-			Write(L"\r\n");
+			return false;
 		}
 	}
 }

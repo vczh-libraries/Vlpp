@@ -18,39 +18,39 @@ Date and Time
 	struct DateTime
 	{
 		/// <summary>The year.</summary>
-		vint				year;
+		vint				year = 0;
 		/// <summary>The month, from 1 to 12.</summary>
-		vint				month;
+		vint				month = 0;
 		/// <summary>The day, from 1 to 31.</summary>
-		vint				day;
+		vint				day = 0;
 		/// <summary>The hour, from 0 to 23.</summary>
-		vint				hour;
+		vint				hour = 0;
 		/// <summary>The minute, from 0 to 59.</summary>
-		vint				minute;
+		vint				minute = 0;
 		/// <summary>The second, from 0 to 60.</summary>
-		vint				second;
+		vint				second = 0;
 		/// <summary>The milliseconds, from 0 to 999.</summary>
-		vint				milliseconds;
+		vint				milliseconds = 0;
 
 		/// <summary>
 		/// The calculated total milliseconds. It is OS dependent because the start time is different.
 		/// It is from 0 to 6, representing Sunday to Saturday.
 		/// </summary>
-		vint				dayOfWeek;
+		vint				dayOfWeek = 0;
 
 		/// <summary>
 		/// The calculated total milliseconds. It is OS dependent because the start time is different.
 		/// You should not rely on the fact about how this value is created.
 		/// The only invariant thing is that, when an date time is earlier than another, the totalMilliseconds is lesser.
 		/// </summary>
-		vuint64_t			totalMilliseconds;
+		vuint64_t			totalMilliseconds = 0;
 
 		/// <summary>
 		/// The calculated file time for the date and time. It is OS dependent.
 		/// You should not rely on the fact about how this value is created.
 		/// The only invariant thing is that, when an date time is earlier than another, the filetime is lesser.
 		/// </summary>
-		vuint64_t			filetime;
+		vuint64_t			filetime = 0;
 
 		/// <summary>Get the current local time.</summary>
 		/// <returns>The current local time.</returns>
@@ -77,7 +77,7 @@ Date and Time
 		static DateTime		FromFileTime(vuint64_t filetime);
 
 		/// <summary>Create an empty date time value that is not meaningful.</summary>
-		DateTime();
+		DateTime() = default;
 
 		/// <summary>Convert the UTC time to the local time.</summary>
 		/// <returns>The UTC time.</returns>
