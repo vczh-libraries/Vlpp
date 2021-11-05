@@ -1,7 +1,13 @@
 <#
 CPP_TARGET=./Bin/UnitTest
 CPP_VCXPROJS=("../UnitTest/UnitTest/UnitTest.vcxproj" "../UnitTest/Vlpp/Vlpp.vcxproj")
-CPP_REMOVES=("../Source/TestLocale.cpp")
+CPP_REMOVES=(
+    "../../Source/Console.Windows.cpp"
+    "../../Source/Primitives/DateTime.Windows.cpp"
+    "../../Source/Strings/Conversion.Windows.cpp"
+    "../../Source/UnitTest/UnitTest.Windows.cpp"
+    "../Source/TestLocale.cpp"
+    )
 FOLDERS=("../Output")
 TARGETS=("${CPP_TARGET}")
 #>
