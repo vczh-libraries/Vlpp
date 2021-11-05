@@ -4,9 +4,16 @@
     <folder path="..\Source" />
   </folders>
   <categories>
-    <category name="vlpp" pattern="\Source\"/>
+    <category name="vlpp" pattern="\Source\">
+      <except pattern=".Windows.cpp"/>
+      <except pattern=".Linux.cpp"/>
+    </category>
+    <category name="vlpp.windows" pattern=".Windows."/>
+    <category name="vlpp.linux" pattern=".Linux."/>
   </categories>
   <output path=".">
     <codepair category="vlpp" filename="Vlpp" generate="true"/>
+    <codepair category="vlpp.windows" filename="Vlpp.Windows" generate="true"/>
+    <codepair category="vlpp.linux" filename="Vlpp.Linux" generate="true"/>
   </output>
 </codegen>
