@@ -7,7 +7,7 @@ Licensed under https://github.com/vczh-libraries/License
 #define VCZH_UNITTEST
 
 #include "../Strings/String.h"
-#include "../Function.h"
+#include "../Primitives/Function.h"
 #include "../Exception.h"
 
 namespace vl

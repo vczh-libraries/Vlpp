@@ -7,7 +7,7 @@ Licensed under https://github.com/vczh-libraries/License
 #define VCZH_COLLECTIONS_OPERATIONENUMERABLE
 
 #include "List.h"
-#include "../Pointer.h"
+#include "../Primitives/Pointer.h"
 
 namespace vl
 {

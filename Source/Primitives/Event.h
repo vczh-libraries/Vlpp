@@ -6,7 +6,7 @@ Licensed under https://github.com/vczh-libraries/License
 #define VCZH_EVENT
 
 #include "Function.h"
-#include "Collections/List.h"
+#include "../Collections/List.h"
 
 namespace vl
 {

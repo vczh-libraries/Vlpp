@@ -7,7 +7,7 @@ Licensed under https://github.com/vczh-libraries/License
 #define VCZH_COLLECTIONS_INTERFACES
 
 #include "../Basic.h"
-#include "../Pointer.h"
+#include "../Primitives/Pointer.h"
 #include "Pair.h"
 
 namespace vl

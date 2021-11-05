@@ -6,8 +6,8 @@ Licensed under https://github.com/vczh-libraries/License
 #ifndef VCZH_GLOBALSTORAGE
 #define VCZH_GLOBALSTORAGE
 
-#include "Pointer.h"
-#include "Strings/String.h"
+#include "./Primitives/Pointer.h"
+#include "./Strings/String.h"
 
 namespace vl
 {

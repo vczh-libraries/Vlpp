@@ -177,26 +177,26 @@
     <ClInclude Include="..\..\..\Source\Collections\Pair.h" />
     <ClInclude Include="..\..\..\Source\Collections\PartialOrdering.h" />
     <ClInclude Include="..\..\..\Source\Console.h" />
-    <ClInclude Include="..\..\..\Source\DateTime.h" />
-    <ClInclude Include="..\..\..\Source\Event.h" />
     <ClInclude Include="..\..\..\Source\Exception.h" />
-    <ClInclude Include="..\..\..\Source\Function.h" />
     <ClInclude Include="..\..\..\Source\GlobalStorage.h" />
-    <ClInclude Include="..\..\..\Source\Lazy.h" />
-    <ClInclude Include="..\..\..\Source\Pointer.h" />
+    <ClInclude Include="..\..\..\Source\Primitives\DateTime.h" />
+    <ClInclude Include="..\..\..\Source\Primitives\Event.h" />
+    <ClInclude Include="..\..\..\Source\Primitives\Function.h" />
+    <ClInclude Include="..\..\..\Source\Primitives\Lazy.h" />
+    <ClInclude Include="..\..\..\Source\Primitives\Pointer.h" />
+    <ClInclude Include="..\..\..\Source\Primitives\Tuple.h" />
     <ClInclude Include="..\..\..\Source\Strings\Conversion.h" />
     <ClInclude Include="..\..\..\Source\Strings\LoremIpsum.h" />
     <ClInclude Include="..\..\..\Source\Strings\String.h" />
-    <ClInclude Include="..\..\..\Source\Tuple.h" />
     <ClInclude Include="..\..\..\Source\UnitTest\UnitTest.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\Source\Basic.cpp" />
     <ClCompile Include="..\..\..\Source\Collections\PartialOrdering.cpp" />
     <ClCompile Include="..\..\..\Source\Console.cpp" />
-    <ClCompile Include="..\..\..\Source\DateTime.cpp" />
     <ClCompile Include="..\..\..\Source\Exception.cpp" />
     <ClCompile Include="..\..\..\Source\GlobalStorage.cpp" />
+    <ClCompile Include="..\..\..\Source\Primitives\DateTime.cpp" />
     <ClCompile Include="..\..\..\Source\Strings\Conversion.cpp" />
     <ClCompile Include="..\..\..\Source\Strings\LoremIpsum.cpp" />
     <ClCompile Include="..\..\..\Source\Strings\String.cpp" />

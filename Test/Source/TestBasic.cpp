@@ -1,8 +1,8 @@
 #include "../../Source/UnitTest/UnitTest.h"
-#include "../../Source/DateTime.h"
-#include "../../Source/Pointer.h"
-#include "../../Source/Tuple.h"
-#include "../../Source/Lazy.h"
+#include "../../Source/Primitives/DateTime.h"
+#include "../../Source/Primitives/Pointer.h"
+#include "../../Source/Primitives/Tuple.h"
+#include "../../Source/Primitives/Lazy.h"
 
 using namespace vl;
 

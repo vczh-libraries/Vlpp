@@ -25,6 +25,9 @@
     <Filter Include="Common\Strings">
       <UniqueIdentifier>{6ed5930c-1a5c-479d-aba9-e2af1fd41c58}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Common\Primitives">
+      <UniqueIdentifier>{c5157319-3aa4-480a-9df7-8c1918f24f0d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\Source\Basic.h">
@@ -33,25 +36,10 @@
     <ClInclude Include="..\..\..\Source\Console.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Source\Event.h">
-      <Filter>Common</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\Source\Exception.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Source\Function.h">
-      <Filter>Common</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\Source\GlobalStorage.h">
-      <Filter>Common</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Source\Lazy.h">
-      <Filter>Common</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Source\Pointer.h">
-      <Filter>Common</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\Source\Tuple.h">
       <Filter>Common</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\Source\UnitTest\UnitTest.h">
@@ -114,8 +102,23 @@
     <ClInclude Include="..\..\..\Source\Strings\Conversion.h">
       <Filter>Common\Strings</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Source\DateTime.h">
-      <Filter>Common</Filter>
+    <ClInclude Include="..\..\..\Source\Primitives\DateTime.h">
+      <Filter>Common\Primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\Primitives\Event.h">
+      <Filter>Common\Primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\Primitives\Function.h">
+      <Filter>Common\Primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\Primitives\Lazy.h">
+      <Filter>Common\Primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\Primitives\Pointer.h">
+      <Filter>Common\Primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Source\Primitives\Tuple.h">
+      <Filter>Common\Primitives</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -146,8 +149,8 @@
     <ClCompile Include="..\..\..\Source\Strings\Conversion.cpp">
       <Filter>Common\Strings</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\Source\DateTime.cpp">
-      <Filter>Common</Filter>
+    <ClCompile Include="..\..\..\Source\Primitives\DateTime.cpp">
+      <Filter>Common\Primitives</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

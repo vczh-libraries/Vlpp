@@ -6,7 +6,7 @@ Licensed under https://github.com/vczh-libraries/License
 #ifndef VCZH_FUNCTION
 #define VCZH_FUNCTION
 #include <memory.h>
-#include "Basic.h"
+#include "../Basic.h"
 #include "Pointer.h"
 namespace vl
 {

@@ -6,7 +6,7 @@ Licensed under https://github.com/vczh-libraries/License
 #ifndef VCZH_POINTER
 #define VCZH_POINTER
 
-#include "Basic.h"
+#include "../Basic.h"
 
 namespace vl
 {

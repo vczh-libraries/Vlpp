@@ -1,6 +1,6 @@
 #include "../../Source/UnitTest/UnitTest.h"
-#include "../../Source/Function.h"
-#include "../../Source/Event.h"
+#include "../../Source/Primitives/Function.h"
+#include "../../Source/Primitives/Event.h"
 #include "../../Source/Collections/List.h"
 
 using namespace vl;
