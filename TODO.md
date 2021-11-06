@@ -2,6 +2,8 @@
 
 ## 2.0
 
+- Revisit `README.md` for all repos.
+
 ## Optional
 
 - Support generic lambda on `Curry`.
