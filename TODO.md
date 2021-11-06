@@ -2,9 +2,6 @@
 
 ## 2.0
 
-- Move platform-dependent code to like `*.Windows.cpp`.
-  - If macOS and Linux shares the same code file, it becomes `*.Linux.cpp`, `CodePack.exe` will copy `*.Linux.cpp` to `*.MacOS.cpp` in Release folder.
-
 ## Optional
 
 - Support generic lambda on `Curry`.
