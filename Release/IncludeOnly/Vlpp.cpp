@@ -6,7 +6,6 @@ DEVELOPER: Zihan Chen(vczh)
 
 #include "..\..\Source\Basic.cpp"
 #include "..\..\Source\Console.cpp"
-#include "..\..\Source\DateTime.cpp"
 #include "..\..\Source\Exception.cpp"
 #include "..\..\Source\GlobalStorage.cpp"
 #include "..\..\Source\Collections\PartialOrdering.cpp"

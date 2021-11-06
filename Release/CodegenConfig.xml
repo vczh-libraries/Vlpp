@@ -5,8 +5,8 @@
   </folders>
   <categories>
     <category name="vlpp" pattern="\Source\">
-      <except pattern=".Windows.cpp"/>
-      <except pattern=".Linux.cpp"/>
+      <except pattern=".Windows."/>
+      <except pattern=".Linux."/>
     </category>
     <category name="vlpp.windows" pattern=".Windows."/>
     <category name="vlpp.linux" pattern=".Linux."/>
