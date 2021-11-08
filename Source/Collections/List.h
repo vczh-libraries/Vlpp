@@ -337,13 +337,15 @@ Array
 			}
 
 			/// <summary>Replace an element in the specified position.</summary>
+			/// <typeparam name="TItem">The type of the new value.</typeparam>
 			/// <returns>Returns true if this operation succeeded. It will crash when the index is out of range</returns>
 			/// <param name="index">The position of the element to replace.</param>
 			/// <param name="item">The new value to replace.</param>
-			bool Set(vint index, const T& item)
+			template<typename TItem>
+			bool Set(vint index, TItem&& item)
 			{
 				CHECK_ERROR(index >= 0 && index < this->count, L"Array<T, K>::Set(vint)#Argument index not in range.");
-				this->buffer[index] = item;
+				this->buffer[index] = std::forward<TItem&&>(item);
 				return true;
 			}
 
@@ -520,13 +522,15 @@ List
 			}
 
 			/// <summary>Replace an element in the specified position.</summary>
+			/// <typeparam name="TItem">The type of the new value.</typeparam>
 			/// <returns>Returns true if this operation succeeded. It will crash when the index is out of range</returns>
 			/// <param name="index">The position of the element to replace.</param>
 			/// <param name="item">The new value to replace.</param>
-			bool Set(vint index, const T& item)
+			template<typename TItem>
+			bool Set(vint index, TItem&& item)
 			{
 				CHECK_ERROR(index >= 0 && index < this->count, L"List<T, K>::Set(vint)#Argument index not in range.");
-				this->buffer[index] = item;
+				this->buffer[index] = std::forward<TItem&&>(item);
 				return true;
 			}
 

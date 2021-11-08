@@ -162,6 +162,14 @@ namespace vl
 
 			/// <summary>Add a key with an associated value.</summary>
 			/// <returns>Returns true if the pair is added. If will crash if the key exists.</returns>
+			/// <param name="value">The pair of key and value.</param>
+			bool Add(Pair<KT, VT>&& value)
+			{
+				return Add(std::move(value.key), std::move(value.value));
+			}
+
+			/// <summary>Add a key with an associated value.</summary>
+			/// <returns>Returns true if the pair is added. If will crash if the key exists.</returns>
 			/// <param name="key">The key to add.</param>
 			/// <param name="value">The value to add.</param>
 			bool Add(const KT& key, const VT& value)
@@ -398,6 +406,18 @@ namespace vl
 			bool Add(const Pair<KT, VT>& value)
 			{
 				return Add(value.key, value.value);
+			}
+
+			/// <summary>
+			/// Add a key with an associated value.
+			/// If the key already exists, the value will be associated to the key with other values.
+			/// If this value has already been associated to the key, it will still be duplicated.
+			/// </summary>
+			/// <returns>Returns true if the pair is added.</returns>
+			/// <param name="value">The pair of key and value to add.</param>
+			bool Add(Pair<KT, VT>&& value)
+			{
+				return Add(std::move(value.key), std::move(value.value));
 			}
 
 			/// <summary>
