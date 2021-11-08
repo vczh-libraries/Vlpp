@@ -169,14 +169,22 @@ namespace vl
 			}
 
 			/// <summary>Add a key with an associated value.</summary>
+			/// <typeparam name="TKeyItem">The type of the new key.</typeparam>
+			/// <typeparam name="TValueItem">The type of the new value.</typeparam>
 			/// <returns>Returns true if the pair is added. If will crash if the key exists.</returns>
 			/// <param name="key">The key to add.</param>
 			/// <param name="value">The value to add.</param>
-			bool Add(const KT& key, const VT& value)
+			template<typename TKeyItem, typename TValueItem>
+			bool Add(TKeyItem&& key, TValueItem&& value)
 			{
-				CHECK_ERROR(!keys.Contains(KeyType<KT>::GetKeyValue(key)), L"Dictionary<KT, KK, ValueContainer, VT, VK>::Add(const KT&, const VT&)#Key already exists.");
-				vint index=keys.Add(key);
-				values.Insert(index, value);
+				using TKeyAccept = memory_management::AcceptType<KT, TKeyItem&&>;
+				using TKeyFoward = memory_management::ForwardType<KT, TKeyItem&&>;
+				TKeyAccept keyAccept = memory_management::RefOrConvert<KT>(std::forward<TKeyItem&&>(key));
+
+				CHECK_ERROR(!keys.Contains(KeyType<KT>::GetKeyValue(keyAccept)), L"Dictionary<KT, KK, ValueContainer, VT, VK>::Add(const KT&, const VT&)#Key already exists.");
+				vint index = keys.Add(std::forward<TKeyFoward>(keyAccept));
+				values.Insert(index, std::forward<TValueItem&&>(value));
+
 				return true;
 			}
 
@@ -425,23 +433,30 @@ namespace vl
 			/// If the key already exists, the value will be associated to the key with other values.
 			/// If this value has already been associated to the key, it will still be duplicated.
 			/// </summary>
+			/// <typeparam name="TKeyItem">The type of the new key.</typeparam>
+			/// <typeparam name="TValueItem">The type of the new value.</typeparam>
 			/// <returns>Returns true if the key and the value are added.</returns>
 			/// <param name="key">The key to add.</param>
 			/// <param name="value">The value to add.</param>
-			bool Add(const KT& key, const VT& value)
+			template<typename TKeyItem, typename TValueItem>
+			bool Add(TKeyItem&& key, TValueItem&& value)
 			{
-				ValueContainer* target=0;
-				vint index=keys.IndexOf(KeyType<KT>::GetKeyValue(key));
-				if(index==-1)
+				using TKeyAccept = memory_management::AcceptType<KT, TKeyItem&&>;
+				using TKeyFoward = memory_management::ForwardType<KT, TKeyItem&&>;
+				TKeyAccept keyAccept = memory_management::RefOrConvert<KT>(std::forward<TKeyItem&&>(key));
+
+				ValueContainer* target = nullptr;
+				vint index = keys.IndexOf(KeyType<KT>::GetKeyValue(keyAccept));
+				if (index == -1)
 				{
-					target=new ValueContainer;
-					values.Insert(keys.Add(key), target);
+					target = new ValueContainer;
+					values.Insert(keys.Add(std::forward<TKeyFoward>(keyAccept)), target);
 				}
 				else
 				{
-					target=values[index];
+					target = values[index];
 				}
-				target->Add(value);
+				target->Add(std::forward<TValueItem&&>(value));
 				return true;
 			}
 			

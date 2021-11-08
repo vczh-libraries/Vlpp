@@ -185,20 +185,25 @@ Memory Management
 			template<typename TItem, typename TArg>
 			struct Accept_<TItem, TArg, true>
 			{
-				using Type = TArg;
+				using TAccept = TArg;
+				using TForward = TArg;
 			};
 
 			template<typename TItem, typename TArg>
 			struct Accept_<TItem, TArg, false>
 			{
-				using Type = TItem;
+				using TAccept = TItem;
+				using TForward = TItem&&;
 			};
 
 			template<typename TItem, typename TArg>
-			using AcceptType = typename Accept_<TItem, TArg>::Type;
+			using AcceptType = typename Accept_<TItem, TArg>::TAccept;
 
 			template<typename TItem, typename TArg>
-			AcceptType<TItem, TArg&&> Forward(TArg&& arg)
+			using ForwardType = typename Accept_<TItem, TArg>::TForward;
+
+			template<typename TItem, typename TArg>
+			AcceptType<TItem, TArg&&> RefOrConvert(TArg&& arg)
 			{
 				return std::forward<TArg&&>(arg);
 			}
