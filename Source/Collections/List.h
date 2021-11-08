@@ -121,6 +121,31 @@ Memory Management
 				if (buffer == nullptr) return;
 				free(buffer);
 			}
+
+			template<typename T>
+			void ReleaseUnnecessaryBuffer(T*& items, vint& capacity, vint oldCount, vint newCount)
+			{
+				if (!items) return;
+
+				if(newCount < oldCount)
+				{
+					memory_management::CallDtors(&items[newCount], oldCount - newCount);
+				}
+
+				if (newCount <= capacity / 2 && newCount <= 8)
+				{
+					vint newCapacity = capacity * 5 / 8;
+					if (newCount < newCapacity)
+					{
+						T* newBuffer = memory_management::AllocateBuffer<T>(newCapacity);
+						memory_management::CallMoveCtors(newBuffer, items, newCount);
+						memory_management::CallDtors(items, newCount);
+						memory_management::DeallocateBuffer(items);
+						capacity = newCapacity;
+						items = newBuffer;
+					}
+				}
+			}
 		}
 
 /***********************************************************************
@@ -337,7 +362,6 @@ ListBase
 		{
 		protected:
 			vint					capacity = 0;
-			bool					lessMemoryMode = false;
 
 			vint CalculateCapacity(vint expected)
 			{
@@ -382,43 +406,12 @@ ListBase
 				}
 				this->count = newCount;
 			}
-
-			void ReleaseUnnecessaryBuffer(vint previousCount)
-			{
-				if (this->buffer && this->count < previousCount)
-				{
-					memory_management::CallDtors(&this->buffer[this->count], previousCount - this->count);
-				}
-				if (this->lessMemoryMode && this->count <= this->capacity / 2)
-				{
-					vint newCapacity = capacity * 5 / 8;
-					if (this->count < newCapacity)
-					{
-						T* newBuffer = memory_management::AllocateBuffer<T>(newCapacity);
-						memory_management::CallMoveCtors(newBuffer, this->buffer, this->count);
-						memory_management::CallDtors(this->buffer, this->count);
-						memory_management::DeallocateBuffer(this->buffer);
-						this->capacity = newCapacity;
-						this->buffer = newBuffer;
-					}
-				}
-			}
 		public:
 
 			~ListBase()
 			{
 				memory_management::CallDtors(this->buffer, this->count);
 				memory_management::DeallocateBuffer(this->buffer);
-			}
-
-			/// <summary>Set a preference of using memory.</summary>
-			/// <param name="mode">
-			/// Set to true (by default) to let the container actively reduce memories when there is too much room for unused elements.
-			/// This could happen after removing a lot of elements.
-			/// </param>
-			void SetLessMemoryMode(bool mode)
-			{
-				this->lessMemoryMode = mode;
 			}
 
 			/// <summary>Remove an element at a specified position.</summary>
@@ -430,7 +423,7 @@ ListBase
 				CHECK_ERROR(index >= 0 && index < this->count, L"ListBase<T, K>::RemoveAt(vint)#Argument index not in range.");
 				memory_management::CallMoveAssignmentsOverlapped(&this->buffer[index], &this->buffer[index + 1], this->count - index - 1);
 				this->count--;
-				ReleaseUnnecessaryBuffer(previousCount);
+				memory_management::ReleaseUnnecessaryBuffer(this->buffer, this->capacity, previousCount, this->count);
 				return true;
 			}
 
@@ -445,7 +438,7 @@ ListBase
 				CHECK_ERROR(index + _count >= 0 && index + _count <= this->count, L"ListBase<T,K>::RemoveRange(vint, vint)#Argument _count not in range.");
 				memory_management::CallMoveAssignmentsOverlapped(&this->buffer[index], &this->buffer[index + _count], this->count - index - _count);
 				this->count -= _count;
-				ReleaseUnnecessaryBuffer(previousCount);
+				memory_management::ReleaseUnnecessaryBuffer(this->buffer, this->capacity, previousCount, this->count);
 				return true;
 			}
 
@@ -455,17 +448,10 @@ ListBase
 			{
 				vint previousCount = this->count;
 				this->count = 0;
-				if (lessMemoryMode)
-				{
-					this->capacity = 0;
-					memory_management::CallDtors(this->buffer, this->count);
-					memory_management::DeallocateBuffer(this->buffer);
-					this->buffer = nullptr;
-				}
-				else
-				{
-					ReleaseUnnecessaryBuffer(previousCount);
-				}
+				this->capacity = 0;
+				memory_management::CallDtors(this->buffer, this->count);
+				memory_management::DeallocateBuffer(this->buffer);
+				this->buffer = nullptr;
 				return true;
 			}
 		};
