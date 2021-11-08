@@ -27,9 +27,53 @@ Memory Management
 		namespace memory_management
 		{
 			template<typename T>
+			void CallDefaultCtors(T* items, vint count)
+			{
+				if constexpr (!std::is_trivially_constructible_v<T>)
+				{
+					for (vint i = 0; i < count; i++)
+					{
+						new(&items[i])T();
+					}
+				}
+			}
+
+			template<typename T>
+			void CallCopyCtors(T* items, const T* source, vint count)
+			{
+				if constexpr (!std::is_trivially_copy_constructible_v<T>)
+				{
+					for (vint i = 0; i < count; i++)
+					{
+						new(&items[i])T(source[i]);
+					}
+				}
+				else
+				{
+					memcpy(items, source, sizeof(T) * count);
+				}
+			}
+
+			template<typename T>
+			void CallMoveCtors(T* items, T* source, vint count)
+			{
+				if constexpr (!std::is_trivially_move_constructible_v<T>)
+				{
+					for (vint i = 0; i < count; i++)
+					{
+						new(&items[i])T(std::move(source[i]));
+					}
+				}
+				else
+				{
+					memcpy(items, source, sizeof(T) * count);
+				}
+			}
+
+			template<typename T>
 			void CallDtors(T* items, vint count)
 			{
-				if constexpr (std::is_trivially_destructible_v<T>)
+				if constexpr (!std::is_trivially_destructible_v<T>)
 				{
 					for (vint i = 0; i < count; i++)
 					{
@@ -39,14 +83,14 @@ Memory Management
 			}
 
 			template<typename T>
-			static T* AllocateBuffer(vint size)
+			T* AllocateBuffer(vint size)
 			{
 				if (size <= 0) return nullptr;
 				return (T*)malloc(sizeof(T) * size);
 			}
 
 			template<typename T>
-			static void DeallocateBuffer(T* buffer)
+			void DeallocateBuffer(T* buffer)
 			{
 				if (buffer == nullptr) return;
 				free(buffer);
@@ -60,37 +104,6 @@ Memory Management
 		class ListStore<T, false> abstract : public EnumerableBase<T>
 		{
 		protected:
-			static void InitializeItemsByDefault(void* dst, vint count)
-			{
-				T* ds = (T*)dst;
-
-				for (vint i = 0; i < count; i++)
-				{
-					new(&ds[i])T();
-				}
-			}
-
-			static void InitializeItemsByMove(void* dst, void* src, vint count)
-			{
-				T* ds = (T*)dst;
-				T* ss = (T*)src;
-
-				for (vint i = 0; i < count; i++)
-				{
-					new(&ds[i])T(std::move(ss[i]));
-				}
-			}
-
-			static void InitializeItemsByCopy(void* dst, void* src, vint count)
-			{
-				T* ds = (T*)dst;
-				T* ss = (T*)src;
-
-				for (vint i = 0; i < count; i++)
-				{
-					new(&ds[i])T(ss[i]);
-				}
-			}
 
 			static void MoveItemsInTheSameBuffer(void* dst, void* src, vint count)
 			{
@@ -119,25 +132,6 @@ Memory Management
 		class ListStore<T, true> abstract : public EnumerableBase<T>
 		{
 		protected:
-			static void InitializeItemsByDefault(void* dst, vint count)
-			{
-			}
-
-			static void InitializeItemsByMove(void* dst, void* src, vint count)
-			{
-				if (count > 0)
-				{
-					memcpy(dst, src, sizeof(T) * count);
-				}
-			}
-
-			static void InitializeItemsByCopy(void* dst, void* src, vint count)
-			{
-				if (count > 0)
-				{
-					memcpy(dst, src, sizeof(T) * count);
-				}
-			}
 
 			static void MoveItemsInTheSameBuffer(void* dst, void* src, vint count)
 			{
@@ -260,7 +254,7 @@ Array
 			{
 				CHECK_ERROR(size >= 0, L"Array<T>::Array(vint)#Size should not be negative.");
 				this->buffer = memory_management::AllocateBuffer<T>(size);
-				this->InitializeItemsByDefault(this->buffer, size);
+				memory_management::CallDefaultCtors(this->buffer, size);
 				this->count = size;
 			}
 
@@ -272,7 +266,7 @@ Array
 			{
 				CHECK_ERROR(size >= 0, L"Array<T>::Array(const T*, vint)#Size should not be negative.");
 				this->buffer = memory_management::AllocateBuffer<T>(size);
-				this->InitializeItemsByCopy(this->buffer, (void*)_buffer, size);
+				memory_management::CallCopyCtors(this->buffer, _buffer, size);
 				this->count = size;
 			}
 
@@ -336,12 +330,12 @@ Array
 				T* newBuffer = memory_management::AllocateBuffer<T>(size);
 				if (size < this->count)
 				{
-					this->InitializeItemsByMove(newBuffer, this->buffer, size);
+					memory_management::CallMoveCtors(newBuffer, this->buffer, size);
 				}
 				else
 				{
-					this->InitializeItemsByMove(newBuffer, this->buffer, this->count);
-					this->InitializeItemsByDefault(&newBuffer[this->count], size - this->count);
+					memory_management::CallMoveCtors(newBuffer, this->buffer, this->count);
+					memory_management::CallDefaultCtors(&newBuffer[this->count], size - this->count);
 				}
 
 				memory_management::CallDtors(this->buffer, this->count);
@@ -382,8 +376,8 @@ ListBase
 				{
 					vint newCapacity = CalculateCapacity(newCount);
 					T* newBuffer = memory_management::AllocateBuffer<T>(newCapacity);
-					this->InitializeItemsByMove(newBuffer, this->buffer, index);
-					this->InitializeItemsByMove(&newBuffer[index + _count], &this->buffer[index], this->count - index);
+					memory_management::CallMoveCtors(newBuffer, this->buffer, index);
+					memory_management::CallMoveCtors(&newBuffer[index + _count], &this->buffer[index], this->count - index);
 					memory_management::CallDtors(this->buffer, this->count);
 					memory_management::DeallocateBuffer(this->buffer);
 					this->capacity = newCapacity;
@@ -396,13 +390,13 @@ ListBase
 				}
 				else if (this->count - index < _count)
 				{
-					this->InitializeItemsByMove(&this->buffer[index + _count], &this->buffer[index], this->count - index);
+					memory_management::CallMoveCtors(&this->buffer[index + _count], &this->buffer[index], this->count - index);
 					memory_management::CallDtors(&this->buffer[index], _count - (this->count - index));
 					uninitialized = true;
 				}
 				else
 				{
-					this->InitializeItemsByMove(&this->buffer[this->count], &this->buffer[this->count - _count], _count);
+					memory_management::CallMoveCtors(&this->buffer[this->count], &this->buffer[this->count - _count], _count);
 					this->MoveItemsInTheSameBuffer(&this->buffer[index + _count], &this->buffer[index], this->count - index - _count);
 					uninitialized = false;
 				}
@@ -421,7 +415,7 @@ ListBase
 					if (this->count < newCapacity)
 					{
 						T* newBuffer = memory_management::AllocateBuffer<T>(newCapacity);
-						this->InitializeItemsByMove(newBuffer, this->buffer, this->count);
+						memory_management::CallMoveCtors(newBuffer, this->buffer, this->count);
 						memory_management::CallDtors(this->buffer, this->count);
 						memory_management::DeallocateBuffer(this->buffer);
 						this->capacity = newCapacity;
