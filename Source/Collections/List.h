@@ -24,6 +24,35 @@ namespace vl
 Memory Management
 ***********************************************************************/
 
+		namespace memory_management
+		{
+			template<typename T>
+			void CallDtors(T* items, vint count)
+			{
+				if constexpr (std::is_trivially_destructible_v<T>)
+				{
+					for (vint i = 0; i < count; i++)
+					{
+						items[i].~T();
+					}
+				}
+			}
+
+			template<typename T>
+			static T* AllocateBuffer(vint size)
+			{
+				if (size <= 0) return nullptr;
+				return (T*)malloc(sizeof(T) * size);
+			}
+
+			template<typename T>
+			static void DeallocateBuffer(T* buffer)
+			{
+				if (buffer == nullptr) return;
+				free(buffer);
+			}
+		}
+
 		template<typename T, bool PODType = std::is_trivially_constructible_v<T>>
 		class ListStore;
 
@@ -83,28 +112,6 @@ Memory Management
 					}
 				}
 			}
-
-			static void ReleaseItems(void* dst, vint count)
-			{
-				T* ds = (T*)dst;
-
-				for (vint i = 0; i < count; i++)
-				{
-					ds[i].~T();
-				}
-			}
-			
-			static void* AllocateBuffer(vint size)
-			{
-				if (size <= 0) return nullptr;
-				return (void*)malloc(sizeof(T) * size);
-			}
-
-			static void DeallocateBuffer(void* buffer)
-			{
-				if (buffer == nullptr)return;
-				free(buffer);
-			}
 		public:
 		};
 
@@ -138,22 +145,6 @@ Memory Management
 				{
 					memmove(dst, src, sizeof(T) * count);
 				}
-			}
-
-			static void ReleaseItems(void* dst, vint count)
-			{
-			}
-
-			static void* AllocateBuffer(vint size)
-			{
-				if (size <= 0) return nullptr;
-				return (void*)malloc(sizeof(T) * size);
-			}
-
-			static void DeallocateBuffer(void* buffer)
-			{
-				if (buffer == nullptr) return;
-				free(buffer);
 			}
 		public:
 		};
@@ -213,23 +204,8 @@ ArrayBase
 				}
 			};
 
-			void*					buffer = nullptr;
+			T*						buffer = nullptr;
 			vint					count = 0;
-
-			static void* AddressOf(void* bufferOfTs, vint index)
-			{
-				return (void*)((char*)bufferOfTs + sizeof(T) * index);
-			}
-
-			const T& ItemOf(vint index)const
-			{
-				return *(const T*)AddressOf(buffer, index);
-			}
-
-			T& ItemOf(vint index)
-			{
-				return *(T*)AddressOf(buffer, index);
-			}
 		public:
 
 			IEnumerator<T>* CreateEnumerator()const
@@ -250,7 +226,7 @@ ArrayBase
 			const T& Get(vint index)const
 			{
 				CHECK_ERROR(index >= 0 && index < this->count, L"ArrayBase<T, K>::Get(vint)#Argument index not in range.");
-				return ItemOf(index);
+				return this->buffer[index];
 			}
 
 			/// <summary>Get the reference to the specified element.</summary>
@@ -259,7 +235,7 @@ ArrayBase
 			const T& operator[](vint index)const
 			{
 				CHECK_ERROR(index >= 0 && index < this->count, L"ArrayBase<T, K>::operator[](vint)#Argument index not in range.");
-				return ItemOf(index);
+				return this->buffer[index];
 			}
 		};
 
@@ -283,7 +259,7 @@ Array
 			Array(vint size = 0)
 			{
 				CHECK_ERROR(size >= 0, L"Array<T>::Array(vint)#Size should not be negative.");
-				this->buffer = this->AllocateBuffer(size);
+				this->buffer = memory_management::AllocateBuffer<T>(size);
 				this->InitializeItemsByDefault(this->buffer, size);
 				this->count = size;
 			}
@@ -295,15 +271,15 @@ Array
 			Array(const T* _buffer, vint size)
 			{
 				CHECK_ERROR(size >= 0, L"Array<T>::Array(const T*, vint)#Size should not be negative.");
-				this->buffer = this->AllocateBuffer(size);
+				this->buffer = memory_management::AllocateBuffer<T>(size);
 				this->InitializeItemsByCopy(this->buffer, (void*)_buffer, size);
 				this->count = size;
 			}
 
 			~Array()
 			{
-				this->ReleaseItems(this->buffer, this->count);
-				this->DeallocateBuffer(this->buffer);
+				memory_management::CallDtors(this->buffer, this->count);
+				memory_management::DeallocateBuffer(this->buffer);
 			}
 
 			/// <summary>Test does the array contain a value or not.</summary>
@@ -321,7 +297,7 @@ Array
 			{
 				for (vint i = 0; i < this->count; i++)
 				{
-					if (this->ItemOf(i) == item)
+					if (this->buffer[i] == item)
 					{
 						return i;
 					}
@@ -336,7 +312,7 @@ Array
 			bool Set(vint index, const T& item)
 			{
 				CHECK_ERROR(index >= 0 && index < this->count, L"Array<T, K>::Set(vint)#Argument index not in range.");
-				this->ItemOf(index) = item;
+				this->buffer[index] = item;
 				return true;
 			}
 
@@ -348,7 +324,7 @@ Array
 			T& operator[](vint index)
 			{
 				CHECK_ERROR(index >= 0 && index < this->count, L"Array<T, K>::operator[](vint)#Argument index not in range.");
-				return this->ItemOf(index);
+				return this->buffer[index];
 			}
 
 			/// <summary>Change the size of the array. This function can be called multiple times to change the size.</summary>
@@ -357,19 +333,19 @@ Array
 			void Resize(vint size)
 			{
 				CHECK_ERROR(size >= 0, L"Array<T>::Resize(vint)#Size should not be negative.");
-				void* newBuffer = this->AllocateBuffer(size);
+				T* newBuffer = memory_management::AllocateBuffer<T>(size);
 				if (size < this->count)
 				{
-					this->InitializeItemsByMove(this->AddressOf(newBuffer, 0), this->AddressOf(this->buffer, 0), size);
+					this->InitializeItemsByMove(newBuffer, this->buffer, size);
 				}
 				else
 				{
-					this->InitializeItemsByMove(this->AddressOf(newBuffer, 0), this->AddressOf(this->buffer, 0), this->count);
-					this->InitializeItemsByDefault(this->AddressOf(newBuffer, this->count), size - this->count);
+					this->InitializeItemsByMove(newBuffer, this->buffer, this->count);
+					this->InitializeItemsByDefault(&newBuffer[this->count], size - this->count);
 				}
 
-				this->ReleaseItems(this->buffer, this->count);
-				this->DeallocateBuffer(this->buffer);
+				memory_management::CallDtors(this->buffer, this->count);
+				memory_management::DeallocateBuffer(this->buffer);
 				this->buffer = newBuffer;
 				this->count = size;
 			}
@@ -405,11 +381,11 @@ ListBase
 				if (newCount > capacity)
 				{
 					vint newCapacity = CalculateCapacity(newCount);
-					void* newBuffer = this->AllocateBuffer(newCapacity);
-					this->InitializeItemsByMove(this->AddressOf(newBuffer, 0), this->AddressOf(this->buffer, 0), index);
-					this->InitializeItemsByMove(this->AddressOf(newBuffer, index + _count), this->AddressOf(this->buffer, index), this->count - index);
-					this->ReleaseItems(this->buffer, this->count);
-					this->DeallocateBuffer(this->buffer);
+					T* newBuffer = memory_management::AllocateBuffer<T>(newCapacity);
+					this->InitializeItemsByMove(newBuffer, this->buffer, index);
+					this->InitializeItemsByMove(&newBuffer[index + _count], &this->buffer[index], this->count - index);
+					memory_management::CallDtors(this->buffer, this->count);
+					memory_management::DeallocateBuffer(this->buffer);
 					this->capacity = newCapacity;
 					this->buffer = newBuffer;
 					uninitialized = true;
@@ -420,14 +396,14 @@ ListBase
 				}
 				else if (this->count - index < _count)
 				{
-					this->InitializeItemsByMove(this->AddressOf(this->buffer, index + _count), this->AddressOf(this->buffer, index), this->count - index);
-					this->ReleaseItems(this->AddressOf(this->buffer, index), _count - (this->count - index));
+					this->InitializeItemsByMove(&this->buffer[index + _count], &this->buffer[index], this->count - index);
+					memory_management::CallDtors(&this->buffer[index], _count - (this->count - index));
 					uninitialized = true;
 				}
 				else
 				{
-					this->InitializeItemsByMove(this->AddressOf(this->buffer, this->count), this->AddressOf(this->buffer, this->count - _count), _count);
-					this->MoveItemsInTheSameBuffer(this->AddressOf(this->buffer, index + _count), this->AddressOf(this->buffer, index), this->count - index - _count);
+					this->InitializeItemsByMove(&this->buffer[this->count], &this->buffer[this->count - _count], _count);
+					this->MoveItemsInTheSameBuffer(&this->buffer[index + _count], &this->buffer[index], this->count - index - _count);
 					uninitialized = false;
 				}
 				this->count = newCount;
@@ -437,17 +413,17 @@ ListBase
 			{
 				if (this->buffer && this->count < previousCount)
 				{
-					this->ReleaseItems(this->AddressOf(this->buffer, this->count), previousCount - this->count);
+					memory_management::CallDtors(&this->buffer[this->count], previousCount - this->count);
 				}
 				if (this->lessMemoryMode && this->count <= this->capacity / 2)
 				{
 					vint newCapacity = capacity * 5 / 8;
 					if (this->count < newCapacity)
 					{
-						void* newBuffer = this->AllocateBuffer(newCapacity);
-						this->InitializeItemsByMove(this->AddressOf(newBuffer, 0), this->AddressOf(this->buffer, 0), this->count);
-						this->ReleaseItems(this->buffer, this->count);
-						this->DeallocateBuffer(this->buffer);
+						T* newBuffer = memory_management::AllocateBuffer<T>(newCapacity);
+						this->InitializeItemsByMove(newBuffer, this->buffer, this->count);
+						memory_management::CallDtors(this->buffer, this->count);
+						memory_management::DeallocateBuffer(this->buffer);
 						this->capacity = newCapacity;
 						this->buffer = newBuffer;
 					}
@@ -457,8 +433,8 @@ ListBase
 
 			~ListBase()
 			{
-				this->ReleaseItems(this->buffer, this->count);
-				this->DeallocateBuffer(this->buffer);
+				memory_management::CallDtors(this->buffer, this->count);
+				memory_management::DeallocateBuffer(this->buffer);
 			}
 
 			/// <summary>Set a preference of using memory.</summary>
@@ -478,7 +454,7 @@ ListBase
 			{
 				vint previousCount = this->count;
 				CHECK_ERROR(index >= 0 && index < this->count, L"ListBase<T, K>::RemoveAt(vint)#Argument index not in range.");
-				this->MoveItemsInTheSameBuffer(this->AddressOf(this->buffer, index), this->AddressOf(this->buffer, index + 1), this->count - index - 1);
+				this->MoveItemsInTheSameBuffer(&this->buffer[index], &this->buffer[index + 1], this->count - index - 1);
 				this->count--;
 				ReleaseUnnecessaryBuffer(previousCount);
 				return true;
@@ -493,7 +469,7 @@ ListBase
 				vint previousCount = this->count;
 				CHECK_ERROR(index >= 0 && index <= this->count, L"ListBase<T, K>::RemoveRange(vint, vint)#Argument index not in range.");
 				CHECK_ERROR(index + _count >= 0 && index + _count <= this->count, L"ListBase<T,K>::RemoveRange(vint, vint)#Argument _count not in range.");
-				this->MoveItemsInTheSameBuffer(this->AddressOf(this->buffer, index), this->AddressOf(this->buffer, index + _count), this->count - index - _count);
+				this->MoveItemsInTheSameBuffer(&this->buffer[index], &this->buffer[index + _count], this->count - index - _count);
 				this->count -= _count;
 				ReleaseUnnecessaryBuffer(previousCount);
 				return true;
@@ -508,8 +484,8 @@ ListBase
 				if (lessMemoryMode)
 				{
 					this->capacity = 0;
-					this->ReleaseItems(this->buffer, this->count);
-					this->DeallocateBuffer(this->buffer);
+					memory_management::CallDtors(this->buffer, this->count);
+					memory_management::DeallocateBuffer(this->buffer);
 					this->buffer = nullptr;
 				}
 				else
@@ -549,7 +525,7 @@ List
 			{
 				for (vint i = 0; i < this->count; i++)
 				{
-					if (this->ItemOf(i) == item)
+					if (this->buffer[i] == item)
 					{
 						return i;
 					}
@@ -576,11 +552,11 @@ List
 				this->MakeRoom(index, 1, uninitialized);
 				if (uninitialized)
 				{
-					new(&this->ItemOf(index))T(item);
+					new(&this->buffer[index])T(item);
 				}
 				else
 				{
-					this->ItemOf(index) = item;
+					this->buffer[index] = item;
 				}
 				return index;
 			}
@@ -609,7 +585,7 @@ List
 			bool Set(vint index, const T& item)
 			{
 				CHECK_ERROR(index >= 0 && index < this->count, L"List<T, K>::Set(vint)#Argument index not in range.");
-				this->ItemOf(index) = item;
+				this->buffer[index] = item;
 				return true;
 			}
 
@@ -621,7 +597,7 @@ List
 			T& operator[](vint index)
 			{
 				CHECK_ERROR(index >= 0 && index < this->count, L"List<T, K>::operator[](vint)#Argument index not in range.");
-				return this->ItemOf(index);
+				return this->buffer[index];
 			}
 		};
 
@@ -656,11 +632,11 @@ SortedList
 				while (start <= end)
 				{
 					index = start + (end - start) / 2;
-					if (this->ItemOf(index) == item)
+					if (this->buffer[index] == item)
 					{
 						return index;
 					}
-					else if (this->ItemOf(index) > item)
+					else if (this->buffer[index] > item)
 					{
 						end = index - 1;
 					}
@@ -678,11 +654,11 @@ SortedList
 				this->MakeRoom(index, 1, uninitialized);
 				if (uninitialized)
 				{
-					new(&this->ItemOf(index))T(item);
+					new(&this->buffer[index])T(item);
 				}
 				else
 				{
-					this->ItemOf(index) = item;
+					this->buffer[index] = item;
 				}
 				return index;
 			}
@@ -721,7 +697,7 @@ SortedList
 					vint outputIndex = -1;
 					IndexOfInternal<T>(item, outputIndex);
 					CHECK_ERROR(outputIndex >= 0 && outputIndex < this->count, L"SortedList<T, K>::Add(const T&)#Internal error, index not in range.");
-					if (this->ItemOf(outputIndex) < item)
+					if (this->buffer[outputIndex] < item)
 					{
 						outputIndex++;
 					}
