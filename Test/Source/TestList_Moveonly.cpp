@@ -1,8 +1,29 @@
 #include "AssertCollection.h"
 
-namespace TestList_TestObjects
+namespace TestList_Moveonly_TestObjects
 {
-	void TestArray(Array<vint>& arr)
+	template<typename T>
+	struct Moveonly
+	{
+		T value;
+
+		Moveonly() = default;
+		Moveonly(T _value) :value(_value) {}
+		Moveonly(const Moveonly<T>&) = delete;
+		Moveonly(Moveonly<T>&&) = default;
+		~Moveonly() = default;
+		Moveonly<T>& operator=(const Moveonly<T>&) = delete;
+		Moveonly<T>& operator=(Moveonly<T>&&) = default;
+
+		bool operator==(const Moveonly<T>& right) const { return value == right.value; }
+		bool operator!=(const Moveonly<T>& right) const { return value != right.value; }
+		bool operator< (const Moveonly<T>& right) const { return value <  right.value; }
+		bool operator<=(const Moveonly<T>& right) const { return value <= right.value; }
+		bool operator> (const Moveonly<T>& right) const { return value >  right.value; }
+		bool operator>=(const Moveonly<T>& right) const { return value >= right.value; }
+	};
+
+	void TestArray(Array<Moveonly<vint>>& arr)
 	{
 		arr.Resize(0);
 		CHECK_EMPTY_LIST(arr);
@@ -129,97 +150,29 @@ namespace TestList_TestObjects
 		}
 		CHECK_LIST_ITEMS(list, { 0 _ 2 _ 4 _ 6 _ 8 _ 10 _ 12 _ 14 _ 16 _ 18 });
 	}
-
-	void TestSortedDictionary(Dictionary<vint, vint>& dictionary)
-	{
-		dictionary.Clear();
-		CHECK_EMPTY_DICTIONARY(dictionary);
-
-		dictionary.Add(1, 1);
-		dictionary.Add(2, 4);
-		dictionary.Add(3, 9);
-		dictionary.Add(4, 16);
-		CHECK_DICTIONARY_ITEMS(dictionary, { 1 _ 2 _ 3 _ 4 }, { 1 _ 4 _ 9 _ 16 });
-
-		dictionary.Set(1, -1);
-		dictionary.Set(2, -4);
-		dictionary.Set(3, -9);
-		dictionary.Set(4, -16);
-		dictionary.Set(5, -25);
-		CHECK_DICTIONARY_ITEMS(dictionary, { 1 _ 2 _ 3 _ 4 _ 5 }, { -1 _ - 4 _ - 9 _ - 16 _ - 25 });
-
-		dictionary.Remove(4);
-		dictionary.Remove(5);
-		dictionary.Remove(6);
-		CHECK_DICTIONARY_ITEMS(dictionary, { 1 _ 2 _ 3 }, { -1 _ - 4 _ - 9 });
-
-		dictionary.Clear();
-		CHECK_EMPTY_DICTIONARY(dictionary);
-	}
-
-	void TestSortedGroup(Group<vint, vint>& group)
-	{
-		group.Clear();
-		CHECK_EMPTY_GROUP(group);
-
-		for (vint i = 0; i < 20; i++)
-		{
-			group.Add(i / 5, i);
-		}
-		CHECK_GROUP_ITEMS(group, { 0 _ 1 _ 2 _ 3 }, { 0 _ 1 _ 2 _ 3 _ 4 _ 5 _ 6 _ 7 _ 8 _ 9 _ 10 _ 11 _ 12 _ 13 _ 14 _ 15 _ 16 _ 17 _ 18 _ 19 }, { 5 _ 5 _ 5 _ 5 });
-
-		group.Remove(1);
-		CHECK_GROUP_ITEMS(group, { 0 _ 2 _ 3 }, { 0 _ 1 _ 2 _ 3 _ 4 _ 10 _ 11 _ 12 _ 13 _ 14 _ 15 _ 16 _ 17 _ 18 _ 19 }, { 5 _ 5 _ 5 });
-
-		for (vint i = 13; i < 18; i++)
-		{
-			group.Remove(i / 5, i);
-		}
-		CHECK_GROUP_ITEMS(group, { 0 _ 2 _ 3 }, { 0 _ 1 _ 2 _ 3 _ 4 _ 10 _ 11 _ 12 _ 18 _ 19 }, { 5 _ 3 _ 2 });
-
-		group.Clear();
-		CHECK_EMPTY_GROUP(group);
-	}
-
-	bool dividable(vint a, vint b)
-	{
-		return b % a == 0;
-	}
 }
 
-using namespace TestList_TestObjects;
+using namespace TestList_Moveonly_TestObjects;
 
 TEST_FILE
 {
 	TEST_CASE(L"Test Array<T>")
 	{
-		Array<vint> arr;
+		Array<Moveonly<vint>> arr;
 		TestArray(arr);
 	});
 
 	TEST_CASE(L"Test SortedList<T>")
 	{
-		SortedList<vint> list;
+		SortedList<Moveonly<vint>> list;
 		TestCollectionWithIncreasingItems(list);
 		TestSortedCollection(list);
 	});
 
 	TEST_CASE(L"Test List<T>")
 	{
-		List<vint> list;
+		List<Moveonly<vint>> list;
 		TestCollectionWithIncreasingItems(list);
 		TestNormalList(list);
-	});
-
-	TEST_CASE(L"Test Dictionary<K, V>")
-	{
-		Dictionary<vint, vint> dictionary;
-		TestSortedDictionary(dictionary);
-	});
-
-	TEST_CASE(L"Test Group<K, V>")
-	{
-		Group<vint, vint> group;
-		TestSortedGroup(group);
 	});
 }

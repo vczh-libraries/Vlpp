@@ -24,20 +24,39 @@ namespace vl
 			/// <summary>The value.</summary>
 			V				value;
 
-			Pair()
-			{
-			}
+			Pair() = default;
 
-			Pair(const K& _key, const V& _value)
+			template<typename TKey, typename TValue>
+			Pair(TKey&& _key, TValue&& _value)
+				: key(std::forward<TKey&&>(_key))
+				, value(std::forward<TValue&&>(_value))
 			{
-				key=_key;
-				value=_value;
 			}
 
 			Pair(const Pair<K, V>& pair)
+				: key(pair.key)
+				, value(pair.value)
 			{
-				key=pair.key;
-				value=pair.value;
+			}
+
+			Pair(Pair<K, V>&& pair)
+				: key(std::move(pair.key))
+				, value(std::move(pair.value))
+			{
+			}
+
+			Pair<K, V>& operator=(const Pair<K, V>& pair)
+			{
+				key = pair.key;
+				value = pair.value;
+				return *this;
+			}
+
+			Pair<K, V>& operator=(Pair<K, V>&& pair)
+			{
+				key = std::move(pair.key);
+				value = std::move(pair.value);
+				return *this;
 			}
 
 			vint CompareTo(const Pair<K, V>& pair)const

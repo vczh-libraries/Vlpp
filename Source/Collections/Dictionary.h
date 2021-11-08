@@ -134,20 +134,27 @@ namespace vl
 			}
 			
 			/// <summary>Replace the value associated to a specified key.</summary>
+			/// <typeparam name="TKeyItem">The type of the new key.</typeparam>
+			/// <typeparam name="TValueItem">The type of the new value.</typeparam>
 			/// <returns>Returns true if the value is replaced.</returns>
 			/// <param name="key">The key to find. If the key does not exist, it will be added to the dictionary.</param>
 			/// <param name="value">The associated value to replace.</param>
-			bool Set(const KT& key, const VT& value)
+			template<typename TKeyItem, typename TValueItem>
+			bool Set(TKeyItem&& key, TValueItem&& value)
 			{
-				vint index=keys.IndexOf(KeyType<KT>::GetKeyValue(key));
-				if(index==-1)
+				using TKeyAccept = memory_management::AcceptType<KT, TKeyItem&&>;
+				using TKeyForward = memory_management::ForwardType<KT, TKeyItem&&>;
+				TKeyAccept keyAccept = memory_management::RefOrConvert<KT>(std::forward<TKeyItem&&>(key));
+
+				vint index = keys.IndexOf(KeyType<KT>::GetKeyValue(keyAccept));
+				if (index == -1)
 				{
-					index=keys.Add(key);
-					values.Insert(index, value);
+					index = keys.Add(std::forward<TKeyForward>(keyAccept));
+					values.Insert(index, std::forward<TValueItem&&>(value));
 				}
 				else
 				{
-					values[index]=value;
+					values[index] = std::forward<TValueItem&&>(value);
 				}
 				return true;
 			}
@@ -178,11 +185,11 @@ namespace vl
 			bool Add(TKeyItem&& key, TValueItem&& value)
 			{
 				using TKeyAccept = memory_management::AcceptType<KT, TKeyItem&&>;
-				using TKeyFoward = memory_management::ForwardType<KT, TKeyItem&&>;
+				using TKeyForward = memory_management::ForwardType<KT, TKeyItem&&>;
 				TKeyAccept keyAccept = memory_management::RefOrConvert<KT>(std::forward<TKeyItem&&>(key));
 
 				CHECK_ERROR(!keys.Contains(KeyType<KT>::GetKeyValue(keyAccept)), L"Dictionary<KT, KK, ValueContainer, VT, VK>::Add(const KT&, const VT&)#Key already exists.");
-				vint index = keys.Add(std::forward<TKeyFoward>(keyAccept));
+				vint index = keys.Add(std::forward<TKeyForward>(keyAccept));
 				values.Insert(index, std::forward<TValueItem&&>(value));
 
 				return true;
@@ -442,7 +449,7 @@ namespace vl
 			bool Add(TKeyItem&& key, TValueItem&& value)
 			{
 				using TKeyAccept = memory_management::AcceptType<KT, TKeyItem&&>;
-				using TKeyFoward = memory_management::ForwardType<KT, TKeyItem&&>;
+				using TKeyForward = memory_management::ForwardType<KT, TKeyItem&&>;
 				TKeyAccept keyAccept = memory_management::RefOrConvert<KT>(std::forward<TKeyItem&&>(key));
 
 				ValueContainer* target = nullptr;
@@ -450,7 +457,7 @@ namespace vl
 				if (index == -1)
 				{
 					target = new ValueContainer;
-					values.Insert(keys.Add(std::forward<TKeyFoward>(keyAccept)), target);
+					values.Insert(keys.Add(std::forward<TKeyForward>(keyAccept)), target);
 				}
 				else
 				{

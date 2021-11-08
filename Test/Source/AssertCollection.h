@@ -8,9 +8,6 @@ using namespace vl::collections;
 
 #define _ ,
 
-#define EMPTY_ARRAY(CONTAINER, NAME)\
-	(typename std::remove_cvref_t<decltype(CONTAINER)>::NAME::ElementType*)nullptr\
-
 #define CHECK_EMPTY_LIST(CONTAINER)\
 	TestReadonlyList(CONTAINER, 0, 0)\
 
@@ -23,8 +20,8 @@ using namespace vl::collections;
 #define CHECK_EMPTY_DICTIONARY(CONTAINER)\
 	TestReadonlyDictionary(\
 		CONTAINER,\
-		EMPTY_ARRAY(CONTAINER, KeyContainer),\
-		EMPTY_ARRAY(CONTAINER, ValueContainer),\
+		nullptr,\
+		nullptr,\
 		0);\
 
 #define CHECK_DICTIONARY_ITEMS(CONTAINER,KEYS,VALUES)\
@@ -37,9 +34,9 @@ using namespace vl::collections;
 #define CHECK_EMPTY_GROUP(CONTAINER)\
 	TestReadonlyGroup(\
 		CONTAINER,\
-		EMPTY_ARRAY(CONTAINER, KeyContainer),\
-		EMPTY_ARRAY(CONTAINER, ValueContainer),\
-		EMPTY_ARRAY(CONTAINER, ValueContainer),\
+		nullptr,\
+		nullptr,\
+		nullptr,\
 		0);\
 
 #define CHECK_GROUP_ITEMS(CONTAINER,KEYS,VALUES,COUNTS)\
@@ -54,7 +51,7 @@ template<typename TList>
 void TestReadonlyList(const TList& list, vint* items, vint count)
 {
 	TEST_ASSERT(list.Count() == count);
-	IEnumerator<vint>* enumerator = list.CreateEnumerator();
+	auto enumerator = list.CreateEnumerator();
 	for (vint i = 0; i < count; i++)
 	{
 		TEST_ASSERT(list.Contains(items[i]));
@@ -70,8 +67,8 @@ void TestReadonlyList(const TList& list, vint* items, vint count)
 template<typename T>
 void CompareEnumerable(const IEnumerable<T>& dst, const IEnumerable<T>& src)
 {
-	IEnumerator<T>* dstEnum = dst.CreateEnumerator();
-	IEnumerator<T>* srcEnum = src.CreateEnumerator();
+	auto dstEnum = dst.CreateEnumerator();
+	auto srcEnum = src.CreateEnumerator();
 	while (dstEnum->Next())
 	{
 		TEST_ASSERT(srcEnum->Next());
@@ -85,7 +82,7 @@ void CompareEnumerable(const IEnumerable<T>& dst, const IEnumerable<T>& src)
 }
 
 template<typename K, typename V>
-void TestReadonlyDictionary(const Dictionary<K, V>& dictionary, K* keys, V* values, vint count)
+void TestReadonlyDictionary(const Dictionary<K, V>& dictionary, vint* keys, vint* values, vint count)
 {
 	TEST_ASSERT(dictionary.Count() == count);
 	TestReadonlyList(dictionary.Keys(), keys, count);
@@ -95,20 +92,23 @@ void TestReadonlyDictionary(const Dictionary<K, V>& dictionary, K* keys, V* valu
 		TEST_ASSERT(dictionary.Get(keys[i]) == values[i]);
 	}
 
-	IEnumerator<Pair<K, V>>* enumerator = dictionary.CreateEnumerator();
-	for (vint i = 0; i < count; i++)
+	if constexpr (std::is_move_assignable_v<K> && std::is_move_assignable_v<V>)
 	{
-		Pair<K, V> pair(keys[i], values[i]);
-		TEST_ASSERT(enumerator->Next());
-		TEST_ASSERT(enumerator->Current() == pair);
-		TEST_ASSERT(enumerator->Index() == i);
+		auto enumerator = dictionary.CreateEnumerator();
+		for (vint i = 0; i < count; i++)
+		{
+			Pair<K, V> pair(keys[i], values[i]);
+			TEST_ASSERT(enumerator->Next());
+			TEST_ASSERT(enumerator->Current() == pair);
+			TEST_ASSERT(enumerator->Index() == i);
+		}
+		TEST_ASSERT(enumerator->Next() == false);
+		delete enumerator;
 	}
-	TEST_ASSERT(enumerator->Next() == false);
-	delete enumerator;
 }
 
 template<typename K, typename V>
-void TestReadonlyGroup(const Group<K, V>& group, K* keys, V* values, vint* counts, vint count)
+void TestReadonlyGroup(const Group<K, V>& group, vint* keys, vint* values, vint* counts, vint count)
 {
 	TEST_ASSERT(group.Count() == count);
 	TestReadonlyList(group.Keys(), keys, count);
@@ -126,25 +126,28 @@ void TestReadonlyGroup(const Group<K, V>& group, K* keys, V* values, vint* count
 		offset += counts[i];
 	}
 
-	IEnumerator<Pair<K, V>>* enumerator = group.CreateEnumerator();
-	vint keyIndex = 0;
-	vint valueIndex = 0;
-	vint index = 0;
-	while (keyIndex < count)
+	if constexpr (std::is_move_assignable_v<K> && std::is_move_assignable_v<V>)
 	{
-		Pair<K, V> pair(keys[keyIndex], values[index]);
-		TEST_ASSERT(enumerator->Next());
-		TEST_ASSERT(enumerator->Current() == pair);
-		TEST_ASSERT(enumerator->Index() == index);
-
-		valueIndex++;
-		index++;
-		if (valueIndex == counts[keyIndex])
+		auto enumerator = group.CreateEnumerator();
+		vint keyIndex = 0;
+		vint valueIndex = 0;
+		vint index = 0;
+		while (keyIndex < count)
 		{
-			keyIndex++;
-			valueIndex = 0;
+			Pair<K, V> pair(keys[keyIndex], values[index]);
+			TEST_ASSERT(enumerator->Next());
+			TEST_ASSERT(enumerator->Current() == pair);
+			TEST_ASSERT(enumerator->Index() == index);
+
+			valueIndex++;
+			index++;
+			if (valueIndex == counts[keyIndex])
+			{
+				keyIndex++;
+				valueIndex = 0;
+			}
 		}
+		TEST_ASSERT(enumerator->Next() == false);
+		delete enumerator;
 	}
-	TEST_ASSERT(enumerator->Next() == false);
-	delete enumerator;
 }
