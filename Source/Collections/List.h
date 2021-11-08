@@ -178,6 +178,30 @@ Memory Management
 				}
 				count = newCount;
 			}
+
+			template<typename TItem, typename TArg, bool = std::is_same_v<std::remove_cvref_t<TArg>, std::remove_cvref_t<TItem>>>
+			struct Accept_;
+
+			template<typename TItem, typename TArg>
+			struct Accept_<TItem, TArg, true>
+			{
+				using Type = TArg;
+			};
+
+			template<typename TItem, typename TArg>
+			struct Accept_<TItem, TArg, false>
+			{
+				using Type = TItem;
+			};
+
+			template<typename TItem, typename TArg>
+			using AcceptType = typename Accept_<TItem, TArg>::Type;
+
+			template<typename TItem, typename TArg>
+			AcceptType<TItem, TArg&&> Forward(TArg&& arg)
+			{
+				return std::forward<TArg&&>(arg);
+			}
 		}
 
 /***********************************************************************
@@ -485,11 +509,13 @@ List
 			}
 
 			/// <summary>Append a value at the end of the list.</summary>
+			/// <typeparam name="TItem">The type of the new value.</typeparam>
 			/// <returns>The index of the added item.</returns>
 			/// <param name="item">The value to add.</param>
-			vint Add(const T& item)
+			template<typename TItem>
+			vint Add(TItem&& item)
 			{
-				return Insert(this->count, item);
+				return Insert(this->count, std::forward<TItem&&>(item));
 			}
 
 			/// <summary>Insert a value at the specified position.</summary>
@@ -622,13 +648,15 @@ SortedList
 			}
 
 			/// <summary>Add a value at the correct position, all elements will be kept in order.</summary>
+			/// <typeparam name="TItem">The type of the new value.</typeparam>
 			/// <returns>The index of the added item.</returns>
 			/// <param name="item">The value to add.</param>
-			vint Add(const T& item)
+			template<typename TItem>
+			vint Add(TItem&& item)
 			{
 				if (ArrayBase<T>::count == 0)
 				{
-					return Insert(0, item);
+					return Insert(0, std::forward<TItem&&>(item));
 				}
 				else
 				{
@@ -639,7 +667,7 @@ SortedList
 					{
 						outputIndex++;
 					}
-					return Insert(outputIndex, item);
+					return Insert(outputIndex, std::forward<TItem&&>(item));
 				}
 			}
 
