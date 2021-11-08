@@ -535,6 +535,18 @@ List
 				return index;
 			}
 
+			/// <summary>Insert a value at the specified position.</summary>
+			/// <returns>The index of the added item. It will crash if the index is out of range</returns>
+			/// <param name="index">The position to insert the value.</param>
+			/// <param name="item">The value to add.</param>
+			vint Insert(vint index, T&& item)
+			{
+				CHECK_ERROR(index >= 0 && index <= this->count, L"List<T, K>::Insert(vint, const T&)#Argument index not in range.");
+				memory_management::InsertUninitializedItems(this->buffer, this->capacity, this->count, index, 1);
+				memory_management::CallMoveCtors(&this->buffer[index], &item, 1);
+				return index;
+			}
+
 			/// <summary>Remove an element from the list. If multiple elements equal to the specified value, only the first one will be removed</summary>
 			/// <returns>Returns true if the element is removed.</returns>
 			/// <param name="item">The item to remove.</param>
@@ -629,6 +641,14 @@ SortedList
 				bool uninitialized = false;
 				memory_management::InsertUninitializedItems(this->buffer, this->capacity, this->count, index, 1);
 				memory_management::CallCopyCtors(&this->buffer[index], &item, 1);
+				return index;
+			}
+
+			vint Insert(vint index, T&& item)
+			{
+				bool uninitialized = false;
+				memory_management::InsertUninitializedItems(this->buffer, this->capacity, this->count, index, 1);
+				memory_management::CallMoveCtors(&this->buffer[index], &item, 1);
 				return index;
 			}
 		public:
