@@ -73,7 +73,7 @@ Memory Management
 			template<typename T>
 			void CallMoveAssignmentsOverlapped(T* items, T* source, vint count)
 			{
-				if constexpr (!std::is_trivially_move_constructible_v<T>)
+				if constexpr (!std::is_trivially_move_assignable_v<T>)
 				{
 					if (items < source)
 					{
@@ -129,7 +129,7 @@ Memory Management
 
 				if(newCount < oldCount)
 				{
-					memory_management::CallDtors(&items[newCount], oldCount - newCount);
+					CallDtors(&items[newCount], oldCount - newCount);
 				}
 
 				if (newCount <= capacity / 2 && newCount <= 8)
@@ -137,14 +137,46 @@ Memory Management
 					vint newCapacity = capacity * 5 / 8;
 					if (newCount < newCapacity)
 					{
-						T* newBuffer = memory_management::AllocateBuffer<T>(newCapacity);
-						memory_management::CallMoveCtors(newBuffer, items, newCount);
-						memory_management::CallDtors(items, newCount);
-						memory_management::DeallocateBuffer(items);
+						T* newBuffer = AllocateBuffer<T>(newCapacity);
+						CallMoveCtors(newBuffer, items, newCount);
+						CallDtors(items, newCount);
+						DeallocateBuffer(items);
 						capacity = newCapacity;
 						items = newBuffer;
 					}
 				}
+			}
+
+			template<typename T>
+			void InsertUninitializedItems(T*& items, vint& capacity, vint& count, vint index, vint insertCount)
+			{
+				vint newCount = count + insertCount;
+				if (newCount > capacity)
+				{
+					vint newCapacity = newCount < capacity ? capacity : (newCount * 5 / 4 + 1);
+					T* newBuffer = AllocateBuffer<T>(newCapacity);
+					CallMoveCtors(newBuffer, items, index);
+					CallMoveCtors(&newBuffer[index + insertCount], &items[index], count - index);
+					CallDtors(items, count);
+					DeallocateBuffer(items);
+					capacity = newCapacity;
+					items = newBuffer;
+				}
+				else if (index < count)
+				{
+					if (insertCount >= (count - index))
+					{
+						CallMoveCtors(&items[index + insertCount], &items[index], count - index);
+						CallDtors(&items[index], count - index);
+					}
+					else
+					{
+						CallMoveCtors(&items[count], &items[count - insertCount], insertCount);
+						CallMoveAssignmentsOverlapped(&items[index + insertCount], &items[index], count - index - insertCount);
+						CallDtors(&items[index], insertCount);
+					}
+				}
+				count = newCount;
 			}
 		}
 
@@ -363,49 +395,6 @@ ListBase
 		protected:
 			vint					capacity = 0;
 
-			vint CalculateCapacity(vint expected)
-			{
-				vint result = capacity;
-				while (result < expected)
-				{
-					result = result * 5 / 4 + 1;
-				}
-				return result;
-			}
-
-			void MakeRoom(vint index, vint _count, bool& uninitialized)
-			{
-				vint newCount = this->count + _count;
-				if (newCount > capacity)
-				{
-					vint newCapacity = CalculateCapacity(newCount);
-					T* newBuffer = memory_management::AllocateBuffer<T>(newCapacity);
-					memory_management::CallMoveCtors(newBuffer, this->buffer, index);
-					memory_management::CallMoveCtors(&newBuffer[index + _count], &this->buffer[index], this->count - index);
-					memory_management::CallDtors(this->buffer, this->count);
-					memory_management::DeallocateBuffer(this->buffer);
-					this->capacity = newCapacity;
-					this->buffer = newBuffer;
-					uninitialized = true;
-				}
-				else if (index >= this->count)
-				{
-					uninitialized = true;
-				}
-				else if (this->count - index < _count)
-				{
-					memory_management::CallMoveCtors(&this->buffer[index + _count], &this->buffer[index], this->count - index);
-					memory_management::CallDtors(&this->buffer[index], _count - (this->count - index));
-					uninitialized = true;
-				}
-				else
-				{
-					memory_management::CallMoveCtors(&this->buffer[this->count], &this->buffer[this->count - _count], _count);
-					memory_management::CallMoveAssignmentsOverlapped(&this->buffer[index + _count], &this->buffer[index], this->count - index - _count);
-					uninitialized = false;
-				}
-				this->count = newCount;
-			}
 		public:
 
 			~ListBase()
@@ -508,16 +497,8 @@ List
 			vint Insert(vint index, const T& item)
 			{
 				CHECK_ERROR(index >= 0 && index <= this->count, L"List<T, K>::Insert(vint, const T&)#Argument index not in range.");
-				bool uninitialized = false;
-				this->MakeRoom(index, 1, uninitialized);
-				if (uninitialized)
-				{
-					new(&this->buffer[index])T(item);
-				}
-				else
-				{
-					this->buffer[index] = item;
-				}
+				memory_management::InsertUninitializedItems(this->buffer, this->capacity, this->count, index, 1);
+				memory_management::CallCopyCtors(&this->buffer[index], &item, 1);
 				return index;
 			}
 
@@ -611,15 +592,8 @@ SortedList
 			vint Insert(vint index, const T& item)
 			{
 				bool uninitialized = false;
-				this->MakeRoom(index, 1, uninitialized);
-				if (uninitialized)
-				{
-					new(&this->buffer[index])T(item);
-				}
-				else
-				{
-					this->buffer[index] = item;
-				}
+				memory_management::InsertUninitializedItems(this->buffer, this->capacity, this->count, index, 1);
+				memory_management::CallCopyCtors(&this->buffer[index], &item, 1);
 				return index;
 			}
 		public:
