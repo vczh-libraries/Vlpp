@@ -266,6 +266,8 @@ ArrayBase
 
 			T*						buffer = nullptr;
 			vint					count = 0;
+
+			ArrayBase() = default;
 		public:
 
 			IEnumerator<T>* CreateEnumerator()const
@@ -338,8 +340,35 @@ Array
 
 			~Array()
 			{
-				memory_management::CallDtors(this->buffer, this->count);
-				memory_management::DeallocateBuffer(this->buffer);
+				if (this->buffer)
+				{
+					memory_management::CallDtors(this->buffer, this->count);
+					memory_management::DeallocateBuffer(this->buffer);
+				}
+			}
+
+			Array(const Array<T, K>&) = delete;
+			Array(Array<T, K>&& _move)
+			{
+				this->buffer = _move.buffer;
+				this->count = _move.count;
+				_move.buffer = nullptr;
+				_move.count = 0;
+			}
+
+			Array<T, K>& operator=(const Array<T, K>&) = delete;
+			Array<T, K>& operator=(Array<T, K>&& _move)
+			{
+				if (this->buffer)
+				{
+					memory_management::CallDtors(this->buffer, this->count);
+					memory_management::DeallocateBuffer(this->buffer);
+				}
+				this->buffer = _move.buffer;
+				this->count = _move.count;
+				_move.buffer = nullptr;
+				_move.count = 0;
+				return *this;
 			}
 
 			/// <summary>Test does the array contain a value or not.</summary>
@@ -376,6 +405,11 @@ Array
 				CHECK_ERROR(index >= 0 && index < this->count, L"Array<T, K>::Set(vint)#Argument index not in range.");
 				this->buffer[index] = std::forward<TItem&&>(item);
 				return true;
+			}
+
+			bool Set(vint index, T&& item)
+			{
+				return Set<T>(index, std::move(item));
 			}
 
 			using ArrayBase<T>::operator[];
@@ -427,11 +461,41 @@ ListBase
 			vint					capacity = 0;
 
 		public:
-
+			ListBase() = default;
 			~ListBase()
 			{
-				memory_management::CallDtors(this->buffer, this->count);
-				memory_management::DeallocateBuffer(this->buffer);
+				if (this->buffer)
+				{
+					memory_management::CallDtors(this->buffer, this->count);
+					memory_management::DeallocateBuffer(this->buffer);
+				}
+			}
+
+			ListBase(const ListBase<T, K>&) = delete;
+			ListBase(ListBase<T, K>&& _move)
+			{
+				this->buffer = _move.buffer;
+				this->count = _move.count;
+				this->capacity = _move.capacity;
+				_move.buffer = nullptr;
+				_move.count = 0;
+				_move.capacity = 0;
+			}
+
+			ListBase<T, K>& operator=(const ListBase<T, K>&) = delete;
+			ListBase<T, K>& operator=(ListBase<T, K>&& _move)
+			{
+				if (this->buffer)
+				{
+					memory_management::CallDtors(this->buffer, this->count);
+					memory_management::DeallocateBuffer(this->buffer);
+				}
+				this->buffer = _move.buffer;
+				this->count = _move.count;
+				this->capacity = _move.capacity;
+				_move.buffer = nullptr;
+				_move.count = 0;
+				_move.capacity = 0;
 			}
 
 			/// <summary>Remove an element at a specified position.</summary>
@@ -523,6 +587,11 @@ List
 				return Insert(this->count, std::forward<TItem&&>(item));
 			}
 
+			vint Add(T&& item)
+			{
+				return Add<T>(std::move(item));
+			}
+
 			/// <summary>Insert a value at the specified position.</summary>
 			/// <returns>The index of the added item. It will crash if the index is out of range</returns>
 			/// <param name="index">The position to insert the value.</param>
@@ -575,6 +644,11 @@ List
 				CHECK_ERROR(index >= 0 && index < this->count, L"List<T, K>::Set(vint)#Argument index not in range.");
 				this->buffer[index] = std::forward<TItem&&>(item);
 				return true;
+			}
+
+			bool Set(vint index, T&& item)
+			{
+				return Set<T>(index, std::move(item));
 			}
 
 			using ListBase<T, K>::operator[];
@@ -694,6 +768,11 @@ SortedList
 					}
 					return Insert(outputIndex, std::forward<TItem&&>(item));
 				}
+			}
+
+			vint Add(T&& item)
+			{
+				return Add<T>(std::move(item));
 			}
 
 			/// <summary>Remove an element from the list. If multiple elements equal to the specified value, only the first one will be removed</summary>

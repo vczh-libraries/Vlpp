@@ -90,6 +90,22 @@ namespace vl
 		public:
 			/// <summary>Create an empty dictionary.</summary>
 			Dictionary() = default;
+			~Dictionary() = default;
+
+			Dictionary(const Dictionary<KT, VT, KK, VK>&) = delete;
+			Dictionary(Dictionary<KT, VT, KK, VK> && _move)
+				: keys(std::move(_move.keys))
+				, values(std::move(_move.values))
+			{
+			}
+
+			Dictionary<KT, VT, KK, VK>& operator=(const Dictionary<KT, VT, KK, VK>&) = delete;
+			Dictionary<KT, VT, KK, VK>& operator=(Dictionary<KT, VT, KK, VK> && _move)
+			{
+				keys = std::move(_move.keys);
+				values = std::move(_move.values);
+				return* this;
+			}
 
 			IEnumerator<Pair<KT, VT>>* CreateEnumerator()const
 			{
@@ -341,6 +357,22 @@ namespace vl
 			~Group()
 			{
 				Clear();
+			}
+
+			Group(const Group<KT, VT, KK, VK>&) = delete;
+			Group(Group<KT, VT, KK, VK> && _move)
+				: keys(std::move(_move.keys))
+				, values(std::move(_move.values))
+			{
+			}
+
+			Group<KT, VT, KK, VK>& operator=(const Group<KT, VT, KK, VK>&) = delete;
+			Group<KT, VT, KK, VK>& operator=(Group<KT, VT, KK, VK> && _move)
+			{
+				Clear();
+				keys = std::move(_move.keys);
+				values = std::move(_move.values);
+				return*this;
 			}
 
 			IEnumerator<Pair<KT, VT>>* CreateEnumerator()const
