@@ -496,6 +496,7 @@ ListBase
 				_move.buffer = nullptr;
 				_move.count = 0;
 				_move.capacity = 0;
+				return *this;
 			}
 
 			/// <summary>Remove an element at a specified position.</summary>

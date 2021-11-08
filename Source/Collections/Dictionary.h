@@ -175,6 +175,11 @@ namespace vl
 				return true;
 			}
 
+			bool Set(const KT& key, const VT& value) { return Set<const KT&, const VT&>(key, value); }
+			bool Set(const KT& key, VT&& value) { return Set<const KT&, VT>(key, std::move(value)); }
+			bool Set(KT&& key, const VT& value) { return Set<KT, const VT&>(std::move(key), value); }
+			bool Set(KT&& key, VT&& value) { return Set<KT, VT>(std::move(key), std::move(value)); }
+
 			/// <summary>Add a key with an associated value.</summary>
 			/// <returns>Returns true if the pair is added. If will crash if the key exists.</returns>
 			/// <param name="value">The pair of key and value.</param>
@@ -210,6 +215,11 @@ namespace vl
 
 				return true;
 			}
+
+			bool Add(const KT& key, const VT& value) { return Add<const KT&, const VT&>(key, value); }
+			bool Add(const KT& key, VT&& value) { return Add<const KT&, VT>(key, std::move(value)); }
+			bool Add(KT&& key, const VT& value) { return Add<KT, const VT&>(std::move(key), value); }
+			bool Add(KT&& key, VT&& value) { return Add<KT, VT>(std::move(key), std::move(value)); }
 
 			/// <summary>Remove a key with the associated value.</summary>
 			/// <returns>Returns true if the key and the value is removed.</returns>
@@ -498,6 +508,11 @@ namespace vl
 				target->Add(std::forward<TValueItem&&>(value));
 				return true;
 			}
+
+			bool Add(const KT& key, const VT& value) { return Add<const KT&, const VT&>(key, value); }
+			bool Add(const KT& key, VT&& value) { return Add<const KT&, VT>(key, std::move(value)); }
+			bool Add(KT&& key, const VT& value) { return Add<KT, const VT&>(std::move(key), value); }
+			bool Add(KT&& key, VT&& value) { return Add<KT, VT>(std::move(key), std::move(value)); }
 			
 			/// <summary>Remove a key with all associated values.</summary>
 			/// <returns>Returns true if the key and all associated values are removed.</returns>

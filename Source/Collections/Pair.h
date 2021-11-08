@@ -33,6 +33,30 @@ namespace vl
 			{
 			}
 
+			Pair(const K& _key, const V& _value)
+				: key(_key)
+				, value(_value)
+			{
+			}
+
+			Pair(const K& _key, V&& _value)
+				: key(_key)
+				, value(std::move(_value))
+			{
+			}
+
+			Pair(K&& _key, const V& _value)
+				: key(std::move(_key))
+				, value(_value)
+			{
+			}
+
+			Pair(K&& _key, V&& _value)
+				: key(std::move(_key))
+				, value(std::move(_value))
+			{
+			}
+
 			Pair(const Pair<K, V>& pair)
 				: key(pair.key)
 				, value(pair.value)
