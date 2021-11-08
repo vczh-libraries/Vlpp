@@ -449,7 +449,7 @@ ListBase
 				vint previousCount = this->count;
 				this->count = 0;
 				this->capacity = 0;
-				memory_management::CallDtors(this->buffer, this->count);
+				memory_management::CallDtors(this->buffer, previousCount);
 				memory_management::DeallocateBuffer(this->buffer);
 				this->buffer = nullptr;
 				return true;

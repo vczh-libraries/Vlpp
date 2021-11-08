@@ -96,17 +96,6 @@ namespace vl
 				return new Enumerator(this);
 			}
 
-			/// <summary>Set a preference of using memory.</summary>
-			/// <param name="mode">
-			/// Set to true (by default) to let the container actively reduce memories when there is too much room for unused elements.
-			/// This could happen after removing a lot of elements.
-			/// </param>
-			void SetLessMemoryMode(bool mode)
-			{
-				keys.SetLessMemoryMode(mode);
-				values.SetLessMemoryMode(mode);
-			}
-
 			/// <summary>Get all keys.</summary>
 			/// <returns>All keys.</returns>
 			const KeyContainer& Keys()const
