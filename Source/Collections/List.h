@@ -71,6 +71,32 @@ Memory Management
 			}
 
 			template<typename T>
+			void CallMoveAssignmentsOverlapped(T* items, T* source, vint count)
+			{
+				if constexpr (!std::is_trivially_move_constructible_v<T>)
+				{
+					if (items < source)
+					{
+						for (vint i = 0; i < count; i++)
+						{
+							items[i] = std::move(source[i]);
+						}
+					}
+					else if (items > source)
+					{
+						for (vint i = count - 1; i >= 0; i--)
+						{
+							items[i] = std::move(source[i]);
+						}
+					}
+				}
+				else
+				{
+					memmove(items, source, sizeof(T) * count);
+				}
+			}
+
+			template<typename T>
 			void CallDtors(T* items, vint count)
 			{
 				if constexpr (!std::is_trivially_destructible_v<T>)
@@ -97,52 +123,6 @@ Memory Management
 			}
 		}
 
-		template<typename T, bool PODType = std::is_trivially_constructible_v<T>>
-		class ListStore;
-
-		template<typename T>
-		class ListStore<T, false> abstract : public EnumerableBase<T>
-		{
-		protected:
-
-			static void MoveItemsInTheSameBuffer(void* dst, void* src, vint count)
-			{
-				T* ds = (T*)dst;
-				T* ss = (T*)src;
-
-				if (ds < ss)
-				{
-					for (vint i = 0; i < count; i++)
-					{
-						ds[i] = std::move(ss[i]);
-					}
-				}
-				else if (ds > ss)
-				{
-					for (vint i = count - 1; i >= 0; i--)
-					{
-						ds[i] = std::move(ss[i]);
-					}
-				}
-			}
-		public:
-		};
-
-		template<typename T>
-		class ListStore<T, true> abstract : public EnumerableBase<T>
-		{
-		protected:
-
-			static void MoveItemsInTheSameBuffer(void* dst, void* src, vint count)
-			{
-				if (count > 0)
-				{
-					memmove(dst, src, sizeof(T) * count);
-				}
-			}
-		public:
-		};
-
 /***********************************************************************
 ArrayBase
 ***********************************************************************/
@@ -150,7 +130,7 @@ ArrayBase
 		/// <summary>Base type of all linear container.</summary>
 		/// <typeparam name="T">Type of elements.</typeparam>
 		template<typename T>
-		class ArrayBase abstract : public ListStore<T>
+		class ArrayBase abstract : public EnumerableBase<T>
 		{
 		protected:
 			class Enumerator : public Object, public virtual IEnumerator<T>
@@ -397,7 +377,7 @@ ListBase
 				else
 				{
 					memory_management::CallMoveCtors(&this->buffer[this->count], &this->buffer[this->count - _count], _count);
-					this->MoveItemsInTheSameBuffer(&this->buffer[index + _count], &this->buffer[index], this->count - index - _count);
+					memory_management::CallMoveAssignmentsOverlapped(&this->buffer[index + _count], &this->buffer[index], this->count - index - _count);
 					uninitialized = false;
 				}
 				this->count = newCount;
@@ -448,7 +428,7 @@ ListBase
 			{
 				vint previousCount = this->count;
 				CHECK_ERROR(index >= 0 && index < this->count, L"ListBase<T, K>::RemoveAt(vint)#Argument index not in range.");
-				this->MoveItemsInTheSameBuffer(&this->buffer[index], &this->buffer[index + 1], this->count - index - 1);
+				memory_management::CallMoveAssignmentsOverlapped(&this->buffer[index], &this->buffer[index + 1], this->count - index - 1);
 				this->count--;
 				ReleaseUnnecessaryBuffer(previousCount);
 				return true;
@@ -463,7 +443,7 @@ ListBase
 				vint previousCount = this->count;
 				CHECK_ERROR(index >= 0 && index <= this->count, L"ListBase<T, K>::RemoveRange(vint, vint)#Argument index not in range.");
 				CHECK_ERROR(index + _count >= 0 && index + _count <= this->count, L"ListBase<T,K>::RemoveRange(vint, vint)#Argument _count not in range.");
-				this->MoveItemsInTheSameBuffer(&this->buffer[index], &this->buffer[index + _count], this->count - index - _count);
+				memory_management::CallMoveAssignmentsOverlapped(&this->buffer[index], &this->buffer[index + _count], this->count - index - _count);
 				this->count -= _count;
 				ReleaseUnnecessaryBuffer(previousCount);
 				return true;
