@@ -554,6 +554,8 @@ List
 		public:
 			/// <summary>Create an empty list.</summary>
 			List() = default;
+			List(List<T, K>&& container) : ListBase<T, K>(std::move(container)) {}
+			List<T, K>& operator=(List<T, K>&& _move) = default;
 
 			/// <summary>Test does the list contain a value or not.</summary>
 			/// <returns>Returns true if the list contains the specified value.</returns>
@@ -729,6 +731,13 @@ SortedList
 		public:
 			/// <summary>Create an empty list.</summary>
 			SortedList() = default;
+			SortedList(SortedList<T, K>&& container) : ListBase<T, K>(std::move(container)) {}
+			SortedList<T, K>& operator=(SortedList<T, K> && _move) = default;
+
+			SortedList(const SortedList<T, K>&xs)
+				: ListBase<T, K>(std::move(const_cast<ListBase<T, K>&>(static_cast<const ListBase<T, K>&>(xs))))
+			{
+			}
 
 			/// <summary>Test does the list contain a value or not.</summary>
 			/// <returns>Returns true if the list contains the specified value.</returns>

@@ -93,7 +93,7 @@ namespace vl
 			~Dictionary() = default;
 
 			Dictionary(const Dictionary<KT, VT, KK, VK>&) = delete;
-			Dictionary(Dictionary<KT, VT, KK, VK> && _move)
+			Dictionary(Dictionary<KT, VT, KK, VK>&& _move)
 				: keys(std::move(_move.keys))
 				, values(std::move(_move.values))
 			{
@@ -370,7 +370,7 @@ namespace vl
 			}
 
 			Group(const Group<KT, VT, KK, VK>&) = delete;
-			Group(Group<KT, VT, KK, VK> && _move)
+			Group(Group<KT, VT, KK, VK>&& _move)
 				: keys(std::move(_move.keys))
 				, values(std::move(_move.values))
 			{

@@ -175,4 +175,38 @@ TEST_FILE
 		TestCollectionWithIncreasingItems(list);
 		TestNormalList(list);
 	});
+
+	TEST_CASE(L"Ensure container move constructor and assignment")
+	{
+		{
+			Array<vint> a;
+			Array<vint> b(std::move(a));
+			Array<vint> c;
+			c = std::move(b);
+		}
+		{
+			List<vint> a;
+			List<vint> b((List<vint>&&)a);
+			List<vint> c;
+			c = std::move(b);
+		}
+		{
+			SortedList<vint> a;
+			SortedList<vint> b(std::move(a));
+			SortedList<vint> c;
+			c = std::move(b);
+		}
+		{
+			Dictionary<vint, vint> a;
+			Dictionary<vint, vint> b(std::move(a));
+			Dictionary<vint, vint> c;
+			c = std::move(b);
+		}
+		{
+			Group<vint, vint> a;
+			Group<vint, vint> b(std::move(a));
+			Group<vint, vint> c;
+			c = std::move(b);
+		}
+	});
 }
