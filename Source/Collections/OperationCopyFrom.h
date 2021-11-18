@@ -90,12 +90,12 @@ Copy Functions for Containers
 			{
 				static void Perform(Ds& ds, const Ss& ss, bool append)
 				{
-					if(!append)
+					if (!append)
 					{
 						ds.Clear();
 					}
-					Ptr<IEnumerator<typename Ss::ElementType>> enumerator=ss.CreateEnumerator();
-					while(enumerator->Next())
+					auto enumerator = ss.CreateEnumerator();
+					while (enumerator->Next())
 					{
 						RandomAccess<Ds>::AppendValue(ds, enumerator->Current());
 					}

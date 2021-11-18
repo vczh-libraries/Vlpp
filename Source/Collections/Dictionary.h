@@ -23,25 +23,25 @@ namespace vl
 			typename KK=typename KeyType<KT>::Type, 
 			typename VK=typename KeyType<VT>::Type
 		>
-		class Dictionary : public EnumerableBase<Pair<KT, VT>>
+		class Dictionary : public EnumerableBase<Pair<const KT&, const VT&>>
 		{
+			using KVPair = Pair<const KT&, const VT&>;
 		public:
 			typedef SortedList<KT, KK>			KeyContainer;
 			typedef List<VT, VK>				ValueContainer;
 		protected:
-			class Enumerator : public Object, public virtual IEnumerator<Pair<KT, VT>>
+			class Enumerator : public Object, public virtual IEnumerator<KVPair>
 			{
 			private:
 				const Dictionary<KT, VT, KK, VK>*	container;
 				vint								index;
-				Pair<KT, VT>						current;
+				KVPair								current;
 
 				void UpdateCurrent()
 				{
 					if(index<container->Count())
 					{
-						current.key=container->Keys().Get(index);
-						current.value=container->Values().Get(index);
+						current = { container->Keys().Get(index),container->Values().Get(index) };
 					}
 				}
 			public:
@@ -51,12 +51,12 @@ namespace vl
 					index=_index;
 				}
 				
-				IEnumerator<Pair<KT, VT>>* Clone()const override
+				IEnumerator<KVPair>* Clone()const override
 				{
 					return new Enumerator(container, index);
 				}
 
-				const Pair<KT, VT>& Current()const override
+				const KVPair& Current()const override
 				{
 					return current;
 				}
@@ -107,7 +107,7 @@ namespace vl
 				return* this;
 			}
 
-			IEnumerator<Pair<KT, VT>>* CreateEnumerator()const
+			IEnumerator<KVPair>* CreateEnumerator()const
 			{
 				return new Enumerator(this);
 			}
@@ -260,29 +260,29 @@ namespace vl
 			typename KK=typename KeyType<KT>::Type,
 			typename VK=typename KeyType<VT>::Type
 		>
-		class Group : public EnumerableBase<Pair<KT, VT>>
+		class Group : public EnumerableBase<Pair<const KT&, const VT&>>
 		{
+			using KVPair = Pair<const KT&, const VT&>;
 		public:
 			typedef SortedList<KT, KK>		KeyContainer;
 			typedef List<VT, VK>			ValueContainer;
 		protected:
-			class Enumerator : public Object, public virtual IEnumerator<Pair<KT, VT>>
+			class Enumerator : public Object, public virtual IEnumerator<KVPair>
 			{
 			private:
 				const Group<KT, VT, KK, VK>*		container;
 				vint								keyIndex;
 				vint								valueIndex;
-				Pair<KT, VT>						current;
+				KVPair								current;
 
 				void UpdateCurrent()
 				{
-					if(keyIndex<container->Count())
+					if (keyIndex < container->Count())
 					{
-						const ValueContainer& values=container->GetByIndex(keyIndex);
-						if(valueIndex<values.Count())
+						const ValueContainer& values = container->GetByIndex(keyIndex);
+						if (valueIndex < values.Count())
 						{
-							current.key=container->Keys().Get(keyIndex);
-							current.value=values.Get(valueIndex);
+							current = { container->Keys().Get(keyIndex) ,values.Get(valueIndex) };
 						}
 					}
 				}
@@ -294,12 +294,12 @@ namespace vl
 					valueIndex=_valueIndex;
 				}
 				
-				IEnumerator<Pair<KT, VT>>* Clone()const override
+				IEnumerator<KVPair>* Clone()const override
 				{
 					return new Enumerator(container, keyIndex, valueIndex);
 				}
 
-				const Pair<KT, VT>& Current()const override
+				const KVPair& Current()const override
 				{
 					return current;
 				}
@@ -385,7 +385,7 @@ namespace vl
 				return*this;
 			}
 
-			IEnumerator<Pair<KT, VT>>* CreateEnumerator()const
+			IEnumerator<KVPair>* CreateEnumerator()const
 			{
 				return new Enumerator(this);
 			}
@@ -727,6 +727,11 @@ Random Access
 				}
 
 				static void AppendValue(Dictionary<KT, VT, KK, VK>& t, const Pair<KT, VT>& value)
+				{
+					t.Set(value.key, value.value);
+				}
+
+				static void AppendValue(Dictionary<KT, VT, KK, VK>& t, const Pair<const KT&, const VT&>& value)
 				{
 					t.Set(value.key, value.value);
 				}

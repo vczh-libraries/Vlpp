@@ -41,7 +41,7 @@ namespace TestPartialOrdering_TestObjects
 	{
 		unittest::UnitTest::PrintMessage(
 			From(groups)
-				.Select([](Pair<vint, vint> p)
+				.Select([](Pair<const vint&, const vint&> p)
 				{
 					return L"(" + itow(p.key) + L" -> " + itow(p.value) + L")";
 				})

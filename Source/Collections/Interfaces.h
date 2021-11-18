@@ -215,7 +215,8 @@ Random Access
 					t.Set(index, value);
 				}
 
-				static void AppendValue(T& t, const typename T::ElementType& value)
+				template<typename V>
+				static void AppendValue(T& t, V&& value)
 				{
 					t.Add(value);
 				}

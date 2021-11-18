@@ -201,12 +201,14 @@ TEST_FILE
 			Dictionary<vint, vint> b(std::move(a));
 			Dictionary<vint, vint> c;
 			c = std::move(b);
+			Dictionary<Moveonly<vint>, Moveonly<vint>> d;
 		}
 		{
 			Group<vint, vint> a;
 			Group<vint, vint> b(std::move(a));
 			Group<vint, vint> c;
 			c = std::move(b);
+			Group<Moveonly<vint>, Moveonly<vint>> d;
 		}
 	});
 }

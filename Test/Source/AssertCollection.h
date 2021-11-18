@@ -97,7 +97,7 @@ void TestReadonlyDictionary(const Dictionary<K, V>& dictionary, vint* keys, vint
 		auto enumerator = dictionary.CreateEnumerator();
 		for (vint i = 0; i < count; i++)
 		{
-			Pair<K, V> pair(keys[i], values[i]);
+			Pair<const K&, const V&> pair(keys[i], values[i]);
 			TEST_ASSERT(enumerator->Next());
 			TEST_ASSERT(enumerator->Current() == pair);
 			TEST_ASSERT(enumerator->Index() == i);
@@ -134,7 +134,7 @@ void TestReadonlyGroup(const Group<K, V>& group, vint* keys, vint* values, vint*
 		vint index = 0;
 		while (keyIndex < count)
 		{
-			Pair<K, V> pair(keys[keyIndex], values[index]);
+			Pair<const K&, const V&> pair(keys[keyIndex], values[index]);
 			TEST_ASSERT(enumerator->Next());
 			TEST_ASSERT(enumerator->Current() == pair);
 			TEST_ASSERT(enumerator->Index() == index);

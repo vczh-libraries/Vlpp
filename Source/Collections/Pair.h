@@ -12,6 +12,9 @@ namespace vl
 {
 	namespace collections
 	{
+		template<typename K, typename V>
+		class Pair;
+
 		/// <summary>A type representing a pair of key and value.</summary>
 		/// <typeparam name="K">Type of the key.</typeparam>
 		/// <typeparam name="V">Type of the value.</typeparam>
@@ -57,6 +60,12 @@ namespace vl
 			{
 			}
 
+			Pair(const Pair<const K&, const V&>& pair)
+				: key(pair.key)
+				, value(pair.value)
+			{
+			}
+
 			Pair(const Pair<K, V>& pair)
 				: key(pair.key)
 				, value(pair.value)
@@ -83,21 +92,25 @@ namespace vl
 				return *this;
 			}
 
-			vint CompareTo(const Pair<K, V>& pair)const
+			template<typename K2, typename V2>
+			auto CompareTo(const Pair<K2, V2>& pair) const -> std::enable_if_t<
+				std::is_same_v<std::remove_cvref_t<K>, std::remove_cvref_t<K2>> &&
+				std::is_same_v<std::remove_cvref_t<V>, std::remove_cvref_t<V2>>,
+				vint>
 			{
-				if(key<pair.key)
+				if (key < pair.key)
 				{
 					return -1;
 				}
-				else if(key>pair.key)
+				else if (key > pair.key)
 				{
 					return 1;
 				}
-				else if(value<pair.value)
+				else if (value < pair.value)
 				{
 					return -1;
 				}
-				else if(value>pair.value)
+				else if (value > pair.value)
 				{
 					return 1;
 				}
@@ -107,34 +120,144 @@ namespace vl
 				}
 			}
 
-			bool operator==(const Pair<K, V>& pair)const
+			template<typename TPair>
+			bool operator==(TPair&& pair)const
 			{
-				return CompareTo(pair)==0;
+				return CompareTo(std::forward<TPair&&>(pair)) == 0;
 			}
 
-			bool operator!=(const Pair<K, V>& pair)const
+			template<typename TPair>
+			bool operator!=(TPair&& pair)const
 			{
-				return CompareTo(pair)!=0;
+				return CompareTo(std::forward<TPair&&>(pair)) != 0;
 			}
 
-			bool operator<(const Pair<K, V>& pair)const
+			template<typename TPair>
+			bool operator<(TPair&& pair)const
 			{
-				return CompareTo(pair)<0;
+				return CompareTo(std::forward<TPair&&>(pair)) < 0;
 			}
 
-			bool operator<=(const Pair<K, V>& pair)const
+			template<typename TPair>
+			bool operator<=(TPair&& pair)const
 			{
-				return CompareTo(pair)<=0;
+				return CompareTo(std::forward<TPair&&>(pair)) <= 0;
 			}
 
-			bool operator>(const Pair<K, V>& pair)const
+			template<typename TPair>
+			bool operator>(TPair&& pair)const
 			{
-				return CompareTo(pair)>0;
+				return CompareTo(std::forward<TPair&&>(pair)) > 0;
 			}
 
-			bool operator>=(const Pair<K, V>& pair)const
+			template<typename TPair>
+			bool operator>=(TPair&& pair)const
 			{
-				return CompareTo(pair)>=0;
+				return CompareTo(std::forward<TPair&&>(pair)) >= 0;
+			}
+		};
+
+		template<typename K, typename V>
+		class Pair<const K&, const V&>
+		{
+		public:
+			const K&		key;
+			const V&		value;
+
+			Pair()
+				: key(*(const K*)nullptr)
+				, value(*(const V*)nullptr)
+			{
+			}
+
+			Pair(const K& _key, const V& _value)
+				: key(_key)
+				, value(_value)
+			{
+			}
+
+			Pair(const Pair<const K&, const V&>& pair)
+				: key(pair.key)
+				, value(pair.value)
+			{
+			}
+
+			Pair<const K&, const V&>& operator=(const Pair<const K&, const V&>& pair)
+			{
+
+#ifdef VCZH_CHECK_MEMORY_LEAKS_NEW
+#undef new
+#endif
+				this->~Pair<const K&, const V&>();
+				new(this) Pair<const K&, const V&>(pair);
+				return *this;
+#ifdef VCZH_CHECK_MEMORY_LEAKS_NEW
+#define new VCZH_CHECK_MEMORY_LEAKS_NEW
+#endif
+			}
+
+			template<typename K2, typename V2>
+			auto CompareTo(const Pair<K2, V2>& pair) const -> std::enable_if_t<
+				std::is_same_v<std::remove_cvref_t<K>, std::remove_cvref_t<K2>>&&
+				std::is_same_v<std::remove_cvref_t<V>, std::remove_cvref_t<V2>>,
+				vint>
+			{
+				if (key < pair.key)
+				{
+					return -1;
+				}
+				else if (key > pair.key)
+				{
+					return 1;
+				}
+				else if (value < pair.value)
+				{
+					return -1;
+				}
+				else if (value > pair.value)
+				{
+					return 1;
+				}
+				else
+				{
+					return 0;
+				}
+			}
+
+			template<typename TPair>
+			bool operator==(TPair&& pair)const
+			{
+				return CompareTo(std::forward<TPair&&>(pair)) == 0;
+			}
+
+			template<typename TPair>
+			bool operator!=(TPair&& pair)const
+			{
+				return CompareTo(std::forward<TPair&&>(pair)) != 0;
+			}
+
+			template<typename TPair>
+			bool operator<(TPair&& pair)const
+			{
+				return CompareTo(std::forward<TPair&&>(pair)) < 0;
+			}
+
+			template<typename TPair>
+			bool operator<=(TPair&& pair)const
+			{
+				return CompareTo(std::forward<TPair&&>(pair)) <= 0;
+			}
+
+			template<typename TPair>
+			bool operator>(TPair&& pair)const
+			{
+				return CompareTo(std::forward<TPair&&>(pair)) > 0;
+			}
+
+			template<typename TPair>
+			bool operator>=(TPair&& pair)const
+			{
+				return CompareTo(std::forward<TPair&&>(pair)) >= 0;
 			}
 		};
 	}
