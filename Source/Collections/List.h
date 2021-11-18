@@ -770,7 +770,18 @@ SortedList
 				else
 				{
 					vint outputIndex = -1;
-					IndexOfInternal<T>(item, outputIndex);
+					if constexpr (std::is_same_v<std::remove_cvref_t<T>, std::remove_cvref_t<K>>)
+					{
+						IndexOfInternal<K>(item, outputIndex);
+					}
+					else if constexpr (std::is_same_v<std::remove_cvref_t<TItem>, std::remove_cvref_t<K>>)
+					{
+						IndexOfInternal<K>(item, outputIndex);
+					}
+					else
+					{
+						IndexOfInternal<K>(KeyType<T>::GetKeyValue(item), outputIndex);
+					}
 					CHECK_ERROR(outputIndex >= 0 && outputIndex < this->count, L"SortedList<T, K>::Add(const T&)#Internal error, index not in range.");
 					if (this->buffer[outputIndex] < item)
 					{
