@@ -3,6 +3,7 @@
 ## 2.0
 
 - Revisit `README.md` for all repos.
+- Remove `MakePtr` and add template argument deduction to `Ptr<T>`
 
 ## Optional
 
