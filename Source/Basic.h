@@ -14,7 +14,7 @@ Licensed under https://github.com/vczh-libraries/License
 #define new VCZH_CHECK_MEMORY_LEAKS_NEW
 #endif
 
-#if defined _WIN64 || __x86_64 || __LP64__
+#if defined _WIN64 || defined __x86_64 || defined __LP64__ || defined __aarch64__
 #define VCZH_64
 #endif
 
@@ -25,6 +25,10 @@ Licensed under https://github.com/vczh-libraries/License
 #if defined(__APPLE__)
 #define VCZH_APPLE
 #endif
+#endif
+
+#if defined __arm__ || defined __aarch64__
+#define VCZH_ARM
 #endif
 
 #if defined VCZH_MSVC
@@ -41,10 +45,15 @@ static_assert(sizeof(wchar_t) == sizeof(char32_t), "wchar_t is not UTF-32.");
 static_assert(false, "wchar_t configuration is not right.");
 #endif
 
-#if defined VCZH_MSVC
+#if defined VCZH_ARM
+#include <stdlib.h>
+#elif defined VCZH_MSVC
 #include <intrin.h>
 #elif defined VCZH_GCC
 #include <x86intrin.h>
+#endif
+
+#if defined VCZH_GCC
 #include <stdint.h>
 #include <stddef.h>
 #include <wchar.h>
@@ -137,7 +146,10 @@ x86 and x64 Compatbility
 #define UITOW_S		_ui64tow_s
 #define UI64TOA_S	_ui64toa_s
 #define UI64TOW_S	_ui64tow_s
-#if defined VCZH_MSVC
+#if defined VCZH_ARM
+#define INCRC(x)	(__atomic_add_fetch(x, 1, __ATOMIC_SEQ_CST))
+#define DECRC(x)	(__atomic_sub_fetch(x, 1, __ATOMIC_SEQ_CST))
+#elif defined VCZH_MSVC
 #define INCRC(x)	(_InterlockedIncrement64(x))
 #define DECRC(x)	(_InterlockedDecrement64(x))
 #elif defined VCZH_GCC
@@ -153,7 +165,10 @@ x86 and x64 Compatbility
 #define UITOW_S		_ui64tow_s
 #define UI64TOA_S	_ui64toa_s
 #define UI64TOW_S	_ui64tow_s
-#if defined VCZH_MSVC
+#if defined VCZH_ARM
+#define INCRC(x)	(__atomic_add_fetch(x, 1, __ATOMIC_SEQ_CST))
+#define DECRC(x)	(__atomic_sub_fetch(x, 1, __ATOMIC_SEQ_CST))
+#elif defined VCZH_MSVC
 #define INCRC(x)	(_InterlockedIncrement((volatile long*)(x)))
 #define DECRC(x)	(_InterlockedDecrement((volatile long*)(x)))
 #elif defined VCZH_GCC
