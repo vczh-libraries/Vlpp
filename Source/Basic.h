@@ -14,7 +14,7 @@ Licensed under https://github.com/vczh-libraries/License
 #define new VCZH_CHECK_MEMORY_LEAKS_NEW
 #endif
 
-#if defined _WIN64 || defined __x86_64 || defined __LP64__ || defined __aarch64__
+#if defined _WIN64 || defined __x86_64 || defined __LP64__ || defined __aarch64__ || defined _M_ARM64
 #define VCZH_64
 #endif
 
@@ -27,7 +27,7 @@ Licensed under https://github.com/vczh-libraries/License
 #endif
 #endif
 
-#if defined __arm__ || defined __aarch64__
+#if defined __arm__ || defined __aarch64__ || defined _M_ARM || defined _M_ARM64
 #define VCZH_ARM
 #endif
 
