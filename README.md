@@ -6,7 +6,9 @@
 
 This project is licensed under [the License repo](https://github.com/vczh-libraries/License).
 
-This project is not open sourced and for development only. But you are able to use the open sourced version in [the Release repo](https://github.com/vczh-libraries/Release).
+Source code in this repo is for reference only, please use the source code in [the Release repo](https://github.com/vczh-libraries/Release).
+
+You are welcome to contribute to this repo by opening pull requests.
 
 ## Document
 
@@ -16,15 +18,6 @@ For **Vlpp**: click [here](http://vczh-libraries.github.io/doc/current/vlpp/home
 
 ## Unit Test
 
-- **Ptr, Lazy, DateTime**
-  - **TEST** [TestBasic.cpp](./Test/Source/TestBasic.cpp)
-- **String**
-  - **TEST** [TestString.cpp](./Test/Source/TestString.cpp)
-- **Collections** (Array, List, SortedList, Dictionary, Group)
-  - **TEST** [TestList.cpp](./Test/Source/TestList.cpp)
-- **Linq** (Array, List, SortedList, Dictionary, Group)
-  - **TEST** [TestLinq.cpp](./Test/Source/TestLinq.cpp)
-- **Functional**
-  - **TEST** [TestFunction.cpp](./Test/Source/TestFunction.cpp)
-- **Global Storage**
-  - **TEST** [TestGlobalStorage.cpp](./Test/Source/TestGlobalStorage.cpp)
+For **Windows**, open `Test/UnitTest/UnitTest.sln`, and run the `UnitTest` project.
+
+For **Linux**, use `Test/Linux/makefile` to build and unit test.
