@@ -5,6 +5,7 @@
 - Revisit `README.md` for all repos.
 - Perfect forwarding for `Func`.
 - Coroutine for `LazyList`
+  - https://en.cppreference.com/w/cpp/language/coroutines
 - Rewrite `LazyList` operators using coroutine as much as possible
 - `LazyList` operators test container types and perform different solution to improve performance
 
