@@ -323,7 +323,7 @@ LazyList
 			template<typename F>
 			LazyList<T> OrderBy(F f)const
 			{
-				Ptr<List<T>> sorted = new List<T>;
+				auto sorted = Ptr(new List<T>);
 				CopyFrom(*sorted.Obj(), *this);
 				if (sorted->Count() > 0)
 				{
@@ -355,7 +355,7 @@ LazyList
 			template<typename F>
 			T Aggregate(F f)const
 			{
-				Ptr<IEnumerator<T>> enumerator = CreateEnumerator();
+				auto enumerator = Ptr(CreateEnumerator());
 				if (!enumerator->Next())
 				{
 					throw Error(L"LazyList<T>::Aggregate(F)#Aggregate failed to calculate from an empty container.");
@@ -467,7 +467,7 @@ LazyList
 			/// <returns>The first value.</returns>
 			T First()const
 			{
-				Ptr<IEnumerator<T>> enumerator = CreateEnumerator();
+				auto enumerator = Ptr(CreateEnumerator());
 				if (!enumerator->Next())
 				{
 					throw Error(L"LazyList<T>::First(F)#First failed to calculate from an empty container.");
@@ -480,7 +480,7 @@ LazyList
 			/// <param name="defaultValue">The argument to return if the lazy list is empty.</param>
 			T First(T defaultValue)const
 			{
-				Ptr<IEnumerator<T>> enumerator = CreateEnumerator();
+				auto enumerator = Ptr(CreateEnumerator());
 				if (!enumerator->Next())
 				{
 					return defaultValue;
@@ -492,7 +492,7 @@ LazyList
 			/// <returns>The last value.</returns>
 			T Last()const
 			{
-				Ptr<IEnumerator<T>> enumerator = CreateEnumerator();
+				auto enumerator = Ptr(CreateEnumerator());
 				if (!enumerator->Next())
 				{
 					throw Error(L"LazyList<T>::Last(F)#Last failed to calculate from an empty container.");
@@ -513,7 +513,7 @@ LazyList
 			/// <param name="defaultValue">The argument to return if the lazy list is empty.</param>
 			T Last(T defaultValue)const
 			{
-				Ptr<IEnumerator<T>> enumerator = CreateEnumerator();
+				auto enumerator = Ptr(CreateEnumerator());
 				while (enumerator->Next())
 				{
 					defaultValue = enumerator->Current();
@@ -526,7 +526,7 @@ LazyList
 			vint Count()const
 			{
 				vint result = 0;
-				Ptr<IEnumerator<T>> enumerator = CreateEnumerator();
+				auto enumerator = Ptr(CreateEnumerator());
 				while (enumerator->Next())
 				{
 					result++;
@@ -538,7 +538,7 @@ LazyList
 			/// <returns>Returns true if the lazy list is empty.</returns>
 			bool IsEmpty()const
 			{
-				Ptr<IEnumerator<T>> enumerator = CreateEnumerator();
+				auto enumerator = Ptr(CreateEnumerator());
 				return !enumerator->Next();
 			}
 
@@ -739,7 +739,7 @@ LazyList
 				}
 				else
 				{
-					Ptr<List<T>> xs = new List<T>;
+					auto xs = Ptr(new List<T>);
 					CopyFrom(*xs.Obj(), *this);
 					return xs;
 				}

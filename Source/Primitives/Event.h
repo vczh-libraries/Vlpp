@@ -53,7 +53,7 @@ namespace vl
 		/// <param name="function">The callback.</param>
 		Ptr<EventHandler> Add(const Func<void(TArgs...)>& function)
 		{
-			Ptr<EventHandlerImpl> handler = new EventHandlerImpl(function);
+			auto handler = Ptr(new EventHandlerImpl(function));
 			handlers.Add(handler);
 			return handler;
 		}

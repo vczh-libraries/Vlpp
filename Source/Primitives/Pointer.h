@@ -129,7 +129,7 @@ Ptr
 
 		/// <summary>Convert a pointer to an object to a shared pointer.</summary>
 		/// <param name="pointer">The pointer to the object.</param>
-		Ptr(T* pointer)
+		explicit Ptr(T* pointer)
 		{
 			if (pointer)
 			{
@@ -359,6 +359,9 @@ Ptr
 		}
 	};
 
+	template<typename C>
+	Ptr(C*) -> Ptr<C>;
+
 /***********************************************************************
 ComPtr
 ***********************************************************************/
@@ -564,11 +567,8 @@ ComPtr
 		}
 	};
 
-	template<typename T, typename ...TArgs>
-	Ptr<T> MakePtr(TArgs ...args)
-	{
-		return new T(args...);
-	}
+	template<typename C>
+	ComPtr(C*) ->ComPtr<C>;
 
 /***********************************************************************
 Traits

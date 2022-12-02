@@ -3,9 +3,6 @@
 ## 2.0
 
 - Revisit `README.md` for all repos.
-- Remove `MakePtr` and add CTAD to `Ptr<T>`.
-  - https://en.cppreference.com/w/cpp/language/class_template_argument_deduction
-  - Mark `Ptr::Ptr` explicit for `T*`
 - Perfect forwarding for `Func` and `Event`.
 - Redefine `Func`'s constructors with CTAD, allow
   - Support all calling convention (be careful about x64 when everything is `__fastcall`)

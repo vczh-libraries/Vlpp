@@ -190,8 +190,8 @@ CompareEnumerable
 		template<typename T, typename U>
 		vint CompareEnumerable(const IEnumerable<T>& a, const IEnumerable<U>& b)
 		{
-			Ptr<IEnumerator<T>> ator = a.CreateEnumerator();
-			Ptr<IEnumerator<U>> btor = b.CreateEnumerator();
+			auto ator = Ptr(a.CreateEnumerator());
+			auto btor = Ptr(b.CreateEnumerator());
 			while (true)
 			{
 				bool a = ator->Next();

@@ -74,7 +74,7 @@ TEST_FILE
 		Base* d2 = new Derived2(3);
 
 		Base* bs[] = {b, d1, d2};
-		Ptr<Base> ps[] = {b, d1, d2};
+		Ptr<Base> ps[] = {Ptr(b), Ptr(d1), Ptr(d2)};
 
 		for (vint i = 0; i < sizeof(ps) / sizeof(*ps); i++)
 		{
@@ -125,9 +125,9 @@ TEST_FILE
 
 	TEST_CASE(L"Test Ptr<T> overloading")
 	{
-		TEST_ASSERT(Accept(MakePtr<bool>(false)) == 0);
-		TEST_ASSERT(Accept(MakePtr<Derived1>(0)) == 1);
-		TEST_ASSERT(Accept(MakePtr<vint>()) == 2);
+		TEST_ASSERT(Accept(Ptr(new bool(false))) == 0);
+		TEST_ASSERT(Accept(Ptr(new Derived1(0))) == 1);
+		TEST_ASSERT(Accept(Ptr(new vint())) == 2);
 	});
 
 	TEST_CASE(L"Test Lazy<T>")

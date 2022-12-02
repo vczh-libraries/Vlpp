@@ -94,7 +94,7 @@ Copy Functions for Containers
 					{
 						ds.Clear();
 					}
-					Ptr<IEnumerator<typename Ss::ElementType>> enumerator = ss.CreateEnumerator();
+					auto enumerator = Ptr(ss.CreateEnumerator());
 					while (enumerator->Next())
 					{
 						RandomAccess<Ds>::AppendValue(ds, enumerator->Current());

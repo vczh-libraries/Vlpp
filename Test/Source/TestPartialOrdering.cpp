@@ -360,12 +360,12 @@ TEST_FILE
 
 	TEST_CASE(L"Test InitWithGroup() with Ptr<T>")
 	{
-		TestPO_InitFunc<Ptr<vint>>(false, [](vint i) { return MakePtr<vint>(i + 1); });
+		TestPO_InitFunc<Ptr<vint>>(false, [](vint i) { return Ptr(new vint(i + 1)); });
 	});
 
 	TEST_CASE(L"Test InitWithFunc() with Ptr<T>")
 	{
-		TestPO_InitFunc<Ptr<vint>>(true, [](vint i) { return MakePtr<vint>(i + 1); });
+		TestPO_InitFunc<Ptr<vint>>(true, [](vint i) { return Ptr(new vint(i + 1)); });
 	});
 
 	TEST_CASE(L"Test PartialOrderingProcessor with sub classes")
@@ -377,7 +377,7 @@ TEST_FILE
 		{
 			for (vint i = 0; i < 12; i++)
 			{
-				items.Add(MakePtr<vint>(i));
+				items.Add(Ptr(new vint(i)));
 			}
 
 			for (vint i = 0; i < 4; i++)

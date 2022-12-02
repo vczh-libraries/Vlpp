@@ -77,7 +77,7 @@ TEST_FILE
 
 		CopyFrom(dst, From(src).SelectMany([](vint i)
 		{
-			Ptr<List<vint>> xs = new List<vint>();
+			auto xs = Ptr(new List<vint>());
 			xs->Add(i);
 			xs->Add(i * 2);
 			xs->Add(i * 3);
@@ -284,12 +284,12 @@ TEST_FILE
 	TEST_CASE(L"Test Cast()")
 	{
 		List<Ptr<Object>> src;
-		src.Add(new WString(L"0"));
-		src.Add(new WString(L"1"));
-		src.Add(new WString(L"2"));
-		src.Add(new AString("3"));
-		src.Add(new AString("4"));
-		src.Add(new AString("5"));
+		src.Add(Ptr(new WString(L"0")));
+		src.Add(Ptr(new WString(L"1")));
+		src.Add(Ptr(new WString(L"2")));
+		src.Add(Ptr(new AString("3")));
+		src.Add(Ptr(new AString("4")));
+		src.Add(Ptr(new AString("5")));
 
 		List<vint> dst;
 		CopyFrom(dst, From(src)

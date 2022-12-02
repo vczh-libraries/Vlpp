@@ -33,7 +33,7 @@ TEST_FILE
 
 		CopyFrom(dst, From(src).SelectMany([](auto i)
 		{
-			auto xs = MakePtr<List<decltype(i)>>();
+			auto xs = Ptr(new List<decltype(i)>);
 			xs->Add(i);
 			xs->Add(i * 2);
 			xs->Add(i * 3);
