@@ -166,8 +166,8 @@ Ptr
 		/// <summary>Cast a shared pointer implicitly by copying another shared pointer.</summary>
 		/// <typeparam name="C">The type of the object before casting.</typeparam>
 		/// <param name="pointer">The shared pointer to cast.</param>
-		template<typename C, typename=std::enable_if_t<std::is_convertible_v<C*, T*>>>
-		Ptr(const Ptr<C>& pointer)
+		template<typename C>
+		Ptr(const Ptr<C>& pointer) requires (std::is_convertible_v<C*, T*>)
 		{
 			if (auto converted = pointer.Obj())
 			{
@@ -182,8 +182,8 @@ Ptr
 		/// <summary>Cast a shared pointer implicitly by moving another shared pointer.</summary>
 		/// <typeparam name="C">The type of the object before casting.</typeparam>
 		/// <param name="pointer">The shared pointer to cast.</param>
-		template<typename C, typename = std::enable_if_t<std::is_convertible_v<C*, T*>>>
-		Ptr(Ptr<C>&& pointer)
+		template<typename C>
+		Ptr(Ptr<C>&& pointer) requires (std::is_convertible_v<C*, T*>)
 		{
 			if (auto converted = pointer.Obj())
 			{

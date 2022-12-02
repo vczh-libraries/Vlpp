@@ -9,7 +9,6 @@
 - Perfect forwarding for `Func` and `Event`.
 - Redefine `Func`'s constructors with CTAD, allow
   - Support all calling convention (be careful about x64 when everything is `__fastcall`)
-  - 
   - for `template<typename C>` argument, deduct the function type
   - if it is not invokable, SFINAE
 - Mark `ObjectString::ObjectString` explicit for `const T*`

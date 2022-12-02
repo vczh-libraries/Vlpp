@@ -93,10 +93,11 @@ namespace vl
 			}
 
 			template<typename K2, typename V2>
-			auto CompareTo(const Pair<K2, V2>& pair) const -> std::enable_if_t<
-				std::is_same_v<std::remove_cvref_t<K>, std::remove_cvref_t<K2>> &&
-				std::is_same_v<std::remove_cvref_t<V>, std::remove_cvref_t<V2>>,
-				vint>
+			auto CompareTo(const Pair<K2, V2>& pair) const -> vint
+				requires (
+					std::is_same_v<std::remove_cvref_t<K>, std::remove_cvref_t<K2>>&&
+					std::is_same_v<std::remove_cvref_t<V>, std::remove_cvref_t<V2>>
+				)
 			{
 				if (key < pair.key)
 				{
@@ -209,10 +210,11 @@ namespace vl
 			}
 
 			template<typename K2, typename V2>
-			auto CompareTo(const Pair<K2, V2>& pair) const -> std::enable_if_t<
-				std::is_same_v<std::remove_cvref_t<K>, std::remove_cvref_t<K2>>&&
-				std::is_same_v<std::remove_cvref_t<V>, std::remove_cvref_t<V2>>,
-				vint>
+			auto CompareTo(const Pair<K2, V2>& pair) const -> vint
+				requires (
+					std::is_same_v<std::remove_cvref_t<K>, std::remove_cvref_t<K2>>&&
+					std::is_same_v<std::remove_cvref_t<V>, std::remove_cvref_t<V2>>
+				)
 			{
 				if (key < pair.key)
 				{
