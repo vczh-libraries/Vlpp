@@ -37,14 +37,14 @@ namespace TestLinq_TestObjects
 		return b % a == 0;
 	}
 
-	Func<bool(vint)> dividableConverter(vint a)
+	auto dividableConverter(vint a)
 	{
-		return Curry(dividable)(a);
+		return Func([=](vint b) {return dividable(a, b); });
 	}
 
-	Func<bool(vint)> dividableCombiner(Func<bool(vint)> a, Func<bool(vint)> b)
+	auto dividableCombiner(Func<bool(vint)> a, Func<bool(vint)> b)
 	{
-		return [=](vint c) { return And(a(c), b(c)); };
+		return Func([=](vint c) { return And(a(c), b(c)); });
 	}
 
 	vint Compare(vint a, vint b)

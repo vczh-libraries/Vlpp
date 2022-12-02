@@ -247,7 +247,6 @@ vl::function_lambda::LambdaRetriveType<R(TArgs...)>
 		template<typename TObject, typename R, typename ...TArgs>
 		struct LambdaRetriveType<R(__thiscall TObject::*)(TArgs...)const>
 		{
-			typedef Func<R(TArgs...)> Type;
 			typedef R(FunctionType)(TArgs...);
 			typedef R ResultType;
 			typedef TypeTuple<TArgs...> ParameterTypes;
@@ -256,118 +255,21 @@ vl::function_lambda::LambdaRetriveType<R(TArgs...)>
 		template<typename TObject, typename R, typename ...TArgs>
 		struct LambdaRetriveType<R(__thiscall TObject::*)(TArgs...)>
 		{
-			typedef Func<R(TArgs...)> Type;
 			typedef R(FunctionType)(TArgs...);
 			typedef R ResultType;
 			typedef TypeTuple<TArgs...> ParameterTypes;
 		};
 
-		/// <summary>Create a functor in [T:vl.Func`1] from another functor, with all type arguments autotimatically inferred. The "LAMBDA" macro is recommended for the same purpose for writing compact code.</summary>
-		/// <typeparam name="T">Type of the functor to copy.</typeparam>
-		/// <returns>A copied functor in [T:vl.Func`1].</returns>
-		/// <param name="functionObject">The functor to copy.</param>
-		template<typename T>
-		typename LambdaRetriveType<decltype(&T::operator())>::Type Lambda(T functionObject)
-		{
-			return functionObject;
-		}
-
 #define LAMBDA vl::function_lambda::Lambda
 	}
- 
-/***********************************************************************
-vl::function_binding::Binding<R(TArgs...)>
-***********************************************************************/
 
-	namespace function_binding
-	{
-		template<typename T>
-		struct Binding
-		{
-		};
-		 
-		template<typename T>
-		struct CR{typedef const T& Type;};
-		template<typename T>
-		struct CR<T&>{typedef T& Type;};
-		template<typename T>
-		struct CR<const T>{typedef const T& Type;};
-		template<typename T>
-		struct CR<const T&>{typedef const T& Type;};
- 
-		template<typename R, typename T0, typename ...TArgs>
-		struct Binding<R(T0, TArgs...)>
-		{
-			typedef R FunctionType(T0, TArgs...);
-			typedef R CurriedType(TArgs...);
-			typedef T0 FirstParameterType;
+	template<typename C>
+	Func(C&&) -> Func<typename function_lambda::LambdaRetriveType<decltype(&C::operator())>::FunctionType>;
 
-			class Binder : public Object
-			{
-			protected:
-				Func<FunctionType>				target;
-				T0								firstArgument;
-			public:
-				Binder(const Func<FunctionType>& _target, T0 _firstArgument)
-					:target(_target)
-					,firstArgument(std::forward<T0>(_firstArgument))
-				{
-				}
+	template<typename R, typename... TArgs>
+	Func(R(*)(TArgs...)) -> Func<R(TArgs...)>;
 
-				R operator()(TArgs ...args)const
-				{
-					return target(firstArgument, args...);
-				}
-			};
-
-			class Currier : public Object
-			{
-			protected:
-				Func<FunctionType>		target;
-			public:
-				Currier(const Func<FunctionType>& _target)
-					:target(_target)
-				{
-				}
-
-				Func<CurriedType> operator()(T0 firstArgument)const
-				{
-					return Binder(target, firstArgument);
-				}
-			};
-		}; 
-	}
- 
-	/// <summary>
-	/// Currize a function pointer.
-	/// Currizing means to create a new functor whose argument is the first argument of the original function.
-	/// Calling this functor will return another functor whose arguments are all remaining arguments of the original function.
-	/// Calling the returned function will call the original function.
-	/// </summary>
-	/// <typeparam name="T">Type of the function pointer.</typeparam>
-	/// <returns>The currized functor.</returns>
-	/// <param name="function">The function pointer to currize.</param>
-	template<typename T>
-	Func<Func<typename function_binding::Binding<T>::CurriedType>(typename function_binding::Binding<T>::FirstParameterType)>
-	Curry(T* function)
-	{
-		return typename function_binding::Binding<T>::Currier(function);
-	}
-
-	/// <summary>
-	/// Currize a functor in [T:vl.Func`1].
-	/// Currizing means to create a new functor whose argument is the first argument of the original function.
-	/// Calling this functor will return another functor whose arguments are all remaining arguments of the original function.
-	/// Calling the returned function will call the original function.
-	/// </summary>
-	/// <typeparam name="T">Type of the functor.</typeparam>
-	/// <returns>The currized functor.</returns>
-	/// <param name="function">The functor to currize.</param>
-	template<typename T>
-	Func<Func<typename function_binding::Binding<T>::CurriedType>(typename function_binding::Binding<T>::FirstParameterType)>
-	Curry(const Func<T>& function)
-	{
-		return typename function_binding::Binding<T>::Currier(function);
-	}
+	template<typename C, typename R, typename... TArgs>
+	Func(C*, R(C::*)(TArgs...)) -> Func<R(TArgs...)>;
 }
 #endif

@@ -4,10 +4,7 @@
 
 - Revisit `README.md` for all repos.
 - Perfect forwarding for `Func` and `Event`.
-- Redefine `Func`'s constructors with CTAD, allow
-  - Support all calling convention (be careful about x64 when everything is `__fastcall`)
-  - for `template<typename C>` argument, deduct the function type
-  - if it is not invokable, SFINAE
+- Support all calling convention (be careful about x64 when everything is `__fastcall`)
 - Mark `ObjectString::ObjectString` explicit for `const T*`
 - Coroutine for `LazyList`
 - Rewrite `LazyList` operators using coroutine as much as possible

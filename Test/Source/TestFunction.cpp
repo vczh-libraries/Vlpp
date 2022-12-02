@@ -173,12 +173,12 @@ TEST_FILE
 			TEST_ASSERT(a == 3);
 		});
 
-		TEST_CASE(L"Test Func<T> with Curry()")
+		TEST_CASE(L"Test Func<T> CTAD")
 		{
-			Func<vint(vint,vint,vint)> add = Add3;
-			Func<vint(vint,vint)> add_1 = Curry(add)(1);
-			Func<vint(vint)> add_1_2 = Curry(add_1)(2);
-			Func<vint()> add_1_2_3 = Curry(add_1_2)(3);
+			Func add = Add3;
+			Func add_1 = [&](vint b, vint c) { return add(1, b, c); };
+			Func add_1_2 = [&](vint c) { return add_1(2, c); };
+			Func add_1_2_3 = [&]() {return add_1_2(3); };
 
 			TEST_ASSERT(add(1,2,3) == 6);
 			TEST_ASSERT(add_1(2,3) == 6);
@@ -186,11 +186,10 @@ TEST_FILE
 			TEST_ASSERT(add_1_2_3() == 6);
 
 			vint r = 0;
-			Func<void(vint,vint,vint,vint&)> addr = Add3r;
-			Func<void(vint,vint,vint&)> addr_1 = Curry(addr)(1);
-			Func<void(vint,vint&)> addr_1_2 = Curry(addr_1)(2);
-			Func<void(vint&)> addr_1_2_3 = Curry(addr_1_2)(3);
-			Func<void()> addr_1_2_3_4 = Curry(addr_1_2_3)(r);
+			Func addr = Add3r;
+			Func addr_1 = [&](vint b, vint c, vint& d) { addr(1, b, c, d); };
+			Func addr_1_2 = [&](vint c, vint& d) { addr_1(2, c, d); };
+			Func addr_1_2_3 = [&](vint& d) { addr_1_2(3, d); };
 
 			r = 0;
 			addr(1,2,3,r);
@@ -206,10 +205,6 @@ TEST_FILE
 
 			r = 0;
 			addr_1_2_3(r);
-			TEST_ASSERT(r == 6);
-
-			r = 0;
-			addr_1_2_3_4();
 			TEST_ASSERT(r == 6);
 		});
 	});
@@ -291,57 +286,8 @@ TEST_FILE
 			TEST_ASSERT(Accept((WString(*)(WString))nullptr) == 2);
 			TEST_ASSERT(Accept([](vint x) { return x; }) == 1);
 			TEST_ASSERT(Accept([](WString x) { return x; }) == 2);
-			TEST_ASSERT(Accept(LAMBDA([](vint x) { return x; })) == 1);
-			TEST_ASSERT(Accept(LAMBDA([](WString x) { return x; })) == 2);
-		});
-	});
-
-
-	TEST_CATEGORY(L"Lambda")
-	{
-		TEST_CASE(L"Test lambda expression with Curry()")
-		{
-			Func<vint(vint, vint, vint)> add = [](vint a, vint b, vint c) {return a + b + c; };
-			auto add_1 = Curry<vint(vint, vint, vint)>(add)(1);
-			auto add_1_2 = Curry(add_1)(2);
-			auto add_1_2_3 = Curry(add_1_2)(3);
-
-			TEST_ASSERT(add(1, 2, 3) == 6);
-			TEST_ASSERT(add_1(2, 3) == 6);
-			TEST_ASSERT(add_1_2(3) == 6);
-			TEST_ASSERT(add_1_2_3() == 6);
-
-			vint r = 0;
-			Func<void(vint, vint, vint, vint&)> addr = [](vint a, vint b, vint c, vint& r) {r = a + b + c; };
-			auto addr_1 = Curry<void(vint, vint, vint, vint&)>(addr)(1);
-			auto addr_1_2 = Curry(addr_1)(2);
-			auto addr_1_2_3 = Curry(addr_1_2)(3);
-			auto addr_1_2_3_4 = Curry(addr_1_2_3)(r);
-
-			r = 0;
-			addr(1, 2, 3, r);
-			TEST_ASSERT(r == 6);
-
-			r = 0;
-			addr_1(2, 3, r);
-			TEST_ASSERT(r == 6);
-
-			r = 0;
-			addr_1_2(3, r);
-			TEST_ASSERT(r == 6);
-
-			r = 0;
-			addr_1_2_3(r);
-			TEST_ASSERT(r == 6);
-
-			r = 0;
-			addr_1_2_3_4();
-			TEST_ASSERT(r == 6);
-		});
-
-		TEST_CASE(L"Test LAMBDA type inferencing")
-		{
-			const Func<void()>& f = LAMBDA([]()->void {});
+			TEST_ASSERT(Accept(Func([](vint x) { return x; })) == 1);
+			TEST_ASSERT(Accept(Func([](WString x) { return x; })) == 2);
 		});
 	});
 }
