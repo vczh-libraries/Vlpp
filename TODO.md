@@ -6,7 +6,6 @@
 - Perfect forwarding for `Func`.
 - Coroutine for `LazyList`
 - Rewrite `LazyList` operators using coroutine as much as possible
-- Remove `TKeyType` from all containers, but still keep `KeyType`
 - `LazyList` operators test container types and perform different solution to improve performance
 - Remove `Curry`
 

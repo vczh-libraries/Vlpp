@@ -307,10 +307,10 @@ Array
 
 		/// <summary>Array: linear container with fixed size in runtime. All elements are contiguous in memory.</summary>
 		/// <typeparam name="T">Type of elements.</typeparam>
-		/// <typeparam name="K">Type of the key type of elements. It is recommended to use the default value.</typeparam>
-		template<typename T, typename K = typename KeyType<T>::Type>
+		template<typename T>
 		class Array : public ArrayBase<T>
 		{
+			using K = typename KeyType<T>::Type;
 		public:
 			/// <summary>Create an array.</summary>
 			/// <param name="size">The size of the array.</param>
@@ -347,8 +347,8 @@ Array
 				}
 			}
 
-			Array(const Array<T, K>&) = delete;
-			Array(Array<T, K>&& _move)
+			Array(const Array<T>&) = delete;
+			Array(Array<T>&& _move)
 			{
 				this->buffer = _move.buffer;
 				this->count = _move.count;
@@ -356,8 +356,8 @@ Array
 				_move.count = 0;
 			}
 
-			Array<T, K>& operator=(const Array<T, K>&) = delete;
-			Array<T, K>& operator=(Array<T, K>&& _move)
+			Array<T>& operator=(const Array<T>&) = delete;
+			Array<T>& operator=(Array<T>&& _move)
 			{
 				if (this->buffer)
 				{
@@ -402,7 +402,7 @@ Array
 			template<typename TItem>
 			bool Set(vint index, TItem&& item)
 			{
-				CHECK_ERROR(index >= 0 && index < this->count, L"Array<T, K>::Set(vint)#Argument index not in range.");
+				CHECK_ERROR(index >= 0 && index < this->count, L"Array<T>::Set(vint)#Argument index not in range.");
 				this->buffer[index] = std::forward<TItem&&>(item);
 				return true;
 			}
@@ -419,7 +419,7 @@ Array
 			/// <param name="index">The index of the element.</param>
 			T& operator[](vint index)
 			{
-				CHECK_ERROR(index >= 0 && index < this->count, L"Array<T, K>::operator[](vint)#Argument index not in range.");
+				CHECK_ERROR(index >= 0 && index < this->count, L"Array<T>::operator[](vint)#Argument index not in range.");
 				return this->buffer[index];
 			}
 
@@ -453,10 +453,10 @@ ListBase
 
 		/// <summary>Base type for all list containers.</summary>
 		/// <typeparam name="T">Type of elements.</typeparam>
-		/// <typeparam name="K">Type of the key type of elements. It is recommended to use the default value.</typeparam>
-		template<typename T, typename K = typename KeyType<T>::Type>
+		template<typename T>
 		class ListBase abstract : public ArrayBase<T>
 		{
+			using K = typename KeyType<T>::Type;
 		protected:
 			vint					capacity = 0;
 
@@ -471,8 +471,8 @@ ListBase
 				}
 			}
 
-			ListBase(const ListBase<T, K>&) = delete;
-			ListBase(ListBase<T, K>&& _move)
+			ListBase(const ListBase<T>&) = delete;
+			ListBase(ListBase<T>&& _move)
 			{
 				this->buffer = _move.buffer;
 				this->count = _move.count;
@@ -482,8 +482,8 @@ ListBase
 				_move.capacity = 0;
 			}
 
-			ListBase<T, K>& operator=(const ListBase<T, K>&) = delete;
-			ListBase<T, K>& operator=(ListBase<T, K>&& _move)
+			ListBase<T>& operator=(const ListBase<T>&) = delete;
+			ListBase<T>& operator=(ListBase<T>&& _move)
 			{
 				if (this->buffer)
 				{
@@ -505,7 +505,7 @@ ListBase
 			bool RemoveAt(vint index)
 			{
 				vint previousCount = this->count;
-				CHECK_ERROR(index >= 0 && index < this->count, L"ListBase<T, K>::RemoveAt(vint)#Argument index not in range.");
+				CHECK_ERROR(index >= 0 && index < this->count, L"ListBase<T>::RemoveAt(vint)#Argument index not in range.");
 				memory_management::CallMoveAssignmentsOverlapped(&this->buffer[index], &this->buffer[index + 1], this->count - index - 1);
 				this->count--;
 				memory_management::ReleaseUnnecessaryBuffer(this->buffer, this->capacity, previousCount, this->count);
@@ -519,7 +519,7 @@ ListBase
 			bool RemoveRange(vint index, vint _count)
 			{
 				vint previousCount = this->count;
-				CHECK_ERROR(index >= 0 && index <= this->count, L"ListBase<T, K>::RemoveRange(vint, vint)#Argument index not in range.");
+				CHECK_ERROR(index >= 0 && index <= this->count, L"ListBase<T>::RemoveRange(vint, vint)#Argument index not in range.");
 				CHECK_ERROR(index + _count >= 0 && index + _count <= this->count, L"ListBase<T,K>::RemoveRange(vint, vint)#Argument _count not in range.");
 				memory_management::CallMoveAssignmentsOverlapped(&this->buffer[index], &this->buffer[index + _count], this->count - index - _count);
 				this->count -= _count;
@@ -547,15 +547,15 @@ List
 
 		/// <summary>List: linear container with dynamic size in runtime for unordered values. All elements are contiguous in memory.</summary>
 		/// <typeparam name="T">Type of elements.</typeparam>
-		/// <typeparam name="K">Type of the key type of elements. It is recommended to use the default value.</typeparam>
-		template<typename T, typename K = typename KeyType<T>::Type>
-		class List : public ListBase<T, K>
+		template<typename T>
+		class List : public ListBase<T>
 		{
+			using K = typename KeyType<T>::Type;
 		public:
 			/// <summary>Create an empty list.</summary>
 			List() = default;
-			List(List<T, K>&& container) : ListBase<T, K>(std::move(container)) {}
-			List<T, K>& operator=(List<T, K>&& _move) = default;
+			List(List<T>&& container) : ListBase<T>(std::move(container)) {}
+			List<T>& operator=(List<T>&& _move) = default;
 
 			/// <summary>Test does the list contain a value or not.</summary>
 			/// <returns>Returns true if the list contains the specified value.</returns>
@@ -601,7 +601,7 @@ List
 			/// <param name="item">The value to add.</param>
 			vint Insert(vint index, const T& item)
 			{
-				CHECK_ERROR(index >= 0 && index <= this->count, L"List<T, K>::Insert(vint, const T&)#Argument index not in range.");
+				CHECK_ERROR(index >= 0 && index <= this->count, L"List<T>::Insert(vint, const T&)#Argument index not in range.");
 				memory_management::InsertUninitializedItems(this->buffer, this->capacity, this->count, index, 1);
 				memory_management::CallCopyCtors(&this->buffer[index], &item, 1);
 				return index;
@@ -613,7 +613,7 @@ List
 			/// <param name="item">The value to add.</param>
 			vint Insert(vint index, T&& item)
 			{
-				CHECK_ERROR(index >= 0 && index <= this->count, L"List<T, K>::Insert(vint, const T&)#Argument index not in range.");
+				CHECK_ERROR(index >= 0 && index <= this->count, L"List<T>::Insert(vint, const T&)#Argument index not in range.");
 				memory_management::InsertUninitializedItems(this->buffer, this->capacity, this->count, index, 1);
 				memory_management::CallMoveCtors(&this->buffer[index], &item, 1);
 				return index;
@@ -644,7 +644,7 @@ List
 			template<typename TItem>
 			bool Set(vint index, TItem&& item)
 			{
-				CHECK_ERROR(index >= 0 && index < this->count, L"List<T, K>::Set(vint)#Argument index not in range.");
+				CHECK_ERROR(index >= 0 && index < this->count, L"List<T>::Set(vint)#Argument index not in range.");
 				this->buffer[index] = std::forward<TItem&&>(item);
 				return true;
 			}
@@ -654,14 +654,14 @@ List
 				return Set<T>(index, std::move(item));
 			}
 
-			using ListBase<T, K>::operator[];
+			using ListBase<T>::operator[];
 
 			/// <summary>Get the reference to the specified element.</summary>
 			/// <returns>The reference to the specified element. It will crash when the index is out of range.</returns>
 			/// <param name="index">The index of the element.</param>
 			T& operator[](vint index)
 			{
-				CHECK_ERROR(index >= 0 && index < this->count, L"List<T, K>::operator[](vint)#Argument index not in range.");
+				CHECK_ERROR(index >= 0 && index < this->count, L"List<T>::operator[](vint)#Argument index not in range.");
 				return this->buffer[index];
 			}
 		};
@@ -672,10 +672,10 @@ SortedList
 
 		/// <summary>SortedList: linear container with dynamic size in runtime for ordered values. All elements are kept in order, and are contiguous in memory.</summary>
 		/// <typeparam name="T">Type of elements.</typeparam>
-		/// <typeparam name="K">Type of the key type of elements. It is recommended to use the default value.</typeparam>
-		template<typename T, typename K = typename KeyType<T>::Type>
-		class SortedList : public ListBase<T, K>
+		template<typename T>
+		class SortedList : public ListBase<T>
 		{
+			using K = typename KeyType<T>::Type;
 		protected:
 
 			/// <summary>Get the position of an element in this list by performing binary search.</summary>
@@ -731,11 +731,11 @@ SortedList
 		public:
 			/// <summary>Create an empty list.</summary>
 			SortedList() = default;
-			SortedList(SortedList<T, K>&& container) : ListBase<T, K>(std::move(container)) {}
-			SortedList<T, K>& operator=(SortedList<T, K> && _move) = default;
+			SortedList(SortedList<T>&& container) : ListBase<T>(std::move(container)) {}
+			SortedList<T>& operator=(SortedList<T> && _move) = default;
 
-			SortedList(const SortedList<T, K>&xs)
-				: ListBase<T, K>(std::move(const_cast<ListBase<T, K>&>(static_cast<const ListBase<T, K>&>(xs))))
+			SortedList(const SortedList<T>&xs)
+				: ListBase<T>(std::move(const_cast<ListBase<T>&>(static_cast<const ListBase<T>&>(xs))))
 			{
 			}
 
@@ -782,7 +782,7 @@ SortedList
 					{
 						IndexOfInternal<K>(KeyType<T>::GetKeyValue(item), outputIndex);
 					}
-					CHECK_ERROR(outputIndex >= 0 && outputIndex < this->count, L"SortedList<T, K>::Add(const T&)#Internal error, index not in range.");
+					CHECK_ERROR(outputIndex >= 0 && outputIndex < this->count, L"SortedList<T>::Add(const T&)#Internal error, index not in range.");
 					if (this->buffer[outputIndex] < item)
 					{
 						outputIndex++;
@@ -944,22 +944,22 @@ Random Access
 
 		namespace randomaccess_internal
 		{
-			template<typename T, typename K>
-			struct RandomAccessable<Array<T, K>>
+			template<typename T>
+			struct RandomAccessable<Array<T>>
 			{
 				static const bool							CanRead = true;
 				static const bool							CanResize = true;
 			};
 
-			template<typename T, typename K>
-			struct RandomAccessable<List<T, K>>
+			template<typename T>
+			struct RandomAccessable<List<T>>
 			{
 				static const bool							CanRead = true;
 				static const bool							CanResize = false;
 			};
 
-			template<typename T, typename K>
-			struct RandomAccessable<SortedList<T, K>>
+			template<typename T>
+			struct RandomAccessable<SortedList<T>>
 			{
 				static const bool							CanRead = true;
 				static const bool							CanResize = false;

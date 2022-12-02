@@ -15,25 +15,20 @@ namespace vl
 		/// <summary>Dictionary: one to one map container.</summary>
 		/// <typeparam name="KT">Type of keys.</typeparam>
 		/// <typeparam name="VT">Type of values.</typeparam>
-		/// <typeparam name="KK">Type of the key type of keys. It is recommended to use the default value.</typeparam>
-		/// <typeparam name="VK">Type of the key type of values. It is recommended to use the default value.</typeparam>
-		template<
-			typename KT,
-			typename VT,
-			typename KK=typename KeyType<KT>::Type, 
-			typename VK=typename KeyType<VT>::Type
-		>
+		template<typename KT, typename VT>
 		class Dictionary : public EnumerableBase<Pair<const KT&, const VT&>>
 		{
+			using KK = typename KeyType<KT>::Type;
+			using VK = typename KeyType<VT>::Type;
 			using KVPair = Pair<const KT&, const VT&>;
 		public:
-			typedef SortedList<KT, KK>			KeyContainer;
-			typedef List<VT, VK>				ValueContainer;
+			typedef SortedList<KT>					KeyContainer;
+			typedef List<VT>						ValueContainer;
 		protected:
 			class Enumerator : public Object, public virtual IEnumerator<KVPair>
 			{
 			private:
-				const Dictionary<KT, VT, KK, VK>*	container;
+				const Dictionary<KT, VT>*			container;
 				vint								index;
 				KVPair								current;
 
@@ -45,7 +40,7 @@ namespace vl
 					}
 				}
 			public:
-				Enumerator(const Dictionary<KT, VT, KK, VK>* _container, vint _index=-1)
+				Enumerator(const Dictionary<KT, VT>* _container, vint _index=-1)
 				{
 					container=_container;
 					index=_index;
@@ -92,15 +87,15 @@ namespace vl
 			Dictionary() = default;
 			~Dictionary() = default;
 
-			Dictionary(const Dictionary<KT, VT, KK, VK>&) = delete;
-			Dictionary(Dictionary<KT, VT, KK, VK>&& _move)
+			Dictionary(const Dictionary<KT, VT>&) = delete;
+			Dictionary(Dictionary<KT, VT>&& _move)
 				: keys(std::move(_move.keys))
 				, values(std::move(_move.values))
 			{
 			}
 
-			Dictionary<KT, VT, KK, VK>& operator=(const Dictionary<KT, VT, KK, VK>&) = delete;
-			Dictionary<KT, VT, KK, VK>& operator=(Dictionary<KT, VT, KK, VK> && _move)
+			Dictionary<KT, VT>& operator=(const Dictionary<KT, VT>&) = delete;
+			Dictionary<KT, VT>& operator=(Dictionary<KT, VT> && _move)
 			{
 				keys = std::move(_move.keys);
 				values = std::move(_move.values);
@@ -252,25 +247,20 @@ namespace vl
 		/// <summary>Group: one to many map container.</summary>
 		/// <typeparam name="KT">Type of keys.</typeparam>
 		/// <typeparam name="VT">Type of values.</typeparam>
-		/// <typeparam name="KK">Type of the key type of keys. It is recommended to use the default value.</typeparam>
-		/// <typeparam name="VK">Type of the key type of values. It is recommended to use the default value.</typeparam>
-		template<
-			typename KT,
-			typename VT,
-			typename KK=typename KeyType<KT>::Type,
-			typename VK=typename KeyType<VT>::Type
-		>
+		template<typename KT, typename VT>
 		class Group : public EnumerableBase<Pair<const KT&, const VT&>>
 		{
+			using KK = typename KeyType<KT>::Type;
+			using VK = typename KeyType<VT>::Type;
 			using KVPair = Pair<const KT&, const VT&>;
 		public:
-			typedef SortedList<KT, KK>		KeyContainer;
-			typedef List<VT, VK>			ValueContainer;
+			typedef SortedList<KT>					KeyContainer;
+			typedef List<VT>						ValueContainer;
 		protected:
 			class Enumerator : public Object, public virtual IEnumerator<KVPair>
 			{
 			private:
-				const Group<KT, VT, KK, VK>*		container;
+				const Group<KT, VT>*				container;
 				vint								keyIndex;
 				vint								valueIndex;
 				KVPair								current;
@@ -287,7 +277,7 @@ namespace vl
 					}
 				}
 			public:
-				Enumerator(const Group<KT, VT, KK, VK>* _container, vint _keyIndex=-1, vint _valueIndex=-1)
+				Enumerator(const Group<KT, VT>* _container, vint _keyIndex=-1, vint _valueIndex=-1)
 				{
 					container=_container;
 					keyIndex=_keyIndex;
@@ -369,15 +359,15 @@ namespace vl
 				Clear();
 			}
 
-			Group(const Group<KT, VT, KK, VK>&) = delete;
-			Group(Group<KT, VT, KK, VK>&& _move)
+			Group(const Group<KT, VT>&) = delete;
+			Group(Group<KT, VT>&& _move)
 				: keys(std::move(_move.keys))
 				, values(std::move(_move.values))
 			{
 			}
 
-			Group<KT, VT, KK, VK>& operator=(const Group<KT, VT, KK, VK>&) = delete;
-			Group<KT, VT, KK, VK>& operator=(Group<KT, VT, KK, VK> && _move)
+			Group<KT, VT>& operator=(const Group<KT, VT>&) = delete;
+			Group<KT, VT>& operator=(Group<KT, VT> && _move)
 			{
 				Clear();
 				keys = std::move(_move.keys);
@@ -523,7 +513,7 @@ namespace vl
 				if(index!=-1)
 				{
 					keys.RemoveAt(index);
-					List<VT, VK>* target=values[index];
+					auto target=values[index];
 					values.RemoveAt(index);
 					delete target;
 					return true;
@@ -547,7 +537,7 @@ namespace vl
 				vint index=keys.IndexOf(key);
 				if(index!=-1)
 				{
-					List<VT, VK>* target=values[index];
+					auto target=values[index];
 					target->Remove(value);
 					if(target->Count()==0)
 					{
@@ -706,32 +696,32 @@ Random Access
 ***********************************************************************/
 		namespace randomaccess_internal
 		{
-			template<typename KT, typename VT, typename KK, typename VK>
-			struct RandomAccessable<Dictionary<KT, VT, KK, VK>>
+			template<typename KT, typename VT>
+			struct RandomAccessable<Dictionary<KT, VT>>
 			{
 				static const bool							CanRead = true;
 				static const bool							CanResize = false;
 			};
 		
-			template<typename KT, typename VT, typename KK, typename VK>
-			struct RandomAccess<Dictionary<KT, VT, KK, VK>>
+			template<typename KT, typename VT>
+			struct RandomAccess<Dictionary<KT, VT>>
 			{
-				static vint GetCount(const Dictionary<KT, VT, KK, VK>& t)
+				static vint GetCount(const Dictionary<KT, VT>& t)
 				{
 					return t.Count();
 				}
 
-				static Pair<KT, VT> GetValue(const Dictionary<KT, VT, KK, VK>& t, vint index)
+				static Pair<KT, VT> GetValue(const Dictionary<KT, VT>& t, vint index)
 				{
 					return Pair<KT, VT>(t.Keys().Get(index), t.Values().Get(index));
 				}
 
-				static void AppendValue(Dictionary<KT, VT, KK, VK>& t, const Pair<KT, VT>& value)
+				static void AppendValue(Dictionary<KT, VT>& t, const Pair<KT, VT>& value)
 				{
 					t.Set(value.key, value.value);
 				}
 
-				static void AppendValue(Dictionary<KT, VT, KK, VK>& t, const Pair<const KT&, const VT&>& value)
+				static void AppendValue(Dictionary<KT, VT>& t, const Pair<const KT&, const VT&>& value)
 				{
 					t.Set(value.key, value.value);
 				}
