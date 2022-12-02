@@ -7,7 +7,6 @@
 - Coroutine for `LazyList`
 - Rewrite `LazyList` operators using coroutine as much as possible
 - `LazyList` operators test container types and perform different solution to improve performance
-- Remove `Curry`
 
 ## Optional
 
