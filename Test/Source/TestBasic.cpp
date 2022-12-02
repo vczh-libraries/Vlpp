@@ -47,17 +47,18 @@ namespace TestBasic_TestObjects
 		return 200;
 	}
 
-	vint Accept(...)
+	template<typename T>
+	vint Accept(Ptr<T>&&) requires (!std::is_convertible_v<T*, Base*>)
 	{
 		return 0;
 	}
 
-	vint Accept(Ptr<Base>)
+	vint Accept(Ptr<Base>&&)
 	{
 		return 1;
 	}
 
-	vint Accept(Ptr<vint>)
+	vint Accept(Ptr<vint>&&)
 	{
 		return 2;
 	}
