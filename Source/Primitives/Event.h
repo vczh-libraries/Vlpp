@@ -93,11 +93,12 @@ namespace vl
  
 		/// <summary>Invoke all callbacks in the event.</summary>
 		/// <param name="args">Arguments to invoke all callbacks.</param>
-		void operator()(TArgs ...args)const
+		template<typename... TArgs2>
+		void operator()(TArgs2&& ...args)const
 		{
 			for(vint i = 0; i < handlers.Count(); i++)
 			{
-				handlers[i]->function(args...);
+				handlers[i]->function(std::forward<TArgs2&&>(args)...);
 			}
 		}
 	};
