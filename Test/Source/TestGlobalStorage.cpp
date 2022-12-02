@@ -7,10 +7,10 @@ BEGIN_GLOBAL_STORAGE_CLASS(MyGlobalStorage)
 	Ptr<vint>	resource;
 
 	INITIALIZE_GLOBAL_STORAGE_CLASS
-		resource=new vint(100);
+		resource = Ptr(new vint(100));
 
 	FINALIZE_GLOBAL_STORAGE_CLASS
-		resource=0;
+		resource = nullptr;
 
 END_GLOBAL_STORAGE_CLASS(MyGlobalStorage)
 

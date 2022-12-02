@@ -34,7 +34,7 @@ namespace vl
 		/// <param name="evaluator">The function.</param>
 		Lazy(const Func<T()>& evaluator)
 		{
-			internalValue=new Internal;
+			internalValue = Ptr(new Internal);
 			internalValue->evaluated=false;
 			internalValue->evaluator=evaluator;
 		}
@@ -43,7 +43,7 @@ namespace vl
 		/// <param name="value">The result.</param>0
 		Lazy(const T& value)
 		{
-			internalValue=new Internal;
+			internalValue = Ptr(new Internal);
 			internalValue->evaluated=true;
 			internalValue->value=value;
 		}
@@ -58,7 +58,7 @@ namespace vl
 
 		Lazy<T>& operator=(const Func<T()>& evaluator)
 		{
-			internalValue=new Internal;
+			internalValue = Ptr(new Internal);
 			internalValue->evaluated=false;
 			internalValue->evaluator=evaluator;
 			return *this;
@@ -66,7 +66,7 @@ namespace vl
 
 		Lazy<T>& operator=(const T& value)
 		{
-			internalValue=new Internal;
+			internalValue = Ptr(new Internal);
 			internalValue->evaluated=true;
 			internalValue->value=value;
 			return *this;

@@ -63,7 +63,7 @@ Helper Functions
 	{
 		if (!GetGlobalStorageManager().storages)
 		{
-			GetGlobalStorageManager().storages = new Dictionary<WString, GlobalStorage*>;
+			GetGlobalStorageManager().storages = Ptr(new Dictionary<WString, GlobalStorage*>);
 		}
 	}
 

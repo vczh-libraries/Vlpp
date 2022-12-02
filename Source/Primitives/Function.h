@@ -164,7 +164,7 @@ vl::Func<R(TArgs...)>
 		/// <param name="function">The function pointer.</param>
 		Func(R(*function)(TArgs...))
 		{
-			invoker = new internal_invokers::StaticInvoker<R, TArgs...>(function);
+			invoker = Ptr(new internal_invokers::StaticInvoker<R, TArgs...>(function));
 		}
 
 		/// <summary>Create a functor from a method.</summary>
@@ -174,7 +174,7 @@ vl::Func<R(TArgs...)>
 		template<typename C>
 		Func(C* sender, R(C::*function)(TArgs...))
 		{
-			invoker = new internal_invokers::MemberInvoker<C, R, TArgs...>(sender, function);
+			invoker = Ptr(new internal_invokers::MemberInvoker<C, R, TArgs...>(sender, function));
 		}
 
 		/// <summary>Create a functor from another compatible functor.</summary>
@@ -191,7 +191,7 @@ vl::Func<R(TArgs...)>
 		{
 			if (!IsEmptyFunc(function))
 			{
-				invoker = new internal_invokers::ObjectInvoker<std::remove_cvref_t<C>, R, TArgs...>(std::forward<C&&>(function));
+				invoker = Ptr(new internal_invokers::ObjectInvoker<std::remove_cvref_t<C>, R, TArgs...>(std::forward<C&&>(function)));
 			}
 		}
 

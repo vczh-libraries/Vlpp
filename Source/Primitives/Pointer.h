@@ -127,6 +127,9 @@ Ptr
 		/// <summary>Create a null pointer.</summary>
 		Ptr() = default;
 
+		/// <summary>Create a null pointer.</summary>
+		Ptr(std::nullptr_t) {};
+
 		/// <summary>Convert a pointer to an object to a shared pointer.</summary>
 		/// <param name="pointer">The pointer to the object.</param>
 		explicit Ptr(T* pointer)
@@ -222,24 +225,13 @@ Ptr
 			return Ptr<C>((converted ? counter : 0), converted, originalReference, originalDestructor);
 		}
 
-		/// <summary>Replace the object inside this shared pointer.</summary>
+		/// <summary>Replace by nullptr.</summary>
 		/// <returns>The shared pointer itself.</returns>
-		/// <param name="pointer">The pointer to the new object.</param>
-		Ptr<T>& operator=(T* pointer)
+		/// <param name="pointer">The nullptr.</param>
+		Ptr<T>& operator=(std::nullptr_t)
 		{
 			Dec();
-			if (pointer)
-			{
-				counter = ReferenceCounterOperator<T>::CreateCounter(pointer);
-				reference = pointer;
-				originalReference = pointer;
-				originalDestructor = &ReferenceCounterOperator<T>::DeleteReference;
-				Inc();
-			}
-			else
-			{
-				SetEmptyNoIncDec();
-			}
+			SetEmptyNoIncDec();
 			return *this;
 		}
 
@@ -370,12 +362,18 @@ ComPtr
 	class ComPtr
 	{
 	protected:
-		volatile vint*		counter;
-		T*					reference;
+		volatile vint* counter = nullptr;
+		T* reference = nullptr;
+
+		void SetEmpty()
+		{
+			counter = nullptr;
+			reference = nullptr;
+		}
 
 		void Inc()
 		{
-			if(counter)
+			if (counter)
 			{
 				INCRC(counter);
 			}
@@ -383,14 +381,13 @@ ComPtr
 
 		void Dec()
 		{
-			if(counter)
+			if (counter)
 			{
-				if(DECRC(counter)==0)
+				if (DECRC(counter) == 0)
 				{
 					delete counter;
 					reference->Release();
-					counter=0;
-					reference=0;
+					SetEmpty();
 				}
 			}
 		}
@@ -402,46 +399,40 @@ ComPtr
 
 		ComPtr(volatile vint* _counter, T* _reference)
 			:counter(_counter)
-			,reference(_reference)
+			, reference(_reference)
 		{
 			Inc();
 		}
 	public:
 
-		ComPtr()
-		{
-			counter=0;
-			reference=0;
-		}
+		ComPtr() = default;
+		ComPtr(std::nullptr_t) {}
 
 		ComPtr(T* pointer)
 		{
-			if(pointer)
+			if (pointer)
 			{
-				counter=new volatile vint(1);
-				reference=pointer;
+				counter = new volatile vint(1);
+				reference = pointer;
 			}
 			else
 			{
-				counter=0;
-				reference=0;
+				SetEmpty();
 			}
 		}
 
 		ComPtr(const ComPtr<T>& pointer)
 		{
-			counter=pointer.counter;
-			reference=pointer.reference;
+			counter = pointer.counter;
+			reference = pointer.reference;
 			Inc();
 		}
 
 		ComPtr(ComPtr<T>&& pointer)
 		{
-			counter=pointer.counter;
-			reference=pointer.reference;
-			
-			pointer.counter=0;
-			pointer.reference=0;
+			counter = pointer.counter;
+			reference = pointer.reference;
+			pointer.SetEmpty();
 		}
 
 		~ComPtr()
@@ -449,29 +440,35 @@ ComPtr
 			Dec();
 		}
 
+		ComPtr<T>& operator=(std::nullptr_t)
+		{
+			Dec();
+			SetEmpty();
+			return *this;
+		}
+
 		ComPtr<T>& operator=(T* pointer)
 		{
 			Dec();
-			if(pointer)
+			if (pointer)
 			{
-				counter=new vint(1);
-				reference=pointer;
+				counter = new vint(1);
+				reference = pointer;
 			}
 			else
 			{
-				counter=0;
-				reference=0;
+				SetEmpty();
 			}
 			return *this;
 		}
 
 		ComPtr<T>& operator=(const ComPtr<T>& pointer)
 		{
-			if(this!=&pointer)
+			if (this != &pointer)
 			{
 				Dec();
-				counter=pointer.counter;
-				reference=pointer.reference;
+				counter = pointer.counter;
+				reference = pointer.reference;
 				Inc();
 			}
 			return *this;
@@ -479,81 +476,79 @@ ComPtr
 
 		ComPtr<T>& operator=(ComPtr<T>&& pointer)
 		{
-			if(this!=&pointer)
+			if (this != &pointer)
 			{
 				Dec();
-				counter=pointer.counter;
-				reference=pointer.reference;
-				
-				pointer.counter=0;
-				pointer.reference=0;
+				counter = pointer.counter;
+				reference = pointer.reference;
+				pointer.SetEmpty();
 			}
 			return *this;
 		}
 
 		bool operator==(const T* pointer)const
 		{
-			return reference==pointer;
+			return reference == pointer;
 		}
 
 		bool operator!=(const T* pointer)const
 		{
-			return reference!=pointer;
+			return reference != pointer;
 		}
 
 		bool operator>(const T* pointer)const
 		{
-			return reference>pointer;
+			return reference > pointer;
 		}
 
 		bool operator>=(const T* pointer)const
 		{
-			return reference>=pointer;
+			return reference >= pointer;
 		}
 
 		bool operator<(const T* pointer)const
 		{
-			return reference<pointer;
+			return reference < pointer;
 		}
 
 		bool operator<=(const T* pointer)const
 		{
-			return reference<=pointer;
+			return reference <= pointer;
 		}
 
 		bool operator==(const ComPtr<T>& pointer)const
 		{
-			return reference==pointer.reference;
+			return reference == pointer.reference;
 		}
 
 		bool operator!=(const ComPtr<T>& pointer)const
 		{
-			return reference!=pointer.reference;
+			return reference != pointer.reference;
 		}
 
 		bool operator>(const ComPtr<T>& pointer)const
 		{
-			return reference>pointer.reference;
+			return reference > pointer.reference;
 		}
 
 		bool operator>=(const ComPtr<T>& pointer)const
 		{
-			return reference>=pointer.reference;
+			return reference >= pointer.reference;
 		}
 
 		bool operator<(const ComPtr<T>& pointer)const
 		{
-			return reference<pointer.reference;
+			return reference < pointer.reference;
 		}
 
 		bool operator<=(const ComPtr<T>& pointer)const
 		{
-			return reference<=pointer.reference;
+			return reference <= pointer.reference;
 		}
 
 		operator bool()const
 		{
-			return reference!=0;
+			return reference != nullptr;
 		}
 
 		T* Obj()const

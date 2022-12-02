@@ -115,8 +115,8 @@ TEST_FILE
 		TEST_ASSERT((bool)p2 == true);
 		TEST_ASSERT(p2->number == 3);
 
-		p1 = new Derived1(4);
-		p2 = new Derived2(5);
+		p1 = Ptr(new Derived1(4));
+		p2 = Ptr(new Derived2(5));
 		TEST_ASSERT((bool)p1 == true);
 		TEST_ASSERT(p1->number == 4);
 		TEST_ASSERT((bool)p2 == true);

@@ -67,7 +67,7 @@ Copy Functions for Containers
 					Ptr<IEnumerator<typename Ss::ElementType>> enumerator;
 					vint copyCount=0;
 
-					enumerator=ss.CreateEnumerator();
+					enumerator = Ptr(ss.CreateEnumerator());
 					while(enumerator->Next())
 					{
 						copyCount++;
@@ -77,7 +77,7 @@ Copy Functions for Containers
 					vint resizeCount=index+copyCount;
 					RandomAccess<Ds>::SetCount(ds, resizeCount);
 
-					enumerator=ss.CreateEnumerator();
+					enumerator = Ptr(ss.CreateEnumerator());
 					while(enumerator->Next())
 					{
 						RandomAccess<Ds>::SetValue(ds, index++, enumerator->Current());
