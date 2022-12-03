@@ -25,9 +25,9 @@
     </Expand>
   </Type>
 
-  <Type Name="vl::collections::List&lt;*,*&gt;">
-    <AlternativeType Name="vl::collections::SortedList&lt;*,*&gt;"/>
-    <AlternativeType Name="vl::collections::Array&lt;*,*&gt;"/>
+  <Type Name="vl::collections::List&lt;*&gt;">
+    <AlternativeType Name="vl::collections::SortedList&lt;*&gt;"/>
+    <AlternativeType Name="vl::collections::Array&lt;*&gt;"/>
     <DisplayString>{{ size={count} }}</DisplayString>
     <Expand>
       <Item Name="[size]">count</Item>
@@ -38,8 +38,8 @@
     </Expand>
   </Type>
 
-  <Type Name="vl::collections::Dictionary&lt;*,*,*,*&gt;">
-    <AlternativeType Name="vl::collections::Group&lt;*,*,*,*&gt;"/>
+  <Type Name="vl::collections::Dictionary&lt;*,*&gt;">
+    <AlternativeType Name="vl::collections::Group&lt;*,*&gt;"/>
     <DisplayString>{{ size={keys.count} }}</DisplayString>
     <Expand>
       <Item Name="[size]">keys.count</Item>
