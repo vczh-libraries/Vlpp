@@ -3,6 +3,7 @@
 ## 2.0
 
 - Revisit `README.md` for all repos.
+- Replace `Compare` and comparison operators by `operator<=>`.
 - Perfect forwarding for `Func`.
 - Coroutine for `LazyList`
   - https://en.cppreference.com/w/cpp/language/coroutines
