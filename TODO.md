@@ -3,12 +3,13 @@
 ## 2.0
 
 - Revisit `README.md` for all repos.
+- Coroutine for `LazyList`.
+  - https://en.cppreference.com/w/cpp/language/coroutines
+- Rewrite `LazyList` operators using coroutine as much as possible.
+- `LazyList` operators test container types and perform different solution to improve performance.
+- Replace generic `container::Add` with non-generic version.
 - Replace `Compare` and comparison operators by `operator<=>`.
 - Perfect forwarding for `Func`.
-- Coroutine for `LazyList`
-  - https://en.cppreference.com/w/cpp/language/coroutines
-- Rewrite `LazyList` operators using coroutine as much as possible
-- `LazyList` operators test container types and perform different solution to improve performance
 
 ## Optional
 
