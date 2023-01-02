@@ -15,6 +15,8 @@
 - Check the whole org and fix them to use correct containers, especially for visiting/visited patterns.
 - Check the whole org and replacr for by ranged-for
 - Replace `Compare` and comparison operators by `operator<=>`.
+- Rewrite Nullable and Tuple to make them zero cost abstraction
+- operator <=> to replace Compare and six operstors.
 
 ## Optional
 
