@@ -26,3 +26,7 @@
 - Heterougeneous tree string.
 - Redesign `VCZH_MSVC` series macros.
   - More macros could be needed after porting to UWP, WASM and CLI.
+- Object Model
+  - WeakPtr
+  - Make all classes from `Object` and `Interface` shared_from_this, instead of only `Descriptable`.
+  - General object disposing notification in `Object`
