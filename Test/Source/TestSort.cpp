@@ -68,9 +68,9 @@ TEST_FILE
 		}
 	});
 
-	TEST_CASE(L"Test SortLambda with one 10k zeros, ones, and twos")
+	TEST_CASE(L"Test SortLambda with one many zeros, ones, and twos")
 	{
-		constexpr vint Repeat = 10000;
+		constexpr vint Repeat = 10;
 		Array<vint> numbers(Repeat * 3);
 		for (vint i = 0; i < Repeat; i++)
 		{

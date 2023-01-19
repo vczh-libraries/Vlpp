@@ -87,36 +87,58 @@ Quick Sort
 		template<typename T, typename F>
 		void SortLambda(T* items, vint length, F orderer)
 		{
-			if (length == 0) return;
-			vint pivot = 0;
-			vint left = 0;
-			vint right = 0;
-			bool flag = false;
-
-			while (left + right + 1 != length)
+			while (true)
 			{
-				vint& mine = (flag ? left : right);
-				vint& theirs = (flag ? right : left);
-				vint candidate = (flag ? left : length - right - 1);
-				vint factor = (flag ? -1 : 1);
+				if (length == 0) return;
+				vint pivot = 0;
+				vint left = 0;
+				vint right = 0;
+				bool flag = false;
 
-				if (orderer(items[pivot], items[candidate]) * factor <= 0)
+				while (left + right + 1 != length)
 				{
-					mine++;
+					vint& mine = (flag ? left : right);
+					vint& theirs = (flag ? right : left);
+					vint candidate = (flag ? left : length - right - 1);
+					vint factor = (flag ? -1 : 1);
+
+					if (orderer(items[pivot], items[candidate]) * factor <= 0)
+					{
+						mine++;
+					}
+					else
+					{
+						theirs++;
+						T temp = items[pivot];
+						items[pivot] = items[candidate];
+						items[candidate] = temp;
+						pivot = candidate;
+						flag = !flag;
+					}
+				}
+
+				while (left > 0 && orderer(items[pivot], items[left - 1]) == 0)
+				{
+					left--;
+				}
+
+				while (right > 0 && orderer(items[pivot], items[length - right]) == 0)
+				{
+					right--;
+				}
+
+				if (left < right)
+				{
+					SortLambda(items, left, orderer);
+					items += left + 1;
+					length = right;
 				}
 				else
 				{
-					theirs++;
-					T temp = items[pivot];
-					items[pivot] = items[candidate];
-					items[candidate] = temp;
-					pivot = candidate;
-					flag = !flag;
+					SortLambda(items + length - right, right, orderer);
+					length = left;
 				}
 			}
-
-			SortLambda(items, left, orderer);
-			SortLambda(items + left + 1, right, orderer);
 		}
 
 		/// <summary>Quick sort.</summary>
