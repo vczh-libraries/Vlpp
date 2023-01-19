@@ -130,7 +130,7 @@ Quick Sort
 				if (left < right)
 				{
 					SortLambda(items, left, orderer);
-					items += left + 1;
+					items += length - right;
 					length = right;
 				}
 				else
