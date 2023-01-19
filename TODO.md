@@ -7,6 +7,7 @@
   - https://en.cppreference.com/w/cpp/language/coroutines
 - Rewrite `LazyList` operators using coroutine as much as possible.
 - `LazyList` operators test container types and perform different solution to improve performance.
+  - Or add optional random access interface to IEnumerable.
 - Replace generic `container::Add` with non-generic version.
   - Don't try to support embrace on add
 - Enumerable and enumerator fail when container is deleted.
