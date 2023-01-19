@@ -272,6 +272,7 @@
     <ClCompile Include="..\..\Source\TestList_LoopFromMisc.cpp" />
     <ClCompile Include="..\..\Source\TestList_Moveonly.cpp" />
     <ClCompile Include="..\..\Source\TestPartialOrdering.cpp" />
+    <ClCompile Include="..\..\Source\TestSort.cpp" />
     <ClCompile Include="Main.cpp" />
   </ItemGroup>
   <ItemGroup>
