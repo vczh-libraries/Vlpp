@@ -159,16 +159,6 @@ Quick Sort
 					right = length - writing;
 				}
 
-				while (left > 0 && orderer(items[pivot], items[left - 1]) == 0)
-				{
-					left--;
-				}
-
-				while (right > 0 && orderer(items[pivot], items[length - right]) == 0)
-				{
-					right--;
-				}
-
 				if (left < right)
 				{
 					SortLambda(items, left, orderer);
