@@ -93,28 +93,70 @@ Quick Sort
 				vint pivot = 0;
 				vint left = 0;
 				vint right = 0;
-				bool flag = false;
 
-				while (left + right + 1 != length)
 				{
-					vint& mine = (flag ? left : right);
-					vint& theirs = (flag ? right : left);
-					vint candidate = (flag ? left : length - right - 1);
-					vint factor = (flag ? -1 : 1);
+					bool flag = false;
+					while (left + right + 1 != length)
+					{
+						vint& mine = (flag ? left : right);
+						vint& theirs = (flag ? right : left);
+						vint candidate = (flag ? left : length - right - 1);
+						vint factor = (flag ? -1 : 1);
 
-					if (orderer(items[pivot], items[candidate]) * factor <= 0)
-					{
-						mine++;
+						if (orderer(items[pivot], items[candidate]) * factor <= 0)
+						{
+							mine++;
+						}
+						else
+						{
+							theirs++;
+							T temp = items[pivot];
+							items[pivot] = items[candidate];
+							items[candidate] = temp;
+							pivot = candidate;
+							flag = !flag;
+						}
 					}
-					else
+				}
+
+				{
+					vint reading = left - 1;
+					vint writing = reading;
+					while (reading >= 0)
 					{
-						theirs++;
-						T temp = items[pivot];
-						items[pivot] = items[candidate];
-						items[candidate] = temp;
-						pivot = candidate;
-						flag = !flag;
+						if (orderer(items[pivot], items[reading]) == 0)
+						{
+							if (reading != writing)
+							{
+								T temp = items[reading];
+								items[reading] = items[writing];
+								items[writing] = temp;
+							}
+							writing--;
+						}
+						reading--;
 					}
+					left = writing + 1;
+				}
+
+				{
+					vint reading = length - right;
+					vint writing = reading;
+					while (reading < length)
+					{
+						if (orderer(items[pivot], items[reading]) == 0)
+						{
+							if (reading != writing)
+							{
+								T temp = items[reading];
+								items[reading] = items[writing];
+								items[writing] = temp;
+							}
+							writing++;
+						}
+						reading++;
+					}
+					right = length - writing;
 				}
 
 				while (left > 0 && orderer(items[pivot], items[left - 1]) == 0)
