@@ -17,6 +17,7 @@
 - Replace `Compare` and comparison operators by `operator<=>`.
 - Rewrite Nullable and Tuple to make them zero cost abstraction
 - operator <=> to replace Compare and six operstors.
+- In place merge sort: reversly sort the right side and treat it as a heap, root is in the right most position, add all items from the left side, and pop them.
 
 ## Optional
 
