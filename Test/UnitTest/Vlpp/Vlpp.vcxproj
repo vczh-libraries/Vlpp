@@ -183,6 +183,7 @@
     <ClInclude Include="..\..\..\Source\Primitives\Event.h" />
     <ClInclude Include="..\..\..\Source\Primitives\Function.h" />
     <ClInclude Include="..\..\..\Source\Primitives\Lazy.h" />
+    <ClInclude Include="..\..\..\Source\Primitives\Nullable.h" />
     <ClInclude Include="..\..\..\Source\Primitives\Pointer.h" />
     <ClInclude Include="..\..\..\Source\Primitives\Tuple.h" />
     <ClInclude Include="..\..\..\Source\Strings\Conversion.h" />

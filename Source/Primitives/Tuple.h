@@ -52,6 +52,8 @@ namespace vl
 
 		Tuple<T, TArgs...>& operator=(const Tuple<T, TArgs...>&) = default;
 		Tuple<T, TArgs...>& operator=(Tuple<T, TArgs...>&&) = default;
+		std::strong_ordering operator<=>(const Tuple<T, TArgs...>&) const = default;
+		bool operator==(const Tuple<T, TArgs...>&) const = default;
 
 		template<vint Index>
 		__forceinline TypeTupleElement<Index, TypeTuple<T, TArgs...>>& get()

@@ -8,6 +8,7 @@ Licensed under https://github.com/vczh-libraries/License
 
 #include "../Strings/String.h"
 #include "../Primitives/Function.h"
+#include "../Primitives/Nullable.h"
 #include "../Exception.h"
 
 namespace vl
