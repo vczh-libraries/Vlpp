@@ -281,12 +281,12 @@ Ptr
 
 		bool operator==(const T* value) const
 		{
-			return operator<=>(value) == std::strong_ordering::equal;
+			return operator<=>(value) == 0;
 		}
 
 		bool operator==(const Ptr<T>& value) const
 		{
-			return operator<=>(value) == std::strong_ordering::equal;
+			return operator<=>(value) == 0;
 		}
 
 		/// <summary>Test if it is an empty shared pointer.</summary>
@@ -458,12 +458,12 @@ ComPtr
 
 		bool operator==(const T* value) const
 		{
-			return operator<=>(value) == std::strong_ordering::equal;
+			return operator<=>(value) == 0;
 		}
 
 		bool operator==(const ComPtr<T>& value) const
 		{
-			return operator<=>(value) == std::strong_ordering::equal;
+			return operator<=>(value) == 0;
 		}
 
 		operator bool()const

@@ -147,8 +147,18 @@ namespace vl
 #endif
 			}
 
-			std::strong_ordering operator<=>(const Pair<const K&, const V&>&) const = default;
-			bool operator==(const Pair<const K&, const V&>&) const = default;
+			std::strong_ordering operator<=>(const Pair<const K&, const V&>& p) const
+			{
+				std::strong_ordering result;
+				result = key <=> p.key; if (result != 0) return result;
+				result = value <=> p.value; if (result != 0) return result;
+				return std::strong_ordering::equal;
+			}
+
+			bool operator==(const Pair<const K&, const V&>& p) const
+			{
+				return operator<=>(p) == 0;
+			}
 		};
 	}
 }

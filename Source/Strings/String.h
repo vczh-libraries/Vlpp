@@ -62,24 +62,24 @@ namespace vl
 			return operator<=>(ObjectString<T>::Unmanaged(str));
 		}
 
-		friend bool operator<=>(const T* left, const ObjectString<T>& right)
+		friend std::strong_ordering operator<=>(const T* left, const ObjectString<T>& right)
 		{
 			return ObjectString<T>::Unmanaged(left) <=> right;
 		}
 
 		bool operator==(const ObjectString<T>& str)const
 		{
-			return operator<=>(str) == std::strong_ordering::equal;
+			return operator<=>(str) == 0;
 		}
 
 		bool operator==(T* str)const
 		{
-			return operator<=>(str) == std::strong_ordering::equal;
+			return operator<=>(str) == 0;
 		}
 
 		friend bool operator==(const T* left, const ObjectString<T>& right)
 		{
-			return (left <=> right) == std::strong_ordering::equal;
+			return (left <=> right) == 0;
 		}
 
 	private:

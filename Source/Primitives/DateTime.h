@@ -101,7 +101,7 @@ Date and Time
 
 		bool operator==(const DateTime& value) const
 		{
-			return operator<=>(value) == std::strong_ordering::equal;
+			return operator<=>(value) == 0;
 		}
 	};
 }

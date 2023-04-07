@@ -343,7 +343,7 @@ Basic Types
 
 		bool operator==(const Nullable<T>& b)const
 		{
-			return operator<=>(b) == std::strong_ordering::equal;
+			return operator<=>(b) == 0;
 		}
 
 		/// <summary>Test if this nullable value is non-null.</summary>
