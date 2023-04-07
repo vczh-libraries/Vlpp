@@ -1,4 +1,5 @@
 #include "AssertCollection.h"
+#include "../../Source/Primitives/Tuple.h"
 
 TEST_FILE
 {
@@ -90,6 +91,21 @@ TEST_FILE
 		CHECK_LIST_ITEMS(dst.Get(false), {4 _ 16 _ 36 _ 64 _ 100});
 		CopyFrom(pair, From(src).Select(Odd).Pairwise(From(src).Select(Square)));
 		CompareEnumerable(pair, From(src).Select(Odd).Pairwise(From(src).Select(Square)));
+	});
+
+	TEST_CASE(L"Test Linq with List<Tuple<T, U>>")
+	{
+		List<Tuple<vint, WString>> src;
+		src.Add({1, WString::Unmanaged(L"c")});
+		src.Add({2, WString::Unmanaged(L"b")});
+		src.Add({3, WString::Unmanaged(L"a")});
+
+		List<vint> dst;
+		CopyFrom(dst, From(src)
+			.OrderByKey([](auto&& t) {return t.f1; })
+			.Select([](auto&& t) {return t.f0; })
+		);
+		CHECK_LIST_ITEMS(dst, { 3 _ 2 _ 1 });
 	});
 
 	TEST_CASE(L"Test Linq with functions")
