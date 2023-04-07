@@ -210,6 +210,24 @@ Basic Types
 	{
 	};
 
+	template<vint Index, typename TTuple>
+	struct TypeTupleItemRetriver;
+
+	template<vint Index, typename T, typename ...TArgs>
+	struct TypeTupleItemRetriver<Index, TypeTuple<T, TArgs...>>
+	{
+		using Type = typename TypeTupleItemRetriver<Index - 1, TypeTuple<TArgs...>>::Type;
+	};
+
+	template<typename T, typename ...TArgs>
+	struct TypeTupleItemRetriver<0, TypeTuple<T, TArgs...>>
+	{
+		using Type = T;
+	};
+
+	template<vint Index, typename TTuple>
+	using TypeTupleElement = typename TypeTupleItemRetriver<Index, TTuple>::Type;
+
 	/// <summary>
 	/// Base type of all classes.
 	/// This type has a virtual destructor, making all derived classes destructors virtual.

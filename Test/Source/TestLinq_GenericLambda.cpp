@@ -1,5 +1,6 @@
 #include "AssertCollection.h"
 #include "../../Source/Primitives/Tuple.h"
+#include <tuple>
 
 TEST_FILE
 {
@@ -102,8 +103,8 @@ TEST_FILE
 
 		List<vint> dst;
 		CopyFrom(dst, From(src)
-			.OrderByKey([](auto&& t) {return t.f1; })
-			.Select([](auto&& t) {return t.f0; })
+			.OrderByKey([](auto&& t)->decltype(auto) { return t.get<1>(); })
+			.Select([](auto&& t) { auto&& [x, y] = t; return x; })
 		);
 		CHECK_LIST_ITEMS(dst, { 3 _ 2 _ 1 });
 	});

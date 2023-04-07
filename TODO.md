@@ -1,7 +1,8 @@
 # TODO
 
 ## Progressing
-- Rewrite Nullable and Tuple to make them zero cost abstraction
+- Rewirte `Pair`, remove the partial instantiation.
+- Rewrite `Nullable` to allow zero cost abstraction.
 - Replace generic `container::Add` with non-generic version.
   - Don't try to support embrace on add
 - Enumerable and enumerator fail when container is deleted.
