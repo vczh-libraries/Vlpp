@@ -16,8 +16,10 @@ namespace vl
 	class Nullable
 	{
 	private:
-		T*					object = nullptr;
+		T*									object = nullptr;
 	public:
+		static const Nullable<T>			Empty;
+
 		/// <summary>Create a null value.</summary>
 		Nullable() = default;
 
@@ -53,6 +55,15 @@ namespace vl
 		~Nullable()
 		{
 			if (object) delete object;
+		}
+
+		/// <summary>
+		/// Remove the contained data.
+		/// </summary>
+		void Reset()
+		{
+			if (object) delete object;
+			object = nullptr;
 		}
 
 		/// <summary>Replace the data inside this nullable value by copying from data.</summary>
@@ -134,6 +145,9 @@ namespace vl
 			return *object;
 		}
 	};
+
+	template<typename T>
+	const Nullable<T> Nullable<T>::Empty;
 }
 
 #endif

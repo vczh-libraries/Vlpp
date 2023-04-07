@@ -132,7 +132,7 @@ namespace vl
 			return std::move(str);
 		}
 	public:
-		static ObjectString<T>	Empty;
+		static const ObjectString<T>		Empty;
 
 		/// <summary>Create an empty string.</summary>
 		ObjectString() = default;
@@ -473,7 +473,7 @@ namespace vl
 	};
 
 	template<typename T>
-	ObjectString<T> ObjectString<T>::Empty=ObjectString<T>();
+	const ObjectString<T> ObjectString<T>::Empty = ObjectString<T>();
 	template<typename T>
 	const T ObjectString<T>::zero=0;
 
