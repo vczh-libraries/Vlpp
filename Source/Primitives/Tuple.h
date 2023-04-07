@@ -24,11 +24,10 @@ namespace vl
 		Tuple() = default;
 		Tuple(const Tuple<T, TArgs...>&) = default;
 		Tuple(Tuple<T, TArgs...>&&) = default;
-		~Tuple() = default;
 
 		template<typename U, typename ...UArgs>
 		Tuple(U&& x, UArgs&& ...xs)
-			requires(sizeof...(TArgs) == sizeof...(UArgs) && (std::is_constructible_v<T, U&&> && ... && std::is_convertible_v<TArgs, UArgs&&>))
+			requires(sizeof...(TArgs) == sizeof...(UArgs) && (std::is_constructible_v<T, U&&> && std::is_constructible_v<Tuple<TArgs...>, UArgs&&...>))
 			: firstValue(std::forward<U&&>(x))
 			, Tuple<TArgs...>(std::forward<UArgs&&>(xs)...)
 		{
@@ -36,7 +35,7 @@ namespace vl
 
 		template<typename U, typename ...UArgs>
 		Tuple(const Tuple<U, UArgs...>& t)
-			requires(sizeof...(TArgs) == sizeof...(UArgs) && (std::is_constructible_v<T, const U&> && ... && std::is_convertible_v<TArgs, const UArgs&>))
+			requires(sizeof...(TArgs) == sizeof...(UArgs) && (std::is_constructible_v<T, const U&> && std::is_constructible_v<Tuple<TArgs...>, const Tuple<UArgs...>&>))
 			: firstValue(t.firstValue)
 			, Tuple<TArgs...>(static_cast<const Tuple<UArgs...>&>(t))
 		{
@@ -44,7 +43,7 @@ namespace vl
 
 		template<typename U, typename ...UArgs>
 		Tuple(Tuple<U, UArgs...>&& t)
-			requires(sizeof...(TArgs) == sizeof...(UArgs) && (std::is_constructible_v<T, const U&&> && ... && std::is_convertible_v<TArgs, UArgs&&>))
+			requires(sizeof...(TArgs) == sizeof...(UArgs) && (std::is_constructible_v<T, U&&> && std::is_constructible_v<Tuple<TArgs...>, Tuple<UArgs...>&&>))
 			: firstValue(std::move(t.firstValue))
 			, Tuple<TArgs...>(std::move(static_cast<Tuple<UArgs...>&>(t)))
 		{
@@ -85,6 +84,10 @@ namespace vl
 	template<>
 	class Tuple<>
 	{
+		Tuple() = default;
+		Tuple(const Tuple<>&) = default;
+		Tuple(Tuple<>&&) = default;
+
 		constexpr std::strong_ordering operator<=>(const Tuple<>&) const { return std::strong_ordering::equal; }
 		constexpr bool operator==(const Tuple<>&) const { return true; }
 	};
