@@ -15,12 +15,7 @@ namespace TestList_Moveonly_TestObjects
 		Moveonly<T>& operator=(const Moveonly<T>&) = delete;
 		Moveonly<T>& operator=(Moveonly<T>&&) = default;
 
-		bool operator==(const Moveonly<T>& right) const { return value == right.value; }
-		bool operator!=(const Moveonly<T>& right) const { return value != right.value; }
-		bool operator< (const Moveonly<T>& right) const { return value <  right.value; }
-		bool operator<=(const Moveonly<T>& right) const { return value <= right.value; }
-		bool operator> (const Moveonly<T>& right) const { return value >  right.value; }
-		bool operator>=(const Moveonly<T>& right) const { return value >= right.value; }
+		std::strong_ordering operator<=>(const Moveonly<T>&) const = default;
 	};
 
 	void TestArray(Array<Moveonly<vint>>& arr)

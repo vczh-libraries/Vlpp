@@ -37,53 +37,26 @@ namespace vl
 			return result;
 		}
 
-		static vint64_t Compare(const T* bufA, const ObjectString<T>& strB)
-		{
-			const T* bufB = strB.buffer + strB.start;
-			const T* bufAOld = bufA;
-			vint length = strB.length;
-			while (true)
-			{
-				if (*bufA && length)
-				{
-					length--;
-					vint64_t diff = (vint64_t)(*bufA++) - (vint64_t)(*bufB++);
-					if (diff != 0)
-					{
-						return diff;
-					}
-				}
-				else if (*bufA)
-				{
-					return CalculateLength(bufA);
-				}
-				else if (length)
-				{
-					return -length;
-				}
-				else
-				{
-					return 0;
-				}
-			};
-		}
-
 	public:
-
-		static vint64_t Compare(const ObjectString<T>& strA, const ObjectString<T>& strB)
+		std::strong_ordering operator<=>(const ObjectString<T>& str)const
 		{
-			const T* bufA = strA.buffer + strA.start;
-			const T* bufB = strB.buffer + strB.start;
-			vint length = strA.length < strB.length ? strA.length : strB.length;
+			const T* bufA = buffer + start;
+			const T* bufB = str.buffer + str.start;
+			vint length = length < str.length ? length : str.length;
 			while (length--)
 			{
 				vint64_t diff = (vint64_t)(*bufA++) - (vint64_t)(*bufB++);
 				if (diff != 0)
 				{
-					return diff;
+					return diff <=> 0;
 				}
 			};
-			return strA.length - strB.length;
+			return (length - str.length) <=> 0;
+		}
+
+		std::strong_ordering operator<=>(const T* str)const
+		{
+			return operator<=>(ObjectString<T>::Unmanaged(str));
 		}
 
 	private:
@@ -358,66 +331,6 @@ namespace vl
 			return ReplaceUnsafe(string, length, 0);
 		}
 
-		bool operator==(const ObjectString<T>& string)const
-		{
-			return Compare(*this, string)==0;
-		}
-
-		bool operator!=(const ObjectString<T>& string)const
-		{
-			return Compare(*this, string)!=0;
-		}
-
-		bool operator>(const ObjectString<T>& string)const
-		{
-			return Compare(*this, string)>0;
-		}
-
-		bool operator>=(const ObjectString<T>& string)const
-		{
-			return Compare(*this, string)>=0;
-		}
-
-		bool operator<(const ObjectString<T>& string)const
-		{
-			return Compare(*this, string)<0;
-		}
-
-		bool operator<=(const ObjectString<T>& string)const
-		{
-			return Compare(*this, string)<=0;
-		}
-
-		bool operator==(const T* buffer)const
-		{
-			return Compare(buffer, *this)==0;
-		}
-
-		bool operator!=(const T* buffer)const
-		{
-			return Compare(buffer, *this)!=0;
-		}
-
-		bool operator>(const T* buffer)const
-		{
-			return Compare(buffer, *this)<0;
-		}
-
-		bool operator>=(const T* buffer)const
-		{
-			return Compare(buffer, *this)<=0;
-		}
-
-		bool operator<(const T* buffer)const
-		{
-			return Compare(buffer, *this)>0;
-		}
-
-		bool operator<=(const T* buffer)const
-		{
-			return Compare(buffer, *this)>=0;
-		}
-
 		/// <summary>Get a code point in the specified position.</summary>
 		/// <returns>Returns the code point. It will crash when the specified position is out of range.</returns>
 		/// <param name="index"></param>
@@ -533,39 +446,14 @@ namespace vl
 			return ReplaceUnsafe(string, index, 0);
 		}
 
-		friend bool operator<(const T* left, const ObjectString<T>& right)
+		friend bool operator<=>(const T* left, const ObjectString<T>& right)
 		{
-			return Compare(left, right)<0;
-		}
-
-		friend bool operator<=(const T* left, const ObjectString<T>& right)
-		{
-			return Compare(left, right)<=0;
-		}
-
-		friend bool operator>(const T* left, const ObjectString<T>& right)
-		{
-			return Compare(left, right)>0;
-		}
-
-		friend bool operator>=(const T* left, const ObjectString<T>& right)
-		{
-			return Compare(left, right)>=0;
-		}
-
-		friend bool operator==(const T* left, const ObjectString<T>& right)
-		{
-			return Compare(left, right)==0;
-		}
-
-		friend bool operator!=(const T* left, const ObjectString<T>& right)
-		{
-			return Compare(left, right)!=0;
+			return ObjectString<T>::Unmanaged(left) <=> right;
 		}
 
 		friend ObjectString<T> operator+(const T* left, const ObjectString<T>& right)
 		{
-			return ObjectString<T>::Unmanaged(left)+right;
+			return ObjectString<T>::Unmanaged(left) + right;
 		}
 	};
 

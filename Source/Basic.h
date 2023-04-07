@@ -80,6 +80,7 @@ static_assert(false, "wchar_t configuration is not right.");
 
 #include <type_traits>
 #include <utility>
+#include <compare>
 
 #define L_(x) L__(x)
 #define L__(x) L ## x
@@ -322,54 +323,22 @@ Basic Types
 
 		/// <summary>Comparing two nullable values.</summary>
 		/// <returns>
-		/// Returns a positive value when the first value is greater than the second value.
-		/// Returns a negative value when the first value is lesser than the second value.
-		/// Returns zero when the two values equal.
+		/// Returns std::strong_ordering indicating the order of the two values.
 		/// When one is null and another one is not, the non-null one is greater.
 		/// </returns>
 		/// <param name="a">The first nullable value to compare.</param>
 		/// <param name="b">The second nullable value to compare.</param>
-		static vint Compare(const Nullable<T>& a, const Nullable<T>& b)
+		std::strong_ordering operator<=>(const Nullable<T>& b)const
 		{
-			if (a.object && b.object)
+			if (object && b.object)
 			{
-				if (*a.object > *b.object) return 1;
-				if (*a.object < *b.object) return -1;
-				return 0;
+				if (*object > *b.object) return std::strong_ordering::greater;
+				if (*object < *b.object) return std::strong_ordering::less;
+				return std::strong_ordering::equal;
 			}
-			if (a.object) return 1;
-			if (b.object) return -1;
-			return 0;
-		}
-
-		bool operator==(const Nullable<T>& nullable)const
-		{
-			return Equals(*this, nullable);
-		}
-
-		bool operator!=(const Nullable<T>& nullable)const
-		{
-			return !Equals(*this, nullable);
-		}
-
-		bool operator<(const Nullable<T>& nullable)const
-		{
-			return Compare(*this, nullable) < 0;
-		}
-
-		bool operator<=(const Nullable<T>& nullable)const
-		{
-			return Compare(*this, nullable) <= 0;
-		}
-
-		bool operator>(const Nullable<T>& nullable)const
-		{
-			return Compare(*this, nullable) > 0;
-		}
-
-		bool operator>=(const Nullable<T>& nullable)const
-		{
-			return Compare(*this, nullable) >= 0;
+			if (object) return std::strong_ordering::greater;
+			if (b.object) return std::strong_ordering::less;
+			return std::strong_ordering::equal;
 		}
 
 		/// <summary>Test if this nullable value is non-null.</summary>

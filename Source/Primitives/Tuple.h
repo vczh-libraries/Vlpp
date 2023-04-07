@@ -36,19 +36,8 @@ vl::Tuple<T0>
 			:f0(p0)
 		{
 		}
- 
-		static int Compare(const Tuple<T0>& a, const Tuple<T0>& b)
-		{
-			if (a.f0 < b.f0) return -1; else if (a.f0 > b.f0) return 1;
-			return 0;
-		}
- 
-		bool operator==(const Tuple<T0>& value)const{ return Compare(*this, value) == 0; }
-		bool operator!=(const Tuple<T0>& value)const{ return Compare(*this, value) != 0; }
-		bool operator< (const Tuple<T0>& value)const{ return Compare(*this, value) < 0; }
-		bool operator<=(const Tuple<T0>& value)const{ return Compare(*this, value) <= 0; }
-		bool operator> (const Tuple<T0>& value)const{ return Compare(*this, value) > 0; }
-		bool operator>=(const Tuple<T0>& value)const{ return Compare(*this, value) >= 0; }
+
+		std::strong_ordering operator<=>(const Tuple<T0>& t)const = default;
 	};
   
 /***********************************************************************
@@ -68,19 +57,8 @@ vl::Tuple<T0,T1>
 			:f0(p0),f1(p1)
 		{
 		}
- 
-		static int Compare(const Tuple<T0,T1>& a, const Tuple<T0,T1>& b)
-		{
-			if (a.f0 < b.f0) return -1; else if (a.f0 > b.f0) return 1;if (a.f1 < b.f1) return -1; else if (a.f1 > b.f1) return 1;
-			return 0;
-		}
- 
-		bool operator==(const Tuple<T0,T1>& value)const{ return Compare(*this, value) == 0; }
-		bool operator!=(const Tuple<T0,T1>& value)const{ return Compare(*this, value) != 0; }
-		bool operator< (const Tuple<T0,T1>& value)const{ return Compare(*this, value) < 0; }
-		bool operator<=(const Tuple<T0,T1>& value)const{ return Compare(*this, value) <= 0; }
-		bool operator> (const Tuple<T0,T1>& value)const{ return Compare(*this, value) > 0; }
-		bool operator>=(const Tuple<T0,T1>& value)const{ return Compare(*this, value) >= 0; }
+
+		std::strong_ordering operator<=>(const Tuple<T0, T1>& t)const = default;
 	};
   
 /***********************************************************************
@@ -100,19 +78,8 @@ vl::Tuple<T0,T1,T2>
 			:f0(p0),f1(p1),f2(p2)
 		{
 		}
- 
-		static int Compare(const Tuple<T0,T1,T2>& a, const Tuple<T0,T1,T2>& b)
-		{
-			if (a.f0 < b.f0) return -1; else if (a.f0 > b.f0) return 1;if (a.f1 < b.f1) return -1; else if (a.f1 > b.f1) return 1;if (a.f2 < b.f2) return -1; else if (a.f2 > b.f2) return 1;
-			return 0;
-		}
- 
-		bool operator==(const Tuple<T0,T1,T2>& value)const{ return Compare(*this, value) == 0; }
-		bool operator!=(const Tuple<T0,T1,T2>& value)const{ return Compare(*this, value) != 0; }
-		bool operator< (const Tuple<T0,T1,T2>& value)const{ return Compare(*this, value) < 0; }
-		bool operator<=(const Tuple<T0,T1,T2>& value)const{ return Compare(*this, value) <= 0; }
-		bool operator> (const Tuple<T0,T1,T2>& value)const{ return Compare(*this, value) > 0; }
-		bool operator>=(const Tuple<T0,T1,T2>& value)const{ return Compare(*this, value) >= 0; }
+
+		std::strong_ordering operator<=>(const Tuple<T0, T1, T2>& t)const = default;
 	};
   
 /***********************************************************************
@@ -132,19 +99,8 @@ vl::Tuple<T0,T1,T2,T3>
 			:f0(p0),f1(p1),f2(p2),f3(p3)
 		{
 		}
- 
-		static int Compare(const Tuple<T0,T1,T2,T3>& a, const Tuple<T0,T1,T2,T3>& b)
-		{
-			if (a.f0 < b.f0) return -1; else if (a.f0 > b.f0) return 1;if (a.f1 < b.f1) return -1; else if (a.f1 > b.f1) return 1;if (a.f2 < b.f2) return -1; else if (a.f2 > b.f2) return 1;if (a.f3 < b.f3) return -1; else if (a.f3 > b.f3) return 1;
-			return 0;
-		}
- 
-		bool operator==(const Tuple<T0,T1,T2,T3>& value)const{ return Compare(*this, value) == 0; }
-		bool operator!=(const Tuple<T0,T1,T2,T3>& value)const{ return Compare(*this, value) != 0; }
-		bool operator< (const Tuple<T0,T1,T2,T3>& value)const{ return Compare(*this, value) < 0; }
-		bool operator<=(const Tuple<T0,T1,T2,T3>& value)const{ return Compare(*this, value) <= 0; }
-		bool operator> (const Tuple<T0,T1,T2,T3>& value)const{ return Compare(*this, value) > 0; }
-		bool operator>=(const Tuple<T0,T1,T2,T3>& value)const{ return Compare(*this, value) >= 0; }
+
+		std::strong_ordering operator<=>(const Tuple<T0, T1, T2, T3>& t)const = default;
 	};
   
 /***********************************************************************
@@ -164,19 +120,8 @@ vl::Tuple<T0,T1,T2,T3,T4>
 			:f0(p0),f1(p1),f2(p2),f3(p3),f4(p4)
 		{
 		}
- 
-		static int Compare(const Tuple<T0,T1,T2,T3,T4>& a, const Tuple<T0,T1,T2,T3,T4>& b)
-		{
-			if (a.f0 < b.f0) return -1; else if (a.f0 > b.f0) return 1;if (a.f1 < b.f1) return -1; else if (a.f1 > b.f1) return 1;if (a.f2 < b.f2) return -1; else if (a.f2 > b.f2) return 1;if (a.f3 < b.f3) return -1; else if (a.f3 > b.f3) return 1;if (a.f4 < b.f4) return -1; else if (a.f4 > b.f4) return 1;
-			return 0;
-		}
- 
-		bool operator==(const Tuple<T0,T1,T2,T3,T4>& value)const{ return Compare(*this, value) == 0; }
-		bool operator!=(const Tuple<T0,T1,T2,T3,T4>& value)const{ return Compare(*this, value) != 0; }
-		bool operator< (const Tuple<T0,T1,T2,T3,T4>& value)const{ return Compare(*this, value) < 0; }
-		bool operator<=(const Tuple<T0,T1,T2,T3,T4>& value)const{ return Compare(*this, value) <= 0; }
-		bool operator> (const Tuple<T0,T1,T2,T3,T4>& value)const{ return Compare(*this, value) > 0; }
-		bool operator>=(const Tuple<T0,T1,T2,T3,T4>& value)const{ return Compare(*this, value) >= 0; }
+
+		std::strong_ordering operator<=>(const Tuple<T0, T1, T2, T3, T4>& t)const = default;
 	};
   
 /***********************************************************************
@@ -196,19 +141,8 @@ vl::Tuple<T0,T1,T2,T3,T4,T5>
 			:f0(p0),f1(p1),f2(p2),f3(p3),f4(p4),f5(p5)
 		{
 		}
- 
-		static int Compare(const Tuple<T0,T1,T2,T3,T4,T5>& a, const Tuple<T0,T1,T2,T3,T4,T5>& b)
-		{
-			if (a.f0 < b.f0) return -1; else if (a.f0 > b.f0) return 1;if (a.f1 < b.f1) return -1; else if (a.f1 > b.f1) return 1;if (a.f2 < b.f2) return -1; else if (a.f2 > b.f2) return 1;if (a.f3 < b.f3) return -1; else if (a.f3 > b.f3) return 1;if (a.f4 < b.f4) return -1; else if (a.f4 > b.f4) return 1;if (a.f5 < b.f5) return -1; else if (a.f5 > b.f5) return 1;
-			return 0;
-		}
- 
-		bool operator==(const Tuple<T0,T1,T2,T3,T4,T5>& value)const{ return Compare(*this, value) == 0; }
-		bool operator!=(const Tuple<T0,T1,T2,T3,T4,T5>& value)const{ return Compare(*this, value) != 0; }
-		bool operator< (const Tuple<T0,T1,T2,T3,T4,T5>& value)const{ return Compare(*this, value) < 0; }
-		bool operator<=(const Tuple<T0,T1,T2,T3,T4,T5>& value)const{ return Compare(*this, value) <= 0; }
-		bool operator> (const Tuple<T0,T1,T2,T3,T4,T5>& value)const{ return Compare(*this, value) > 0; }
-		bool operator>=(const Tuple<T0,T1,T2,T3,T4,T5>& value)const{ return Compare(*this, value) >= 0; }
+
+		std::strong_ordering operator<=>(const Tuple<T0, T1, T2, T3, T4, T5>& t)const = default;
 	};
   
 /***********************************************************************
@@ -228,19 +162,8 @@ vl::Tuple<T0,T1,T2,T3,T4,T5,T6>
 			:f0(p0),f1(p1),f2(p2),f3(p3),f4(p4),f5(p5),f6(p6)
 		{
 		}
- 
-		static int Compare(const Tuple<T0,T1,T2,T3,T4,T5,T6>& a, const Tuple<T0,T1,T2,T3,T4,T5,T6>& b)
-		{
-			if (a.f0 < b.f0) return -1; else if (a.f0 > b.f0) return 1;if (a.f1 < b.f1) return -1; else if (a.f1 > b.f1) return 1;if (a.f2 < b.f2) return -1; else if (a.f2 > b.f2) return 1;if (a.f3 < b.f3) return -1; else if (a.f3 > b.f3) return 1;if (a.f4 < b.f4) return -1; else if (a.f4 > b.f4) return 1;if (a.f5 < b.f5) return -1; else if (a.f5 > b.f5) return 1;if (a.f6 < b.f6) return -1; else if (a.f6 > b.f6) return 1;
-			return 0;
-		}
- 
-		bool operator==(const Tuple<T0,T1,T2,T3,T4,T5,T6>& value)const{ return Compare(*this, value) == 0; }
-		bool operator!=(const Tuple<T0,T1,T2,T3,T4,T5,T6>& value)const{ return Compare(*this, value) != 0; }
-		bool operator< (const Tuple<T0,T1,T2,T3,T4,T5,T6>& value)const{ return Compare(*this, value) < 0; }
-		bool operator<=(const Tuple<T0,T1,T2,T3,T4,T5,T6>& value)const{ return Compare(*this, value) <= 0; }
-		bool operator> (const Tuple<T0,T1,T2,T3,T4,T5,T6>& value)const{ return Compare(*this, value) > 0; }
-		bool operator>=(const Tuple<T0,T1,T2,T3,T4,T5,T6>& value)const{ return Compare(*this, value) >= 0; }
+
+		std::strong_ordering operator<=>(const Tuple<T0, T1, T2, T3, T4, T5, T6>& t)const = default;
 	};
   
 /***********************************************************************
@@ -260,19 +183,8 @@ vl::Tuple<T0,T1,T2,T3,T4,T5,T6,T7>
 			:f0(p0),f1(p1),f2(p2),f3(p3),f4(p4),f5(p5),f6(p6),f7(p7)
 		{
 		}
- 
-		static int Compare(const Tuple<T0,T1,T2,T3,T4,T5,T6,T7>& a, const Tuple<T0,T1,T2,T3,T4,T5,T6,T7>& b)
-		{
-			if (a.f0 < b.f0) return -1; else if (a.f0 > b.f0) return 1;if (a.f1 < b.f1) return -1; else if (a.f1 > b.f1) return 1;if (a.f2 < b.f2) return -1; else if (a.f2 > b.f2) return 1;if (a.f3 < b.f3) return -1; else if (a.f3 > b.f3) return 1;if (a.f4 < b.f4) return -1; else if (a.f4 > b.f4) return 1;if (a.f5 < b.f5) return -1; else if (a.f5 > b.f5) return 1;if (a.f6 < b.f6) return -1; else if (a.f6 > b.f6) return 1;if (a.f7 < b.f7) return -1; else if (a.f7 > b.f7) return 1;
-			return 0;
-		}
- 
-		bool operator==(const Tuple<T0,T1,T2,T3,T4,T5,T6,T7>& value)const{ return Compare(*this, value) == 0; }
-		bool operator!=(const Tuple<T0,T1,T2,T3,T4,T5,T6,T7>& value)const{ return Compare(*this, value) != 0; }
-		bool operator< (const Tuple<T0,T1,T2,T3,T4,T5,T6,T7>& value)const{ return Compare(*this, value) < 0; }
-		bool operator<=(const Tuple<T0,T1,T2,T3,T4,T5,T6,T7>& value)const{ return Compare(*this, value) <= 0; }
-		bool operator> (const Tuple<T0,T1,T2,T3,T4,T5,T6,T7>& value)const{ return Compare(*this, value) > 0; }
-		bool operator>=(const Tuple<T0,T1,T2,T3,T4,T5,T6,T7>& value)const{ return Compare(*this, value) >= 0; }
+
+		std::strong_ordering operator<=>(const Tuple<T0, T1, T2, T3, T4, T5, T6, T7>& t)const = default;
 	};
   
 /***********************************************************************
@@ -292,19 +204,8 @@ vl::Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8>
 			:f0(p0),f1(p1),f2(p2),f3(p3),f4(p4),f5(p5),f6(p6),f7(p7),f8(p8)
 		{
 		}
- 
-		static int Compare(const Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8>& a, const Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8>& b)
-		{
-			if (a.f0 < b.f0) return -1; else if (a.f0 > b.f0) return 1;if (a.f1 < b.f1) return -1; else if (a.f1 > b.f1) return 1;if (a.f2 < b.f2) return -1; else if (a.f2 > b.f2) return 1;if (a.f3 < b.f3) return -1; else if (a.f3 > b.f3) return 1;if (a.f4 < b.f4) return -1; else if (a.f4 > b.f4) return 1;if (a.f5 < b.f5) return -1; else if (a.f5 > b.f5) return 1;if (a.f6 < b.f6) return -1; else if (a.f6 > b.f6) return 1;if (a.f7 < b.f7) return -1; else if (a.f7 > b.f7) return 1;if (a.f8 < b.f8) return -1; else if (a.f8 > b.f8) return 1;
-			return 0;
-		}
- 
-		bool operator==(const Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8>& value)const{ return Compare(*this, value) == 0; }
-		bool operator!=(const Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8>& value)const{ return Compare(*this, value) != 0; }
-		bool operator< (const Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8>& value)const{ return Compare(*this, value) < 0; }
-		bool operator<=(const Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8>& value)const{ return Compare(*this, value) <= 0; }
-		bool operator> (const Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8>& value)const{ return Compare(*this, value) > 0; }
-		bool operator>=(const Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8>& value)const{ return Compare(*this, value) >= 0; }
+
+		std::strong_ordering operator<=>(const Tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8>& t)const = default;
 	};
   
 /***********************************************************************
@@ -324,19 +225,8 @@ vl::Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>
 			:f0(p0),f1(p1),f2(p2),f3(p3),f4(p4),f5(p5),f6(p6),f7(p7),f8(p8),f9(p9)
 		{
 		}
- 
-		static int Compare(const Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>& a, const Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>& b)
-		{
-			if (a.f0 < b.f0) return -1; else if (a.f0 > b.f0) return 1;if (a.f1 < b.f1) return -1; else if (a.f1 > b.f1) return 1;if (a.f2 < b.f2) return -1; else if (a.f2 > b.f2) return 1;if (a.f3 < b.f3) return -1; else if (a.f3 > b.f3) return 1;if (a.f4 < b.f4) return -1; else if (a.f4 > b.f4) return 1;if (a.f5 < b.f5) return -1; else if (a.f5 > b.f5) return 1;if (a.f6 < b.f6) return -1; else if (a.f6 > b.f6) return 1;if (a.f7 < b.f7) return -1; else if (a.f7 > b.f7) return 1;if (a.f8 < b.f8) return -1; else if (a.f8 > b.f8) return 1;if (a.f9 < b.f9) return -1; else if (a.f9 > b.f9) return 1;
-			return 0;
-		}
- 
-		bool operator==(const Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>& value)const{ return Compare(*this, value) == 0; }
-		bool operator!=(const Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>& value)const{ return Compare(*this, value) != 0; }
-		bool operator< (const Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>& value)const{ return Compare(*this, value) < 0; }
-		bool operator<=(const Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>& value)const{ return Compare(*this, value) <= 0; }
-		bool operator> (const Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>& value)const{ return Compare(*this, value) > 0; }
-		bool operator>=(const Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>& value)const{ return Compare(*this, value) >= 0; }
+
+		std::strong_ordering operator<=>(const Tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>& t)const = default;
 	};
  
 }

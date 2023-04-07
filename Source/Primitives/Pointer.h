@@ -269,71 +269,21 @@ Ptr
 			return *this;
 		}
 
-		bool operator==(const T* pointer)const
+		std::strong_ordering operator<=>(const T* pointer)const
 		{
-			return reference == pointer;
+			return reference <=> pointer;
 		}
 
-		bool operator!=(const T* pointer)const
+		std::strong_ordering operator<=>(const Ptr<T>& pointer)const
 		{
-			return reference != pointer;
-		}
-
-		bool operator>(const T* pointer)const
-		{
-			return reference > pointer;
-		}
-
-		bool operator>=(const T* pointer)const
-		{
-			return reference >= pointer;
-		}
-
-		bool operator<(const T* pointer)const
-		{
-			return reference < pointer;
-		}
-
-		bool operator<=(const T* pointer)const
-		{
-			return reference <= pointer;
-		}
-
-		bool operator==(const Ptr<T>& pointer)const
-		{
-			return reference == pointer.reference;
-		}
-
-		bool operator!=(const Ptr<T>& pointer)const
-		{
-			return reference != pointer.reference;
-		}
-
-		bool operator>(const Ptr<T>& pointer)const
-		{
-			return reference > pointer.reference;
-		}
-
-		bool operator>=(const Ptr<T>& pointer)const
-		{
-			return reference >= pointer.reference;
-		}
-
-		bool operator<(const Ptr<T>& pointer)const
-		{
-			return reference < pointer.reference;
-		}
-
-		bool operator<=(const Ptr<T>& pointer)const
-		{
-			return reference <= pointer.reference;
+			return reference <=> pointer.reference;
 		}
 
 		/// <summary>Test if it is an empty shared pointer.</summary>
 		/// <returns>Returns true if it is non-null.</returns>
 		operator bool()const
 		{
-			return reference != 0;
+			return reference != nullptr;
 		}
 
 		/// <summary>Get the pointer to the contained object.</summary>
@@ -486,64 +436,14 @@ ComPtr
 			return *this;
 		}
 
-		bool operator==(const T* pointer)const
+		std::strong_ordering operator<=>(const T* pointer)const
 		{
-			return reference == pointer;
+			return reference <=> pointer;
 		}
 
-		bool operator!=(const T* pointer)const
+		std::strong_ordering operator<=>(const ComPtr<T>& pointer)const
 		{
-			return reference != pointer;
-		}
-
-		bool operator>(const T* pointer)const
-		{
-			return reference > pointer;
-		}
-
-		bool operator>=(const T* pointer)const
-		{
-			return reference >= pointer;
-		}
-
-		bool operator<(const T* pointer)const
-		{
-			return reference < pointer;
-		}
-
-		bool operator<=(const T* pointer)const
-		{
-			return reference <= pointer;
-		}
-
-		bool operator==(const ComPtr<T>& pointer)const
-		{
-			return reference == pointer.reference;
-		}
-
-		bool operator!=(const ComPtr<T>& pointer)const
-		{
-			return reference != pointer.reference;
-		}
-
-		bool operator>(const ComPtr<T>& pointer)const
-		{
-			return reference > pointer.reference;
-		}
-
-		bool operator>=(const ComPtr<T>& pointer)const
-		{
-			return reference >= pointer.reference;
-		}
-
-		bool operator<(const ComPtr<T>& pointer)const
-		{
-			return reference < pointer.reference;
-		}
-
-		bool operator<=(const ComPtr<T>& pointer)const
-		{
-			return reference <= pointer.reference;
+			return reference <=> pointer.reference;
 		}
 
 		operator bool()const

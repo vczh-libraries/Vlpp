@@ -92,70 +92,7 @@ namespace vl
 				return *this;
 			}
 
-			template<typename K2, typename V2>
-			auto CompareTo(const Pair<K2, V2>& pair) const -> vint
-				requires (
-					std::is_same_v<std::remove_cvref_t<K>, std::remove_cvref_t<K2>>&&
-					std::is_same_v<std::remove_cvref_t<V>, std::remove_cvref_t<V2>>
-				)
-			{
-				if (key < pair.key)
-				{
-					return -1;
-				}
-				else if (key > pair.key)
-				{
-					return 1;
-				}
-				else if (value < pair.value)
-				{
-					return -1;
-				}
-				else if (value > pair.value)
-				{
-					return 1;
-				}
-				else
-				{
-					return 0;
-				}
-			}
-
-			template<typename TPair>
-			bool operator==(TPair&& pair)const
-			{
-				return CompareTo(std::forward<TPair&&>(pair)) == 0;
-			}
-
-			template<typename TPair>
-			bool operator!=(TPair&& pair)const
-			{
-				return CompareTo(std::forward<TPair&&>(pair)) != 0;
-			}
-
-			template<typename TPair>
-			bool operator<(TPair&& pair)const
-			{
-				return CompareTo(std::forward<TPair&&>(pair)) < 0;
-			}
-
-			template<typename TPair>
-			bool operator<=(TPair&& pair)const
-			{
-				return CompareTo(std::forward<TPair&&>(pair)) <= 0;
-			}
-
-			template<typename TPair>
-			bool operator>(TPair&& pair)const
-			{
-				return CompareTo(std::forward<TPair&&>(pair)) > 0;
-			}
-
-			template<typename TPair>
-			bool operator>=(TPair&& pair)const
-			{
-				return CompareTo(std::forward<TPair&&>(pair)) >= 0;
-			}
+			std::strong_ordering operator<=>(const Pair<K, V>&) const = default;
 		};
 
 		template<typename K, typename V>
@@ -209,70 +146,7 @@ namespace vl
 #endif
 			}
 
-			template<typename K2, typename V2>
-			auto CompareTo(const Pair<K2, V2>& pair) const -> vint
-				requires (
-					std::is_same_v<std::remove_cvref_t<K>, std::remove_cvref_t<K2>>&&
-					std::is_same_v<std::remove_cvref_t<V>, std::remove_cvref_t<V2>>
-				)
-			{
-				if (key < pair.key)
-				{
-					return -1;
-				}
-				else if (key > pair.key)
-				{
-					return 1;
-				}
-				else if (value < pair.value)
-				{
-					return -1;
-				}
-				else if (value > pair.value)
-				{
-					return 1;
-				}
-				else
-				{
-					return 0;
-				}
-			}
-
-			template<typename TPair>
-			bool operator==(TPair&& pair)const
-			{
-				return CompareTo(std::forward<TPair&&>(pair)) == 0;
-			}
-
-			template<typename TPair>
-			bool operator!=(TPair&& pair)const
-			{
-				return CompareTo(std::forward<TPair&&>(pair)) != 0;
-			}
-
-			template<typename TPair>
-			bool operator<(TPair&& pair)const
-			{
-				return CompareTo(std::forward<TPair&&>(pair)) < 0;
-			}
-
-			template<typename TPair>
-			bool operator<=(TPair&& pair)const
-			{
-				return CompareTo(std::forward<TPair&&>(pair)) <= 0;
-			}
-
-			template<typename TPair>
-			bool operator>(TPair&& pair)const
-			{
-				return CompareTo(std::forward<TPair&&>(pair)) > 0;
-			}
-
-			template<typename TPair>
-			bool operator>=(TPair&& pair)const
-			{
-				return CompareTo(std::forward<TPair&&>(pair)) >= 0;
-			}
+			std::strong_ordering operator<=>(const Pair<const K&, const V&>&) const = default;
 		};
 	}
 }
