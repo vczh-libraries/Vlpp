@@ -330,12 +330,7 @@ Basic Types
 		/// <param name="b">The second nullable value to compare.</param>
 		std::strong_ordering operator<=>(const Nullable<T>& b)const
 		{
-			if (object && b.object)
-			{
-				if (*object > *b.object) return std::strong_ordering::greater;
-				if (*object < *b.object) return std::strong_ordering::less;
-				return std::strong_ordering::equal;
-			}
+			if (object && b.object) return *object <=> *b.object;
 			if (object) return std::strong_ordering::greater;
 			if (b.object) return std::strong_ordering::less;
 			return std::strong_ordering::equal;

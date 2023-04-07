@@ -47,14 +47,11 @@ namespace vl
 				vint minLength = length < str.length ? length : str.length;
 				while (minLength--)
 				{
-					vint64_t diff = (vint64_t)(*bufA++) - (vint64_t)(*bufB++);
-					if (diff != 0)
-					{
-						return diff <=> 0;
-					}
+					auto diff = *bufA++ <=> *bufB++;
+					if (diff != 0) return diff;
 				};
 			}
-			return (length - str.length) <=> 0;
+			return length <=> str.length;
 		}
 
 		std::strong_ordering operator<=>(const T* str)const
