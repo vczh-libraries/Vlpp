@@ -214,6 +214,58 @@ TEST_FILE
 
 	TEST_CASE(L"Test Tuple<T...>")
 	{
-
+		{
+			Tuple<vint, WString> p{ 100, L"abc" };
+			auto&& [pk, pv] = p;
+			TEST_ASSERT(pk == 100);
+			TEST_ASSERT(pv == L"abc");
+		}
+		{
+			Tuple<vint, WString> p;
+			p = { 100, L"abc" };
+			auto&& [pk, pv] = p;
+			TEST_ASSERT(pk == 100);
+			TEST_ASSERT(pv == L"abc");
+		}
+		{
+			auto a = Tuple(100, L"abc");
+			Tuple<vint, WString> p = a;
+			auto&& [pk, pv] = p;
+			TEST_ASSERT(pk == 100);
+			TEST_ASSERT(pv == L"abc");
+		}
+		{
+			vint k = 100;
+			WString v = L"abc";
+			Tuple<const vint&, const WString&> p{ k,v };
+			auto&& [pk, pv] = p;
+			TEST_ASSERT(pk == 100);
+			TEST_ASSERT(pv == L"abc");
+		}
+		{
+			vint k = 100;
+			WString v = L"abc";
+			Tuple<const vint&, const WString&> a{ k,v };
+			Tuple<vint, WString> p = a;
+			auto&& [pk, pv] = p;
+			TEST_ASSERT(pk == 100);
+			TEST_ASSERT(pv == L"abc");
+		}
+		{
+			Tuple<vint, WString> a{ 100, L"abc" };
+			Tuple<const vint&, const WString&> p = a;
+			auto&& [pk, pv] = p;
+			TEST_ASSERT(pk == 100);
+			TEST_ASSERT(pv == L"abc");
+		}
+		{
+			vint k = 100;
+			WString v = L"abc";
+			Tuple<const vint&, const WString&> a{ k,v };
+			Tuple<const vint&, const WString&> p = a;
+			auto&& [pk, pv] = p;
+			TEST_ASSERT(&pk == &k);
+			TEST_ASSERT(&pv == &v);
+		}
 	});
 }
