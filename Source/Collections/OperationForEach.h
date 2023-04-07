@@ -6,6 +6,7 @@ Licensed under https://github.com/vczh-libraries/License
 #ifndef VCZH_COLLECTIONS_FOREACH
 #define VCZH_COLLECTIONS_FOREACH
 #include "../Basic.h"
+#include "../Primitives/Tuple.h"
 #include "Interfaces.h"
 
 namespace vl
@@ -92,17 +93,6 @@ Range-Based For-Loop Iterator with Index
 		template<typename T>
 		struct RangeBasedForLoopIteratorWithIndex
 		{
-			struct Tuple
-			{
-				const T&			value;
-				vint				index;
-
-				Tuple(const T& _value, vint _index)
-					: value(_value)
-					, index(_index)
-				{
-				}
-			};
 		private:
 			IEnumerator<T>*			iterator;
 			vint					index;
@@ -130,7 +120,7 @@ Range-Based For-Loop Iterator with Index
 				index++;
 			}
 
-			Tuple operator*() const
+			Tuple<const T&, vint> operator*() const
 			{
 				return { iterator->Current(),index };
 			}
