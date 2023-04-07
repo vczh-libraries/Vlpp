@@ -80,11 +80,7 @@ Quick Sort
 		/// <param name="items">Pointer to element array to sort.</param>
 		/// <param name="length">The number of elements to sort.</param>
 		/// <param name="orderer">
-		/// The comparar for two elements.
-		/// Both arguments are elements to compare.
-		/// Returns a positive number when the first argument is greater.
-		/// Returns a negative number when the second argument is greater.
-		/// Returns zero when two arguments equal.
+		/// The comparar for two elements returning std::string_ordering.
 		/// </param>
 		template<typename T, typename F>
 		void SortLambda(T* items, vint length, F&& orderer)
@@ -186,11 +182,7 @@ Quick Sort
 		/// <param name="items">Pointer to element array to sort.</param>
 		/// <param name="length">The number of elements to sort.</param>
 		/// <param name="orderer">
-		/// The comparar for two elements.
-		/// Both arguments are elements to compare.
-		/// Returns a positive number when the first argument is greater.
-		/// Returns a negative number when the second argument is greater.
-		/// Returns zero when two arguments equal.
+		/// The comparar for two elements returning std::string_ordering.
 		/// </param>
 		template<typename T, typename F>
 		void Sort(T* items, vint length, F&& orderer)
@@ -378,17 +370,13 @@ LazyList
 			/// <typeparam name="F">Type of the comparer.</typeparam>
 			/// <returns>The created lazy list.</returns>
 			/// <param name="f">
-			/// The comparar for two elements.
-			/// Both arguments are elements to compare.
-			/// Returns a positive number when the first argument is greater.
-			/// Returns a negative number when the second argument is greater.
-			/// Returns zero when two arguments equal.
+			/// The comparar for two elements returning std::string_ordering.
 			/// </param>
 			/// <example><![CDATA[
 			/// int main()
 			/// {
 			///     vint xs[] = {1, 2, 3, 4, 5};
-			///     auto ys = From(xs).OrderBy([](vint x, vint y){ return x - y; });
+			///     auto ys = From(xs).OrderBy([](vint x, vint y){ return x <=> y; });
 			///     for (auto y : ys) Console::Write(itow(y) + L" ");
 			/// }
 			/// ]]></example>
@@ -399,7 +387,62 @@ LazyList
 				CopyFrom(*sorted.Obj(), *this);
 				if (sorted->Count() > 0)
 				{
-					SortLambda<T, F>(&sorted->operator[](0), sorted->Count(), f);
+					SortLambda(
+						&sorted->operator[](0), sorted->Count(),
+						f
+					);
+				}
+				return sorted;
+			}
+
+			/// <summary>Create a new lazy list with all elements sorted.</summary>
+			/// <returns>The created lazy list.</returns>
+			/// <param name="f">
+			/// The key retriver function. Comparing of two element a and b are defined as f(a)<=>f(b).
+			/// </param>
+			/// <example><![CDATA[
+			/// int main()
+			/// {
+			///     vint xs[] = {1, 2, 3, 4, 5};
+			///     auto ys = From(xs).OrderByKey([](vint a){ return -a; });
+			///     for (auto y : ys) Console::Write(itow(y) + L" ");
+			/// }
+			/// ]]></example>
+			template<typename F>
+			LazyList<T> OrderByKey(F&& f)const
+			{
+				auto sorted = Ptr(new List<T>);
+				CopyFrom(*sorted.Obj(), *this);
+				if (sorted->Count() > 0)
+				{
+					SortLambda(
+						&sorted->operator[](0), sorted->Count(),
+						[f](const T& a, const T& b) { return f(a) <=> f(b); }
+					);
+				}
+				return sorted;
+			}
+
+			/// <summary>Create a new lazy list with all elements sorted.</summary>
+			/// <returns>The created lazy list.</returns>
+			/// <example><![CDATA[
+			/// int main()
+			/// {
+			///     vint xs[] = {1, 2, 3, 4, 5};
+			///     auto ys = From(xs).OrderBySelf();
+			///     for (auto y : ys) Console::Write(itow(y) + L" ");
+			/// }
+			/// ]]></example>
+			LazyList<T> OrderBySelf()const
+			{
+				auto sorted = Ptr(new List<T>);
+				CopyFrom(*sorted.Obj(), *this);
+				if (sorted->Count() > 0)
+				{
+					SortLambda(
+						&sorted->operator[](0), sorted->Count(),
+						[](const T& a, const T& b) { return a <=> b; }
+					);
 				}
 				return sorted;
 			}

@@ -2,6 +2,11 @@
 
 namespace TestLinq_TestObjects
 {
+	vint Minus(vint a)
+	{
+		return -a;
+	}
+
 	vint Square(vint a)
 	{
 		return a * a;
@@ -50,6 +55,11 @@ namespace TestLinq_TestObjects
 	std::strong_ordering Compare(vint a, vint b)
 	{
 		return a <=> b;
+	}
+
+	std::strong_ordering ReverseCompare(vint a, vint b)
+	{
+		return b <=> a;
 	}
 }
 
@@ -345,12 +355,36 @@ TEST_FILE
 		CHECK_LIST_ITEMS(dst, {30 _ 60 _ 90});
 	});
 
-	TEST_CASE(L"Test OrderBy()")
+	TEST_CASE(L"Test OrderBy(Compare)")
 	{
-		vint numbers[] = {7, 1, 12, 2, 8, 3, 11, 4, 9, 5, 13, 6, 10};
+		vint numbers[] = { 7, 1, 12, 2, 8, 3, 11, 4, 9, 5, 13, 6, 10 };
 		List<vint> list;
 		CopyFrom(list, From(numbers).OrderBy(Compare));
-		CHECK_LIST_ITEMS(list, {1 _ 2 _ 3 _ 4 _ 5 _ 6 _ 7 _ 8 _ 9 _ 10 _ 11 _ 12 _ 13});
+		CHECK_LIST_ITEMS(list, { 1 _ 2 _ 3 _ 4 _ 5 _ 6 _ 7 _ 8 _ 9 _ 10 _ 11 _ 12 _ 13 });
+	});
+
+	TEST_CASE(L"Test OrderBy(ReverseCompare)")
+	{
+		vint numbers[] = { 7, 1, 12, 2, 8, 3, 11, 4, 9, 5, 13, 6, 10 };
+		List<vint> list;
+		CopyFrom(list, From(numbers).OrderBy(ReverseCompare));
+		CHECK_LIST_ITEMS(list, { 13 _ 12 _ 11 _ 10 _ 9 _ 8 _ 7 _ 6 _ 5 _ 4 _ 3 _ 2 _ 1 });
+	});
+
+	TEST_CASE(L"Test OrderBySelf()")
+	{
+		vint numbers[] = { 7, 1, 12, 2, 8, 3, 11, 4, 9, 5, 13, 6, 10 };
+		List<vint> list;
+		CopyFrom(list, From(numbers).OrderBySelf());
+		CHECK_LIST_ITEMS(list, { 1 _ 2 _ 3 _ 4 _ 5 _ 6 _ 7 _ 8 _ 9 _ 10 _ 11 _ 12 _ 13 });
+	});
+
+	TEST_CASE(L"Test OrderByKey()")
+	{
+		vint numbers[] = { 7, 1, 12, 2, 8, 3, 11, 4, 9, 5, 13, 6, 10 };
+		List<vint> list;
+		CopyFrom(list, From(numbers).OrderByKey(Minus));
+		CHECK_LIST_ITEMS(list, { 13 _ 12 _ 11 _ 10 _ 9 _ 8 _ 7 _ 6 _ 5 _ 4 _ 3 _ 2 _ 1 });
 	});
 
 	TEST_CASE(L"Test GroupBy()")
