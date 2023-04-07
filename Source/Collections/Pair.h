@@ -48,7 +48,7 @@ namespace vl
 			}
 
 			template<typename TKey, typename TValue>
-			Pair(const Pair<TKey, TValue>& p)
+			Pair(Pair<TKey, TValue>&& p)
 				requires(std::is_constructible_v<K, TKey&&> && std::is_constructible_v<K, TKey&&>)
 				: key(std::move(p.key))
 				, value(std::move(p.value))
@@ -58,8 +58,22 @@ namespace vl
 			Pair<K, V>& operator=(const Pair<K, V>&) = default;
 			Pair<K, V>& operator=(Pair<K, V>&&) = default;
 
-			std::strong_ordering operator<=>(const Pair<K, V>&) const = default;
-			bool operator==(const Pair<K, V>&) const = default;
+			template<typename TKey, typename TValue>
+			std::strong_ordering operator<=>(const Pair<TKey, TValue>& p) const
+				requires(std::three_way_comparable_with<const K, const TKey, std::strong_ordering> && std::three_way_comparable_with<const V, const TValue, std::strong_ordering>)
+			{
+				std::strong_ordering result;
+				result = key <=> p.key; if (result != 0) return result;
+				result = value <=> p.value; if (result != 0) return result;
+				return std::strong_ordering::equal;
+			}
+
+			template<typename TKey, typename TValue>
+			bool operator==(const Pair<TKey, TValue>& p) const
+				requires(std::equality_comparable_with<const K, const TKey>&& std::equality_comparable_with<const V, const TValue>)
+			{
+				return key == p.key && value == p.value;
+			}
 		};
 
 		template<typename K, typename V>

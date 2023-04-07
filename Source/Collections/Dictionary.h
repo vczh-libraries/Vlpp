@@ -7,6 +7,7 @@ Licensed under https://github.com/vczh-libraries/License
 #define VCZH_COLLECTIONS_DICTIONARY
 
 #include "List.h"
+#include "../Primitives/Nullable.h"
 
 namespace vl
 {
@@ -30,7 +31,7 @@ namespace vl
 			private:
 				const Dictionary<KT, VT>*			container;
 				vint								index;
-				KVPair								current;
+				Nullable<KVPair>					current;
 
 				void UpdateCurrent()
 				{
@@ -53,7 +54,7 @@ namespace vl
 
 				const KVPair& Current()const override
 				{
-					return current;
+					return current.Value();
 				}
 
 				vint Index()const override
@@ -263,7 +264,7 @@ namespace vl
 				const Group<KT, VT>*				container;
 				vint								keyIndex;
 				vint								valueIndex;
-				KVPair								current;
+				Nullable<KVPair>					current;
 
 				void UpdateCurrent()
 				{
@@ -291,7 +292,7 @@ namespace vl
 
 				const KVPair& Current()const override
 				{
-					return current;
+					return current.Value();
 				}
 
 				vint Index()const override

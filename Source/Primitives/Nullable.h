@@ -100,17 +100,6 @@ namespace vl
 		}
 
 		/// <summary>Comparing two nullable values.</summary>
-		/// <returns>Returns true when these nullable values are all null, or the data inside them equals.</returns>
-		/// <param name="a">The first nullable value to compare.</param>
-		/// <param name="b">The second nullable value to compare.</param>
-		static bool Equals(const Nullable<T>& a, const Nullable<T>& b)
-		{
-			if (!a.object && !b.object) return true;
-			if (a.object && b.object) return *a.object == *b.object;
-			return false;
-		}
-
-		/// <summary>Comparing two nullable values.</summary>
 		/// <returns>
 		/// Returns std::strong_ordering indicating the order of the two values.
 		/// When one is null and another one is not, the non-null one is greater.
