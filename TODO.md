@@ -1,7 +1,6 @@
 # TODO
 
 ## Progressing
-- Rewirte `Pair`, remove the partial instantiation.
 - Rewrite `Nullable` to allow zero cost abstraction.
 - Replace generic `container::Add` with non-generic version.
   - Don't try to support embrace on add
