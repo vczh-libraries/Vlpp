@@ -47,9 +47,9 @@ namespace TestLinq_TestObjects
 		return Func([=](vint c) { return And(a(c), b(c)); });
 	}
 
-	vint Compare(vint a, vint b)
+	std::strong_ordering Compare(vint a, vint b)
 	{
-		return a - b;
+		return a <=> b;
 	}
 }
 

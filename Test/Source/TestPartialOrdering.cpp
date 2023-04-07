@@ -176,8 +176,7 @@ namespace TestPartialOrdering_TestObjects
 		{
 			Sort<vint>(
 				const_cast<vint*>(pop.components[i].firstNode),
-				pop.components[i].nodeCount,
-				[](vint a, vint b) {return a - b; }
+				pop.components[i].nodeCount
 			);
 		}
 		TEST_ASSERT(pop.components[0].nodeCount == 1);

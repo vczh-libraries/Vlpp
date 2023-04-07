@@ -11,7 +11,7 @@ TEST_FILE
 	auto dividable = [](auto x, auto y) { return y % x == 0; };
 	auto dividableConverter = [](auto x)->Func<bool(vint)> { return [=](auto y) { return y % x == 0; }; };
 	auto dividableCombiner = [=](auto x, auto y) { return [=](auto z) { return And(x(z), y(z)); }; };
-	auto Compare = [](auto x, auto y) { return x - y; };
+	auto Compare = [](auto x, auto y) { return x <=> y; };
 	
 	TEST_CASE(L"Test Select()")
 	{

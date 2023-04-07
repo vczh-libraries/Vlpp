@@ -8,7 +8,9 @@ Functions:
 	[T]			.Where(T->bool) => [T]
 	[Ptr<T>]	.Cast<K>() => [Ptr<K>]
 	[Ptr<T>]	.FindType<K>() => [Ptr<K>]
-	[T]			.OrderBy(T->T->int) => [T]
+	[T]			.OrderBy(T->T->std::strong_order) => [T]
+	[T]			.OrderByKey(T->U) => [T]
+	[T]			.OrderBySelf() => [T]
 
 	[T]			.Aggregate(T->T->T) => T
 	[T]			.Aggregate(T->T->T, T) => T
@@ -85,7 +87,7 @@ Quick Sort
 		/// Returns zero when two arguments equal.
 		/// </param>
 		template<typename T, typename F>
-		void SortLambda(T* items, vint length, F orderer)
+		void SortLambda(T* items, vint length, F&& orderer)
 		{
 			while (true)
 			{
@@ -103,7 +105,10 @@ Quick Sort
 						vint candidate = (flag ? left : length - right - 1);
 						vint factor = (flag ? -1 : 1);
 
-						if (orderer(items[pivot], items[candidate]) * factor <= 0)
+						if (
+							std::strong_ordering ordering = orderer(items[pivot], items[candidate]);
+							(factor == 1 && ordering <= 0) || (factor == -1 && ordering >= 0)
+							)
 						{
 							mine++;
 						}
@@ -124,7 +129,10 @@ Quick Sort
 					vint writing = reading;
 					while (reading >= 0)
 					{
-						if (orderer(items[pivot], items[reading]) == 0)
+						if (
+							std::strong_ordering ordering = orderer(items[pivot], items[reading]);
+							ordering == 0
+							)
 						{
 							if (reading != writing)
 							{
@@ -184,10 +192,20 @@ Quick Sort
 		/// Returns a negative number when the second argument is greater.
 		/// Returns zero when two arguments equal.
 		/// </param>
-		template<typename T>
-		void Sort(T* items, vint length, const Func<vint64_t(T, T)>& orderer)
+		template<typename T, typename F>
+		void Sort(T* items, vint length, F&& orderer)
 		{
-			SortLambda<T, Func<vint64_t(T, T)>>(items, length, orderer);
+			SortLambda(items, length, orderer);
+		}
+
+		/// <summary>Quick sort.</summary>
+		/// <typeparam name="T">Type of elements.</typeparam>
+		/// <param name="items">Pointer to element array to sort.</param>
+		/// <param name="length">The number of elements to sort.</param>
+		template<typename T>
+		void Sort(T* items, vint length)
+		{
+			SortLambda(items, length, [](const T& a, const T& b) { return a <=> b; });
 		}
 
 /***********************************************************************
@@ -304,7 +322,7 @@ LazyList
 			/// }
 			/// ]]></example>
 			template<typename F>
-			auto Select(F f) const -> LazyList<decltype(f(std::declval<TInput>()))>
+			auto Select(F&& f) const -> LazyList<decltype(f(std::declval<TInput>()))>
 			{
 				return new SelectEnumerator<T, decltype(f(std::declval<TInput>()))>(xs(), f);
 			}
@@ -322,7 +340,7 @@ LazyList
 			/// }
 			/// ]]></example>
 			template<typename F>
-			LazyList<T> Where(F f)const
+			LazyList<T> Where(F&& f)const
 			{
 				return new WhereEnumerator<T>(xs(), f);
 			}
@@ -375,7 +393,7 @@ LazyList
 			/// }
 			/// ]]></example>
 			template<typename F>
-			LazyList<T> OrderBy(F f)const
+			LazyList<T> OrderBy(F&& f)const
 			{
 				auto sorted = Ptr(new List<T>);
 				CopyFrom(*sorted.Obj(), *this);
@@ -407,7 +425,7 @@ LazyList
 			/// }
 			/// ]]></example>
 			template<typename F>
-			T Aggregate(F f)const
+			T Aggregate(F&& f)const
 			{
 				auto enumerator = Ptr(CreateEnumerator());
 				if (!enumerator->Next())
@@ -442,7 +460,7 @@ LazyList
 			/// }
 			/// ]]></example>
 			template<typename I, typename F>
-			I Aggregate(I init, F f)const
+			I Aggregate(I init, F&& f)const
 			{
 				for (auto& t : *this)
 				{
@@ -464,7 +482,7 @@ LazyList
 			/// }
 			/// ]]></example>
 			template<typename F>
-			bool All(F f)const
+			bool All(F&& f)const
 			{
 				return Select(f).Aggregate(true, [](bool a, bool b) { return a && b; });
 			}
@@ -482,7 +500,7 @@ LazyList
 			/// }
 			/// ]]></example>
 			template<typename F>
-			bool Any(F f)const
+			bool Any(F&& f)const
 			{
 				return Select(f).Aggregate(false, [](bool a, bool b) { return a || b; });
 			}
@@ -820,7 +838,7 @@ LazyList
 			/// }
 			/// ]]></example>
 			template<typename F>
-			auto SelectMany(F f)const -> LazyList<typename decltype(f(std::declval<TInput>()))::ElementType>
+			auto SelectMany(F&& f)const -> LazyList<typename decltype(f(std::declval<TInput>()))::ElementType>
 			{
 				using  U = typename decltype(f(std::declval<TInput>()))::ElementType;
 				return Select(f).Aggregate(LazyList<U>(), [](const LazyList<U>& a, const IEnumerable<U>& b)->LazyList<U> {return a.Concat(b); });
@@ -850,7 +868,7 @@ LazyList
 			/// }
 			/// ]]></example>
 			template<typename F>
-			auto GroupBy(F f)const -> LazyList<Pair<decltype(f(std::declval<TInput>())), LazyList<T>>>
+			auto GroupBy(F&& f)const -> LazyList<Pair<decltype(f(std::declval<TInput>())), LazyList<T>>>
 			{
 				using K = decltype(f(std::declval<TInput>()));
 				auto self = *this;

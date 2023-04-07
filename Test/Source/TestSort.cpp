@@ -2,9 +2,9 @@
 
 namespace TestList_TestObjects
 {
-	vint64_t Compare(vint a, vint b)
+	std::strong_ordering Compare(vint a, vint b)
 	{
-		return (vint64_t)(a - b);
+		return a <=> b;
 	}
 }
 

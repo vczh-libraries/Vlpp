@@ -195,6 +195,24 @@ vl::Func<R(TArgs...)>
 			}
 		}
 
+		/// <summary>Create a functor from another compatible functor.</summary>
+		/// <typeparam name="C">Type of the functor to copy.</typeparam>
+		/// <param name="function">The functor to copy. It could be a lambda expression, or any types that has operator() members.</param>
+		template<typename C>
+		Func(C* function)
+			requires (
+				std::is_invocable_v<C*, TArgs...>
+			) && (
+				std::is_same_v<void, R> ||
+				std::is_convertible_v<decltype(std::declval<C*>()(std::declval<TArgs>()...)), R>
+			)
+		{
+			if (!IsEmptyFunc(function))
+			{
+				invoker = Ptr(new internal_invokers::ObjectInvoker<C*, R, TArgs...>(function));
+			}
+		}
+
 		/// <summary>Invoke the function.</summary>
 		/// <returns>Returns the function result. It crashes when the functor is null.</returns>
 		/// <param name="args">Arguments to invoke the function.</param>
