@@ -93,6 +93,7 @@ namespace vl
 			}
 
 			std::strong_ordering operator<=>(const Pair<K, V>&) const = default;
+			bool operator==(const Pair<K, V>&) const = default;
 		};
 
 		template<typename K, typename V>
@@ -147,6 +148,7 @@ namespace vl
 			}
 
 			std::strong_ordering operator<=>(const Pair<const K&, const V&>&) const = default;
+			bool operator==(const Pair<const K&, const V&>&) const = default;
 		};
 	}
 }

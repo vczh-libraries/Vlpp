@@ -279,6 +279,16 @@ Ptr
 			return reference <=> pointer.reference;
 		}
 
+		bool operator==(const T* value) const
+		{
+			return operator<=>(value) == std::strong_ordering::equal;
+		}
+
+		bool operator==(const Ptr<T>& value) const
+		{
+			return operator<=>(value) == std::strong_ordering::equal;
+		}
+
 		/// <summary>Test if it is an empty shared pointer.</summary>
 		/// <returns>Returns true if it is non-null.</returns>
 		operator bool()const
@@ -444,6 +454,16 @@ ComPtr
 		std::strong_ordering operator<=>(const ComPtr<T>& pointer)const
 		{
 			return reference <=> pointer.reference;
+		}
+
+		bool operator==(const T* value) const
+		{
+			return operator<=>(value) == std::strong_ordering::equal;
+		}
+
+		bool operator==(const ComPtr<T>& value) const
+		{
+			return operator<=>(value) == std::strong_ordering::equal;
 		}
 
 		operator bool()const

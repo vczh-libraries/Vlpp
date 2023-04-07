@@ -94,7 +94,15 @@ Date and Time
 		/// <param name="milliseconds">The delta in milliseconds.</param>
 		DateTime			Backward(vuint64_t milliseconds);
 
-		std::strong_ordering operator<=>(const DateTime& value)const { return filetime <=> value.filetime; }
+		std::strong_ordering operator<=>(const DateTime& value) const
+		{
+			return filetime <=> value.filetime;
+		}
+
+		bool operator==(const DateTime& value) const
+		{
+			return operator<=>(value) == std::strong_ordering::equal;
+		}
 	};
 }
 

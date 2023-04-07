@@ -42,21 +42,44 @@ namespace vl
 		{
 			const T* bufA = buffer + start;
 			const T* bufB = str.buffer + str.start;
-			vint length = length < str.length ? length : str.length;
-			while (length--)
+			if (bufA != bufB)
 			{
-				vint64_t diff = (vint64_t)(*bufA++) - (vint64_t)(*bufB++);
-				if (diff != 0)
+				vint minLength = length < str.length ? length : str.length;
+				while (minLength--)
 				{
-					return diff <=> 0;
-				}
-			};
+					vint64_t diff = (vint64_t)(*bufA++) - (vint64_t)(*bufB++);
+					if (diff != 0)
+					{
+						return diff <=> 0;
+					}
+				};
+			}
 			return (length - str.length) <=> 0;
 		}
 
 		std::strong_ordering operator<=>(const T* str)const
 		{
 			return operator<=>(ObjectString<T>::Unmanaged(str));
+		}
+
+		friend bool operator<=>(const T* left, const ObjectString<T>& right)
+		{
+			return ObjectString<T>::Unmanaged(left) <=> right;
+		}
+
+		bool operator==(const ObjectString<T>& str)const
+		{
+			return operator<=>(str) == std::strong_ordering::equal;
+		}
+
+		bool operator==(T* str)const
+		{
+			return operator<=>(str) == std::strong_ordering::equal;
+		}
+
+		friend bool operator==(const T* left, const ObjectString<T>& right)
+		{
+			return (left <=> right) == std::strong_ordering::equal;
 		}
 
 	private:
@@ -331,6 +354,11 @@ namespace vl
 			return ReplaceUnsafe(string, length, 0);
 		}
 
+		friend ObjectString<T> operator+(const T* left, const ObjectString<T>& right)
+		{
+			return ObjectString<T>::Unmanaged(left) + right;
+		}
+
 		/// <summary>Get a code point in the specified position.</summary>
 		/// <returns>Returns the code point. It will crash when the specified position is out of range.</returns>
 		/// <param name="index"></param>
@@ -444,16 +472,6 @@ namespace vl
 		{
 			CHECK_ERROR(index>=0 && index<=length, L"ObjectString<T>::Insert(vint)#Argument count not in range.");
 			return ReplaceUnsafe(string, index, 0);
-		}
-
-		friend bool operator<=>(const T* left, const ObjectString<T>& right)
-		{
-			return ObjectString<T>::Unmanaged(left) <=> right;
-		}
-
-		friend ObjectString<T> operator+(const T* left, const ObjectString<T>& right)
-		{
-			return ObjectString<T>::Unmanaged(left) + right;
 		}
 	};
 

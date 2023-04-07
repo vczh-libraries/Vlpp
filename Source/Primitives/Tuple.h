@@ -38,6 +38,7 @@ vl::Tuple<T0>
 		}
 
 		std::strong_ordering operator<=>(const Tuple<T0>& t)const = default;
+		bool operator==(const Tuple<T0>&)const = default;
 	};
   
 /***********************************************************************
@@ -59,6 +60,7 @@ vl::Tuple<T0,T1>
 		}
 
 		std::strong_ordering operator<=>(const Tuple<T0, T1>& t)const = default;
+		bool operator==(const Tuple<T0, T1>&)const = default;
 	};
   
 /***********************************************************************
@@ -80,6 +82,7 @@ vl::Tuple<T0,T1,T2>
 		}
 
 		std::strong_ordering operator<=>(const Tuple<T0, T1, T2>& t)const = default;
+		bool operator==(const Tuple<T0, T1, T2>&)const = default;
 	};
   
 /***********************************************************************
@@ -101,6 +104,7 @@ vl::Tuple<T0,T1,T2,T3>
 		}
 
 		std::strong_ordering operator<=>(const Tuple<T0, T1, T2, T3>& t)const = default;
+		bool operator==(const Tuple<T0, T1, T2, T3>&)const = default;
 	};
   
 /***********************************************************************
@@ -122,6 +126,7 @@ vl::Tuple<T0,T1,T2,T3,T4>
 		}
 
 		std::strong_ordering operator<=>(const Tuple<T0, T1, T2, T3, T4>& t)const = default;
+		bool operator==(const Tuple<T0, T1, T2, T3, T4>&)const = default;
 	};
   
 /***********************************************************************
@@ -143,6 +148,7 @@ vl::Tuple<T0,T1,T2,T3,T4,T5>
 		}
 
 		std::strong_ordering operator<=>(const Tuple<T0, T1, T2, T3, T4, T5>& t)const = default;
+		bool operator==(const Tuple<T0, T1, T2, T3, T4, T5>&)const = default;
 	};
   
 /***********************************************************************
@@ -164,6 +170,7 @@ vl::Tuple<T0,T1,T2,T3,T4,T5,T6>
 		}
 
 		std::strong_ordering operator<=>(const Tuple<T0, T1, T2, T3, T4, T5, T6>& t)const = default;
+		bool operator==(const Tuple<T0, T1, T2, T3, T4, T5, T6>&)const = default;
 	};
   
 /***********************************************************************
@@ -185,6 +192,7 @@ vl::Tuple<T0,T1,T2,T3,T4,T5,T6,T7>
 		}
 
 		std::strong_ordering operator<=>(const Tuple<T0, T1, T2, T3, T4, T5, T6, T7>& t)const = default;
+		bool operator==(const Tuple<T0, T1, T2, T3, T4, T5, T6, T7>&)const = default;
 	};
   
 /***********************************************************************
@@ -206,6 +214,7 @@ vl::Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8>
 		}
 
 		std::strong_ordering operator<=>(const Tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8>& t)const = default;
+		bool operator==(const Tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8>&)const = default;
 	};
   
 /***********************************************************************
@@ -227,6 +236,7 @@ vl::Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>
 		}
 
 		std::strong_ordering operator<=>(const Tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>& t)const = default;
+		bool operator==(const Tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>&)const = default;
 	};
  
 }

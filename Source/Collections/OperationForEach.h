@@ -62,12 +62,12 @@ Range-Based For-Loop Iterator
 				return iterator != nullptr;
 			}
 
-			static bool operator==(const RangeBasedForLoopEnding&, const RangeBasedForLoopIterator<T>& iterator)
+			friend bool operator==(const RangeBasedForLoopEnding&, const RangeBasedForLoopIterator<T>& iterator)
 			{
 				return iterator.iterator == nullptr;
 			}
 
-			static bool operator!=(const RangeBasedForLoopEnding&, const RangeBasedForLoopIterator<T>& iterator)
+			friend bool operator!=(const RangeBasedForLoopEnding&, const RangeBasedForLoopIterator<T>& iterator)
 			{
 				return iterator.iterator != nullptr;
 			}
@@ -145,12 +145,12 @@ Range-Based For-Loop Iterator with Index
 				return iterator != nullptr;
 			}
 
-			static bool operator==(const RangeBasedForLoopEnding&, const RangeBasedForLoopIteratorWithIndex<T>& iterator)
+			friend bool operator==(const RangeBasedForLoopEnding&, const RangeBasedForLoopIteratorWithIndex<T>& iterator)
 			{
 				return iterator.iterator == nullptr;
 			}
 
-			static bool operator!=(const RangeBasedForLoopEnding&, const RangeBasedForLoopIteratorWithIndex<T>& iterator)
+			friend bool operator!=(const RangeBasedForLoopEnding&, const RangeBasedForLoopIteratorWithIndex<T>& iterator)
 			{
 				return iterator.iterator != nullptr;
 			}
