@@ -78,6 +78,15 @@ namespace vl
 
 		template<typename K, typename V>
 		Pair(K&&, V&&) -> Pair<std::remove_cvref_t<K>, std::remove_cvref_t<V>>;
+
+		template<typename K, typename V, vint CK>
+		Pair(K(&)[CK], V&&) -> Pair<K*, std::remove_cvref_t<V>>;
+
+		template<typename K, typename V, vint CV>
+		Pair(K&&, V(&)[CV]) -> Pair<std::remove_cvref_t<K>, V*>;
+
+		template<typename K, typename V, vint CK, vint CV>
+		Pair(K(&)[CK], V(&)[CV]) -> Pair<K*, V*>;
 	}
 }
 

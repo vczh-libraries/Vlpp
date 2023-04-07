@@ -111,9 +111,6 @@
     <ClInclude Include="..\..\..\Source\Primitives\Function.h">
       <Filter>Common\Primitives</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Source\Primitives\Lazy.h">
-      <Filter>Common\Primitives</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\Source\Primitives\Pointer.h">
       <Filter>Common\Primitives</Filter>
     </ClInclude>

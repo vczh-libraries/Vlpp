@@ -2,9 +2,11 @@
 #include "../../Source/Primitives/DateTime.h"
 #include "../../Source/Primitives/Pointer.h"
 #include "../../Source/Primitives/Tuple.h"
-#include "../../Source/Primitives/Lazy.h"
+#include "../../Source/Primitives/Nullable.h"
+#include "../../Source/Collections/Pair.h"
 
 using namespace vl;
+using namespace vl::collections;
 
 namespace TestBasic_TestObjects
 {
@@ -131,40 +133,6 @@ TEST_FILE
 		TEST_ASSERT(Accept(Ptr(new vint())) == 2);
 	});
 
-	TEST_CASE(L"Test Lazy<T>")
-	{
-		Lazy<vint> a(&GetLazyValue1);
-		Lazy<vint> b = a;
-		TEST_ASSERT(a.IsEvaluated() == false);
-		TEST_ASSERT(b.IsEvaluated() == false);
-		TEST_ASSERT(a.Value() == 100);
-		TEST_ASSERT(a.IsEvaluated() == true);
-		TEST_ASSERT(b.IsEvaluated() == true);
-		TEST_ASSERT(b.Value() == 100);
-
-		b = &GetLazyValue2;
-		TEST_ASSERT(b.IsEvaluated() == false);
-		TEST_ASSERT(a.IsEvaluated() == true);
-		a = b;
-		TEST_ASSERT(a.IsEvaluated() == false);
-		TEST_ASSERT(b.IsEvaluated() == false);
-		TEST_ASSERT(a.Value() == 200);
-		TEST_ASSERT(a.IsEvaluated() == true);
-		TEST_ASSERT(b.IsEvaluated() == true);
-		TEST_ASSERT(b.Value() == 200);
-
-		a = 300;
-		b = Lazy<vint>(400);
-		TEST_ASSERT(a.Value() == 300);
-		TEST_ASSERT(a.IsEvaluated() == true);
-		TEST_ASSERT(b.IsEvaluated() == true);
-		TEST_ASSERT(b.Value() == 400);
-
-		TEST_ASSERT(a == true);
-		a = Lazy<vint>();
-		TEST_ASSERT(a == false);
-	});
-
 	TEST_CASE(L"Test DateTime")
 	{
 		// 2000/1/1 is saturday
@@ -187,5 +155,65 @@ TEST_FILE
 		TEST_ASSERT(dt.minute == 0);
 		TEST_ASSERT(dt.second == 0);
 		TEST_ASSERT(dt.milliseconds == 0);
+	});
+
+	TEST_CASE(L"Test Nullable<T>")
+	{
+
+	});
+
+	TEST_CASE(L"Test Pair<K, V>")
+	{
+		{
+			Pair<vint, WString> p{ 100, L"abc" };
+			TEST_ASSERT(p.key == 100);
+			TEST_ASSERT(p.value == L"abc");
+		}
+		{
+			Pair<vint, WString> p;
+			p = { 100, L"abc" };
+			TEST_ASSERT(p.key == 100);
+			TEST_ASSERT(p.value == L"abc");
+		}
+		{
+			auto a = Pair(100, L"abc");
+			Pair<vint, WString> p = a;
+			TEST_ASSERT(p.key == 100);
+			TEST_ASSERT(p.value == L"abc");
+		}
+		{
+			vint k = 100;
+			WString v = L"abc";
+			Pair<const vint&, const WString&> p{ k,v };
+			TEST_ASSERT(p.key == 100);
+			TEST_ASSERT(p.value == L"abc");
+		}
+		{
+			vint k = 100;
+			WString v = L"abc";
+			Pair<const vint&, const WString&> a{ k,v };
+			Pair<vint, WString> p = a;
+			TEST_ASSERT(p.key == 100);
+			TEST_ASSERT(p.value == L"abc");
+		}
+		{
+			Pair<vint, WString> a{ 100, L"abc" };
+			Pair<const vint&, const WString&> p = a;
+			TEST_ASSERT(p.key == 100);
+			TEST_ASSERT(p.value == L"abc");
+		}
+		{
+			vint k = 100;
+			WString v = L"abc";
+			Pair<const vint&, const WString&> a{ k,v };
+			Pair<const vint&, const WString&> p = a;
+			TEST_ASSERT(&p.key == &k);
+			TEST_ASSERT(&p.value == &v);
+		}
+	});
+
+	TEST_CASE(L"Test Tuple<T...>")
+	{
+
 	});
 }
