@@ -51,8 +51,22 @@ namespace vl
 
 		Tuple<T, TArgs...>& operator=(const Tuple<T, TArgs...>&) = default;
 		Tuple<T, TArgs...>& operator=(Tuple<T, TArgs...>&&) = default;
-		std::strong_ordering operator<=>(const Tuple<T, TArgs...>&) const = default;
-		bool operator==(const Tuple<T, TArgs...>&) const = default;
+
+		template<typename U, typename ...UArgs>
+		std::strong_ordering operator<=>(const Tuple<U, UArgs...>& t) const
+			requires(sizeof...(TArgs) == sizeof...(UArgs) && std::three_way_comparable_with<const T, const U, std::strong_ordering> && std::three_way_comparable_with<const Tuple<TArgs...>, const Tuple<UArgs...>, std::strong_ordering>)
+		{
+			std::strong_ordering result = firstValue <=> t.firstValue;
+			if (result != 0) return result;
+			return static_cast<const Tuple<TArgs...>&>(*this) <=> static_cast<const Tuple<UArgs...>&>(t);
+		}
+
+		template<typename U, typename ...UArgs>
+		bool operator==(const Tuple<U, UArgs...>& t) const
+			requires(sizeof...(TArgs) == sizeof...(UArgs) && std::equality_comparable_with<const T, const U> && std::equality_comparable_with<const Tuple<TArgs...>, const Tuple<UArgs...>>)
+		{
+			return firstValue == t.firstValue && static_cast<const Tuple<TArgs...>&>(*this) == static_cast<const Tuple<UArgs...>&>(t);
+		}
 
 		template<vint Index>
 		__forceinline TypeTupleElement<Index, TypeTuple<T, TArgs...>>& get()
