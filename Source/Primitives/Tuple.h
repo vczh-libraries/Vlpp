@@ -12,9 +12,8 @@ namespace vl
 	namespace tuple_internal
 	{
 		template<vint I, typename T>
-		class TupleElement
+		struct TupleElement
 		{
-		protected:
 			T						element;
 
 			TupleElement() = default;
@@ -26,14 +25,20 @@ namespace vl
 			}
 		};
 
+		template<typename T, typename U>
+		struct TupleComparison
+		{
+		public:
+		};
+
 		struct TupleCtorElementsTag {};
 		struct TupleCtorTupleTag {};
 
 		template<typename Is, typename ...TArgs>
-		class TupleBase;
+		struct TupleBase;
 
 		template<std::size_t ...Is, typename ...TArgs> requires(sizeof...(Is) == sizeof...(TArgs))
-			class TupleBase<std::index_sequence<Is...>, TArgs...>
+		struct TupleBase<std::index_sequence<Is...>, TArgs...>
 			: protected TupleElement<Is, TArgs>...
 		{
 		private:
@@ -42,7 +47,7 @@ namespace vl
 			template<typename ...UArgs> requires(sizeof...(TArgs) == sizeof...(UArgs))
 				using TCompatible = TupleBase<std::index_sequence<Is...>, UArgs...>;
 
-		protected:
+		public:
 			TupleBase() = default;
 
 			template<typename ...UArgs>
@@ -84,7 +89,7 @@ namespace vl
 	}
 
 	template<typename ...TArgs>
-	class Tuple : protected tuple_internal::TupleBase<std::make_index_sequence<sizeof...(TArgs)>, TArgs...>
+	class Tuple : private tuple_internal::TupleBase<std::make_index_sequence<sizeof...(TArgs)>, TArgs...>
 	{
 	private:
 		using TSelf = Tuple<TArgs...>;
