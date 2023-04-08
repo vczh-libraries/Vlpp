@@ -81,6 +81,7 @@ static_assert(false, "wchar_t configuration is not right.");
 #include <type_traits>
 #include <utility>
 #include <compare>
+#include <new>
 
 #define L_(x) L__(x)
 #define L__(x) L ## x

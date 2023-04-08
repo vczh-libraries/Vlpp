@@ -13,8 +13,6 @@ Licensed under https://github.com/vczh-libraries/License
 #undef new
 #endif
 
-#include <new>
-
 namespace vl
 {
 	namespace collections

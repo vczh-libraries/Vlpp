@@ -15,7 +15,7 @@ namespace vl
 	template<typename T, typename ...TArgs>
 	class Tuple<T, TArgs...> : private Tuple<TArgs...>
 	{
-		template<typename ...TArgs>
+		template<typename ...UArgs>
 		friend class Tuple;
 	private:
 		T				firstValue;
@@ -77,7 +77,7 @@ namespace vl
 			}
 			else
 			{
-				return static_cast<Tuple<TArgs...>*>(this)->get<Index - 1>();
+				return static_cast<Tuple<TArgs...>*>(this)->template get<Index - 1>();
 			}
 		}
 
@@ -90,7 +90,7 @@ namespace vl
 			}
 			else
 			{
-				return static_cast<const Tuple<TArgs...>*>(this)->get<Index - 1>();
+				return static_cast<const Tuple<TArgs...>*>(this)->template get<Index - 1>();
 			}
 		}
 	};
@@ -121,13 +121,13 @@ namespace vl
 	template<vint Index, typename ...TArgs>
 	__forceinline auto& get(const Tuple<TArgs...>& t)
 	{
-		return t.get<Index>();
+		return t.template get<Index>();
 	}
 	
 	template<vint Index, typename ...TArgs>
 	__forceinline  auto& get(Tuple<TArgs...>& t)
 	{
-		return t.get<Index>();
+		return t.template get<Index>();
 	}
 }
 
