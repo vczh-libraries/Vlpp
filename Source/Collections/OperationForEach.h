@@ -120,7 +120,7 @@ Range-Based For-Loop Iterator with Index
 				index++;
 			}
 
-			const Tuple<const T&, vint> operator*() const
+			Tuple<const T&, vint> operator*() const
 			{
 				return { iterator->Current(),index };
 			}
