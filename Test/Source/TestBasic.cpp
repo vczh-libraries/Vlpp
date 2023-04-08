@@ -254,10 +254,20 @@ TEST_FILE
 			TEST_ASSERT(&p.key == &k);
 			TEST_ASSERT(&p.value == &v);
 		}
+		{
+			Pair<vint, WString> a{ 100,L"abc" }, b{ 200,L"def" };
+			TEST_ASSERT(!(a == b));
+			TEST_ASSERT(a != b);
+			TEST_ASSERT(a < b);
+			TEST_ASSERT(a <= b);
+			TEST_ASSERT(!(a > b));
+			TEST_ASSERT(!(a >= b));
+		}
 	});
 
 	TEST_CASE(L"Test Tuple<T...>")
 	{
+		Tuple<vint, WString> q(100, L"abc");
 		{
 			Tuple<vint, WString> p{ 100, L"abc" };
 			auto&& [pk, pv] = p;
@@ -310,6 +320,15 @@ TEST_FILE
 			auto&& [pk, pv] = p;
 			TEST_ASSERT(&pk == &k);
 			TEST_ASSERT(&pv == &v);
+		}
+		{
+			Tuple<vint, WString> a{ 100,L"abc" }, b{ 200,L"def" };
+			TEST_ASSERT(!(a == b));
+			TEST_ASSERT(a != b);
+			TEST_ASSERT(a < b);
+			TEST_ASSERT(a <= b);
+			TEST_ASSERT(!(a > b));
+			TEST_ASSERT(!(a >= b));
 		}
 	});
 }
