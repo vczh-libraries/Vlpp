@@ -8,6 +8,10 @@ Licensed under https://github.com/vczh-libraries/License
 
 #include "../Basic.h"
 
+#ifdef VCZH_CHECK_MEMORY_LEAKS_NEW
+#undef new
+#endif
+
 namespace vl
 {
 	/// <summary>Type for representing nullable data.</summary>
@@ -16,45 +20,63 @@ namespace vl
 	class Nullable
 	{
 	private:
-		T*									object = nullptr;
+		union
+		{
+			char buffer[sizeof(T)];
+			T object;
+		};
+		bool								initialized = false;
+
 	public:
 		static const Nullable<T>			Empty;
 
 		/// <summary>Create a null value.</summary>
-		Nullable() = default;
+		Nullable()
+		{
+		}
 
 		/// <summary>Create a non-null value by copying data.</summary>
 		/// <param name="value">The data to copy.</param>
 		Nullable(const T& value)
-			:object(new T(value))
+			: initialized(true)
 		{
+			new (&object)T(value);
 		}
 
 		/// <summary>Create a non-null value by moving data.</summary>
 		/// <param name="value">The data to move.</param>
 		Nullable(T&& value)
-			:object(new T(std::move(value)))
+			: initialized(true)
 		{
+			new (&object)T(std::move(value));
 		}
 
 		/// <summary>Create a nullable value by copying from another nullable value.</summary>
 		/// <param name="nullable">The nullable value to copy.</param>
 		Nullable(const Nullable<T>& nullable)
-			:object(nullable.object ? new T(*nullable.object) : nullptr)
+			: initialized(nullable.initialized)
 		{
+			if (nullable.initialized)
+			{
+				new (&object)T(nullable.object);
+			}
 		}
 
 		/// <summary>Create a nullable value by moving from another nullable value.</summary>
 		/// <param name="nullable">The nullable value to move.</param>
 		Nullable(Nullable<T>&& nullable)
-			:object(nullable.object)
+			: initialized(nullable.initialized)
 		{
-			nullable.object = nullptr;
+			if (nullable.initialized)
+			{
+				new (&object)T(std::move(nullable.object));
+				nullable.Reset();
+			}
 		}
 
 		~Nullable()
 		{
-			if (object) delete object;
+			Reset();
 		}
 
 		/// <summary>
@@ -62,8 +84,11 @@ namespace vl
 		/// </summary>
 		void Reset()
 		{
-			if (object) delete object;
-			object = nullptr;
+			if (initialized)
+			{
+				object.~T();
+				initialized = false;
+			}
 		}
 
 		/// <summary>Replace the data inside this nullable value by copying from data.</summary>
@@ -71,8 +96,38 @@ namespace vl
 		/// <param name="value">The data to copy.</param>
 		Nullable<T>& operator=(const T& value)
 		{
-			if (object) delete object;
-			object = new T(value);
+			if constexpr (std::is_copy_assignable_v<T>)
+			{
+				if (initialized)
+				{
+					object = value;
+					return *this;
+				}
+			}
+
+			Reset();
+			new (&object)T(value);
+			initialized = true;
+			return *this;
+		}
+
+		/// <summary>Replace the data inside this nullable value by moving from data.</summary>
+		/// <returns>The nullable value itself.</returns>
+		/// <param name="value">The data to copy.</param>
+		Nullable<T>& operator=(T&& value)
+		{
+			if constexpr (std::is_move_assignable_v<T>)
+			{
+				if (initialized)
+				{
+					object = std::move(value);
+					return *this;
+				}
+			}
+
+			Reset();
+			new (&object)T(std::move(value));
+			initialized = true;
 			return *this;
 		}
 
@@ -81,17 +136,24 @@ namespace vl
 		/// <param name="nullable">The nullable value to copy.</param>
 		Nullable<T>& operator=(const Nullable<T>& nullable)
 		{
-			if (this != &nullable)
+			if (!nullable.initialized)
 			{
-				if (object) delete object;
-				if (nullable.object)
+				Reset();
+			}
+			else
+			{
+				if constexpr (std::is_copy_assignable_v<T>)
 				{
-					object = new T(*nullable.object);
+					if (initialized)
+					{
+						object = nullable.object;
+						return *this;
+					}
 				}
-				else
-				{
-					object = nullptr;
-				}
+
+				Reset();
+				new (&object)T(nullable.object);
+				initialized = true;
 			}
 			return *this;
 		}
@@ -101,11 +163,26 @@ namespace vl
 		/// <param name="nullable">The nullable value to move.</param>
 		Nullable<T>& operator=(Nullable<T>&& nullable)
 		{
-			if (this != &nullable)
+			if (!nullable.initialized)
 			{
-				if (object) delete object;
-				object = nullable.object;
-				nullable.object = nullptr;
+				Reset();
+			}
+			else
+			{
+				if constexpr (std::is_move_assignable_v<T>)
+				{
+					if (initialized)
+					{
+						object = std::move(nullable.object);
+						nullable.Reset();
+						return *this;
+					}
+				}
+
+				Reset();
+				new (&object)T(std::move(nullable.object));
+				nullable.Reset();
+				initialized = true;
 			}
 			return *this;
 		}
@@ -119,35 +196,40 @@ namespace vl
 		/// <param name="b">The second nullable value to compare.</param>
 		std::strong_ordering operator<=>(const Nullable<T>& b)const
 		{
-			if (object && b.object) return *object <=> *b.object;
-			if (object) return std::strong_ordering::greater;
-			if (b.object) return std::strong_ordering::less;
+			if (initialized && b.initialized) return object <=> b.object;
+			if (initialized) return std::strong_ordering::greater;
+			if (b.initialized) return std::strong_ordering::less;
 			return std::strong_ordering::equal;
 		}
 
 		bool operator==(const Nullable<T>& b)const
 		{
-			return operator<=>(b) == 0;
+			if (initialized && b.initialized) return object == b.object;
+			return initialized == b.initialized;
 		}
 
 		/// <summary>Test if this nullable value is non-null.</summary>
 		/// <returns>Returns true if it is non-null.</returns>
 		operator bool()const
 		{
-			return object != nullptr;
+			return initialized;
 		}
 
 		/// <summary>Return the data inside this nullable value</summary>
 		/// <returns>The data inside this nullable value. It crashes when it is null.</returns>
 		const T& Value()const
 		{
-			if (!object) throw Error(L"Nullable<T>::Value()#Cannot unbox from null.");
-			return *object;
+			CHECK_ERROR(initialized, L"vl::Nullable<T>::Value()#Cannot unbox from an empty nullable value.");
+			return object;
 		}
 	};
 
 	template<typename T>
 	const Nullable<T> Nullable<T>::Empty;
 }
+
+#ifdef VCZH_CHECK_MEMORY_LEAKS_NEW
+#define new VCZH_CHECK_MEMORY_LEAKS_NEW
+#endif
 
 #endif

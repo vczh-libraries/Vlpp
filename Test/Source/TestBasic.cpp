@@ -204,6 +204,20 @@ TEST_FILE
 			TEST_ASSERT(n);
 			TEST_ASSERT(n.Value() == 100);
 		}
+		{
+			Nullable<vint> m = 100;
+			Nullable<vint> n = std::move(m);
+			TEST_ASSERT(!m);
+			TEST_ASSERT(n);
+			TEST_ASSERT(n.Value() == 100);
+		}
+		{
+			Nullable<vint> m = 100;
+			auto n = std::move(m);
+			TEST_ASSERT(!m);
+			TEST_ASSERT(n);
+			TEST_ASSERT(n.Value() == 100);
+		}
 	});
 
 	TEST_CASE(L"Test Pair<K, V>")

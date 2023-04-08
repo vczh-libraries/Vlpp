@@ -1,7 +1,6 @@
 # TODO
 
 ## Progressing
-- Rewrite `Nullable` to allow zero cost abstraction.
 - Enumerable and enumerator fail when container is deleted.
 - Enumerator fail when container is changed.
 - Add Queue, Deque, fixed RingBuffer, Deque backed RingBuffer, Heap, etc
