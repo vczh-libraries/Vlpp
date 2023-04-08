@@ -9,89 +9,92 @@ Licensed under https://github.com/vczh-libraries/License
 
 namespace vl
 {
-	template<vint I, typename T>
-	class TupleElement
+	namespace tuple_internal
 	{
-	protected:
-		T						element;
-
-		TupleElement() = default;
-
-		template<typename U>
-		TupleElement(U&& _element)
-			:element(std::forward<U&&>(_element))
+		template<vint I, typename T>
+		class TupleElement
 		{
-		}
-	};
+		protected:
+			T						element;
 
-	struct TupleCtorElementsTag {};
-	struct TupleCtorTupleTag {};
+			TupleElement() = default;
 
-	template<typename Is, typename ...TArgs>
-	class TupleBase;
+			template<typename U>
+			TupleElement(U&& _element)
+				:element(std::forward<U&&>(_element))
+			{
+			}
+		};
 
-	template<std::size_t ...Is, typename ...TArgs> requires(sizeof...(Is) == sizeof...(TArgs))
-	class TupleBase<std::index_sequence<Is...>, TArgs...>
-		: protected TupleElement<Is, TArgs>...
-	{
-	private:
-		using TSelf = TupleBase<std::index_sequence<Is...>, TArgs...>;
+		struct TupleCtorElementsTag {};
+		struct TupleCtorTupleTag {};
 
-		template<typename ...UArgs> requires(sizeof...(TArgs) == sizeof...(UArgs))
-		using TCompatible = TupleBase<std::index_sequence<Is...>, UArgs...>;
+		template<typename Is, typename ...TArgs>
+		class TupleBase;
 
-	protected:
-		TupleBase() = default;
-
-		template<typename ...UArgs>
-		TupleBase(TupleCtorElementsTag, UArgs&& ...xs)
-			: TupleElement<Is, TArgs>(std::forward<UArgs&&>(xs)) ...
+		template<std::size_t ...Is, typename ...TArgs> requires(sizeof...(Is) == sizeof...(TArgs))
+			class TupleBase<std::index_sequence<Is...>, TArgs...>
+			: protected TupleElement<Is, TArgs>...
 		{
-		}
+		private:
+			using TSelf = TupleBase<std::index_sequence<Is...>, TArgs...>;
 
-		template<typename ...UArgs>
-		TupleBase(TupleCtorTupleTag, const TCompatible<UArgs...>& t)
-			: TupleElement<Is, TArgs>(static_const<const TupleElement<Is, UArgs>&>(t).element) ...
-		{
-		}
+			template<typename ...UArgs> requires(sizeof...(TArgs) == sizeof...(UArgs))
+				using TCompatible = TupleBase<std::index_sequence<Is...>, UArgs...>;
 
-		template<typename ...UArgs>
-		TupleBase(TupleCtorTupleTag, TCompatible<UArgs...>&& t)
-			: TupleElement<Is, TArgs>(std::move(static_const<TupleElement<Is, UArgs>&>(t).element)) ...
-		{
-		}
+		protected:
+			TupleBase() = default;
 
-		template<typename ...UArgs>
-		void AssignCopy(const TCompatible<UArgs...>& t)
-		{
-			((static_cast<TupleElement<Is, TArgs>*>(this)->element = static_cast<const TupleElement<Is, UArgs>&>(t).element), ...);
-		}
+			template<typename ...UArgs>
+			TupleBase(TupleCtorElementsTag, UArgs&& ...xs)
+				: TupleElement<Is, TArgs>(std::forward<UArgs&&>(xs)) ...
+			{
+			}
 
-		template<typename ...UArgs>
-		void AssignMove(TCompatible<UArgs...>&& t)
-		{
-			((static_cast<TupleElement<Is, TArgs>*>(this)->element = std::move(static_cast<TupleElement<Is, UArgs>&&>(t).element)), ...);
-		}
+			template<typename ...UArgs>
+			TupleBase(TupleCtorTupleTag, const TCompatible<UArgs...>& t)
+				: TupleElement<Is, TArgs>(static_const<const TupleElement<Is, UArgs>&>(t).element) ...
+			{
+			}
 
-		template<typename ...UArgs>
-		bool AreEqual(const TCompatible<UArgs...>& t)const
-		{
-			return (true && ... && (static_cast<const TupleElement<Is, TArgs>*>(this)->element == static_cast<const TupleElement<Is, UArgs>&>(t).element));
-		}
-	};
+			template<typename ...UArgs>
+			TupleBase(TupleCtorTupleTag, TCompatible<UArgs...>&& t)
+				: TupleElement<Is, TArgs>(std::move(static_const<TupleElement<Is, UArgs>&>(t).element)) ...
+			{
+			}
+
+			template<typename ...UArgs>
+			void AssignCopy(const TCompatible<UArgs...>& t)
+			{
+				((static_cast<TupleElement<Is, TArgs>*>(this)->element = static_cast<const TupleElement<Is, UArgs>&>(t).element), ...);
+			}
+
+			template<typename ...UArgs>
+			void AssignMove(TCompatible<UArgs...>&& t)
+			{
+				((static_cast<TupleElement<Is, TArgs>*>(this)->element = std::move(static_cast<TupleElement<Is, UArgs>&&>(t).element)), ...);
+			}
+
+			template<typename ...UArgs>
+			bool AreEqual(const TCompatible<UArgs...>& t)const
+			{
+				return (true && ... && (static_cast<const TupleElement<Is, TArgs>*>(this)->element == static_cast<const TupleElement<Is, UArgs>&>(t).element));
+			}
+		};
+	}
 
 	template<typename ...TArgs>
-	class Tuple : protected TupleBase<std::make_index_sequence<sizeof...(TArgs)>, TArgs...>
+	class Tuple : protected tuple_internal::TupleBase<std::make_index_sequence<sizeof...(TArgs)>, TArgs...>
 	{
 	private:
 		using TSelf = Tuple<TArgs...>;
-		using TBase = TupleBase<std::make_index_sequence<sizeof...(TArgs)>, TArgs...>;
+		using TBase = tuple_internal::TupleBase<std::make_index_sequence<sizeof...(TArgs)>, TArgs...>;
 
 		template<typename ...UArgs> requires(sizeof...(TArgs) == sizeof...(UArgs))
 		using TCompatible = Tuple<UArgs...>;
 
 		template<typename ...UArgs> requires(sizeof...(TArgs) == sizeof...(UArgs))
-		using TCompatibleBase = TupleBase<std::make_index_sequence<sizeof...(TArgs)>, UArgs...>;
+		using TCompatibleBase = tuple_internal::TupleBase<std::make_index_sequence<sizeof...(TArgs)>, UArgs...>;
 
 	public:
 		Tuple() = default;
@@ -99,7 +102,7 @@ namespace vl
 		template<typename ...UArgs>
 		Tuple(UArgs&& ...xs) requires(sizeof...(TArgs) == sizeof...(UArgs))
 			: TBase(
-				TupleCtorElementsTag,
+				tuple_internal::TupleCtorElementsTag,
 				std::forward<UArgs&&>(xs)...
 			)
 		{
@@ -108,7 +111,7 @@ namespace vl
 		template<typename ...UArgs>
 		Tuple(const TCompatible<UArgs...>& t) requires(sizeof...(TArgs) == sizeof...(UArgs))
 			: TBase(
-				TupleCtorTupleTag,
+				tuple_internal::TupleCtorTupleTag,
 				static_cast<const TCompatibleBase<UArgs...>&>(t)
 			)
 		{
@@ -117,7 +120,7 @@ namespace vl
 		template<typename ...UArgs>
 		Tuple(TCompatible<UArgs...>&& t) requires(sizeof...(TArgs) == sizeof...(UArgs))
 			: TBase(
-				TupleCtorTupleTag,
+				tuple_internal::TupleCtorTupleTag,
 				static_cast<TCompatibleBase<UArgs...>&&>(t)
 			)
 		{
@@ -146,13 +149,13 @@ namespace vl
 		template<vint Index>
 		TypeTupleElement<Index, TypeTuple<TArgs...>>& Get()
 		{
-			return static_cast<TupleElement<Index, TypeTupleElement<Index, TypeTuple<TArgs...>>>*>(this)->element;
+			return static_cast<tuple_internal::TupleElement<Index, TypeTupleElement<Index, TypeTuple<TArgs...>>>*>(this)->element;
 		}
 
 		template<vint Index>
 		const TypeTupleElement<Index, TypeTuple<TArgs...>>& Get()const
 		{
-			return static_cast<const TupleElement<Index, TypeTupleElement<Index, TypeTuple<TArgs...>>>*>(this)->element;
+			return static_cast<const tuple_internal::TupleElement<Index, TypeTupleElement<Index, TypeTuple<TArgs...>>>*>(this)->element;
 		}
 	};
 
