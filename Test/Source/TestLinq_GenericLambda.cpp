@@ -103,7 +103,7 @@ TEST_FILE
 
 		List<vint> dst;
 		CopyFrom(dst, From(src)
-			.OrderByKey([](auto&& t)->decltype(auto) { return t.template get<1>(); })
+			.OrderByKey([](auto&& t)->decltype(auto) { return t.template Get<1>(); })
 			.Select([](auto&& t) { auto&& [x, y] = t; return x; })
 		);
 		CHECK_LIST_ITEMS(dst, { 3 _ 2 _ 1 });

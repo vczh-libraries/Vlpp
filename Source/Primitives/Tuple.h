@@ -191,13 +191,13 @@ namespace vl
 		}
 
 		template<vint Index>
-		TypeTupleElement<Index, TypeTuple<TArgs...>>& Get()
+		decltype(auto) Get()
 		{
 			return static_cast<tuple_internal::TupleElement<Index, TypeTupleElement<Index, TypeTuple<TArgs...>>>*>(this)->element;
 		}
 
 		template<vint Index>
-		const TypeTupleElement<Index, TypeTuple<TArgs...>>& Get()const
+		decltype(auto) Get()const
 		{
 			return static_cast<const tuple_internal::TupleElement<Index, TypeTupleElement<Index, TypeTuple<TArgs...>>>*>(this)->element;
 		}
@@ -227,13 +227,13 @@ namespace vl
 	Tuple(TArgs&&...) -> Tuple<typename TupleElementCtad<TArgs>::Type...>;
 
 	template<vint Index, typename ...TArgs>
-	auto& get(const Tuple<TArgs...>& t)
+	decltype(auto) get(const Tuple<TArgs...>& t)
 	{
 		return t.template Get<Index>();
 	}
 	
 	template<vint Index, typename ...TArgs>
-	 auto& get(Tuple<TArgs...>& t)
+	decltype(auto) get(Tuple<TArgs...>& t)
 	{
 		return t.template Get<Index>();
 	}

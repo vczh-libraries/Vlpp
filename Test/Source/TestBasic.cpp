@@ -281,7 +281,6 @@ TEST_FILE
 
 	TEST_CASE(L"Test Tuple<T...>")
 	{
-		Tuple<vint, WString> q(100, L"abc");
 		{
 			Tuple<vint, WString> p{ 100, L"abc" };
 			auto&& [pk, pv] = p;
@@ -343,6 +342,54 @@ TEST_FILE
 			TEST_ASSERT(a <= b);
 			TEST_ASSERT(!(a > b));
 			TEST_ASSERT(!(a >= b));
+		}
+	});
+
+	TEST_CASE(L"Test Tuple<T...> structured binding")
+	{
+		vint _1;
+		WString _2;
+		{
+			Tuple<vint, WString> a{};
+			auto [v1, v2] = a;
+			auto& [l1, l2] = a;
+			auto&& [r1, r2] = a;
+			const auto& [c1, c2] = a;
+		}
+		{
+			const Tuple<vint, WString> a{};
+			auto [v1, v2] = a;
+			auto& [l1, l2] = a;
+			auto&& [r1, r2] = a;
+			const auto& [c1, c2] = a;
+		}
+		{
+			Tuple<vint&, WString&> a{ _1,_2 };
+			auto [v1, v2] = a;
+			auto& [l1, l2] = a;
+			auto&& [r1, r2] = a;
+			const auto& [c1, c2] = a;
+		}
+		{
+			const Tuple<vint&, WString&> a{ _1,_2 };
+			auto [v1, v2] = a;
+			auto& [l1, l2] = a;
+			auto&& [r1, r2] = a;
+			const auto& [c1, c2] = a;
+		}
+		{
+			Tuple<const vint&, const WString&> a{ _1,_2 };
+			auto [v1, v2] = a;
+			auto& [l1, l2] = a;
+			auto&& [r1, r2] = a;
+			const auto& [c1, c2] = a;
+		}
+		{
+			const Tuple<const vint&, const WString&> a{ _1,_2 };
+			auto [v1, v2] = a;
+			auto& [l1, l2] = a;
+			auto&& [r1, r2] = a;
+			const auto& [c1, c2] = a;
 		}
 	});
 }
