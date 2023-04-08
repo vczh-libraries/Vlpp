@@ -37,7 +37,7 @@ namespace vl
 			{
 			}
 
-			friend static std::strong_ordering operator*(std::strong_ordering order, const TupleElementComparison<T, U>& t)
+			friend std::strong_ordering operator*(std::strong_ordering order, const TupleElementComparison<T, U>& t)
 			{
 				if (order != 0) return order;
 				return t.t <=> t.u;
