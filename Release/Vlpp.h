@@ -88,6 +88,7 @@ static_assert(false, "wchar_t configuration is not right.");
 #include <type_traits>
 #include <utility>
 #include <compare>
+#include <new>
 
 #define L_(x) L__(x)
 #define L__(x) L ## x
@@ -1482,7 +1483,7 @@ namespace vl
 	template<typename T, typename ...TArgs>
 	class Tuple<T, TArgs...> : private Tuple<TArgs...>
 	{
-		template<typename ...TArgs>
+		template<typename ...UArgs>
 		friend class Tuple;
 	private:
 		T				firstValue;
@@ -1544,7 +1545,7 @@ namespace vl
 			}
 			else
 			{
-				return static_cast<Tuple<TArgs...>*>(this)->get<Index - 1>();
+				return static_cast<Tuple<TArgs...>*>(this)->template get<Index - 1>();
 			}
 		}
 
@@ -1557,7 +1558,7 @@ namespace vl
 			}
 			else
 			{
-				return static_cast<const Tuple<TArgs...>*>(this)->get<Index - 1>();
+				return static_cast<const Tuple<TArgs...>*>(this)->template get<Index - 1>();
 			}
 		}
 	};
@@ -1588,13 +1589,13 @@ namespace vl
 	template<vint Index, typename ...TArgs>
 	__forceinline auto& get(const Tuple<TArgs...>& t)
 	{
-		return t.get<Index>();
+		return t.template get<Index>();
 	}
 	
 	template<vint Index, typename ...TArgs>
 	__forceinline  auto& get(Tuple<TArgs...>& t)
 	{
-		return t.get<Index>();
+		return t.template get<Index>();
 	}
 }
 
@@ -1678,7 +1679,7 @@ namespace vl
 			std::strong_ordering operator<=>(const Pair<TKey, TValue>& p) const
 				requires(std::three_way_comparable_with<const K, const TKey, std::strong_ordering> && std::three_way_comparable_with<const V, const TValue, std::strong_ordering>)
 			{
-				std::strong_ordering result;
+				std::strong_ordering
 				result = key <=> p.key; if (result != 0) return result;
 				result = value <=> p.value; if (result != 0) return result;
 				return std::strong_ordering::equal;
@@ -1945,8 +1946,6 @@ Licensed under https://github.com/vczh-libraries/License
 #ifdef VCZH_CHECK_MEMORY_LEAKS_NEW
 #undef new
 #endif
-
-#include <new>
 
 namespace vl
 {
