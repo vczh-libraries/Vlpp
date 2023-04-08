@@ -395,21 +395,25 @@ Array
 			}
 
 			/// <summary>Replace an element in the specified position.</summary>
-			/// <typeparam name="TItem">The type of the new value.</typeparam>
-			/// <returns>Returns true if this operation succeeded. It will crash when the index is out of range</returns>
+			/// <returns>Returns true. It will crash when the index is out of range</returns>
 			/// <param name="index">The position of the element to replace.</param>
 			/// <param name="item">The new value to replace.</param>
-			template<typename TItem>
-			bool Set(vint index, TItem&& item)
+			bool Set(vint index, const T& item)
 			{
 				CHECK_ERROR(index >= 0 && index < this->count, L"Array<T>::Set(vint)#Argument index not in range.");
-				this->buffer[index] = std::forward<TItem&&>(item);
+				this->buffer[index] = item;
 				return true;
 			}
 
+			/// <summary>Replace an element in the specified position.</summary>
+			/// <returns>Returns true. It will crash when the index is out of range</returns>
+			/// <param name="index">The position of the element to replace.</param>
+			/// <param name="item">The new value to replace.</param>
 			bool Set(vint index, T&& item)
 			{
-				return Set<T>(index, std::move(item));
+				CHECK_ERROR(index >= 0 && index < this->count, L"Array<T>::Set(vint)#Argument index not in range.");
+				this->buffer[index] = std::move(item);
+				return true;
 			}
 
 			using ArrayBase<T>::operator[];
@@ -581,18 +585,19 @@ List
 			}
 
 			/// <summary>Append a value at the end of the list.</summary>
-			/// <typeparam name="TItem">The type of the new value.</typeparam>
 			/// <returns>The index of the added item.</returns>
 			/// <param name="item">The value to add.</param>
-			template<typename TItem>
-			vint Add(TItem&& item)
+			vint Add(const T& item)
 			{
-				return Insert(this->count, std::forward<TItem&&>(item));
+				return Insert(this->count, item);
 			}
 
+			/// <summary>Append a value at the end of the list.</summary>
+			/// <returns>The index of the added item.</returns>
+			/// <param name="item">The value to add.</param>
 			vint Add(T&& item)
 			{
-				return Add<T>(std::move(item));
+				return Insert(this->count, std::move(item));
 			}
 
 			/// <summary>Insert a value at the specified position.</summary>
@@ -637,21 +642,25 @@ List
 			}
 
 			/// <summary>Replace an element in the specified position.</summary>
-			/// <typeparam name="TItem">The type of the new value.</typeparam>
-			/// <returns>Returns true if this operation succeeded. It will crash when the index is out of range</returns>
+			/// <returns>Returns true. It will crash when the index is out of range</returns>
 			/// <param name="index">The position of the element to replace.</param>
 			/// <param name="item">The new value to replace.</param>
-			template<typename TItem>
-			bool Set(vint index, TItem&& item)
+			bool Set(vint index, const T& item)
 			{
-				CHECK_ERROR(index >= 0 && index < this->count, L"List<T>::Set(vint)#Argument index not in range.");
-				this->buffer[index] = std::forward<TItem&&>(item);
+				CHECK_ERROR(index >= 0 && index < this->count, L"Array<T>::Set(vint)#Argument index not in range.");
+				this->buffer[index] = item;
 				return true;
 			}
 
+			/// <summary>Replace an element in the specified position.</summary>
+			/// <returns>Returns true. It will crash when the index is out of range</returns>
+			/// <param name="index">The position of the element to replace.</param>
+			/// <param name="item">The new value to replace.</param>
 			bool Set(vint index, T&& item)
 			{
-				return Set<T>(index, std::move(item));
+				CHECK_ERROR(index >= 0 && index < this->count, L"Array<T>::Set(vint)#Argument index not in range.");
+				this->buffer[index] = std::move(item);
+				return true;
 			}
 
 			using ListBase<T>::operator[];
@@ -728,6 +737,37 @@ SortedList
 				memory_management::CallMoveCtors(&this->buffer[index], &item, 1);
 				return index;
 			}
+
+			template<typename TItem>
+			vint AddInternal(TItem&& item)
+			{
+				if (ArrayBase<T>::count == 0)
+				{
+					return Insert(0, std::forward<TItem&&>(item));
+				}
+				else
+				{
+					vint outputIndex = -1;
+					if constexpr (std::is_same_v<std::remove_cvref_t<T>, std::remove_cvref_t<K>>)
+					{
+						IndexOfInternal<K>(item, outputIndex);
+					}
+					else if constexpr (std::is_same_v<std::remove_cvref_t<TItem>, std::remove_cvref_t<K>>)
+					{
+						IndexOfInternal<K>(item, outputIndex);
+					}
+					else
+					{
+						IndexOfInternal<K>(KeyType<T>::GetKeyValue(item), outputIndex);
+					}
+					CHECK_ERROR(outputIndex >= 0 && outputIndex < this->count, L"SortedList<T>::Add(const T&)#Internal error, index not in range.");
+					if (this->buffer[outputIndex] < item)
+					{
+						outputIndex++;
+					}
+					return Insert(outputIndex, std::forward<TItem&&>(item));
+				}
+			}
 		public:
 			/// <summary>Create an empty list.</summary>
 			SortedList() = default;
@@ -757,43 +797,19 @@ SortedList
 			}
 
 			/// <summary>Add a value at the correct position, all elements will be kept in order.</summary>
-			/// <typeparam name="TItem">The type of the new value.</typeparam>
 			/// <returns>The index of the added item.</returns>
 			/// <param name="item">The value to add.</param>
-			template<typename TItem>
-			vint Add(TItem&& item)
+			vint Add(const T& item)
 			{
-				if (ArrayBase<T>::count == 0)
-				{
-					return Insert(0, std::forward<TItem&&>(item));
-				}
-				else
-				{
-					vint outputIndex = -1;
-					if constexpr (std::is_same_v<std::remove_cvref_t<T>, std::remove_cvref_t<K>>)
-					{
-						IndexOfInternal<K>(item, outputIndex);
-					}
-					else if constexpr (std::is_same_v<std::remove_cvref_t<TItem>, std::remove_cvref_t<K>>)
-					{
-						IndexOfInternal<K>(item, outputIndex);
-					}
-					else
-					{
-						IndexOfInternal<K>(KeyType<T>::GetKeyValue(item), outputIndex);
-					}
-					CHECK_ERROR(outputIndex >= 0 && outputIndex < this->count, L"SortedList<T>::Add(const T&)#Internal error, index not in range.");
-					if (this->buffer[outputIndex] < item)
-					{
-						outputIndex++;
-					}
-					return Insert(outputIndex, std::forward<TItem&&>(item));
-				}
+				return AddInternal(item);
 			}
 
+			/// <summary>Add a value at the correct position, all elements will be kept in order.</summary>
+			/// <returns>The index of the added item.</returns>
+			/// <param name="item">The value to add.</param>
 			vint Add(T&& item)
 			{
-				return Add<T>(std::move(item));
+				return AddInternal(std::move(item));
 			}
 
 			/// <summary>Remove an element from the list. If multiple elements equal to the specified value, only the first one will be removed</summary>

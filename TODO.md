@@ -2,8 +2,6 @@
 
 ## Progressing
 - Rewrite `Nullable` to allow zero cost abstraction.
-- Replace generic `container::Add` with non-generic version.
-  - Don't try to support embrace on add
 - Enumerable and enumerator fail when container is deleted.
 - Enumerator fail when container is changed.
 - Add Queue, Deque, fixed RingBuffer, Deque backed RingBuffer, Heap, etc

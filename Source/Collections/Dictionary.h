@@ -83,6 +83,40 @@ namespace vl
 
 			KeyContainer						keys;
 			ValueContainer						values;
+
+			template<typename TKeyItem, typename TValueItem>
+			bool SetInternal(TKeyItem&& key, TValueItem&& value)
+			{
+				using TKeyAccept = memory_management::AcceptType<KT, TKeyItem&&>;
+				using TKeyForward = memory_management::ForwardType<KT, TKeyItem&&>;
+				TKeyAccept keyAccept = memory_management::RefOrConvert<KT>(std::forward<TKeyItem&&>(key));
+
+				vint index = keys.IndexOf(KeyType<KT>::GetKeyValue(keyAccept));
+				if (index == -1)
+				{
+					index = keys.Add(std::forward<TKeyForward>(keyAccept));
+					values.Insert(index, std::forward<TValueItem&&>(value));
+				}
+				else
+				{
+					values[index] = std::forward<TValueItem&&>(value);
+				}
+				return true;
+			}
+
+			template<typename TKeyItem, typename TValueItem>
+			bool AddInternal(TKeyItem&& key, TValueItem&& value)
+			{
+				using TKeyAccept = memory_management::AcceptType<KT, TKeyItem&&>;
+				using TKeyForward = memory_management::ForwardType<KT, TKeyItem&&>;
+				TKeyAccept keyAccept = memory_management::RefOrConvert<KT>(std::forward<TKeyItem&&>(key));
+
+				CHECK_ERROR(!keys.Contains(KeyType<KT>::GetKeyValue(keyAccept)), L"Dictionary<KT, KK, ValueContainer, VT, VK>::Add(const KT&, const VT&)#Key already exists.");
+				vint index = keys.Add(std::forward<TKeyForward>(keyAccept));
+				values.Insert(index, std::forward<TValueItem&&>(value));
+
+				return true;
+			}
 		public:
 			/// <summary>Create an empty dictionary.</summary>
 			Dictionary() = default;
@@ -146,76 +180,62 @@ namespace vl
 			}
 			
 			/// <summary>Replace the value associated to a specified key.</summary>
-			/// <typeparam name="TKeyItem">The type of the new key.</typeparam>
-			/// <typeparam name="TValueItem">The type of the new value.</typeparam>
 			/// <returns>Returns true if the value is replaced.</returns>
 			/// <param name="key">The key to find. If the key does not exist, it will be added to the dictionary.</param>
 			/// <param name="value">The associated value to replace.</param>
-			template<typename TKeyItem, typename TValueItem>
-			bool Set(TKeyItem&& key, TValueItem&& value)
-			{
-				using TKeyAccept = memory_management::AcceptType<KT, TKeyItem&&>;
-				using TKeyForward = memory_management::ForwardType<KT, TKeyItem&&>;
-				TKeyAccept keyAccept = memory_management::RefOrConvert<KT>(std::forward<TKeyItem&&>(key));
+			bool Set(const KT& key, const VT& value) { return SetInternal<const KT&, const VT&>(key, value); }
 
-				vint index = keys.IndexOf(KeyType<KT>::GetKeyValue(keyAccept));
-				if (index == -1)
-				{
-					index = keys.Add(std::forward<TKeyForward>(keyAccept));
-					values.Insert(index, std::forward<TValueItem&&>(value));
-				}
-				else
-				{
-					values[index] = std::forward<TValueItem&&>(value);
-				}
-				return true;
-			}
+			/// <summary>Replace the value associated to a specified key.</summary>
+			/// <returns>Returns true if the value is replaced.</returns>
+			/// <param name="key">The key to find. If the key does not exist, it will be added to the dictionary.</param>
+			/// <param name="value">The associated value to replace.</param>
+			bool Set(const KT& key, VT&& value) { return SetInternal<const KT&, VT&&>(key, std::move(value)); }
 
-			bool Set(const KT& key, const VT& value) { return Set<const KT&, const VT&>(key, value); }
-			bool Set(const KT& key, VT&& value) { return Set<const KT&, VT>(key, std::move(value)); }
-			bool Set(KT&& key, const VT& value) { return Set<KT, const VT&>(std::move(key), value); }
-			bool Set(KT&& key, VT&& value) { return Set<KT, VT>(std::move(key), std::move(value)); }
+			/// <summary>Replace the value associated to a specified key.</summary>
+			/// <returns>Returns true if the value is replaced.</returns>
+			/// <param name="key">The key to find. If the key does not exist, it will be added to the dictionary.</param>
+			/// <param name="value">The associated value to replace.</param>
+			bool Set(KT&& key, const VT& value) { return SetInternal<KT&&, const VT&>(std::move(key), value); }
+
+			/// <summary>Replace the value associated to a specified key.</summary>
+			/// <returns>Returns true if the value is replaced.</returns>
+			/// <param name="key">The key to find. If the key does not exist, it will be added to the dictionary.</param>
+			/// <param name="value">The associated value to replace.</param>
+			bool Set(KT&& key, VT&& value) { return SetInternal<KT, VT>(std::move(key), std::move(value)); }
 
 			/// <summary>Add a key with an associated value.</summary>
 			/// <returns>Returns true if the pair is added. If will crash if the key exists.</returns>
 			/// <param name="value">The pair of key and value.</param>
-			bool Add(const Pair<KT, VT>& value)
-			{
-				return Add(value.key, value.value);
-			}
+			bool Add(const Pair<KT, VT>& value) { return AddInternal<const KT&, const VT&>(value.key, value.value); }
 
 			/// <summary>Add a key with an associated value.</summary>
 			/// <returns>Returns true if the pair is added. If will crash if the key exists.</returns>
 			/// <param name="value">The pair of key and value.</param>
-			bool Add(Pair<KT, VT>&& value)
-			{
-				return Add(std::move(value.key), std::move(value.value));
-			}
+			bool Add(Pair<KT, VT>&& value) { return AddInternal<KT&&, VT&&>(std::move(value.key), std::move(value.value)); }
 
 			/// <summary>Add a key with an associated value.</summary>
-			/// <typeparam name="TKeyItem">The type of the new key.</typeparam>
-			/// <typeparam name="TValueItem">The type of the new value.</typeparam>
 			/// <returns>Returns true if the pair is added. If will crash if the key exists.</returns>
 			/// <param name="key">The key to add.</param>
 			/// <param name="value">The value to add.</param>
-			template<typename TKeyItem, typename TValueItem>
-			bool Add(TKeyItem&& key, TValueItem&& value)
-			{
-				using TKeyAccept = memory_management::AcceptType<KT, TKeyItem&&>;
-				using TKeyForward = memory_management::ForwardType<KT, TKeyItem&&>;
-				TKeyAccept keyAccept = memory_management::RefOrConvert<KT>(std::forward<TKeyItem&&>(key));
+			bool Add(const KT& key, const VT& value) { return AddInternal<const KT&, const VT&>(key, value); }
 
-				CHECK_ERROR(!keys.Contains(KeyType<KT>::GetKeyValue(keyAccept)), L"Dictionary<KT, KK, ValueContainer, VT, VK>::Add(const KT&, const VT&)#Key already exists.");
-				vint index = keys.Add(std::forward<TKeyForward>(keyAccept));
-				values.Insert(index, std::forward<TValueItem&&>(value));
+			/// <summary>Add a key with an associated value.</summary>
+			/// <returns>Returns true if the pair is added. If will crash if the key exists.</returns>
+			/// <param name="key">The key to add.</param>
+			/// <param name="value">The value to add.</param>
+			bool Add(const KT& key, VT&& value) { return AddInternal<const KT&, VT&&>(key, std::move(value)); }
 
-				return true;
-			}
+			/// <summary>Add a key with an associated value.</summary>
+			/// <returns>Returns true if the pair is added. If will crash if the key exists.</returns>
+			/// <param name="key">The key to add.</param>
+			/// <param name="value">The value to add.</param>
+			bool Add(KT&& key, const VT& value) { return AddInternal<KT&&, const VT&>(std::move(key), value); }
 
-			bool Add(const KT& key, const VT& value) { return Add<const KT&, const VT&>(key, value); }
-			bool Add(const KT& key, VT&& value) { return Add<const KT&, VT>(key, std::move(value)); }
-			bool Add(KT&& key, const VT& value) { return Add<KT, const VT&>(std::move(key), value); }
-			bool Add(KT&& key, VT&& value) { return Add<KT, VT>(std::move(key), std::move(value)); }
+			/// <summary>Add a key with an associated value.</summary>
+			/// <returns>Returns true if the pair is added. If will crash if the key exists.</returns>
+			/// <param name="key">The key to add.</param>
+			/// <param name="value">The value to add.</param>
+			bool Add(KT&& key, VT&& value) { return AddInternal<KT&&, VT&&>(std::move(key), std::move(value)); }
 
 			/// <summary>Remove a key with the associated value.</summary>
 			/// <returns>Returns true if the key and the value is removed.</returns>
@@ -351,6 +371,28 @@ namespace vl
 
 			KeyContainer					keys;
 			List<ValueContainer*>			values;
+
+			template<typename TKeyItem, typename TValueItem>
+			bool AddInternal(TKeyItem&& key, TValueItem&& value)
+			{
+				using TKeyAccept = memory_management::AcceptType<KT, TKeyItem&&>;
+				using TKeyForward = memory_management::ForwardType<KT, TKeyItem&&>;
+				TKeyAccept keyAccept = memory_management::RefOrConvert<KT>(std::forward<TKeyItem&&>(key));
+
+				ValueContainer* target = nullptr;
+				vint index = keys.IndexOf(KeyType<KT>::GetKeyValue(keyAccept));
+				if (index == -1)
+				{
+					target = new ValueContainer;
+					values.Insert(keys.Add(std::forward<TKeyForward>(keyAccept)), target);
+				}
+				else
+				{
+					target = values[index];
+				}
+				target->Add(std::forward<TValueItem&&>(value));
+				return true;
+			}
 		public:
 			/// <summary>Create an empty group.</summary>
 			Group() = default;
@@ -451,10 +493,7 @@ namespace vl
 			/// </summary>
 			/// <returns>Returns true if the pair is added.</returns>
 			/// <param name="value">The pair of key and value to add.</param>
-			bool Add(const Pair<KT, VT>& value)
-			{
-				return Add(value.key, value.value);
-			}
+			bool Add(const Pair<KT, VT>& value) { return AddInternal<const KT&, const VT&>(value.key, value.value); }
 
 			/// <summary>
 			/// Add a key with an associated value.
@@ -463,47 +502,47 @@ namespace vl
 			/// </summary>
 			/// <returns>Returns true if the pair is added.</returns>
 			/// <param name="value">The pair of key and value to add.</param>
-			bool Add(Pair<KT, VT>&& value)
-			{
-				return Add(std::move(value.key), std::move(value.value));
-			}
+			bool Add(Pair<KT, VT>&& value) { return AddInternal<KT&&, VT&&>(std::move(value.key), std::move(value.value)); }
 
 			/// <summary>
 			/// Add a key with an associated value.
 			/// If the key already exists, the value will be associated to the key with other values.
 			/// If this value has already been associated to the key, it will still be duplicated.
 			/// </summary>
-			/// <typeparam name="TKeyItem">The type of the new key.</typeparam>
-			/// <typeparam name="TValueItem">The type of the new value.</typeparam>
 			/// <returns>Returns true if the key and the value are added.</returns>
 			/// <param name="key">The key to add.</param>
 			/// <param name="value">The value to add.</param>
-			template<typename TKeyItem, typename TValueItem>
-			bool Add(TKeyItem&& key, TValueItem&& value)
-			{
-				using TKeyAccept = memory_management::AcceptType<KT, TKeyItem&&>;
-				using TKeyForward = memory_management::ForwardType<KT, TKeyItem&&>;
-				TKeyAccept keyAccept = memory_management::RefOrConvert<KT>(std::forward<TKeyItem&&>(key));
+			bool Add(const KT& key, const VT& value) { return AddInternal<const KT&, const VT&>(key, value); }
 
-				ValueContainer* target = nullptr;
-				vint index = keys.IndexOf(KeyType<KT>::GetKeyValue(keyAccept));
-				if (index == -1)
-				{
-					target = new ValueContainer;
-					values.Insert(keys.Add(std::forward<TKeyForward>(keyAccept)), target);
-				}
-				else
-				{
-					target = values[index];
-				}
-				target->Add(std::forward<TValueItem&&>(value));
-				return true;
-			}
+			/// <summary>
+			/// Add a key with an associated value.
+			/// If the key already exists, the value will be associated to the key with other values.
+			/// If this value has already been associated to the key, it will still be duplicated.
+			/// </summary>
+			/// <returns>Returns true if the key and the value are added.</returns>
+			/// <param name="key">The key to add.</param>
+			/// <param name="value">The value to add.</param>
+			bool Add(const KT& key, VT&& value) { return AddInternal<const KT&, VT&&>(key, std::move(value)); }
 
-			bool Add(const KT& key, const VT& value) { return Add<const KT&, const VT&>(key, value); }
-			bool Add(const KT& key, VT&& value) { return Add<const KT&, VT>(key, std::move(value)); }
-			bool Add(KT&& key, const VT& value) { return Add<KT, const VT&>(std::move(key), value); }
-			bool Add(KT&& key, VT&& value) { return Add<KT, VT>(std::move(key), std::move(value)); }
+			/// <summary>
+			/// Add a key with an associated value.
+			/// If the key already exists, the value will be associated to the key with other values.
+			/// If this value has already been associated to the key, it will still be duplicated.
+			/// </summary>
+			/// <returns>Returns true if the key and the value are added.</returns>
+			/// <param name="key">The key to add.</param>
+			/// <param name="value">The value to add.</param>
+			bool Add(KT&& key, const VT& value) { return AddInternal<KT&&, const VT&>(std::move(key), value); }
+
+			/// <summary>
+			/// Add a key with an associated value.
+			/// If the key already exists, the value will be associated to the key with other values.
+			/// If this value has already been associated to the key, it will still be duplicated.
+			/// </summary>
+			/// <returns>Returns true if the key and the value are added.</returns>
+			/// <param name="key">The key to add.</param>
+			/// <param name="value">The value to add.</param>
+			bool Add(KT&& key, VT&& value) { return AddInternal<KT&&, VT&&>(std::move(key), std::move(value)); }
 			
 			/// <summary>Remove a key with all associated values.</summary>
 			/// <returns>Returns true if the key and all associated values are removed.</returns>
