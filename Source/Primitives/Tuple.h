@@ -26,9 +26,22 @@ namespace vl
 		};
 
 		template<typename T, typename U>
-		struct TupleComparison
+		struct TupleElementComparison
 		{
-		public:
+			const T&				t;
+			const U&				u;
+
+			TupleElementComparison(const T& _t, const U& _u)
+				: t(_t)
+				, u(_u)
+			{
+			}
+
+			friend static std::strong_ordering operator*(std::strong_ordering order, const TupleElementComparison<T, U>& t)
+			{
+				if (order != 0) return order;
+				return t.t <=> t.u;
+			}
 		};
 
 		struct TupleCtorElementsTag {};
@@ -39,7 +52,7 @@ namespace vl
 
 		template<std::size_t ...Is, typename ...TArgs> requires(sizeof...(Is) == sizeof...(TArgs))
 		struct TupleBase<std::index_sequence<Is...>, TArgs...>
-			: protected TupleElement<Is, TArgs>...
+			: TupleElement<Is, TArgs>...
 		{
 		private:
 			using TSelf = TupleBase<std::index_sequence<Is...>, TArgs...>;
@@ -58,32 +71,50 @@ namespace vl
 
 			template<typename ...UArgs>
 			TupleBase(TupleCtorTupleTag, const TCompatible<UArgs...>& t)
-				: TupleElement<Is, TArgs>(static_const<const TupleElement<Is, UArgs>&>(t).element) ...
+				: TupleElement<Is, TArgs>(static_cast<const TupleElement<Is, UArgs>&>(t).element) ...
 			{
 			}
 
 			template<typename ...UArgs>
 			TupleBase(TupleCtorTupleTag, TCompatible<UArgs...>&& t)
-				: TupleElement<Is, TArgs>(std::move(static_const<TupleElement<Is, UArgs>&>(t).element)) ...
+				: TupleElement<Is, TArgs>(std::move(static_cast<TupleElement<Is, UArgs>&>(t).element)) ...
 			{
 			}
 
 			template<typename ...UArgs>
 			void AssignCopy(const TCompatible<UArgs...>& t)
 			{
-				((static_cast<TupleElement<Is, TArgs>*>(this)->element = static_cast<const TupleElement<Is, UArgs>&>(t).element), ...);
+				((
+					static_cast<TupleElement<Is, TArgs>*>(this)->element =
+					static_cast<const TupleElement<Is, UArgs>&>(t).element
+				), ...);
 			}
 
 			template<typename ...UArgs>
 			void AssignMove(TCompatible<UArgs...>&& t)
 			{
-				((static_cast<TupleElement<Is, TArgs>*>(this)->element = std::move(static_cast<TupleElement<Is, UArgs>&&>(t).element)), ...);
+				((
+					static_cast<TupleElement<Is, TArgs>*>(this)->element =
+					std::move(static_cast<TupleElement<Is, UArgs>&&>(t).element)
+				), ...);
 			}
 
 			template<typename ...UArgs>
-			bool AreEqual(const TCompatible<UArgs...>& t)const
+			bool AreEqual(const TCompatible<UArgs...>& t) const
 			{
-				return (true && ... && (static_cast<const TupleElement<Is, TArgs>*>(this)->element == static_cast<const TupleElement<Is, UArgs>&>(t).element));
+				return (true && ... && (
+					static_cast<const TupleElement<Is, TArgs>*>(this)->element ==
+					static_cast<const TupleElement<Is, UArgs>&>(t).element
+					));
+			}
+
+			template<typename ...UArgs>
+			std::strong_ordering Compare(const TCompatible<UArgs...>& t) const
+			{
+				return (std::strong_ordering::equal * ... * (TupleElementComparison<TArgs, UArgs>(
+					static_cast<const TupleElement<Is, TArgs>*>(this)->element,
+					static_cast<const TupleElement<Is, UArgs>&>(t).element
+					)));
 			}
 		};
 	}
@@ -91,7 +122,9 @@ namespace vl
 	template<typename ...TArgs>
 	class Tuple : private tuple_internal::TupleBase<std::make_index_sequence<sizeof...(TArgs)>, TArgs...>
 	{
-	private:
+		template<typename ...UArgs>
+		friend class Tuple;
+
 		using TSelf = Tuple<TArgs...>;
 		using TBase = tuple_internal::TupleBase<std::make_index_sequence<sizeof...(TArgs)>, TArgs...>;
 
@@ -107,7 +140,7 @@ namespace vl
 		template<typename ...UArgs>
 		Tuple(UArgs&& ...xs) requires(sizeof...(TArgs) == sizeof...(UArgs))
 			: TBase(
-				tuple_internal::TupleCtorElementsTag,
+				tuple_internal::TupleCtorElementsTag{},
 				std::forward<UArgs&&>(xs)...
 			)
 		{
@@ -116,7 +149,7 @@ namespace vl
 		template<typename ...UArgs>
 		Tuple(const TCompatible<UArgs...>& t) requires(sizeof...(TArgs) == sizeof...(UArgs))
 			: TBase(
-				tuple_internal::TupleCtorTupleTag,
+				tuple_internal::TupleCtorTupleTag{},
 				static_cast<const TCompatibleBase<UArgs...>&>(t)
 			)
 		{
@@ -125,7 +158,7 @@ namespace vl
 		template<typename ...UArgs>
 		Tuple(TCompatible<UArgs...>&& t) requires(sizeof...(TArgs) == sizeof...(UArgs))
 			: TBase(
-				tuple_internal::TupleCtorTupleTag,
+				tuple_internal::TupleCtorTupleTag{},
 				static_cast<TCompatibleBase<UArgs...>&&>(t)
 			)
 		{
@@ -146,9 +179,15 @@ namespace vl
 		}
 
 		template<typename ...UArgs>
+		std::strong_ordering operator<=>(const TCompatible<UArgs...>& t)const
+		{
+			return this->Compare(t);
+		}
+
+		template<typename ...UArgs>
 		bool operator==(const TCompatible<UArgs...>& t)const
 		{
-			return AreEqual(t);
+			return this->AreEqual(t);
 		}
 
 		template<vint Index>
