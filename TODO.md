@@ -1,12 +1,21 @@
 # TODO
 
 ## Progressing
-- `Union<T...>`.
+- Refine test file structure and add more unit test.
 - Enumerable and enumerator fail when container is deleted.
-- Enumerator fail when container is changed.
-- Add Queue, Deque, fixed RingBuffer, Deque backed RingBuffer, Heap, etc
-- Check the whole org and fix them to use correct containers, especially for visiting/visited patterns.
-- Check the whole org and replace for by ranged-for
+  - `updatable`, offer `Set` operation.
+  - `updatable_indexed`, offer `Set` operation.
+  - `reversed`.
+  - `reversed_indexed`.
+  - `updatable_reverse`, offer `Set` and `Remove` operation.
+  - `updatable_reverse_indexed`, offer `Set` and `Remove` operation.
+  - Check the whole org and replace `for` with `ranged-for`.
+- `Queue<T>`.
+  - Check the whole org and change some `for` or visiting/visited with `Queue`.
+- `Union<T...>`.
+  - Support VlppReflection
+  - Support VlppParser2
+  - Support Workflow
 
 ## 2.0
 
@@ -17,6 +26,10 @@
 - `LazyList` operators test container types and perform different solution to improve performance.
   - Or add optional random access interface to IEnumerable.
 - In place merge sort: reversly sort the right side and treat it as a heap, root is in the right most position, add all items from the left side, and pop them.
+- `Deque`.
+- `FixedRingBuffer`.
+- `DequeRingBuffer`.
+- `Heap`.
 
 ## Optional
 
