@@ -220,7 +220,12 @@ TEST_FILE
 		}
 	});
 
-	TEST_CASE(L"Test Pair<K, V>")
+	TEST_CASE(L"Test Nullable<T> comparison")
+	{
+		// TODO:
+	});
+
+	TEST_CASE(L"Test Pair<K, V> aggregate initialization")
 	{
 		{
 			Pair<vint, WString> p{ 100, L"abc" };
@@ -279,7 +284,17 @@ TEST_FILE
 		}
 	});
 
-	TEST_CASE(L"Test Tuple<T...>")
+	TEST_CASE(L"Test Pair<K, V> assignment")
+	{
+		// TODO:
+	});
+
+	TEST_CASE(L"Test Pair<K, V> comparison")
+	{
+		// TODO:
+	});
+
+	TEST_CASE(L"Test Tuple<T...> aggregate initialization")
 	{
 		{
 			Tuple<vint, WString> p{ 100, L"abc" };
@@ -343,6 +358,21 @@ TEST_FILE
 			TEST_ASSERT(!(a > b));
 			TEST_ASSERT(!(a >= b));
 		}
+	});
+
+	TEST_CASE(L"Test Tuple<T...> assignment")
+	{
+		// TODO:
+	});
+
+	TEST_CASE(L"Test Tuple<T...> comparison")
+	{
+		// TODO:
+	});
+
+	TEST_CASE(L"Test Pair<K, V> and Tuple<T...> aggregate initialization")
+	{
+		// TODO:
 	});
 
 	TEST_CASE(L"Test Pair<K, V> structured binding")
@@ -439,10 +469,5 @@ TEST_FILE
 			auto&& [r1, r2] = a;
 			const auto& [c1, c2] = a;
 		}
-	});
-
-	TEST_CASE(L"Test Pair<K, V> and Tuple<T...> aggregate initialization")
-	{
-		// TODO:
 	});
 }
