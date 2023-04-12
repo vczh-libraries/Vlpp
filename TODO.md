@@ -2,6 +2,9 @@
 
 ## Progressing
 - Refine test file structure and add more unit test.
+  - TODO in `TestBasic.cpp`.
+  - Split `List` and `SortedList` into two files.
+  - Move `for-loop` on contains from ``TestList_LoopFromMisc.cpp` to each containers.
 - Enumerable and enumerator fail when container is deleted.
   - `updatable`, offer `Set` operation.
   - `updatable_indexed`, offer `Set` operation.

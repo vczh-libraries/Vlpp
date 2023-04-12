@@ -263,14 +263,12 @@
     </ClCompile>
     <ClCompile Include="..\..\Source\TestLinq.cpp" />
     <ClCompile Include="..\..\Source\TestLinq_GenericLambda.cpp" />
-    <ClCompile Include="..\..\Source\TestList.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugNoReflection|Win32'">false</ExcludedFromBuild>
-    </ClCompile>
+    <ClCompile Include="..\..\Source\TestList_Container_Array.cpp" />
+    <ClCompile Include="..\..\Source\TestList_Container_Dictionary.cpp" />
+    <ClCompile Include="..\..\Source\TestList_Container_Group.cpp" />
+    <ClCompile Include="..\..\Source\TestList_Container_List.cpp" />
     <ClCompile Include="..\..\Source\TestList_CopyFrom.cpp" />
     <ClCompile Include="..\..\Source\TestList_LoopFromMisc.cpp" />
-    <ClCompile Include="..\..\Source\TestList_Moveonly.cpp" />
     <ClCompile Include="..\..\Source\TestPartialOrdering.cpp" />
     <ClCompile Include="..\..\Source\TestSort.cpp" />
     <ClCompile Include="Main.cpp" />

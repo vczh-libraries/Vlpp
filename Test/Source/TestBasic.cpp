@@ -345,6 +345,54 @@ TEST_FILE
 		}
 	});
 
+	TEST_CASE(L"Test Pair<K, V> structured binding")
+	{
+		vint _1;
+		WString _2;
+		{
+			Pair<vint, WString> a{};
+			auto [v1, v2] = a;
+			auto& [l1, l2] = a;
+			auto&& [r1, r2] = a;
+			const auto& [c1, c2] = a;
+		}
+		{
+			const Pair<vint, WString> a{};
+			auto [v1, v2] = a;
+			auto& [l1, l2] = a;
+			auto&& [r1, r2] = a;
+			const auto& [c1, c2] = a;
+		}
+		{
+			Pair<vint&, WString&> a{ _1,_2 };
+			auto [v1, v2] = a;
+			auto& [l1, l2] = a;
+			auto&& [r1, r2] = a;
+			const auto& [c1, c2] = a;
+		}
+		{
+			const Pair<vint&, WString&> a{ _1,_2 };
+			auto [v1, v2] = a;
+			auto& [l1, l2] = a;
+			auto&& [r1, r2] = a;
+			const auto& [c1, c2] = a;
+		}
+		{
+			Pair<const vint&, const WString&> a{ _1,_2 };
+			auto [v1, v2] = a;
+			auto& [l1, l2] = a;
+			auto&& [r1, r2] = a;
+			const auto& [c1, c2] = a;
+		}
+		{
+			const Pair<const vint&, const WString&> a{ _1,_2 };
+			auto [v1, v2] = a;
+			auto& [l1, l2] = a;
+			auto&& [r1, r2] = a;
+			const auto& [c1, c2] = a;
+		}
+	});
+
 	TEST_CASE(L"Test Tuple<T...> structured binding")
 	{
 		vint _1;
@@ -391,5 +439,10 @@ TEST_FILE
 			auto&& [r1, r2] = a;
 			const auto& [c1, c2] = a;
 		}
+	});
+
+	TEST_CASE(L"Test Pair<K, V> and Tuple<T...> aggregate initialization")
+	{
+		// TODO:
 	});
 }

@@ -134,7 +134,7 @@ TEST_FILE
 		CHECK_LIST_ITEMS(sortedList, {1 _ 1 _ 2 _ 2 _ 3 _ 3 _ 4 _ 4 _ 5 _ 5});
 	});
 
-	TEST_CASE(L"Test CopyFrom() with Dictionary<K, V>")
+	TEST_CASE(L"Test CopyFrom() with Dictionary<K, V> and Group<K, V>")
 	{
 		Array<Pair<vint, vint>> arr;
 		List<Pair<vint, vint>> list;

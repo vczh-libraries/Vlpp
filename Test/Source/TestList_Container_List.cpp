@@ -1,47 +1,7 @@
 #include "AssertCollection.h"
 
-namespace TestList_Moveonly_TestObjects
+namespace TestList_TestObjects
 {
-	template<typename T>
-	struct Moveonly
-	{
-		T value;
-
-		Moveonly() = default;
-		Moveonly(T _value) :value(_value) {}
-		Moveonly(const Moveonly<T>&) = delete;
-		Moveonly(Moveonly<T>&&) = default;
-		~Moveonly() = default;
-		Moveonly<T>& operator=(const Moveonly<T>&) = delete;
-		Moveonly<T>& operator=(Moveonly<T>&&) = default;
-
-		std::strong_ordering operator<=>(const Moveonly<T>&) const = default;
-		bool operator==(const Moveonly<T>& value) const = default;
-	};
-
-	void TestArray(Array<Moveonly<vint>>& arr)
-	{
-		arr.Resize(0);
-		CHECK_EMPTY_LIST(arr);
-
-		arr.Resize(10);
-		for (vint i = 0; i < 10; i++)
-		{
-			arr.Set(i, i);
-		}
-		CHECK_LIST_ITEMS(arr, { 0 _ 1 _ 2 _ 3 _ 4 _ 5 _ 6 _ 7 _ 8 _ 9 });
-
-		arr.Resize(15);
-		for (vint i = 10; i < 15; i++)
-		{
-			arr.Set(i, i * 2);
-		}
-		CHECK_LIST_ITEMS(arr, { 0 _ 1 _ 2 _ 3 _ 4 _ 5 _ 6 _ 7 _ 8 _ 9 _ 20 _ 22 _ 24 _ 26 _ 28 });
-
-		arr.Resize(5);
-		CHECK_LIST_ITEMS(arr, { 0 _ 1 _ 2 _ 3 _ 4 });
-	}
-
 	template<typename TCollection>
 	void TestCollectionWithIncreasingItems(TCollection& collection)
 	{
@@ -148,24 +108,46 @@ namespace TestList_Moveonly_TestObjects
 	}
 }
 
-using namespace TestList_Moveonly_TestObjects;
+using namespace TestList_TestObjects;
 
 TEST_FILE
 {
-	TEST_CASE(L"Test Array<T>")
+	TEST_CASE(L"Test SortedList<vint>")
 	{
-		Array<Moveonly<vint>> arr;
-		TestArray(arr);
+		SortedList<vint> list;
+		TestCollectionWithIncreasingItems(list);
+		TestSortedCollection(list);
 	});
 
-	TEST_CASE(L"Test SortedList<T>")
+	TEST_CASE(L"Test SortedList<Copyable<vint>>")
+	{
+		SortedList<Copyable<vint>> list;
+		TestCollectionWithIncreasingItems(list);
+		TestSortedCollection(list);
+	});
+
+	TEST_CASE(L"Test SortedList<Moveonly<vint>>")
 	{
 		SortedList<Moveonly<vint>> list;
 		TestCollectionWithIncreasingItems(list);
 		TestSortedCollection(list);
 	});
 
-	TEST_CASE(L"Test List<T>")
+	TEST_CASE(L"Test List<vint>")
+	{
+		List<vint> list;
+		TestCollectionWithIncreasingItems(list);
+		TestNormalList(list);
+	});
+
+	TEST_CASE(L"Test List<Copyable<vint>>")
+	{
+		List<Copyable<vint>> list;
+		TestCollectionWithIncreasingItems(list);
+		TestNormalList(list);
+	});
+
+	TEST_CASE(L"Test List<Moveonly<vint>>")
 	{
 		List<Moveonly<vint>> list;
 		TestCollectionWithIncreasingItems(list);
@@ -175,36 +157,40 @@ TEST_FILE
 	TEST_CASE(L"Ensure container move constructor and assignment")
 	{
 		{
-			Array<vint> a;
-			Array<vint> b(std::move(a));
-			Array<vint> c;
-			c = std::move(b);
-		}
-		{
-			List<vint> a;
-			List<vint> b((List<vint>&&)a);
-			List<vint> c;
-			c = std::move(b);
-		}
-		{
 			SortedList<vint> a;
 			SortedList<vint> b(std::move(a));
 			SortedList<vint> c;
 			c = std::move(b);
 		}
 		{
-			Dictionary<vint, vint> a;
-			Dictionary<vint, vint> b(std::move(a));
-			Dictionary<vint, vint> c;
+			SortedList<Copyable<vint>> a;
+			SortedList<Copyable<vint>> b(std::move(a));
+			SortedList<Copyable<vint>> c;
 			c = std::move(b);
-			Dictionary<Moveonly<vint>, Moveonly<vint>> d;
 		}
 		{
-			Group<vint, vint> a;
-			Group<vint, vint> b(std::move(a));
-			Group<vint, vint> c;
+			SortedList<Moveonly<vint>> a;
+			SortedList<Moveonly<vint>> b(std::move(a));
+			SortedList<Moveonly<vint>> c;
 			c = std::move(b);
-			Group<Moveonly<vint>, Moveonly<vint>> d;
+		}
+		{
+			List<vint> a;
+			List<vint> b(std::move(a));
+			List<vint> c;
+			c = std::move(b);
+		}
+		{
+			List<Copyable<vint>> a;
+			List<Copyable<vint>> b(std::move(a));
+			List<Copyable<vint>> c;
+			c = std::move(b);
+		}
+		{
+			List<Moveonly<vint>> a;
+			List<Moveonly<vint>> b(std::move(a));
+			List<Moveonly<vint>> c;
+			c = std::move(b);
 		}
 	});
 }

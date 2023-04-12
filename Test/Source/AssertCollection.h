@@ -6,6 +6,54 @@
 using namespace vl;
 using namespace vl::collections;
 
+template<typename T>
+struct Copyable
+{
+	Ptr<T> value;
+
+	Copyable() = default;
+	Copyable(T _value) :value(Ptr(new T(_value))) {}
+	Copyable(const Copyable<T>&) = delete;
+	Copyable(Copyable<T>&&) = default;
+	~Copyable() = default;
+	Copyable<T>& operator=(const Copyable<T>&) = delete;
+	Copyable<T>& operator=(Copyable<T>&&) = default;
+
+	std::strong_ordering operator<=>(const Copyable<T>& c) const
+	{
+		if (value && c.value)
+		{
+			return *value.Obj() <=> *c.value.Obj();
+		}
+		else
+		{
+			return value.Obj() <=> c.value.Obj();
+		}
+	}
+
+	bool operator==(const Copyable<T>& value) const
+	{
+		return operator<=>(value) == 0;
+	}
+};
+
+template<typename T>
+struct Moveonly
+{
+	T value;
+
+	Moveonly() = default;
+	Moveonly(T _value) :value(_value) {}
+	Moveonly(const Moveonly<T>&) = delete;
+	Moveonly(Moveonly<T>&&) = default;
+	~Moveonly() = default;
+	Moveonly<T>& operator=(const Moveonly<T>&) = delete;
+	Moveonly<T>& operator=(Moveonly<T>&&) = default;
+
+	std::strong_ordering operator<=>(const Moveonly<T>&) const = default;
+	bool operator==(const Moveonly<T>& value) const = default;
+};
+
 #define _ ,
 
 #define CHECK_EMPTY_LIST(CONTAINER)\
