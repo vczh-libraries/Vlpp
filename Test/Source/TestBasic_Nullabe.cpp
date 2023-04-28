@@ -12,6 +12,11 @@ TEST_FILE
 			TEST_ASSERT(!n);
 		}
 		{
+			Nullable<vint> n;
+			n.Reset();
+			TEST_ASSERT(!n);
+		}
+		{
 			Nullable<vint> n = 100;
 			TEST_ASSERT(n);
 			TEST_ASSERT(n.Value() == 100);
@@ -19,11 +24,6 @@ TEST_FILE
 		{
 			Nullable<vint> n = 100;
 			n.Reset();
-			TEST_ASSERT(!n);
-		}
-		{
-			Nullable<vint> n = 100;
-			n = Nullable<vint>::Empty;
 			TEST_ASSERT(!n);
 		}
 		{
@@ -37,35 +37,53 @@ TEST_FILE
 			TEST_ASSERT(n);
 			TEST_ASSERT(n.Value() == 100);
 		}
+	});
+
+	TEST_CASE(L"Test Nullable<T> copy constructor")
+	{
 		{
-			Nullable<vint> m = 100, n;
-			n = m;
+			Nullable<vint> m;
+			Nullable<vint> n = m;
+			TEST_ASSERT(!m);
+			TEST_ASSERT(!n);
+		}
+		{
+			Nullable<vint> m;
+			auto n = m;
+			TEST_ASSERT(!m);
+			TEST_ASSERT(!n);
+		}
+		{
+			Nullable<vint> m = 100;
+			Nullable<vint> n = m;
 			TEST_ASSERT(m);
 			TEST_ASSERT(m.Value() == 100);
 			TEST_ASSERT(n);
 			TEST_ASSERT(n.Value() == 100);
 		}
 		{
-			Nullable<vint> m = 100, n = 999;
-			n = m;
+			Nullable<vint> m = 100;
+			auto n = m;
 			TEST_ASSERT(m);
 			TEST_ASSERT(m.Value() == 100);
 			TEST_ASSERT(n);
 			TEST_ASSERT(n.Value() == 100);
 		}
+	});
+
+	TEST_CASE(L"Test Nullable<T> move constructor")
+	{
 		{
-			Nullable<vint> m = 100, n;
-			n = std::move(m);
+			Nullable<vint> m;
+			Nullable<vint> n = std::move(m);
 			TEST_ASSERT(!m);
-			TEST_ASSERT(n);
-			TEST_ASSERT(n.Value() == 100);
+			TEST_ASSERT(!n);
 		}
 		{
-			Nullable<vint> m = 100, n = 999;
-			n = std::move(m);
+			Nullable<vint> m;
+			auto n = std::move(m);
 			TEST_ASSERT(!m);
-			TEST_ASSERT(n);
-			TEST_ASSERT(n.Value() == 100);
+			TEST_ASSERT(!n);
 		}
 		{
 			Nullable<vint> m = 100;
@@ -77,6 +95,68 @@ TEST_FILE
 		{
 			Nullable<vint> m = 100;
 			auto n = std::move(m);
+			TEST_ASSERT(!m);
+			TEST_ASSERT(n);
+			TEST_ASSERT(n.Value() == 100);
+		}
+	});
+
+	TEST_CASE(L"Test Nullable<T> copy assignment")
+	{
+		{
+			Nullable<vint> m, n;
+			n = m;
+			TEST_ASSERT(!m);
+			TEST_ASSERT(!n);
+		}
+		{
+			Nullable<vint> m, n = 999;
+			n = m;
+			TEST_ASSERT(!m);
+			TEST_ASSERT(!n);
+		}
+		{
+			Nullable<vint> m = 100, n;
+			n = m;
+			TEST_ASSERT(m);
+			TEST_ASSERT(m.Value() == 100);
+			TEST_ASSERT(n);
+			TEST_ASSERT(n.Value() == 100);
+		}
+		{
+			Nullable<vint> m = 100, n = 999;
+			n = m;
+			TEST_ASSERT(m);
+			TEST_ASSERT(m.Value() == 100);
+			TEST_ASSERT(n);
+			TEST_ASSERT(n.Value() == 100);
+		}
+	});
+
+	TEST_CASE(L"Test Nullable<T> move assignment")
+	{
+		{
+			Nullable<vint> m, n;
+			n = std::move(m);
+			TEST_ASSERT(!m);
+			TEST_ASSERT(!n);
+		}
+		{
+			Nullable<vint> m, n = 999;
+			n = std::move(m);
+			TEST_ASSERT(!m);
+			TEST_ASSERT(!n);
+		}
+		{
+			Nullable<vint> m = 100, n;
+			n = std::move(m);
+			TEST_ASSERT(!m);
+			TEST_ASSERT(n);
+			TEST_ASSERT(n.Value() == 100);
+		}
+		{
+			Nullable<vint> m = 100, n = 999;
+			n = std::move(m);
 			TEST_ASSERT(!m);
 			TEST_ASSERT(n);
 			TEST_ASSERT(n.Value() == 100);

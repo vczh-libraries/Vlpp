@@ -277,8 +277,6 @@ vl::function_lambda::LambdaRetriveType<R(TArgs...)>
 			typedef R ResultType;
 			typedef TypeTuple<TArgs...> ParameterTypes;
 		};
-
-#define LAMBDA vl::function_lambda::Lambda
 	}
 
 	template<typename C>
