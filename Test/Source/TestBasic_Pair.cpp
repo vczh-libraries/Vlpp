@@ -178,23 +178,37 @@ TEST_FILE
 
 	TEST_CASE(L"Test Pair<K, V> structured binding")
 	{
-		vint _1;
-		WString _2;
 		{
-			Pair<vint, WString> a{};
+			Pair<vint, WString> a{ 0,WString::Empty };
 			auto [v1, v2] = a;
 			auto& [l1, l2] = a;
 			auto&& [r1, r2] = a;
 			const auto& [c1, c2] = a;
 		}
 		{
-			const Pair<vint, WString> a{};
+			const Pair<vint, WString> a{ 0,WString::Empty };
 			auto [v1, v2] = a;
 			auto& [l1, l2] = a;
 			auto&& [r1, r2] = a;
 			const auto& [c1, c2] = a;
 		}
 		{
+			Pair<const vint, const WString> a{ 0,WString::Empty };
+			auto [v1, v2] = a;
+			auto& [l1, l2] = a;
+			auto&& [r1, r2] = a;
+			const auto& [c1, c2] = a;
+		}
+		{
+			const Pair<const vint, const WString> a{ 0,WString::Empty };
+			auto [v1, v2] = a;
+			auto& [l1, l2] = a;
+			auto&& [r1, r2] = a;
+			const auto& [c1, c2] = a;
+		}
+		{
+			vint _1 = 0;
+			WString _2;
 			Pair<vint&, WString&> a{ _1,_2 };
 			auto [v1, v2] = a;
 			auto& [l1, l2] = a;
@@ -202,6 +216,8 @@ TEST_FILE
 			const auto& [c1, c2] = a;
 		}
 		{
+			vint _1 = 0;
+			WString _2;
 			const Pair<vint&, WString&> a{ _1,_2 };
 			auto [v1, v2] = a;
 			auto& [l1, l2] = a;
@@ -209,6 +225,8 @@ TEST_FILE
 			const auto& [c1, c2] = a;
 		}
 		{
+			vint _1 = 0;
+			WString _2;
 			Pair<const vint&, const WString&> a{ _1,_2 };
 			auto [v1, v2] = a;
 			auto& [l1, l2] = a;
@@ -216,6 +234,8 @@ TEST_FILE
 			const auto& [c1, c2] = a;
 		}
 		{
+			vint _1 = 0;
+			WString _2;
 			const Pair<const vint&, const WString&> a{ _1,_2 };
 			auto [v1, v2] = a;
 			auto& [l1, l2] = a;

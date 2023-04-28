@@ -202,49 +202,221 @@ TEST_FILE
 
 	TEST_CASE(L"Test Tuple<T...> structured binding")
 	{
-		vint _1;
-		WString _2;
 		{
-			Tuple<vint, WString> a{};
+			Tuple<vint, WString> a{ 0,WString::Empty };
 			auto [v1, v2] = a;
 			auto& [l1, l2] = a;
 			auto&& [r1, r2] = a;
 			const auto& [c1, c2] = a;
+
+			TEST_ASSERT(&v1 != &a.get<0>());
+			TEST_ASSERT(&l1 == &a.get<0>());
+			TEST_ASSERT(&r1 == &a.get<0>());
+			TEST_ASSERT(&c1 == &a.get<0>());
+
+			TEST_ASSERT(&v2 != &a.get<1>());
+			TEST_ASSERT(&l2 == &a.get<1>());
+			TEST_ASSERT(&r2 == &a.get<1>());
+			TEST_ASSERT(&c2 == &a.get<1>());
+
+			static_assert(std::is_same_v<decltype(v1), vint&>);
+			static_assert(std::is_same_v<decltype(v2), WString&>);
+			static_assert(std::is_same_v<decltype(l1), vint&>);
+			static_assert(std::is_same_v<decltype(l2), WString&>);
+			static_assert(std::is_same_v<decltype(r1), vint&>);
+			static_assert(std::is_same_v<decltype(r2), WString&>);
+			static_assert(std::is_same_v<decltype(c1), const vint&>);
+			static_assert(std::is_same_v<decltype(c2), const WString&>);
 		}
 		{
-			const Tuple<vint, WString> a{};
+			const Tuple<vint, WString> a{ 0,WString::Empty };
 			auto [v1, v2] = a;
 			auto& [l1, l2] = a;
 			auto&& [r1, r2] = a;
 			const auto& [c1, c2] = a;
+
+			TEST_ASSERT(&v1 != &a.get<0>());
+			TEST_ASSERT(&l1 == &a.get<0>());
+			TEST_ASSERT(&r1 == &a.get<0>());
+			TEST_ASSERT(&c1 == &a.get<0>());
+
+			TEST_ASSERT(&v2 != &a.get<1>());
+			TEST_ASSERT(&l2 == &a.get<1>());
+			TEST_ASSERT(&r2 == &a.get<1>());
+			TEST_ASSERT(&c2 == &a.get<1>());
+
+			static_assert(std::is_same_v<decltype(v1), vint&>);
+			static_assert(std::is_same_v<decltype(v2), WString&>);
+			static_assert(std::is_same_v<decltype(l1), const vint&>);
+			static_assert(std::is_same_v<decltype(l2), const WString&>);
+			static_assert(std::is_same_v<decltype(r1), const vint&>);
+			static_assert(std::is_same_v<decltype(r2), const WString&>);
+			static_assert(std::is_same_v<decltype(c1), const vint&>);
+			static_assert(std::is_same_v<decltype(c2), const WString&>);
 		}
 		{
+			Tuple<const vint, const WString> a{ 0,WString::Empty };
+			auto [v1, v2] = a;
+			auto& [l1, l2] = a;
+			auto&& [r1, r2] = a;
+			const auto& [c1, c2] = a;
+
+			TEST_ASSERT(&v1 != &a.get<0>());
+			TEST_ASSERT(&l1 == &a.get<0>());
+			TEST_ASSERT(&r1 == &a.get<0>());
+			TEST_ASSERT(&c1 == &a.get<0>());
+
+			TEST_ASSERT(&v2 != &a.get<1>());
+			TEST_ASSERT(&l2 == &a.get<1>());
+			TEST_ASSERT(&r2 == &a.get<1>());
+			TEST_ASSERT(&c2 == &a.get<1>());
+
+			static_assert(std::is_same_v<decltype(v1), const vint&>);
+			static_assert(std::is_same_v<decltype(v2), const WString&>);
+			static_assert(std::is_same_v<decltype(l1), const vint&>);
+			static_assert(std::is_same_v<decltype(l2), const WString&>);
+			static_assert(std::is_same_v<decltype(r1), const vint&>);
+			static_assert(std::is_same_v<decltype(r2), const WString&>);
+			static_assert(std::is_same_v<decltype(c1), const vint&>);
+			static_assert(std::is_same_v<decltype(c2), const WString&>);
+		}
+		{
+			const Tuple<const vint, const WString> a{ 0,WString::Empty };
+			auto [v1, v2] = a;
+			auto& [l1, l2] = a;
+			auto&& [r1, r2] = a;
+			const auto& [c1, c2] = a;
+
+			TEST_ASSERT(&v1 != &a.get<0>());
+			TEST_ASSERT(&l1 == &a.get<0>());
+			TEST_ASSERT(&r1 == &a.get<0>());
+			TEST_ASSERT(&c1 == &a.get<0>());
+
+			TEST_ASSERT(&v2 != &a.get<1>());
+			TEST_ASSERT(&l2 == &a.get<1>());
+			TEST_ASSERT(&r2 == &a.get<1>());
+			TEST_ASSERT(&c2 == &a.get<1>());
+
+			static_assert(std::is_same_v<decltype(v1), const vint&>);
+			static_assert(std::is_same_v<decltype(v2), const WString&>);
+			static_assert(std::is_same_v<decltype(l1), const vint&>);
+			static_assert(std::is_same_v<decltype(l2), const WString&>);
+			static_assert(std::is_same_v<decltype(r1), const vint&>);
+			static_assert(std::is_same_v<decltype(r2), const WString&>);
+			static_assert(std::is_same_v<decltype(c1), const vint&>);
+			static_assert(std::is_same_v<decltype(c2), const WString&>);
+		}
+		{
+			vint _1 = 0;
+			WString _2;
 			Tuple<vint&, WString&> a{ _1,_2 };
 			auto [v1, v2] = a;
 			auto& [l1, l2] = a;
 			auto&& [r1, r2] = a;
 			const auto& [c1, c2] = a;
+
+			TEST_ASSERT(&v1 == &a.get<0>());
+			TEST_ASSERT(&l1 == &a.get<0>());
+			TEST_ASSERT(&r1 == &a.get<0>());
+			TEST_ASSERT(&c1 == &a.get<0>());
+
+			TEST_ASSERT(&v2 == &a.get<1>());
+			TEST_ASSERT(&l2 == &a.get<1>());
+			TEST_ASSERT(&r2 == &a.get<1>());
+			TEST_ASSERT(&c2 == &a.get<1>());
+
+			static_assert(std::is_same_v<decltype(v1), vint&>);
+			static_assert(std::is_same_v<decltype(v2), WString&>);
+			static_assert(std::is_same_v<decltype(l1), vint&>);
+			static_assert(std::is_same_v<decltype(l2), WString&>);
+			static_assert(std::is_same_v<decltype(r1), vint&>);
+			static_assert(std::is_same_v<decltype(r2), WString&>);
+			static_assert(std::is_same_v<decltype(c1), const vint&>);
+			static_assert(std::is_same_v<decltype(c2), const WString&>);
 		}
 		{
+			vint _1 = 0;
+			WString _2;
 			const Tuple<vint&, WString&> a{ _1,_2 };
 			auto [v1, v2] = a;
 			auto& [l1, l2] = a;
 			auto&& [r1, r2] = a;
 			const auto& [c1, c2] = a;
+
+			TEST_ASSERT(&v1 == &a.get<0>());
+			TEST_ASSERT(&l1 == &a.get<0>());
+			TEST_ASSERT(&r1 == &a.get<0>());
+			TEST_ASSERT(&c1 == &a.get<0>());
+
+			TEST_ASSERT(&v2 == &a.get<1>());
+			TEST_ASSERT(&l2 == &a.get<1>());
+			TEST_ASSERT(&r2 == &a.get<1>());
+			TEST_ASSERT(&c2 == &a.get<1>());
+
+			static_assert(std::is_same_v<decltype(v1), vint&>);
+			static_assert(std::is_same_v<decltype(v2), WString&>);
+			static_assert(std::is_same_v<decltype(l1), const vint&>);
+			static_assert(std::is_same_v<decltype(l2), const WString&>);
+			static_assert(std::is_same_v<decltype(r1), const vint&>);
+			static_assert(std::is_same_v<decltype(r2), const WString&>);
+			static_assert(std::is_same_v<decltype(c1), const vint&>);
+			static_assert(std::is_same_v<decltype(c2), const WString&>);
 		}
 		{
+			vint _1 = 0;
+			WString _2;
 			Tuple<const vint&, const WString&> a{ _1,_2 };
 			auto [v1, v2] = a;
 			auto& [l1, l2] = a;
 			auto&& [r1, r2] = a;
 			const auto& [c1, c2] = a;
+
+			TEST_ASSERT(&v1 == &a.get<0>());
+			TEST_ASSERT(&l1 == &a.get<0>());
+			TEST_ASSERT(&r1 == &a.get<0>());
+			TEST_ASSERT(&c1 == &a.get<0>());
+
+			TEST_ASSERT(&v2 == &a.get<1>());
+			TEST_ASSERT(&l2 == &a.get<1>());
+			TEST_ASSERT(&r2 == &a.get<1>());
+			TEST_ASSERT(&c2 == &a.get<1>());
+
+			static_assert(std::is_same_v<decltype(v1), const vint&>);
+			static_assert(std::is_same_v<decltype(v2), const WString&>);
+			static_assert(std::is_same_v<decltype(l1), const vint&>);
+			static_assert(std::is_same_v<decltype(l2), const WString&>);
+			static_assert(std::is_same_v<decltype(r1), const vint&>);
+			static_assert(std::is_same_v<decltype(r2), const WString&>);
+			static_assert(std::is_same_v<decltype(c1), const vint&>);
+			static_assert(std::is_same_v<decltype(c2), const WString&>);
 		}
 		{
+			vint _1 = 0;
+			WString _2;
 			const Tuple<const vint&, const WString&> a{ _1,_2 };
 			auto [v1, v2] = a;
 			auto& [l1, l2] = a;
 			auto&& [r1, r2] = a;
 			const auto& [c1, c2] = a;
+
+			TEST_ASSERT(&v1 == &a.get<0>());
+			TEST_ASSERT(&l1 == &a.get<0>());
+			TEST_ASSERT(&r1 == &a.get<0>());
+			TEST_ASSERT(&c1 == &a.get<0>());
+
+			TEST_ASSERT(&v2 == &a.get<1>());
+			TEST_ASSERT(&l2 == &a.get<1>());
+			TEST_ASSERT(&r2 == &a.get<1>());
+			TEST_ASSERT(&c2 == &a.get<1>());
+
+			static_assert(std::is_same_v<decltype(v1), const vint&>);
+			static_assert(std::is_same_v<decltype(v2), const WString&>);
+			static_assert(std::is_same_v<decltype(l1), const vint&>);
+			static_assert(std::is_same_v<decltype(l2), const WString&>);
+			static_assert(std::is_same_v<decltype(r1), const vint&>);
+			static_assert(std::is_same_v<decltype(r2), const WString&>);
+			static_assert(std::is_same_v<decltype(c1), const vint&>);
+			static_assert(std::is_same_v<decltype(c2), const WString&>);
 		}
 	});
 }

@@ -271,7 +271,7 @@ namespace vl
 		}
 
 		template<vint Index>
-		decltype(auto) get()const
+		decltype(auto) get() const
 		{
 			using TElement = tuple_internal::TupleElement<Index, TypeTupleElement<Index, TypeTuple<TArgs...>>>;
 			return static_cast<const TElement*>(this)->GetElement();
@@ -311,13 +311,13 @@ namespace std
 	template<size_t Index, typename ...TArgs>
 	struct tuple_element<Index, vl::Tuple<TArgs...>>
 	{
-		using type = decltype((std::declval<vl::Tuple<TArgs...>>().get<Index>()));
+		using type = decltype(std::declval<vl::Tuple<TArgs...>>().get<Index>());
 	};
 
 	template<size_t Index, typename ...TArgs>
 	struct tuple_element<Index, const vl::Tuple<TArgs...>>
 	{
-		using type = decltype((std::declval<const vl::Tuple<TArgs...>>().get<Index>()));
+		using type = decltype(std::declval<const vl::Tuple<TArgs...>>().get<Index>());
 	};
 }
 
