@@ -229,6 +229,12 @@ Basic Types
 	template<vint Index, typename TTuple>
 	using TypeTupleElement = typename TypeTupleItemRetriver<Index, TTuple>::Type;
 
+	template<typename T>
+	struct RemoveCVRefArrayCtad { using Type = std::remove_cvref_t<T>; };
+
+	template<typename T, vint I>
+	struct RemoveCVRefArrayCtad<T(&)[I]> { using Type = T*; };
+
 	/// <summary>
 	/// Base type of all classes.
 	/// This type has a virtual destructor, making all derived classes destructors virtual.

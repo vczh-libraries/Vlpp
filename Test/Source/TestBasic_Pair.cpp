@@ -184,6 +184,25 @@ TEST_FILE
 			auto& [l1, l2] = a;
 			auto&& [r1, r2] = a;
 			const auto& [c1, c2] = a;
+
+			TEST_ASSERT(&v1 != &a.key);
+			TEST_ASSERT(&l1 == &a.key);
+			TEST_ASSERT(&r1 == &a.key);
+			TEST_ASSERT(&c1 == &a.key);
+
+			TEST_ASSERT(&v2 != &a.value);
+			TEST_ASSERT(&l2 == &a.value);
+			TEST_ASSERT(&r2 == &a.value);
+			TEST_ASSERT(&c2 == &a.value);
+
+			static_assert(std::is_same_v<decltype(v1), vint&>);
+			static_assert(std::is_same_v<decltype(v2), WString&>);
+			static_assert(std::is_same_v<decltype(l1), vint&>);
+			static_assert(std::is_same_v<decltype(l2), WString&>);
+			static_assert(std::is_same_v<decltype(r1), vint&>);
+			static_assert(std::is_same_v<decltype(r2), WString&>);
+			static_assert(std::is_same_v<decltype(c1), const vint&>);
+			static_assert(std::is_same_v<decltype(c2), const WString&>);
 		}
 		{
 			const Pair<vint, WString> a{ 0,WString::Empty };
@@ -191,6 +210,25 @@ TEST_FILE
 			auto& [l1, l2] = a;
 			auto&& [r1, r2] = a;
 			const auto& [c1, c2] = a;
+
+			TEST_ASSERT(&v1 != &a.key);
+			TEST_ASSERT(&l1 == &a.key);
+			TEST_ASSERT(&r1 == &a.key);
+			TEST_ASSERT(&c1 == &a.key);
+
+			TEST_ASSERT(&v2 != &a.value);
+			TEST_ASSERT(&l2 == &a.value);
+			TEST_ASSERT(&r2 == &a.value);
+			TEST_ASSERT(&c2 == &a.value);
+
+			static_assert(std::is_same_v<decltype(v1), vint&>);
+			static_assert(std::is_same_v<decltype(v2), WString&>);
+			static_assert(std::is_same_v<decltype(l1), const vint&>);
+			static_assert(std::is_same_v<decltype(l2), const WString&>);
+			static_assert(std::is_same_v<decltype(r1), const vint&>);
+			static_assert(std::is_same_v<decltype(r2), const WString&>);
+			static_assert(std::is_same_v<decltype(c1), const vint&>);
+			static_assert(std::is_same_v<decltype(c2), const WString&>);
 		}
 		{
 			Pair<const vint, const WString> a{ 0,WString::Empty };
@@ -198,6 +236,25 @@ TEST_FILE
 			auto& [l1, l2] = a;
 			auto&& [r1, r2] = a;
 			const auto& [c1, c2] = a;
+
+			TEST_ASSERT(&v1 != &a.key);
+			TEST_ASSERT(&l1 == &a.key);
+			TEST_ASSERT(&r1 == &a.key);
+			TEST_ASSERT(&c1 == &a.key);
+
+			TEST_ASSERT(&v2 != &a.value);
+			TEST_ASSERT(&l2 == &a.value);
+			TEST_ASSERT(&r2 == &a.value);
+			TEST_ASSERT(&c2 == &a.value);
+
+			static_assert(std::is_same_v<decltype(v1), const vint&>);
+			static_assert(std::is_same_v<decltype(v2), const WString&>);
+			static_assert(std::is_same_v<decltype(l1), const vint&>);
+			static_assert(std::is_same_v<decltype(l2), const WString&>);
+			static_assert(std::is_same_v<decltype(r1), const vint&>);
+			static_assert(std::is_same_v<decltype(r2), const WString&>);
+			static_assert(std::is_same_v<decltype(c1), const vint&>);
+			static_assert(std::is_same_v<decltype(c2), const WString&>);
 		}
 		{
 			const Pair<const vint, const WString> a{ 0,WString::Empty };
@@ -205,6 +262,25 @@ TEST_FILE
 			auto& [l1, l2] = a;
 			auto&& [r1, r2] = a;
 			const auto& [c1, c2] = a;
+
+			TEST_ASSERT(&v1 != &a.key);
+			TEST_ASSERT(&l1 == &a.key);
+			TEST_ASSERT(&r1 == &a.key);
+			TEST_ASSERT(&c1 == &a.key);
+
+			TEST_ASSERT(&v2 != &a.value);
+			TEST_ASSERT(&l2 == &a.value);
+			TEST_ASSERT(&r2 == &a.value);
+			TEST_ASSERT(&c2 == &a.value);
+
+			static_assert(std::is_same_v<decltype(v1), const vint&>);
+			static_assert(std::is_same_v<decltype(v2), const WString&>);
+			static_assert(std::is_same_v<decltype(l1), const vint&>);
+			static_assert(std::is_same_v<decltype(l2), const WString&>);
+			static_assert(std::is_same_v<decltype(r1), const vint&>);
+			static_assert(std::is_same_v<decltype(r2), const WString&>);
+			static_assert(std::is_same_v<decltype(c1), const vint&>);
+			static_assert(std::is_same_v<decltype(c2), const WString&>);
 		}
 		{
 			vint _1 = 0;
@@ -214,6 +290,25 @@ TEST_FILE
 			auto& [l1, l2] = a;
 			auto&& [r1, r2] = a;
 			const auto& [c1, c2] = a;
+
+			TEST_ASSERT(&v1 == &a.key);
+			TEST_ASSERT(&l1 == &a.key);
+			TEST_ASSERT(&r1 == &a.key);
+			TEST_ASSERT(&c1 == &a.key);
+
+			TEST_ASSERT(&v2 == &a.value);
+			TEST_ASSERT(&l2 == &a.value);
+			TEST_ASSERT(&r2 == &a.value);
+			TEST_ASSERT(&c2 == &a.value);
+
+			static_assert(std::is_same_v<decltype(v1), vint&>);
+			static_assert(std::is_same_v<decltype(v2), WString&>);
+			static_assert(std::is_same_v<decltype(l1), vint&>);
+			static_assert(std::is_same_v<decltype(l2), WString&>);
+			static_assert(std::is_same_v<decltype(r1), vint&>);
+			static_assert(std::is_same_v<decltype(r2), WString&>);
+			static_assert(std::is_same_v<decltype(c1), const vint&>);
+			static_assert(std::is_same_v<decltype(c2), const WString&>);
 		}
 		{
 			vint _1 = 0;
@@ -223,6 +318,25 @@ TEST_FILE
 			auto& [l1, l2] = a;
 			auto&& [r1, r2] = a;
 			const auto& [c1, c2] = a;
+
+			TEST_ASSERT(&v1 == &a.key);
+			TEST_ASSERT(&l1 == &a.key);
+			TEST_ASSERT(&r1 == &a.key);
+			TEST_ASSERT(&c1 == &a.key);
+
+			TEST_ASSERT(&v2 == &a.value);
+			TEST_ASSERT(&l2 == &a.value);
+			TEST_ASSERT(&r2 == &a.value);
+			TEST_ASSERT(&c2 == &a.value);
+
+			static_assert(std::is_same_v<decltype(v1), vint&>);
+			static_assert(std::is_same_v<decltype(v2), WString&>);
+			static_assert(std::is_same_v<decltype(l1), const vint&>);
+			static_assert(std::is_same_v<decltype(l2), const WString&>);
+			static_assert(std::is_same_v<decltype(r1), const vint&>);
+			static_assert(std::is_same_v<decltype(r2), const WString&>);
+			static_assert(std::is_same_v<decltype(c1), const vint&>);
+			static_assert(std::is_same_v<decltype(c2), const WString&>);
 		}
 		{
 			vint _1 = 0;
@@ -232,6 +346,25 @@ TEST_FILE
 			auto& [l1, l2] = a;
 			auto&& [r1, r2] = a;
 			const auto& [c1, c2] = a;
+
+			TEST_ASSERT(&v1 == &a.key);
+			TEST_ASSERT(&l1 == &a.key);
+			TEST_ASSERT(&r1 == &a.key);
+			TEST_ASSERT(&c1 == &a.key);
+
+			TEST_ASSERT(&v2 == &a.value);
+			TEST_ASSERT(&l2 == &a.value);
+			TEST_ASSERT(&r2 == &a.value);
+			TEST_ASSERT(&c2 == &a.value);
+
+			static_assert(std::is_same_v<decltype(v1), const vint&>);
+			static_assert(std::is_same_v<decltype(v2), const WString&>);
+			static_assert(std::is_same_v<decltype(l1), const vint&>);
+			static_assert(std::is_same_v<decltype(l2), const WString&>);
+			static_assert(std::is_same_v<decltype(r1), const vint&>);
+			static_assert(std::is_same_v<decltype(r2), const WString&>);
+			static_assert(std::is_same_v<decltype(c1), const vint&>);
+			static_assert(std::is_same_v<decltype(c2), const WString&>);
 		}
 		{
 			vint _1 = 0;
@@ -241,6 +374,25 @@ TEST_FILE
 			auto& [l1, l2] = a;
 			auto&& [r1, r2] = a;
 			const auto& [c1, c2] = a;
+
+			TEST_ASSERT(&v1 == &a.key);
+			TEST_ASSERT(&l1 == &a.key);
+			TEST_ASSERT(&r1 == &a.key);
+			TEST_ASSERT(&c1 == &a.key);
+
+			TEST_ASSERT(&v2 == &a.value);
+			TEST_ASSERT(&l2 == &a.value);
+			TEST_ASSERT(&r2 == &a.value);
+			TEST_ASSERT(&c2 == &a.value);
+
+			static_assert(std::is_same_v<decltype(v1), const vint&>);
+			static_assert(std::is_same_v<decltype(v2), const WString&>);
+			static_assert(std::is_same_v<decltype(l1), const vint&>);
+			static_assert(std::is_same_v<decltype(l2), const WString&>);
+			static_assert(std::is_same_v<decltype(r1), const vint&>);
+			static_assert(std::is_same_v<decltype(r2), const WString&>);
+			static_assert(std::is_same_v<decltype(c1), const vint&>);
+			static_assert(std::is_same_v<decltype(c2), const WString&>);
 		}
 	});
 }

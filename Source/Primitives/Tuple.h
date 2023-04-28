@@ -278,14 +278,8 @@ namespace vl
 		}
 	};
 
-	template<typename T>
-	struct TupleElementCtad { using Type = std::remove_cvref_t<T>; };
-
-	template<typename T, vint I>
-	struct TupleElementCtad<T(&)[I]> { using Type = T*; };
-
 	template<typename ...TArgs>
-	Tuple(TArgs&&...) -> Tuple<typename TupleElementCtad<TArgs>::Type...>;
+	Tuple(TArgs&&...) -> Tuple<typename RemoveCVRefArrayCtad<TArgs>::Type...>;
 
 	template<vint Index, typename ...TArgs>
 	decltype(auto) get(Tuple<TArgs...>& t)
@@ -304,9 +298,6 @@ namespace std
 {
 	template<typename ...TArgs>
 	struct tuple_size<vl::Tuple<TArgs...>> : integral_constant<size_t, sizeof...(TArgs)> {};
-
-	template<typename ...TArgs>
-	struct tuple_size<const vl::Tuple<TArgs...>> : integral_constant<size_t, sizeof...(TArgs)> {};
 
 	template<size_t Index, typename ...TArgs>
 	struct tuple_element<Index, vl::Tuple<TArgs...>>

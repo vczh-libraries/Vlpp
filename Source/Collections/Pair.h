@@ -7,7 +7,6 @@ Licensed under https://github.com/vczh-libraries/License
 #define VCZH_COLLECTIONS_PAIR
 
 #include "../Basic.h"
-#include "../Primitives/Tuple.h"
 
 namespace vl
 {
@@ -15,6 +14,36 @@ namespace vl
 	{
 		template<typename K, typename V>
 		class Pair;
+
+		namespace pair_internal
+		{
+			template<typename T>
+			struct AddConstInsideReference
+			{
+				using Type = const T;
+			};
+
+			template<typename T>
+			struct AddConstInsideReference<T&>
+			{
+				using Type = const T&;
+			};
+
+			template<vint Index, typename TPair>
+			struct TypePairElementRetriver;
+
+			template<vint Index, typename K, typename V>
+			struct TypePairElementRetriver<Index, Pair<K, V>>
+			{
+				using Type = typename TypeTupleElement<Index, TypeTuple<K, V>>;
+			};
+
+			template<vint Index, typename K, typename V>
+			struct TypePairElementRetriver<Index, const Pair<K, V>>
+			{
+				using Type = typename AddConstInsideReference<TypeTupleElement<Index, TypeTuple<K, V>>>::Type;
+			};
+		}
 
 		/// <summary>A type representing a pair of key and value.</summary>
 		/// <typeparam name="K">Type of the key.</typeparam>
@@ -75,11 +104,49 @@ namespace vl
 			{
 				return key == p.key && value == p.value;
 			}
+
+			/////////////////////////////////////////////////////////////////////
+
+			template<size_t Index>
+			typename pair_internal::TypePairElementRetriver<Index, Pair<K, V>>::Type& get() = delete;
+
+			template<>
+			typename pair_internal::TypePairElementRetriver<0, Pair<K, V>>::Type& get<0>() { return key; }
+
+			template<>
+			typename pair_internal::TypePairElementRetriver<1, Pair<K, V>>::Type& get<1>() { return value; }
+
+			template<size_t Index>
+			typename pair_internal::TypePairElementRetriver<Index, const Pair<K, V>>::Type& get() const = delete;
+
+			template<>
+			typename pair_internal::TypePairElementRetriver<0, const Pair<K, V>>::Type& get<0>() const { return key; }
+
+			template<>
+			typename pair_internal::TypePairElementRetriver<1, const Pair<K, V>>::Type& get<1>() const { return value; }
 		};
 
 		template<typename K, typename V>
-		Pair(K&&, V&&) -> Pair<typename TupleElementCtad<K>::Type, typename TupleElementCtad<V>::Type>;
+		Pair(K&&, V&&) -> Pair<typename RemoveCVRefArrayCtad<K>::Type, typename RemoveCVRefArrayCtad<V>::Type>;
 	}
+}
+
+namespace std
+{
+	template<typename K, typename V>
+	struct tuple_size<vl::collections::Pair<K, V>> : integral_constant<size_t, 2> {};
+
+	template<size_t Index, typename K, typename V>
+	struct tuple_element<Index, vl::collections::Pair<K, V>>
+	{
+		using type = decltype(std::declval<vl::collections::Pair<K, V>>().get<Index>());
+	};
+
+	template<size_t Index, typename K, typename V>
+	struct tuple_element<Index, const vl::collections::Pair<K, V>>
+	{
+		using type = decltype(std::declval<const vl::collections::Pair<K, V>>().get<Index>());
+	};
 }
 
 #endif
