@@ -67,8 +67,10 @@ struct Moveonly
 
 #define CHECK_LIST_COPYFROM_ITEMS(CONTAINER, LINQ, ITEMS)\
 	do{\
+		vint __items__[]=ITEMS;\
 		CopyFrom(CONTAINER, LINQ);\
-		CHECK_LIST_ITEMS(CONTAINER,ITEMS);\
+		TestLazyList(LINQ,__items__, sizeof(__items__)/sizeof(*__items__));\
+		TestReadonlyList(CONTAINER,__items__, sizeof(__items__)/sizeof(*__items__));\
 	}while(0)\
 
 #define CHECK_EMPTY_DICTIONARY(CONTAINER)\
@@ -127,11 +129,9 @@ void TestCloningEnumeratorFromOne(IEnumerator<T>* enumerator, vint* items, vint 
 	TEST_ASSERT(cloned->Index() == 0);
 }
 
-template<typename TList>
-void TestReadonlyList(const TList& list, vint* items, vint count)
+template<typename T>
+void TestCloningEnumerator(IEnumerator<T>* enumerator, vint* items, vint count)
 {
-	TEST_ASSERT(list.Count() == count);
-	auto enumerator = list.CreateEnumerator();
 	if (count > 0)
 	{
 		TestCloningEnumeratorFromZero(enumerator, items, count);
@@ -156,6 +156,29 @@ void TestReadonlyList(const TList& list, vint* items, vint count)
 		auto cloned = Ptr(enumerator->Clone());
 		TEST_ASSERT(cloned->Next() == false);
 	}
+}
+
+template<typename TList>
+void TestLazyList(const TList& list, vint* items, vint count)
+{
+	auto enumerator = list.CreateEnumerator();
+	TestCloningEnumerator(enumerator, items, count);
+	for (vint i = 0; i < count; i++)
+	{
+		TEST_ASSERT(enumerator->Next());
+		TEST_ASSERT(enumerator->Current() == items[i]);
+		TEST_ASSERT(enumerator->Index() == i);
+	}
+	TEST_ASSERT(enumerator->Next() == false);
+	delete enumerator;
+}
+
+template<typename TList>
+void TestReadonlyList(const TList& list, vint* items, vint count)
+{
+	TEST_ASSERT(list.Count() == count);
+	auto enumerator = list.CreateEnumerator();
+	TestCloningEnumerator(enumerator, items, count);
 	for (vint i = 0; i < count; i++)
 	{
 		TEST_ASSERT(list.Contains(items[i]));
