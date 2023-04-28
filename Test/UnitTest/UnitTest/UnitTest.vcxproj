@@ -266,6 +266,7 @@
     </ClCompile>
     <ClCompile Include="..\..\Source\TestLinq.cpp" />
     <ClCompile Include="..\..\Source\TestLinq_GenericLambda.cpp" />
+    <ClCompile Include="..\..\Source\TestLinq_NoLambda.cpp" />
     <ClCompile Include="..\..\Source\TestList_Container_Array.cpp" />
     <ClCompile Include="..\..\Source\TestList_Container_Dictionary.cpp" />
     <ClCompile Include="..\..\Source\TestList_Container_Group.cpp" />

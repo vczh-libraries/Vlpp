@@ -68,6 +68,7 @@ TEST_FILE
 		{
 			src.Add(i);
 		}
+		TEST_ASSERT(From(src).Aggregate((vint)45, Add) == 100);
 		TEST_ASSERT(From(src).Aggregate(Add) == 55);
 		TEST_ASSERT(From(src).All(Odd) == false);
 		TEST_ASSERT(From(src).Any(Odd) == true);
@@ -92,6 +93,28 @@ TEST_FILE
 		CHECK_LIST_ITEMS(dst.Get(false), {4 _ 16 _ 36 _ 64 _ 100});
 		CopyFrom(pair, From(src).Select(Odd).Pairwise(From(src).Select(Square)));
 		CompareEnumerable(pair, From(src).Select(Odd).Pairwise(From(src).Select(Square)));
+	});
+
+	TEST_CASE(L"Test Linq with List<Nullable<T>>")
+	{
+		List<Nullable<vint>> src;
+		src.Add(1);
+		src.Add(Nullable<vint>());
+		src.Add(2);
+		src.Add(Nullable<vint>());
+		src.Add(3);
+
+		List<vint> dst;
+		CopyFrom(dst, From(src)
+			.Select([](auto&& i) {return i ? i.Value() : -1; })
+			);
+		CHECK_LIST_ITEMS(dst, {1 _ - 1 _ 2 _ - 1 _ 3});
+
+		CopyFrom(dst, From(src)
+			.Where([](auto&& i) {return i; })
+			.Select([](auto&& i) {return i.Value(); })
+			);
+		CHECK_LIST_ITEMS(dst, {1 _ 2 _ 3});
 	});
 
 	TEST_CASE(L"Test Linq with List<Tuple<T, U>>")
