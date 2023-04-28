@@ -20,8 +20,11 @@ TEST_FILE
 			{
 				second.Add(i);
 			}
-			CopyFrom(result, From(first).Concat(second));
-			CHECK_LIST_ITEMS(result, {0 _ 1 _ 2 _ 3 _ 4 _ 5 _ 6 _ 7 _ 8 _ 9});
+			CHECK_LIST_COPYFROM_ITEMS(
+				result,
+				(From(first).Concat(second)),
+				{0 _ 1 _ 2 _ 3 _ 4 _ 5 _ 6 _ 7 _ 8 _ 9}
+				);
 			CompareEnumerable(result, From(first).Concat(second));
 		}
 		{
@@ -32,8 +35,11 @@ TEST_FILE
 			{
 				second.Add(i);
 			}
-			CopyFrom(result, From(first).Concat(second));
-			CHECK_LIST_ITEMS(result, {5 _ 6 _ 7 _ 8 _ 9});
+			CHECK_LIST_COPYFROM_ITEMS(
+				result,
+				(From(first).Concat(second)),
+				{5 _ 6 _ 7 _ 8 _ 9}
+				);
 			CompareEnumerable(result, From(first).Concat(second));
 		}
 		{
@@ -44,8 +50,11 @@ TEST_FILE
 			{
 				first.Add(i);
 			}
-			CopyFrom(result, From(first).Concat(second));
-			CHECK_LIST_ITEMS(result, {0 _ 1 _ 2 _ 3 _ 4});
+			CHECK_LIST_COPYFROM_ITEMS(
+				result,
+				(From(first).Concat(second)),
+				{0 _ 1 _ 2 _ 3 _ 4}
+				);
 			CompareEnumerable(result, From(first).Concat(second));
 		}
 		{
@@ -67,15 +76,24 @@ TEST_FILE
 			src.Add(i);
 		}
 
-		CopyFrom(dst, From(src).Take(5));
-		CHECK_LIST_ITEMS(dst, {0 _ 1 _ 2 _ 3 _ 4});
+		CHECK_LIST_COPYFROM_ITEMS(
+			dst,
+			(From(src).Take(5)),
+			{0 _ 1 _ 2 _ 3 _ 4}
+			);
 		CompareEnumerable(dst, From(src).Take(5));
-		CopyFrom(dst, From(src).Take(15));
-		CHECK_LIST_ITEMS(dst, {0 _ 1 _ 2 _ 3 _ 4 _ 5 _ 6 _ 7 _ 8 _ 9});
+		CHECK_LIST_COPYFROM_ITEMS(
+			dst,
+			(From(src).Take(15)),
+			{0 _ 1 _ 2 _ 3 _ 4 _ 5 _ 6 _ 7 _ 8 _ 9}
+			);
 		CompareEnumerable(dst, From(src).Take(15));
 
-		CopyFrom(dst, From(src).Skip(5));
-		CHECK_LIST_ITEMS(dst, {5 _ 6 _ 7 _ 8 _ 9});
+		CHECK_LIST_COPYFROM_ITEMS(
+			dst,
+			(From(src).Skip(5)),
+			{5 _ 6 _ 7 _ 8 _ 9}
+			);
 		CompareEnumerable(dst, From(src).Skip(5));
 		CopyFrom(dst, From(src).Skip(15));
 		CHECK_EMPTY_LIST(dst);
@@ -121,11 +139,17 @@ TEST_FILE
 		{
 			second.Add(i);
 		}
-		CopyFrom(result, From(first).Concat(second).Distinct());
-		CHECK_LIST_ITEMS(result, {0 _ 1 _ 2 _ 3 _ 4 _ 5 _ 6 _ 7 _ 8 _ 9});
+		CHECK_LIST_COPYFROM_ITEMS(
+			result,
+			(From(first).Concat(second).Distinct()),
+			{0 _ 1 _ 2 _ 3 _ 4 _ 5 _ 6 _ 7 _ 8 _ 9}
+			);
 		CompareEnumerable(result, From(first).Concat(second).Distinct());
-		CopyFrom(result, From(first).Concat(second).Distinct().Reverse());
-		CHECK_LIST_ITEMS(result, {9 _ 8 _ 7 _ 6 _ 5 _ 4 _ 3 _ 2 _ 1 _ 0});
+		CHECK_LIST_COPYFROM_ITEMS(
+			result,
+			(From(first).Concat(second).Distinct().Reverse()),
+			{9 _ 8 _ 7 _ 6 _ 5 _ 4 _ 3 _ 2 _ 1 _ 0}
+			);
 		CompareEnumerable(result, From(first).Concat(second).Distinct().Reverse());
 	});
 
@@ -142,14 +166,23 @@ TEST_FILE
 		{
 			second.Add(i);
 		}
-		CopyFrom(result, From(first).Intersect(second));
-		CHECK_LIST_ITEMS(result, {2 _ 3 _ 4 _ 5 _ 6 _ 7});
+		CHECK_LIST_COPYFROM_ITEMS(
+			result,
+			(From(first).Intersect(second)),
+			{2 _ 3 _ 4 _ 5 _ 6 _ 7}
+			);
 		CompareEnumerable(result, From(first).Intersect(second));
-		CopyFrom(result, From(first).Except(second));
-		CHECK_LIST_ITEMS(result, {0 _ 1});
+		CHECK_LIST_COPYFROM_ITEMS(
+			result,
+			(From(first).Except(second)),
+			{0 _ 1}
+			);
 		CompareEnumerable(result, From(first).Except(second));
-		CopyFrom(result, From(first).Union(second));
-		CHECK_LIST_ITEMS(result, {0 _ 1 _ 2 _ 3 _ 4 _ 5 _ 6 _ 7 _ 8 _ 9});
+		CHECK_LIST_COPYFROM_ITEMS(
+			result,
+			(From(first).Union(second)),
+			{0 _ 1 _ 2 _ 3 _ 4 _ 5 _ 6 _ 7 _ 8 _ 9}
+			);
 		CompareEnumerable(result, From(first).Union(second));
 	});
 
@@ -164,17 +197,23 @@ TEST_FILE
 		src.Add(Ptr(new AString("5")));
 
 		List<vint> dst;
-		CopyFrom(dst, From(src)
-			.Cast<WString>()
-			.Select([](Ptr<WString> o) {return o ? wtoi(*o.Obj()) : -1; })
+		CHECK_LIST_COPYFROM_ITEMS(
+			dst,
+			(From(src)
+				.Cast<WString>()
+				.Select([](Ptr<WString> o) {return o ? wtoi(*o.Obj()) : -1; })
+				),
+			{0 _ 1 _ 2 _ - 1 _ - 1 _ - 1}
 			);
-		CHECK_LIST_ITEMS(dst, {0 _ 1 _ 2 _ - 1 _ - 1 _ - 1});
 
-		CopyFrom(dst, From(src)
-			.FindType<WString>()
-			.Select([](Ptr<WString> o) {return o ? wtoi(*o.Obj()) : -1; })
+		CHECK_LIST_COPYFROM_ITEMS(
+			dst,
+			(From(src)
+				.FindType<WString>()
+				.Select([](Ptr<WString> o) {return o ? wtoi(*o.Obj()) : -1; })
+				),
+			{0 _ 1 _ 2}
 			);
-		CHECK_LIST_ITEMS(dst, {0 _ 1 _ 2});
 	});
 
 	TEST_CASE(L"Test Evaluate(false)")
