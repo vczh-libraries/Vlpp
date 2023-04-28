@@ -23,13 +23,6 @@ TEST_FILE
 			TEST_ASSERT(pv == L"abc");
 		}
 		{
-			auto a = Tuple(100, L"abc");
-			Tuple<vint, WString> p = a;
-			auto&& [pk, pv] = p;
-			TEST_ASSERT(pk == 100);
-			TEST_ASSERT(pv == L"abc");
-		}
-		{
 			vint k = 100;
 			WString v = L"abc";
 			Tuple<const vint&, const WString&> p{ k,v };
@@ -37,9 +30,25 @@ TEST_FILE
 			TEST_ASSERT(pk == 100);
 			TEST_ASSERT(pv == L"abc");
 		}
+	});
+
+	TEST_CASE(L"Test Pair<K, V> and Tuple<T...> aggregate initialization")
+	{
+		// TODO:
+	});
+
+	TEST_CASE(L"Test Tuple<T...> copy constructor")
+	{
+		vint k = 100;
+		WString v = L"abc";
 		{
-			vint k = 100;
-			WString v = L"abc";
+			auto a = Tuple(100, L"abc");
+			Tuple<vint, WString> p = a;
+			auto&& [pk, pv] = p;
+			TEST_ASSERT(pk == 100);
+			TEST_ASSERT(pv == L"abc");
+		}
+		{
 			Tuple<const vint&, const WString&> a{ k,v };
 			Tuple<vint, WString> p = a;
 			auto&& [pk, pv] = p;
@@ -54,33 +63,122 @@ TEST_FILE
 			TEST_ASSERT(pv == L"abc");
 		}
 		{
-			vint k = 100;
-			WString v = L"abc";
 			Tuple<const vint&, const WString&> a{ k,v };
 			Tuple<const vint&, const WString&> p = a;
 			auto&& [pk, pv] = p;
 			TEST_ASSERT(&pk == &k);
 			TEST_ASSERT(&pv == &v);
 		}
+	});
+
+	TEST_CASE(L"Test Tuple<T...> move constructor")
+	{
+		vint k = 100;
+		WString v = L"abc";
 		{
-			Tuple<vint, WString> a{ 100,L"abc" }, b{ 200,L"def" };
-			TEST_ASSERT(!(a == b));
-			TEST_ASSERT(a != b);
-			TEST_ASSERT(a < b);
-			TEST_ASSERT(a <= b);
-			TEST_ASSERT(!(a > b));
-			TEST_ASSERT(!(a >= b));
+			auto a = Tuple(100, L"abc");
+			Tuple<vint, WString> p = std::move(a);
+			auto&& [pk, pv] = p;
+			TEST_ASSERT(pk == 100);
+			TEST_ASSERT(pv == L"abc");
+		}
+		{
+			Tuple<const vint&, const WString&> a{ k,v };
+			Tuple<vint, WString> p = std::move(a);
+			auto&& [pk, pv] = p;
+			TEST_ASSERT(pk == 100);
+			TEST_ASSERT(pv == L"abc");
+		}
+		{
+			Tuple<vint, WString> a{ 100, L"abc" };
+			Tuple<const vint&, const WString&> p = std::move(a);
+			auto&& [pk, pv] = p;
+			TEST_ASSERT(pk == 100);
+			TEST_ASSERT(pv == L"abc");
+		}
+		{
+			Tuple<const vint&, const WString&> a{ k,v };
+			Tuple<const vint&, const WString&> p = std::move(a);
+			auto&& [pk, pv] = p;
+			TEST_ASSERT(&pk == &k);
+			TEST_ASSERT(&pv == &v);
 		}
 	});
 
-	TEST_CASE(L"Test Pair<K, V> and Tuple<T...> aggregate initialization")
+	TEST_CASE(L"Test Tuple<T...> copy assignment")
 	{
-		// TODO:
+		vint k = 100, k2 = 0;
+		WString v = L"abc", v2;
+		{
+			auto a = Tuple(100, L"abc");
+			Tuple<vint, WString> p;
+			p = a;
+			auto&& [pk, pv] = p;
+			TEST_ASSERT(pk == 100);
+			TEST_ASSERT(pv == L"abc");
+		}
+		{
+			Tuple<const vint&, const WString&> a{ k,v };
+			Tuple<vint, WString> p;
+			p = a;
+			auto&& [pk, pv] = p;
+			TEST_ASSERT(pk == 100);
+			TEST_ASSERT(pv == L"abc");
+		}
+		{
+			Tuple<vint, WString> a{ 100, L"abc" };
+			Tuple<const vint&, const WString&> p{ k2,v2 };
+			p = a;
+			auto&& [pk, pv] = p;
+			TEST_ASSERT(pk == 100);
+			TEST_ASSERT(pv == L"abc");
+		}
+		{
+			Tuple<const vint&, const WString&> a{ k,v };
+			Tuple<const vint&, const WString&> p{ k2,v2 };
+			p = a;
+			auto&& [pk, pv] = p;
+			TEST_ASSERT(&pk == &k);
+			TEST_ASSERT(&pv == &v);
+		}
 	});
 
-	TEST_CASE(L"Test Tuple<T...> assignment")
+	TEST_CASE(L"Test Tuple<T...> move assignment")
 	{
-		// TODO:
+		vint k = 100, k2 = 0;
+		WString v = L"abc", v2;
+		{
+			auto a = Tuple(100, L"abc");
+			Tuple<vint, WString> p;
+			p = std::move(a);
+			auto&& [pk, pv] = p;
+			TEST_ASSERT(pk == 100);
+			TEST_ASSERT(pv == L"abc");
+		}
+		{
+			Tuple<const vint&, const WString&> a{ k,v };
+			Tuple<vint, WString> p;
+			p = std::move(a);
+			auto&& [pk, pv] = p;
+			TEST_ASSERT(pk == 100);
+			TEST_ASSERT(pv == L"abc");
+		}
+		{
+			Tuple<vint, WString> a{ 100, L"abc" };
+			Tuple<const vint&, const WString&> p{ k2,v2 };
+			p = std::move(a);
+			auto&& [pk, pv] = p;
+			TEST_ASSERT(pk == 100);
+			TEST_ASSERT(pv == L"abc");
+		}
+		{
+			Tuple<const vint&, const WString&> a{ k,v };
+			Tuple<const vint&, const WString&> p{ k2,v2 };
+			p = std::move(a);
+			auto&& [pk, pv] = p;
+			TEST_ASSERT(&pk == &k);
+			TEST_ASSERT(&pv == &v);
+		}
 	});
 
 	TEST_CASE(L"Test Tuple<T...> comparison")

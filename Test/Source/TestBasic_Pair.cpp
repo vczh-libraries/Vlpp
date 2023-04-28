@@ -21,21 +21,25 @@ TEST_FILE
 			TEST_ASSERT(p.value == L"abc");
 		}
 		{
-			auto a = Pair(100, L"abc");
-			Pair<vint, WString> p = a;
-			TEST_ASSERT(p.key == 100);
-			TEST_ASSERT(p.value == L"abc");
-		}
-		{
 			vint k = 100;
 			WString v = L"abc";
 			Pair<const vint&, const WString&> p{ k,v };
 			TEST_ASSERT(p.key == 100);
 			TEST_ASSERT(p.value == L"abc");
 		}
+	});
+
+	TEST_CASE(L"Test Pair<K, V> copy constructor")
+	{
+		vint k = 100;
+		WString v = L"abc";
 		{
-			vint k = 100;
-			WString v = L"abc";
+			auto a = Pair(100, L"abc");
+			Pair<vint, WString> p = a;
+			TEST_ASSERT(p.key == 100);
+			TEST_ASSERT(p.value == L"abc");
+		}
+		{
 			Pair<const vint&, const WString&> a{ k,v };
 			Pair<vint, WString> p = a;
 			TEST_ASSERT(p.key == 100);
@@ -48,26 +52,113 @@ TEST_FILE
 			TEST_ASSERT(p.value == L"abc");
 		}
 		{
-			vint k = 100;
-			WString v = L"abc";
 			Pair<const vint&, const WString&> a{ k,v };
 			Pair<const vint&, const WString&> p = a;
 			TEST_ASSERT(&p.key == &k);
 			TEST_ASSERT(&p.value == &v);
 		}
+	});
+
+	TEST_CASE(L"Test Pair<K, V> move constructor")
+	{
+		vint k = 100;
+		WString v = L"abc";
 		{
-			Pair<vint, WString> a{ 100,L"abc" }, b{ 200,L"def" };
-			TEST_ASSERT(!(a == b));
-			TEST_ASSERT(a != b);
-			TEST_ASSERT(a < b);
-			TEST_ASSERT(a <= b);
-			TEST_ASSERT(!(a > b));
-			TEST_ASSERT(!(a >= b));
+			auto a = Pair(100, L"abc");
+			Pair<vint, WString> p = std::move(a);
+			TEST_ASSERT(p.key == 100);
+			TEST_ASSERT(p.value == L"abc");
+		}
+		{
+			Pair<const vint&, const WString&> a{ k,v };
+			Pair<vint, WString> p = std::move(a);
+			TEST_ASSERT(p.key == 100);
+			TEST_ASSERT(p.value == L"abc");
+		}
+		{
+			Pair<vint, WString> a{ 100, L"abc" };
+			Pair<const vint&, const WString&> p = std::move(a);
+			TEST_ASSERT(p.key == 100);
+			TEST_ASSERT(p.value == L"abc");
+		}
+		{
+			Pair<const vint&, const WString&> a{ k,v };
+			Pair<const vint&, const WString&> p = std::move(a);
+			TEST_ASSERT(&p.key == &k);
+			TEST_ASSERT(&p.value == &v);
 		}
 	});
 
-	TEST_CASE(L"Test Pair<K, V> assignment")
+	TEST_CASE(L"Test Pair<K, V> copy assignment")
 	{
+		vint k = 100, k2 = 0;
+		WString v = L"abc", v2;
+		{
+			auto a = Pair(100, L"abc");
+			Pair<vint, WString> p;
+			p = a;
+			TEST_ASSERT(p.key == 100);
+			TEST_ASSERT(p.value == L"abc");
+		}
+		{
+			Pair<const vint&, const WString&> a{ k,v };
+			Pair<vint, WString> p;
+			p = a;
+			TEST_ASSERT(p.key == 100);
+			TEST_ASSERT(p.value == L"abc");
+		}
+		{
+			Pair<vint, WString> a{ 100, L"abc" };
+			Pair<const vint&, const WString&> p{ k2,v2 };
+			p = a;
+			TEST_ASSERT(p.key == 100);
+			TEST_ASSERT(p.value == L"abc");
+		}
+		{
+			Pair<const vint&, const WString&> a{ k,v };
+			Pair<const vint&, const WString&> p{ k2,v2 };
+			p = a;
+			TEST_ASSERT(&p.key == &k);
+			TEST_ASSERT(&p.value == &v);
+		}
+	});
+
+	TEST_CASE(L"Test Pair<K, V> move assignment")
+	{
+		vint k = 100, k2 = 0;
+		WString v = L"abc", v2;
+		{
+			auto a = Pair(100, L"abc");
+			Pair<vint, WString> p;
+			p = std::move(a);
+			TEST_ASSERT(p.key == 100);
+			TEST_ASSERT(p.value == L"abc");
+		}
+		{
+			vint k = 100, k2;
+			WString v = L"abc", v2;
+			Pair<const vint&, const WString&> a{ k,v };
+			Pair<vint, WString> p;
+			p = std::move(a);
+			TEST_ASSERT(p.key == 100);
+			TEST_ASSERT(p.value == L"abc");
+		}
+		{
+			Pair<vint, WString> a{ 100, L"abc" };
+			Pair<const vint&, const WString&> p{ k2,v2 };
+			p = std::move(a);
+			TEST_ASSERT(p.key == 100);
+			TEST_ASSERT(p.value == L"abc");
+		}
+		{
+			vint k = 100;
+			WString v = L"abc";
+			Pair<const vint&, const WString&> a{ k,v };
+			Pair<const vint&, const WString&> p{ k2,v2 };
+			p = std::move(a);
+			TEST_ASSERT(&p.key == &k);
+			TEST_ASSERT(&p.value == &v);
+		}
 	});
 
 	TEST_CASE(L"Test Pair<K, V> comparison")
