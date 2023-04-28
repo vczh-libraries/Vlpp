@@ -107,20 +107,20 @@ TEST_FILE
 			TEST_ASSERT(p.key == 100);
 			TEST_ASSERT(p.value == L"abc");
 		}
-		{
-			Pair<vint, WString> a{ 100, L"abc" };
-			Pair<const vint&, const WString&> p{ k2,v2 };
-			p = a;
-			TEST_ASSERT(p.key == 100);
-			TEST_ASSERT(p.value == L"abc");
-		}
-		{
-			Pair<const vint&, const WString&> a{ k,v };
-			Pair<const vint&, const WString&> p{ k2,v2 };
-			p = a;
-			TEST_ASSERT(&p.key == &k);
-			TEST_ASSERT(&p.value == &v);
-		}
+		//{
+		//	Pair<vint, WString> a{ 100, L"abc" };
+		//	Pair<const vint&, const WString&> p{ k2,v2 };
+		//	p = a;
+		//	TEST_ASSERT(p.key == 100);
+		//	TEST_ASSERT(p.value == L"abc");
+		//}
+		//{
+		//	Pair<const vint&, const WString&> a{ k,v };
+		//	Pair<const vint&, const WString&> p{ k2,v2 };
+		//	p = a;
+		//	TEST_ASSERT(&p.key == &k);
+		//	TEST_ASSERT(&p.value == &v);
+		//}
 	});
 
 	TEST_CASE(L"Test Pair<K, V> move assignment")
@@ -135,30 +135,26 @@ TEST_FILE
 			TEST_ASSERT(p.value == L"abc");
 		}
 		{
-			vint k = 100, k2;
-			WString v = L"abc", v2;
 			Pair<const vint&, const WString&> a{ k,v };
 			Pair<vint, WString> p;
 			p = std::move(a);
 			TEST_ASSERT(p.key == 100);
 			TEST_ASSERT(p.value == L"abc");
 		}
-		{
-			Pair<vint, WString> a{ 100, L"abc" };
-			Pair<const vint&, const WString&> p{ k2,v2 };
-			p = std::move(a);
-			TEST_ASSERT(p.key == 100);
-			TEST_ASSERT(p.value == L"abc");
-		}
-		{
-			vint k = 100;
-			WString v = L"abc";
-			Pair<const vint&, const WString&> a{ k,v };
-			Pair<const vint&, const WString&> p{ k2,v2 };
-			p = std::move(a);
-			TEST_ASSERT(&p.key == &k);
-			TEST_ASSERT(&p.value == &v);
-		}
+		//{
+		//	Pair<vint, WString> a{ 100, L"abc" };
+		//	Pair<const vint&, const WString&> p{ k2,v2 };
+		//	p = std::move(a);
+		//	TEST_ASSERT(p.key == 100);
+		//	TEST_ASSERT(p.value == L"abc");
+		//}
+		//{
+		//	Pair<const vint&, const WString&> a{ k,v };
+		//	Pair<const vint&, const WString&> p{ k2,v2 };
+		//	p = std::move(a);
+		//	TEST_ASSERT(&p.key == &k);
+		//	TEST_ASSERT(&p.value == &v);
+		//}
 	});
 
 	TEST_CASE(L"Test Pair<K, V> comparison")

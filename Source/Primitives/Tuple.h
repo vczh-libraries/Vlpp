@@ -23,6 +23,76 @@ namespace vl
 				:element(std::forward<U&&>(_element))
 			{
 			}
+
+			template<typename U>
+			void AssignCopy(const TupleElement<I, U>& value)
+			{
+				element = value.GetElement();
+			}
+
+			template<typename U>
+			void AssignMove(TupleElement<I, U>&& value)
+			{
+				element = std::move(value.GetElement());
+			}
+
+			template<typename U>
+			bool operator==(const TupleElement<I, U>& value) const
+			{
+				return element == value.GetElement();
+			}
+
+			T& GetElement()
+			{
+				return element;
+			}
+
+			const T& GetElement() const
+			{
+				return element;
+			}
+		};
+
+		template<vint I, typename T>
+		struct TupleElement<I, T&>
+		{
+			T*						element;
+
+			TupleElement() = delete;
+
+			template<typename U>
+			TupleElement(U&& _element)
+				:element(&_element)
+			{
+			}
+
+			template<typename U>
+			void AssignCopy(const TupleElement<I, U>& value)
+			{
+				element = &value.GetElement();
+			}
+
+			template<typename U>
+			void AssignMove(TupleElement<I, U>&& value)
+			{
+				element = &value.GetElement();
+			}
+
+			template<typename U>
+			bool operator==(const TupleElement<I, U>& value) const
+			{
+				return *element == value.GetElement();
+			}
+
+			T& GetElement()
+			{
+				return *element;
+			}
+
+			const T& GetElement() const
+			{
+				return *element;
+			}
 		};
 
 		template<typename T, typename U>
@@ -58,7 +128,7 @@ namespace vl
 			using TSelf = TupleBase<std::index_sequence<Is...>, TArgs...>;
 
 			template<typename ...UArgs> requires(sizeof...(TArgs) == sizeof...(UArgs))
-				using TCompatible = TupleBase<std::index_sequence<Is...>, UArgs...>;
+			using TCompatible = TupleBase<std::index_sequence<Is...>, UArgs...>;
 
 		public:
 			TupleBase() = default;
@@ -71,13 +141,13 @@ namespace vl
 
 			template<typename ...UArgs>
 			TupleBase(TupleCtorTupleTag, const TCompatible<UArgs...>& t)
-				: TupleElement<Is, TArgs>(static_cast<const TupleElement<Is, UArgs>&>(t).element) ...
+				: TupleElement<Is, TArgs>(static_cast<const TupleElement<Is, UArgs>&>(t).GetElement()) ...
 			{
 			}
 
 			template<typename ...UArgs>
 			TupleBase(TupleCtorTupleTag, TCompatible<UArgs...>&& t)
-				: TupleElement<Is, TArgs>(std::move(static_cast<TupleElement<Is, UArgs>&>(t).element)) ...
+				: TupleElement<Is, TArgs>(std::move(static_cast<TupleElement<Is, UArgs>&>(t).GetElement())) ...
 			{
 			}
 
@@ -85,8 +155,10 @@ namespace vl
 			void AssignCopy(const TCompatible<UArgs...>& t)
 			{
 				((
-					static_cast<TupleElement<Is, TArgs>*>(this)->element =
-					static_cast<const TupleElement<Is, UArgs>&>(t).element
+					static_cast<TupleElement<Is, TArgs>*>(this)->AssignCopy
+					(
+						static_cast<const TupleElement<Is, UArgs>&>(t)
+					)
 				), ...);
 			}
 
@@ -94,8 +166,10 @@ namespace vl
 			void AssignMove(TCompatible<UArgs...>&& t)
 			{
 				((
-					static_cast<TupleElement<Is, TArgs>*>(this)->element =
-					std::move(static_cast<TupleElement<Is, UArgs>&&>(t).element)
+					static_cast<TupleElement<Is, TArgs>*>(this)->AssignMove
+					(
+						std::move(static_cast<TupleElement<Is, UArgs>&&>(t))
+					)
 				), ...);
 			}
 
@@ -103,8 +177,7 @@ namespace vl
 			bool AreEqual(const TCompatible<UArgs...>& t) const
 			{
 				return (true && ... && (
-					static_cast<const TupleElement<Is, TArgs>*>(this)->element ==
-					static_cast<const TupleElement<Is, UArgs>&>(t).element
+					*static_cast<const TupleElement<Is, TArgs>*>(this) == static_cast<const TupleElement<Is, UArgs>&>(t)
 					));
 			}
 
@@ -112,8 +185,8 @@ namespace vl
 			std::strong_ordering Compare(const TCompatible<UArgs...>& t) const
 			{
 				return (std::strong_ordering::equal * ... * (TupleElementComparison<TArgs, UArgs>(
-					static_cast<const TupleElement<Is, TArgs>*>(this)->element,
-					static_cast<const TupleElement<Is, UArgs>&>(t).element
+					static_cast<const TupleElement<Is, TArgs>*>(this)->GetElement(),
+					static_cast<const TupleElement<Is, UArgs>&>(t).GetElement()
 					)));
 			}
 		};
@@ -167,14 +240,14 @@ namespace vl
 		template<typename ...UArgs>
 		TSelf& operator=(const TCompatible<UArgs...>& t)
 		{
-			AssignCopy(t);
+			this->AssignCopy(t);
 			return *this;
 		}
 
 		template<typename ...UArgs>
 		TSelf& operator=(TCompatible<UArgs...>&& t)
 		{
-			AssignMove(std::move(t));
+			this->AssignMove(std::move(t));
 			return *this;
 		}
 
@@ -191,15 +264,17 @@ namespace vl
 		}
 
 		template<vint Index>
-		TypeTupleElement<Index, TypeTuple<TArgs...>>& get()
+		decltype(auto) get()
 		{
-			return static_cast<tuple_internal::TupleElement<Index, TypeTupleElement<Index, TypeTuple<TArgs...>>>*>(this)->element;
+			using TElement = tuple_internal::TupleElement<Index, TypeTupleElement<Index, TypeTuple<TArgs...>>>;
+			return static_cast<TElement*>(this)->GetElement();
 		}
 
 		template<vint Index>
-		const TypeTupleElement<Index, TypeTuple<TArgs...>>& get()const
+		decltype(auto) get()const
 		{
-			return static_cast<const tuple_internal::TupleElement<Index, TypeTupleElement<Index, TypeTuple<TArgs...>>>*>(this)->element;
+			using TElement = tuple_internal::TupleElement<Index, TypeTupleElement<Index, TypeTuple<TArgs...>>>;
+			return static_cast<const TElement*>(this)->GetElement();
 		}
 	};
 
@@ -213,13 +288,13 @@ namespace vl
 	Tuple(TArgs&&...) -> Tuple<typename TupleElementCtad<TArgs>::Type...>;
 
 	template<vint Index, typename ...TArgs>
-	TypeTupleElement<Index, TypeTuple<TArgs...>>& get(Tuple<TArgs...>& t)
+	decltype(auto) get(Tuple<TArgs...>& t)
 	{
 		return t.template get<Index>();
 	}
 	
 	template<vint Index, typename ...TArgs>
-	const TypeTupleElement<Index, TypeTuple<TArgs...>>& get(const Tuple<TArgs...>& t)
+	decltype(auto) get(const Tuple<TArgs...>& t)
 	{
 		return t.template get<Index>();
 	}
@@ -230,10 +305,19 @@ namespace std
 	template<typename ...TArgs>
 	struct tuple_size<vl::Tuple<TArgs...>> : integral_constant<size_t, sizeof...(TArgs)> {};
 
+	template<typename ...TArgs>
+	struct tuple_size<const vl::Tuple<TArgs...>> : integral_constant<size_t, sizeof...(TArgs)> {};
+
 	template<size_t Index, typename ...TArgs>
 	struct tuple_element<Index, vl::Tuple<TArgs...>>
 	{
-		using type = vl::TypeTupleElement<Index, vl::TypeTuple<TArgs...>>;
+		using type = decltype((std::declval<vl::Tuple<TArgs...>>().get<Index>()));
+	};
+
+	template<size_t Index, typename ...TArgs>
+	struct tuple_element<Index, const vl::Tuple<TArgs...>>
+	{
+		using type = decltype((std::declval<const vl::Tuple<TArgs...>>().get<Index>()));
 	};
 }
 
