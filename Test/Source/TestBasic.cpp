@@ -70,6 +70,38 @@ using namespace TestBasic_TestObjects;
 
 TEST_FILE
 {
+	TEST_CASE(L"TEST_ERROR")
+	{
+		const wchar_t* description = L"Something Happened!";
+		Error e(description);
+		TEST_ASSERT(e.Description() == description);
+
+		TEST_ERROR(
+			CHECK_FAIL(L"TEST_ERROR with CHECK_FAIL")
+			);
+	});
+
+	TEST_CASE(L"TEST_EXCEPTION")
+	{
+		TEST_EXCEPTION(
+			throw Exception(L"ABC"),
+			Exception,
+			([](const Exception& e)
+			{
+				TEST_ASSERT(e.Message() == L"ABC");
+			}));
+
+		TEST_EXCEPTION(
+			throw ArgumentException(L"ABC", L"DEF", L"GHI"),
+			ArgumentException,
+			([](const ArgumentException& e)
+			{
+				TEST_ASSERT(e.Message() == L"ABC");
+				TEST_ASSERT(e.GetFunction() == L"DEF");
+				TEST_ASSERT(e.GetName() == L"GHI");
+			}));
+	});
+
 	TEST_CASE(L"Test Ptr<T>")
 	{
 		Base* b = new Base(1);
@@ -135,26 +167,51 @@ TEST_FILE
 
 	TEST_CASE(L"Test DateTime")
 	{
-		// 2000/1/1 is saturday
-		DateTime dt = DateTime::FromDateTime(2000, 1, 1);
-		TEST_ASSERT(dt.year == 2000);
-		TEST_ASSERT(dt.month == 1);
-		TEST_ASSERT(dt.day == 1);
-		TEST_ASSERT(dt.dayOfWeek == 6);
-		TEST_ASSERT(dt.hour == 0);
-		TEST_ASSERT(dt.minute == 0);
-		TEST_ASSERT(dt.second == 0);
-		TEST_ASSERT(dt.milliseconds == 0);
+		{
+			// 2000/1/1 is saturday
+			DateTime dt = DateTime::FromDateTime(2000, 1, 1);
+			TEST_ASSERT(dt.year == 2000);
+			TEST_ASSERT(dt.month == 1);
+			TEST_ASSERT(dt.day == 1);
+			TEST_ASSERT(dt.dayOfWeek == 6);
+			TEST_ASSERT(dt.hour == 0);
+			TEST_ASSERT(dt.minute == 0);
+			TEST_ASSERT(dt.second == 0);
+			TEST_ASSERT(dt.milliseconds == 0);
 
-		dt = DateTime::FromFileTime(dt.filetime);
-		TEST_ASSERT(dt.year == 2000);
-		TEST_ASSERT(dt.month == 1);
-		TEST_ASSERT(dt.day == 1);
-		TEST_ASSERT(dt.dayOfWeek == 6);
-		TEST_ASSERT(dt.hour == 0);
-		TEST_ASSERT(dt.minute == 0);
-		TEST_ASSERT(dt.second == 0);
-		TEST_ASSERT(dt.milliseconds == 0);
+			dt = DateTime::FromFileTime(dt.filetime);
+			TEST_ASSERT(dt.year == 2000);
+			TEST_ASSERT(dt.month == 1);
+			TEST_ASSERT(dt.day == 1);
+			TEST_ASSERT(dt.dayOfWeek == 6);
+			TEST_ASSERT(dt.hour == 0);
+			TEST_ASSERT(dt.minute == 0);
+			TEST_ASSERT(dt.second == 0);
+			TEST_ASSERT(dt.milliseconds == 0);
+
+			auto dt2 = dt.Forward(100);
+			TEST_ASSERT(dt2.year == 2000);
+			TEST_ASSERT(dt2.month == 1);
+			TEST_ASSERT(dt2.day == 1);
+			TEST_ASSERT(dt2.dayOfWeek == 6);
+			TEST_ASSERT(dt2.hour == 0);
+			TEST_ASSERT(dt2.minute == 0);
+			TEST_ASSERT(dt2.second == 0);
+			TEST_ASSERT(dt2.milliseconds == 100);
+
+			auto dt3 = dt2.Backward(100);
+			TEST_ASSERT(dt == dt3);
+		}
+		{
+			auto l1 = DateTime::LocalTime();
+			auto l2 = l1.ToUtcTime().ToLocalTime();
+			TEST_ASSERT(l1 == l2);
+		}
+		{
+			auto u1 = DateTime::UtcTime();
+			auto u2 = u1.ToLocalTime().ToUtcTime();
+			TEST_ASSERT(u1 == u2);
+		}
 	});
 
 	TEST_CASE(L"Test Nullable<T>")
@@ -198,7 +255,22 @@ TEST_FILE
 			TEST_ASSERT(n.Value() == 100);
 		}
 		{
+			Nullable<vint> m = 100, n = 999;
+			n = m;
+			TEST_ASSERT(m);
+			TEST_ASSERT(m.Value() == 100);
+			TEST_ASSERT(n);
+			TEST_ASSERT(n.Value() == 100);
+		}
+		{
 			Nullable<vint> m = 100, n;
+			n = std::move(m);
+			TEST_ASSERT(!m);
+			TEST_ASSERT(n);
+			TEST_ASSERT(n.Value() == 100);
+		}
+		{
+			Nullable<vint> m = 100, n = 999;
 			n = std::move(m);
 			TEST_ASSERT(!m);
 			TEST_ASSERT(n);

@@ -192,7 +192,7 @@ namespace vl
 			try{STATEMENT; throw ::vl::unittest::UnitTestAssertError(L"Expect an error but nothing occurred: " #STATEMENT);}\
 			catch(const ::vl::Error&){}\
 			catch(const ::vl::unittest::UnitTestAssertError&) { throw; }\
-			catch (const ::vl::unittest::UnitTestConfigError&) { throw; }\
+			catch(const ::vl::unittest::UnitTestConfigError&) { throw; }\
 		}while(0)\
 
 #define TEST_EXCEPTION(STATEMENT,EXCEPTION,ASSERT_FUNCTION)\
