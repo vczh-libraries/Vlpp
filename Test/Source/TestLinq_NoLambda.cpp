@@ -5,6 +5,7 @@ TEST_FILE
 	auto Square = [](auto x) { return x * x; };
 	auto Double = [](auto x) { return x * 2; };
 	auto Add = [](auto x, auto y) { return x + y; };
+	auto Unref = [](auto p) { return *p.Obj(); };
 
 	TEST_CASE(L"Test Concat()")
 	{
@@ -151,6 +152,32 @@ TEST_FILE
 			{9 _ 8 _ 7 _ 6 _ 5 _ 4 _ 3 _ 2 _ 1 _ 0}
 			);
 		CompareEnumerable(result, From(first).Concat(second).Distinct().Reverse());
+	});
+
+	TEST_CASE(L"Test Distinct() with Ptr<T>")
+	{
+		List<Ptr<vint>> first;
+		List<Ptr<vint>> second;
+		List<vint> result;
+		for (vint i = 0; i < 8; i++)
+		{
+			first.Add(Ptr(new vint(i)));
+		}
+		CopyFrom(second, From(first).Skip(2));
+		second.Add(Ptr(new vint(8)));
+		second.Add(Ptr(new vint(9)));
+		CHECK_LIST_COPYFROM_ITEMS(
+			result,
+			(From(first).Concat(second).Distinct().Select(Unref)),
+			{0 _ 1 _ 2 _ 3 _ 4 _ 5 _ 6 _ 7 _ 8 _ 9}
+			);
+		CompareEnumerable(result, From(first).Concat(second).Distinct().Select(Unref));
+		CHECK_LIST_COPYFROM_ITEMS(
+			result,
+			(From(first).Concat(second).Distinct().Reverse().Select(Unref)),
+			{9 _ 8 _ 7 _ 6 _ 5 _ 4 _ 3 _ 2 _ 1 _ 0}
+			);
+		CompareEnumerable(result, From(first).Concat(second).Distinct().Reverse().Select(Unref));
 	});
 
 	TEST_CASE(L"Test Intersect() / Except() / Union()")
