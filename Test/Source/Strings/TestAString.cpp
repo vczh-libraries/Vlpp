@@ -171,5 +171,250 @@ TEST_FILE
 			CheckString(aupper(d), "VCZH IS GENIUS");
 			CheckString(d, "VCZH IS GENIUS");
 		});
+
+		TEST_CASE(L"Test string to number test")
+		{
+			{
+				bool success = false;
+				wtoi_test(L"123abc", success);
+				TEST_ASSERT(!success);
+			}
+			{
+				bool success = false;
+				auto result = wtoi_test(L"123", success);
+				TEST_ASSERT(success);
+				TEST_ASSERT(result == 123);
+			}
+			{
+				bool success = false;
+				wtoi_test(L"4294967295", success);
+				TEST_ASSERT(!success);
+			}
+			{
+				bool success = false;
+				wtoi_test(L"4294967296", success);
+				TEST_ASSERT(!success);
+			}
+			{
+				bool success = false;
+				wtoi_test(L"9223372036854775808", success);
+				TEST_ASSERT(!success);
+			}
+
+			{
+				bool success = false;
+				wtou_test(L"123abc", success);
+				TEST_ASSERT(!success);
+			}
+			{
+				bool success = false;
+				auto result = wtou_test(L"123", success);
+				TEST_ASSERT(success);
+				TEST_ASSERT(result == 123);
+			}
+			{
+				bool success = false;
+				auto result = wtou_test(L"4294967295", success);
+				TEST_ASSERT(success);
+				TEST_ASSERT(result == 4294967295);
+			}
+			{
+				bool success = false;
+				wtou_test(L"4294967296", success);
+				TEST_ASSERT(!success);
+			}
+			{
+				bool success = false;
+				wtou_test(L"9223372036854775808", success);
+				TEST_ASSERT(!success);
+			}
+
+			{
+				bool success = false;
+				wtoi64_test(L"123abc", success);
+				TEST_ASSERT(!success);
+			}
+			{
+				bool success = false;
+				auto result = wtoi64_test(L"123", success);
+				TEST_ASSERT(success);
+				TEST_ASSERT(result == 123);
+			}
+			{
+				bool success = false;
+				auto result = wtoi64_test(L"4294967295", success);
+				TEST_ASSERT(success);
+				TEST_ASSERT(result == 4294967295);
+			}
+			{
+				bool success = false;
+				auto result = wtoi64_test(L"4294967296", success);
+				TEST_ASSERT(success);
+				TEST_ASSERT(result == 4294967296);
+			}
+			{
+				bool success = false;
+				wtoi64_test(L"9223372036854775808", success);
+				TEST_ASSERT(!success);
+			}
+
+			{
+				bool success = false;
+				wtou64_test(L"123abc", success);
+				TEST_ASSERT(!success);
+			}
+			{
+				bool success = false;
+				auto result = wtou64_test(L"123", success);
+				TEST_ASSERT(success);
+				TEST_ASSERT(result == 123);
+			}
+			{
+				bool success = false;
+				auto result = wtou64_test(L"4294967295", success);
+				TEST_ASSERT(success);
+				TEST_ASSERT(result == 4294967295);
+			}
+			{
+				bool success = false;
+				auto result = wtou64_test(L"4294967296", success);
+				TEST_ASSERT(success);
+				TEST_ASSERT(result == 4294967296);
+			}
+			{
+				bool success = false;
+				auto result = wtou64_test(L"9223372036854775808", success);
+				TEST_ASSERT(success);
+				TEST_ASSERT(result == 9223372036854775808);
+			}
+
+			{
+				bool success = false;
+				wtof_test(L"123abc", success);
+				TEST_ASSERT(!success);
+			}
+			{
+				bool success = false;
+				auto result = wtof_test(L"1.5", success);
+				TEST_ASSERT(success);
+				TEST_ASSERT(result == 1.5);
+			}
+		});
+
+		TEST_CASE(L"Test string to number non-test")
+		{
+			{
+				auto result =wtoi(L"123abc");
+				TEST_ASSERT(result == 0);
+			}
+			{
+				auto result = wtoi(L"123");
+				TEST_ASSERT(result == 123);
+			}
+			{
+				auto result = wtoi(L"4294967295");
+				TEST_ASSERT(result == 0);
+			}
+			{
+				auto result = wtoi(L"4294967296");
+				TEST_ASSERT(result == 0);
+			}
+			{
+				auto result = wtoi(L"9223372036854775808");
+				TEST_ASSERT(result == 0);
+			}
+
+			{
+				auto result = wtou(L"123abc");
+				TEST_ASSERT(result == 0);
+			}
+			{
+				auto result = wtou(L"123");
+				TEST_ASSERT(result == 123);
+			}
+			{
+				auto result = wtou(L"4294967295");
+				TEST_ASSERT(result == 4294967295);
+			}
+			{
+				auto result = wtou(L"4294967296");
+				TEST_ASSERT(result == 0);
+			}
+			{
+				auto result = wtou(L"9223372036854775808");
+				TEST_ASSERT(result == 0);
+			}
+
+			{
+				auto result = wtoi64(L"123abc");
+				TEST_ASSERT(result == 0);
+			}
+			{
+				auto result = wtoi64(L"123");
+				TEST_ASSERT(result == 123);
+			}
+			{
+				auto result = wtoi64(L"4294967295");
+				TEST_ASSERT(result == 4294967295);
+			}
+			{
+				auto result = wtoi64(L"4294967296");
+				TEST_ASSERT(result == 4294967296);
+			}
+			{
+				auto result = wtoi64(L"9223372036854775808");
+				TEST_ASSERT(result == 0);
+			}
+
+			{
+				auto result = wtou64(L"123abc");
+				TEST_ASSERT(result == 0);
+			}
+			{
+				auto result = wtou64(L"123");
+				TEST_ASSERT(result == 123);
+			}
+			{
+				auto result = wtou64(L"4294967295");
+				TEST_ASSERT(result == 4294967295);
+			}
+			{
+				auto result = wtou64(L"4294967296");
+				TEST_ASSERT(result == 4294967296);
+			}
+			{
+				auto result = wtou64(L"9223372036854775808");
+				TEST_ASSERT(result == 9223372036854775808);
+			}
+
+			{
+				auto result = wtof(L"123abc");
+				TEST_ASSERT(result == 0);
+			}
+			{
+				auto result = wtof(L"1.5");
+				TEST_ASSERT(result == 1.5);
+			}
+		});
+
+		TEST_CASE(L"Test number to string")
+		{
+			TEST_ASSERT(itow(123) == L"123");
+
+			TEST_ASSERT(utow(123) == L"123");
+			TEST_ASSERT(utow(4294967295) == L"4294967295");
+
+			TEST_ASSERT(i64tow(123) == L"123");
+			TEST_ASSERT(i64tow(4294967295) == L"4294967295");
+			TEST_ASSERT(i64tow(4294967296) == L"4294967296");
+
+			TEST_ASSERT(u64tow(123) == L"123");
+			TEST_ASSERT(u64tow(4294967295) == L"4294967295");
+			TEST_ASSERT(u64tow(4294967296) == L"4294967296");
+			TEST_ASSERT(u64tow(9223372036854775808) == L"9223372036854775808");
+
+			TEST_ASSERT(ftow(123) == L"123");
+			TEST_ASSERT(ftow(123.5) == L"123.5");
+		});
 	});
 }

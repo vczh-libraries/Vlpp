@@ -199,61 +199,71 @@ namespace vl
 	vint atoi(const AString& string)
 	{
 		bool success = false;
-		return atoi_test(string, success);
+		vint result = atoi_test(string, success);
+		return success ? result : 0;
 	}
 
 	vint wtoi(const WString& string)
 	{
 		bool success = false;
-		return wtoi_test(string, success);
+		vint result = wtoi_test(string, success);
+		return success ? result : 0;
 	}
 
 	vint64_t atoi64(const AString& string)
 	{
 		bool success = false;
-		return atoi64_test(string, success);
+		vint64_t result = atoi64_test(string, success);
+		return success ? result : 0;
 	}
 
 	vint64_t wtoi64(const WString& string)
 	{
 		bool success = false;
-		return wtoi64_test(string, success);
+		vint64_t result = wtoi64_test(string, success);
+		return success ? result : 0;
 	}
 
 	vuint atou(const AString& string)
 	{
 		bool success = false;
-		return atou_test(string, success);
+		vuint result = atou_test(string, success);
+		return success ? result : 0;
 	}
 
 	vuint wtou(const WString& string)
 	{
 		bool success = false;
-		return wtou_test(string, success);
+		vuint result = wtou_test(string, success);
+		return success ? result : 0;
 	}
 
 	vuint64_t atou64(const AString& string)
 	{
 		bool success = false;
-		return atou64_test(string, success);
+		vuint64_t result = atou64_test(string, success);
+		return success ? result : 0;
 	}
 
 	vuint64_t wtou64(const WString& string)
 	{
 		bool success = false;
-		return wtou64_test(string, success);
+		vuint64_t result = wtou64_test(string, success);
+		return success ? result : 0;
 	}
 
 	double atof(const AString& string)
 	{
 		bool success = false;
-		return atof_test(string, success);
+		double result = atof_test(string, success);
+		return success ? result : 0;
 	}
 
 	double wtof(const WString& string)
 	{
 		bool success = false;
-		return wtof_test(string, success);
+		double result = wtof_test(string, success);
+		return success ? result : 0;
 	}
 
 	AString itoa(vint number)

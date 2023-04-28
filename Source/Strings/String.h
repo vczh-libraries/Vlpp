@@ -540,52 +540,52 @@ namespace vl
 	extern double				wtof_test(const WString& string, bool& success);
 
 	/// <summary>Convert a string to a signed integer.</summary>
-	/// <returns>The converted number. If the conversion failed, the result is undefined.</returns>
+	/// <returns>The converted number. If the conversion failed, the result is 0.</returns>
 	/// <param name="string">The string to convert.</param>
 	/// <remarks>If you need to know whether the conversion is succeeded or not, please use <see cref="atoi_test"/> instead.</remarks>
 	extern vint					atoi(const AString& string);
 	/// <summary>Convert a string to a signed integer.</summary>
-	/// <returns>The converted number. If the conversion failed, the result is undefined.</returns>
+	/// <returns>The converted number. If the conversion failed, the result is 0.</returns>
 	/// <param name="string">The string to convert.</param>
 	/// <remarks>If you need to know whether the conversion is succeeded or not, please use <see cref="wtoi_test"/> instead.</remarks>
 	extern vint					wtoi(const WString& string);
 	/// <summary>Convert a string to a signed 64-bits integer.</summary>
-	/// <returns>The converted number. If the conversion failed, the result is undefined.</returns>
+	/// <returns>The converted number. If the conversion failed, the result is 0.</returns>
 	/// <param name="string">The string to convert.</param>
 	/// <remarks>If you need to know whether the conversion is succeeded or not, please use <see cref="atoi64_test"/> instead.</remarks>
 	extern vint64_t				atoi64(const AString& string);
 	/// <summary>Convert a string to a signed 64-bits integer.</summary>
-	/// <returns>The converted number. If the conversion failed, the result is undefined.</returns>
+	/// <returns>The converted number. If the conversion failed, the result is 0.</returns>
 	/// <param name="string">The string to convert.</param>
 	/// <remarks>If you need to know whether the conversion is succeeded or not, please use <see cref="wtoi64_test"/> instead.</remarks>
 	extern vint64_t				wtoi64(const WString& string);
 	/// <summary>Convert a string to an usigned integer.</summary>
-	/// <returns>The converted number. If the conversion failed, the result is undefined.</returns>
+	/// <returns>The converted number. If the conversion failed, the result is 0.</returns>
 	/// <param name="string">The string to convert.</param>
 	/// <remarks>If you need to know whether the conversion is succeeded or not, please use <see cref="atou_test"/> instead.</remarks>
 	extern vuint				atou(const AString& string);
 	/// <summary>Convert a string to an usigned integer.</summary>
-	/// <returns>The converted number. If the conversion failed, the result is undefined.</returns>
+	/// <returns>The converted number. If the conversion failed, the result is 0.</returns>
 	/// <param name="string">The string to convert.</param>
 	/// <remarks>If you need to know whether the conversion is succeeded or not, please use <see cref="wtou_test"/> instead.</remarks>
 	extern vuint				wtou(const WString& string);
 	/// <summary>Convert a string to an usigned 64-bits integer.</summary>
-	/// <returns>The converted number. If the conversion failed, the result is undefined.</returns>
+	/// <returns>The converted number. If the conversion failed, the result is 0.</returns>
 	/// <param name="string">The string to convert.</param>
 	/// <remarks>If you need to know whether the conversion is succeeded or not, please use <see cref="atou64_test"/> instead.</remarks>
 	extern vuint64_t			atou64(const AString& string);
 	/// <summary>Convert a string to an usigned 64-bits integer.</summary>
-	/// <returns>The converted number. If the conversion failed, the result is undefined.</returns>
+	/// <returns>The converted number. If the conversion failed, the result is 0.</returns>
 	/// <param name="string">The string to convert.</param>
 	/// <remarks>If you need to know whether the conversion is succeeded or not, please use <see cref="wtou64_test"/> instead.</remarks>
 	extern vuint64_t			wtou64(const WString& string);
 	/// <summary>Convert a string to a 64-bits floating point number.</summary>
-	/// <returns>The converted number. If the conversion failed, the result is undefined.</returns>
+	/// <returns>The converted number. If the conversion failed, the result is 0.</returns>
 	/// <param name="string">The string to convert.</param>
 	/// <remarks>If you need to know whether the conversion is succeeded or not, please use <see cref="atof_test"/> instead.</remarks>
 	extern double				atof(const AString& string);
 	/// <summary>Convert a string to a 64-bits floating point number.</summary>
-	/// <returns>The converted number. If the conversion failed, the result is undefined.</returns>
+	/// <returns>The converted number. If the conversion failed, the result is 0.</returns>
 	/// <param name="string">The string to convert.</param>
 	/// <remarks>If you need to know whether the conversion is succeeded or not, please use <see cref="wtof_test"/> instead.</remarks>
 	extern double				wtof(const WString& string);
