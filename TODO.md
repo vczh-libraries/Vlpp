@@ -24,6 +24,13 @@
   - Support VlppParser2
   - Support Workflow
 
+## Code Coverage
+
+  - Test all enumerator's `Index`, `Clone`, `Reset` and `Evaluated`.
+  - Test `LazyList::operator=`.
+  - Test `CopyFrom` empty string to target.
+  ` Test `CopyFrom` empty list to target.
+
 ## 2.0
 
 - Revisit `README.md` for all repos.
