@@ -176,126 +176,126 @@ TEST_FILE
 		{
 			{
 				bool success = false;
-				atoi_test("123abc", success);
+				vl::atoi_test("123abc", success);
 				TEST_ASSERT(!success);
 			}
 			{
 				bool success = false;
-				auto result = atoi_test("123", success);
+				auto result = vl::atoi_test("123", success);
 				TEST_ASSERT(success);
 				TEST_ASSERT(result == 123);
 			}
 			{
 				bool success = false;
-				atoi_test("4294967295", success);
+				vl::atoi_test("4294967295", success);
 				TEST_ASSERT(!success);
 			}
 			{
 				bool success = false;
-				atoi_test("4294967296", success);
+				vl::atoi_test("4294967296", success);
 				TEST_ASSERT(!success);
 			}
 			{
 				bool success = false;
-				atoi_test("9223372036854775808", success);
+				vl::atoi_test("9223372036854775808", success);
 				TEST_ASSERT(!success);
 			}
 
 			{
 				bool success = false;
-				atou_test("123abc", success);
+				vl::atou_test("123abc", success);
 				TEST_ASSERT(!success);
 			}
 			{
 				bool success = false;
-				auto result = atou_test("123", success);
+				auto result = vl::atou_test("123", success);
 				TEST_ASSERT(success);
 				TEST_ASSERT(result == 123);
 			}
 			{
 				bool success = false;
-				auto result = atou_test("4294967295", success);
+				auto result = vl::atou_test("4294967295", success);
 				TEST_ASSERT(success);
 				TEST_ASSERT(result == 4294967295);
 			}
 			{
 				bool success = false;
-				atou_test("4294967296", success);
+				vl::atou_test("4294967296", success);
 				TEST_ASSERT(!success);
 			}
 			{
 				bool success = false;
-				atou_test("9223372036854775808", success);
+				vl::atou_test("9223372036854775808", success);
 				TEST_ASSERT(!success);
 			}
 
 			{
 				bool success = false;
-				atoi64_test("123abc", success);
+				vl::atoi64_test("123abc", success);
 				TEST_ASSERT(!success);
 			}
 			{
 				bool success = false;
-				auto result = atoi64_test("123", success);
+				auto result = vl::atoi64_test("123", success);
 				TEST_ASSERT(success);
 				TEST_ASSERT(result == 123);
 			}
 			{
 				bool success = false;
-				auto result = atoi64_test("4294967295", success);
+				auto result = vl::atoi64_test("4294967295", success);
 				TEST_ASSERT(success);
 				TEST_ASSERT(result == 4294967295);
 			}
 			{
 				bool success = false;
-				auto result = atoi64_test("4294967296", success);
+				auto result = vl::atoi64_test("4294967296", success);
 				TEST_ASSERT(success);
 				TEST_ASSERT(result == 4294967296);
 			}
 			{
 				bool success = false;
-				atoi64_test("9223372036854775808", success);
+				vl::atoi64_test("9223372036854775808", success);
 				TEST_ASSERT(!success);
 			}
 
 			{
 				bool success = false;
-				atou64_test("123abc", success);
+				vl::atou64_test("123abc", success);
 				TEST_ASSERT(!success);
 			}
 			{
 				bool success = false;
-				auto result = atou64_test("123", success);
+				auto result = vl::atou64_test("123", success);
 				TEST_ASSERT(success);
 				TEST_ASSERT(result == 123);
 			}
 			{
 				bool success = false;
-				auto result = atou64_test("4294967295", success);
+				auto result = vl::atou64_test("4294967295", success);
 				TEST_ASSERT(success);
 				TEST_ASSERT(result == 4294967295);
 			}
 			{
 				bool success = false;
-				auto result = atou64_test("4294967296", success);
+				auto result = vl::atou64_test("4294967296", success);
 				TEST_ASSERT(success);
 				TEST_ASSERT(result == 4294967296);
 			}
 			{
 				bool success = false;
-				auto result = atou64_test("9223372036854775808", success);
+				auto result = vl::atou64_test("9223372036854775808", success);
 				TEST_ASSERT(success);
 				TEST_ASSERT(result == 9223372036854775808);
 			}
 
 			{
 				bool success = false;
-				atof_test("123abc", success);
+				vl::atof_test("123abc", success);
 				TEST_ASSERT(!success);
 			}
 			{
 				bool success = false;
-				auto result = atof_test("1.5", success);
+				auto result = vl::atof_test("1.5", success);
 				TEST_ASSERT(success);
 				TEST_ASSERT(result == 1.5);
 			}
@@ -304,117 +304,117 @@ TEST_FILE
 		TEST_CASE(L"Test string to number non-test")
 		{
 			{
-				auto result = atoi("123abc");
+				auto result = vl::atoi("123abc");
 				TEST_ASSERT(result == 0);
 			}
 			{
-				auto result = atoi("123");
+				auto result = vl::atoi("123");
 				TEST_ASSERT(result == 123);
 			}
 			{
-				auto result = atoi("4294967295");
+				auto result = vl::atoi("4294967295");
 				TEST_ASSERT(result == 0);
 			}
 			{
-				auto result = atoi("4294967296");
+				auto result = vl::atoi("4294967296");
 				TEST_ASSERT(result == 0);
 			}
 			{
-				auto result = atoi("9223372036854775808");
+				auto result = vl::atoi("9223372036854775808");
 				TEST_ASSERT(result == 0);
 			}
 
 			{
-				auto result = atou("123abc");
+				auto result = vl::atou("123abc");
 				TEST_ASSERT(result == 0);
 			}
 			{
-				auto result = atou("123");
+				auto result = vl::atou("123");
 				TEST_ASSERT(result == 123);
 			}
 			{
-				auto result = atou("4294967295");
+				auto result = vl::atou("4294967295");
 				TEST_ASSERT(result == 4294967295);
 			}
 			{
-				auto result = atou("4294967296");
+				auto result = vl::atou("4294967296");
 				TEST_ASSERT(result == 0);
 			}
 			{
-				auto result = atou("9223372036854775808");
+				auto result = vl::atou("9223372036854775808");
 				TEST_ASSERT(result == 0);
 			}
 
 			{
-				auto result = atoi64("123abc");
+				auto result = vl::atoi64("123abc");
 				TEST_ASSERT(result == 0);
 			}
 			{
-				auto result = atoi64("123");
+				auto result = vl::atoi64("123");
 				TEST_ASSERT(result == 123);
 			}
 			{
-				auto result = atoi64("4294967295");
+				auto result = vl::atoi64("4294967295");
 				TEST_ASSERT(result == 4294967295);
 			}
 			{
-				auto result = atoi64("4294967296");
+				auto result = vl::atoi64("4294967296");
 				TEST_ASSERT(result == 4294967296);
 			}
 			{
-				auto result = atoi64("9223372036854775808");
+				auto result = vl::atoi64("9223372036854775808");
 				TEST_ASSERT(result == 0);
 			}
 
 			{
-				auto result = atou64("123abc");
+				auto result = vl::atou64("123abc");
 				TEST_ASSERT(result == 0);
 			}
 			{
-				auto result = atou64("123");
+				auto result = vl::atou64("123");
 				TEST_ASSERT(result == 123);
 			}
 			{
-				auto result = atou64("4294967295");
+				auto result = vl::atou64("4294967295");
 				TEST_ASSERT(result == 4294967295);
 			}
 			{
-				auto result = atou64("4294967296");
+				auto result = vl::atou64("4294967296");
 				TEST_ASSERT(result == 4294967296);
 			}
 			{
-				auto result = atou64("9223372036854775808");
+				auto result = vl::atou64("9223372036854775808");
 				TEST_ASSERT(result == 9223372036854775808);
 			}
 
 			{
-				auto result = atof("123abc");
+				auto result = vl::atof("123abc");
 				TEST_ASSERT(result == 0);
 			}
 			{
-				auto result = atof("1.5");
+				auto result = vl::atof("1.5");
 				TEST_ASSERT(result == 1.5);
 			}
 		});
 
 		TEST_CASE(L"Test number to string")
 		{
-			TEST_ASSERT(itoa(123) == "123");
+			TEST_ASSERT(vl::itoa(123) == "123");
 
-			TEST_ASSERT(utoa(123) == "123");
-			TEST_ASSERT(utoa(4294967295) == "4294967295");
+			TEST_ASSERT(vl::utoa(123) == "123");
+			TEST_ASSERT(vl::utoa(4294967295) == "4294967295");
 
-			TEST_ASSERT(i64toa(123) == "123");
-			TEST_ASSERT(i64toa(4294967295) == "4294967295");
-			TEST_ASSERT(i64toa(4294967296) == "4294967296");
+			TEST_ASSERT(vl::i64toa(123) == "123");
+			TEST_ASSERT(vl::i64toa(4294967295) == "4294967295");
+			TEST_ASSERT(vl::i64toa(4294967296) == "4294967296");
 
-			TEST_ASSERT(u64toa(123) == "123");
-			TEST_ASSERT(u64toa(4294967295) == "4294967295");
-			TEST_ASSERT(u64toa(4294967296) == "4294967296");
-			TEST_ASSERT(u64toa(9223372036854775808) == "9223372036854775808");
+			TEST_ASSERT(vl::u64toa(123) == "123");
+			TEST_ASSERT(vl::u64toa(4294967295) == "4294967295");
+			TEST_ASSERT(vl::u64toa(4294967296) == "4294967296");
+			TEST_ASSERT(vl::u64toa(9223372036854775808) == "9223372036854775808");
 
-			TEST_ASSERT(ftoa(123) == "123");
-			TEST_ASSERT(ftoa(123.5) == "123.5");
+			TEST_ASSERT(vl::ftoa(123) == "123");
+			TEST_ASSERT(vl::ftoa(123.5) == "123.5");
 		});
 	});
 }
