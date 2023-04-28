@@ -121,6 +121,7 @@ namespace vl
 		char* endptr = 0;
 		vint result = strtol(string.Buffer(), &endptr, 10);
 		success = endptr == string.Buffer() + string.Length() && itoa(result) == string;
+		if (success) success &= (_I32_MIN <= result && result <= _I32_MAX);
 		return result;
 	}
 
@@ -129,6 +130,7 @@ namespace vl
 		wchar_t* endptr = 0;
 		vint result = wcstol(string.Buffer(), &endptr, 10);
 		success = endptr == string.Buffer() + string.Length() && itow(result) == string;
+		if (success) success &= (_I32_MIN <= result && result <= _I32_MAX);
 		return result;
 	}
 
@@ -153,6 +155,7 @@ namespace vl
 		char* endptr = 0;
 		vuint result = strtoul(string.Buffer(), &endptr, 10);
 		success = endptr == string.Buffer() + string.Length() && utoa(result) == string;
+		if (success) success &= (result <= _UI32_MAX);
 		return result;
 	}
 
@@ -161,6 +164,7 @@ namespace vl
 		wchar_t* endptr = 0;
 		vuint result = wcstoul(string.Buffer(), &endptr, 10);
 		success = endptr == string.Buffer() + string.Length() && utow(result) == string;
+		if (success) success &= (result <= _UI32_MAX);
 		return result;
 	}
 
