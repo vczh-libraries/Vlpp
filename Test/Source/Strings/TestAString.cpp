@@ -304,117 +304,117 @@ TEST_FILE
 		TEST_CASE(L"Test string to number non-test")
 		{
 			{
-				auto result =wtoi(L"123abc");
+				auto result = atoi("123abc");
 				TEST_ASSERT(result == 0);
 			}
 			{
-				auto result = wtoi(L"123");
+				auto result = atoi("123");
 				TEST_ASSERT(result == 123);
 			}
 			{
-				auto result = wtoi(L"4294967295");
+				auto result = atoi("4294967295");
 				TEST_ASSERT(result == 0);
 			}
 			{
-				auto result = wtoi(L"4294967296");
+				auto result = atoi("4294967296");
 				TEST_ASSERT(result == 0);
 			}
 			{
-				auto result = wtoi(L"9223372036854775808");
+				auto result = atoi("9223372036854775808");
 				TEST_ASSERT(result == 0);
 			}
 
 			{
-				auto result = wtou(L"123abc");
+				auto result = atou("123abc");
 				TEST_ASSERT(result == 0);
 			}
 			{
-				auto result = wtou(L"123");
+				auto result = atou("123");
 				TEST_ASSERT(result == 123);
 			}
 			{
-				auto result = wtou(L"4294967295");
+				auto result = atou("4294967295");
 				TEST_ASSERT(result == 4294967295);
 			}
 			{
-				auto result = wtou(L"4294967296");
+				auto result = atou("4294967296");
 				TEST_ASSERT(result == 0);
 			}
 			{
-				auto result = wtou(L"9223372036854775808");
+				auto result = atou("9223372036854775808");
 				TEST_ASSERT(result == 0);
 			}
 
 			{
-				auto result = wtoi64(L"123abc");
+				auto result = atoi64("123abc");
 				TEST_ASSERT(result == 0);
 			}
 			{
-				auto result = wtoi64(L"123");
+				auto result = atoi64("123");
 				TEST_ASSERT(result == 123);
 			}
 			{
-				auto result = wtoi64(L"4294967295");
+				auto result = atoi64("4294967295");
 				TEST_ASSERT(result == 4294967295);
 			}
 			{
-				auto result = wtoi64(L"4294967296");
+				auto result = atoi64("4294967296");
 				TEST_ASSERT(result == 4294967296);
 			}
 			{
-				auto result = wtoi64(L"9223372036854775808");
+				auto result = atoi64("9223372036854775808");
 				TEST_ASSERT(result == 0);
 			}
 
 			{
-				auto result = wtou64(L"123abc");
+				auto result = atou64("123abc");
 				TEST_ASSERT(result == 0);
 			}
 			{
-				auto result = wtou64(L"123");
+				auto result = atou64("123");
 				TEST_ASSERT(result == 123);
 			}
 			{
-				auto result = wtou64(L"4294967295");
+				auto result = atou64("4294967295");
 				TEST_ASSERT(result == 4294967295);
 			}
 			{
-				auto result = wtou64(L"4294967296");
+				auto result = atou64("4294967296");
 				TEST_ASSERT(result == 4294967296);
 			}
 			{
-				auto result = wtou64(L"9223372036854775808");
+				auto result = atou64("9223372036854775808");
 				TEST_ASSERT(result == 9223372036854775808);
 			}
 
 			{
-				auto result = wtof(L"123abc");
+				auto result = atof("123abc");
 				TEST_ASSERT(result == 0);
 			}
 			{
-				auto result = wtof(L"1.5");
+				auto result = atof("1.5");
 				TEST_ASSERT(result == 1.5);
 			}
 		});
 
 		TEST_CASE(L"Test number to string")
 		{
-			TEST_ASSERT(itow(123) == L"123");
+			TEST_ASSERT(itoa(123) == "123");
 
-			TEST_ASSERT(utow(123) == L"123");
-			TEST_ASSERT(utow(4294967295) == L"4294967295");
+			TEST_ASSERT(utoa(123) == "123");
+			TEST_ASSERT(utoa(4294967295) == "4294967295");
 
-			TEST_ASSERT(i64tow(123) == L"123");
-			TEST_ASSERT(i64tow(4294967295) == L"4294967295");
-			TEST_ASSERT(i64tow(4294967296) == L"4294967296");
+			TEST_ASSERT(i64toa(123) == "123");
+			TEST_ASSERT(i64toa(4294967295) == "4294967295");
+			TEST_ASSERT(i64toa(4294967296) == "4294967296");
 
-			TEST_ASSERT(u64tow(123) == L"123");
-			TEST_ASSERT(u64tow(4294967295) == L"4294967295");
-			TEST_ASSERT(u64tow(4294967296) == L"4294967296");
-			TEST_ASSERT(u64tow(9223372036854775808) == L"9223372036854775808");
+			TEST_ASSERT(u64toa(123) == "123");
+			TEST_ASSERT(u64toa(4294967295) == "4294967295");
+			TEST_ASSERT(u64toa(4294967296) == "4294967296");
+			TEST_ASSERT(u64toa(9223372036854775808) == "9223372036854775808");
 
-			TEST_ASSERT(ftow(123) == L"123");
-			TEST_ASSERT(ftow(123.5) == L"123.5");
+			TEST_ASSERT(ftoa(123) == "123");
+			TEST_ASSERT(ftoa(123.5) == "123.5");
 		});
 	});
 }

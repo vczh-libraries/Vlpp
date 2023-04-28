@@ -304,7 +304,7 @@ TEST_FILE
 		TEST_CASE(L"Test string to number non-test")
 		{
 			{
-				auto result =wtoi(L"123abc");
+				auto result = wtoi(L"123abc");
 				TEST_ASSERT(result == 0);
 			}
 			{
