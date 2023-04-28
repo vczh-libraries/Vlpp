@@ -35,7 +35,7 @@ namespace vl
 			template<vint Index, typename K, typename V>
 			struct TypePairElementRetriver<Index, Pair<K, V>>
 			{
-				using Type = typename TypeTupleElement<Index, TypeTuple<K, V>>;
+				using Type = TypeTupleElement<Index, TypeTuple<K, V>>;
 			};
 
 			template<vint Index, typename K, typename V>
@@ -139,13 +139,13 @@ namespace std
 	template<size_t Index, typename K, typename V>
 	struct tuple_element<Index, vl::collections::Pair<K, V>>
 	{
-		using type = decltype(std::declval<vl::collections::Pair<K, V>>().get<Index>());
+		using type = decltype(std::declval<vl::collections::Pair<K, V>>().template get<Index>());
 	};
 
 	template<size_t Index, typename K, typename V>
 	struct tuple_element<Index, const vl::collections::Pair<K, V>>
 	{
-		using type = decltype(std::declval<const vl::collections::Pair<K, V>>().get<Index>());
+		using type = decltype(std::declval<const vl::collections::Pair<K, V>>().template get<Index>());
 	};
 }
 
