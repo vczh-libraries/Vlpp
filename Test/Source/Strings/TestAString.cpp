@@ -285,7 +285,7 @@ TEST_FILE
 				bool success = false;
 				auto result = vl::atou64_test("9223372036854775808", success);
 				TEST_ASSERT(success);
-				TEST_ASSERT(result == 9223372036854775808);
+				TEST_ASSERT(result == 9223372036854775808ULL);
 			}
 
 			{
@@ -384,7 +384,7 @@ TEST_FILE
 			}
 			{
 				auto result = vl::atou64("9223372036854775808");
-				TEST_ASSERT(result == 9223372036854775808);
+				TEST_ASSERT(result == 9223372036854775808ULL);
 			}
 
 			{
@@ -411,7 +411,7 @@ TEST_FILE
 			TEST_ASSERT(vl::u64toa(123) == "123");
 			TEST_ASSERT(vl::u64toa(4294967295) == "4294967295");
 			TEST_ASSERT(vl::u64toa(4294967296) == "4294967296");
-			TEST_ASSERT(vl::u64toa(9223372036854775808) == "9223372036854775808");
+			TEST_ASSERT(vl::u64toa(9223372036854775808ULL) == "9223372036854775808");
 
 			TEST_ASSERT(vl::ftoa(123) == "123");
 			TEST_ASSERT(vl::ftoa(123.5) == "123.5");

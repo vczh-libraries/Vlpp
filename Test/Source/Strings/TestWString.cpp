@@ -285,7 +285,7 @@ TEST_FILE
 				bool success = false;
 				auto result = vl::wtou64_test(L"9223372036854775808", success);
 				TEST_ASSERT(success);
-				TEST_ASSERT(result == 9223372036854775808);
+				TEST_ASSERT(result == 9223372036854775808ULL);
 			}
 
 			{
@@ -384,7 +384,7 @@ TEST_FILE
 			}
 			{
 				auto result = vl::wtou64(L"9223372036854775808");
-				TEST_ASSERT(result == 9223372036854775808);
+				TEST_ASSERT(result == 9223372036854775808ULL);
 			}
 
 			{
@@ -411,7 +411,7 @@ TEST_FILE
 			TEST_ASSERT(vl::u64tow(123) == L"123");
 			TEST_ASSERT(vl::u64tow(4294967295) == L"4294967295");
 			TEST_ASSERT(vl::u64tow(4294967296) == L"4294967296");
-			TEST_ASSERT(vl::u64tow(9223372036854775808) == L"9223372036854775808");
+			TEST_ASSERT(vl::u64tow(9223372036854775808ULL) == L"9223372036854775808");
 
 			TEST_ASSERT(vl::ftow(123) == L"123");
 			TEST_ASSERT(vl::ftow(123.5) == L"123.5");
