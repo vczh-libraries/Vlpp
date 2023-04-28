@@ -302,13 +302,13 @@ namespace std
 	template<size_t Index, typename ...TArgs>
 	struct tuple_element<Index, vl::Tuple<TArgs...>>
 	{
-		using type = decltype(std::declval<vl::Tuple<TArgs...>>().get<Index>());
+		using type = decltype(std::declval<vl::Tuple<TArgs...>>().template get<Index>());
 	};
 
 	template<size_t Index, typename ...TArgs>
 	struct tuple_element<Index, const vl::Tuple<TArgs...>>
 	{
-		using type = decltype(std::declval<const vl::Tuple<TArgs...>>().get<Index>());
+		using type = decltype(std::declval<const vl::Tuple<TArgs...>>().template get<Index>());
 	};
 }
 
