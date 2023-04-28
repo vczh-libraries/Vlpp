@@ -23,6 +23,13 @@ TEST_FILE
 		List<vint> list;
 		SortedList<vint> sortedList;
 
+		CopyFrom(arr, list);
+		CHECK_EMPTY_LIST(arr);
+		CopyFrom(list, sortedList);
+		CHECK_EMPTY_LIST(list);
+		CopyFrom(sortedList, arr);
+		CHECK_EMPTY_LIST(sortedList);
+
 		arr.Resize(5);
 		for (vint i = 0; i < 5; i++)
 		{
@@ -90,6 +97,13 @@ TEST_FILE
 		List<vint> list;
 		SortedList<vint> sortedList;
 		vint numbers[] = {1, 2, 3, 4, 5};
+
+		CopyFrom(arr, &numbers[0], 0, false);
+		CHECK_EMPTY_LIST(arr);
+		CopyFrom(list, &numbers[0], 0, false);
+		CHECK_EMPTY_LIST(list);
+		CopyFrom(sortedList, &numbers[0], 0, false);
+		CHECK_EMPTY_LIST(sortedList);
 
 		CopyFrom(arr, &numbers[0], sizeof(numbers) / sizeof(*numbers), false);
 		CopyFrom(list, &numbers[0], sizeof(numbers) / sizeof(*numbers), false);
@@ -182,6 +196,8 @@ TEST_FILE
 		List<wchar_t> list;
 		Array<wchar_t> arr;
 
+		CopyFrom(list, string, true);
+		TestABCDE(list, 0);
 		CopyFrom(list, WString(L"abcde"), true);
 		TestABCDE(list, 1);
 		CopyFrom(list, WString(L"abcde"), false);
@@ -191,6 +207,8 @@ TEST_FILE
 		CopyFrom(list, WString(L"abcde"), false);
 		TestABCDE(list, 1);
 
+		CopyFrom(arr, string, true);
+		TestABCDE(arr, 0);
 		CopyFrom(arr, WString(L"abcde"), true);
 		TestABCDE(arr, 1);
 		CopyFrom(arr, WString(L"abcde"), false);

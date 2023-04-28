@@ -223,7 +223,14 @@ LazyList
 
 			IEnumerator<T>* xs()const
 			{
-				return enumeratorPrototype->Clone();
+				if (enumeratorPrototype)
+				{
+					return enumeratorPrototype->Clone();
+				}
+				else
+				{
+					return new EmptyEnumerator<T>();
+				}
 			}
 
 			using TInput = decltype(std::declval<IEnumerator<T>>().Current());
@@ -276,7 +283,6 @@ LazyList
 			
 			/// <summary>Create an empty lazy list.</summary>
 			LazyList()
-				:enumeratorPrototype(new EmptyEnumerator<T>())
 			{
 			}
 
@@ -296,7 +302,7 @@ LazyList
 
 			IEnumerator<T>* CreateEnumerator()const
 			{
-				return enumeratorPrototype->Clone();
+				return xs();
 			}
 
 			//-------------------------------------------------------
@@ -848,7 +854,11 @@ LazyList
 			/// </remarks>
 			LazyList<T> Evaluate(bool forceCopy = false)const
 			{
-				if (!forceCopy && enumeratorPrototype->Evaluated())
+				if (!enumeratorPrototype)
+				{
+					return *this;
+				}
+				else if (!forceCopy && enumeratorPrototype->Evaluated())
 				{
 					return *this;
 				}

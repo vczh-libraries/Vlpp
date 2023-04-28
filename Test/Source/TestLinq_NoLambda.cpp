@@ -7,6 +7,66 @@ TEST_FILE
 	auto Add = [](auto x, auto y) { return x + y; };
 	auto Unref = [](auto p) { return *p.Obj(); };
 
+	TEST_CASE(L"LazyList")
+	{
+		{
+			LazyList<vint> xs;
+			TEST_ASSERT(xs.Count() == 0);
+		}
+		{
+			LazyList<vint> xs;
+			LazyList<vint> ys(xs);
+			TEST_ASSERT(xs.Count() == 0);
+			TEST_ASSERT(ys.Count() == 0);
+		}
+		{
+			LazyList<vint> xs;
+			LazyList<vint> ys(std::move(xs));
+			TEST_ASSERT(xs.Count() == 0);
+			TEST_ASSERT(ys.Count() == 0);
+		}
+		{
+			LazyList<vint> xs = Range<vint>(0, 10);
+			LazyList<vint> ys(xs);
+			TEST_ASSERT(xs.Count() == 10);
+			TEST_ASSERT(ys.Count() == 10);
+		}
+		{
+			LazyList<vint> xs = Range<vint>(0, 10);
+			LazyList<vint> ys(std::move(xs));
+			TEST_ASSERT(xs.Count() == 0);
+			TEST_ASSERT(ys.Count() == 10);
+		}
+		{
+			LazyList<vint> xs;
+			LazyList<vint> ys;
+			ys = xs;
+			TEST_ASSERT(xs.Count() == 0);
+			TEST_ASSERT(ys.Count() == 0);
+		}
+		{
+			LazyList<vint> xs;
+			LazyList<vint> ys;
+			ys = (std::move(xs));
+			TEST_ASSERT(xs.Count() == 0);
+			TEST_ASSERT(ys.Count() == 0);
+		}
+		{
+			LazyList<vint> xs = Range<vint>(0, 10);
+			LazyList<vint> ys;
+			ys = xs;
+			TEST_ASSERT(xs.Count() == 10);
+			TEST_ASSERT(ys.Count() == 10);
+		}
+		{
+			LazyList<vint> xs = Range<vint>(0, 10);
+			LazyList<vint> ys;
+			ys = (std::move(xs));
+			TEST_ASSERT(xs.Count() == 0);
+			TEST_ASSERT(ys.Count() == 10);
+		}
+	});
+
 	TEST_CASE(L"Test Concat()")
 	{
 		{
