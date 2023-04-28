@@ -176,126 +176,126 @@ TEST_FILE
 		{
 			{
 				bool success = false;
-				wtoi_test(L"123abc", success);
+				atoi_test("123abc", success);
 				TEST_ASSERT(!success);
 			}
 			{
 				bool success = false;
-				auto result = wtoi_test(L"123", success);
+				auto result = atoi_test("123", success);
 				TEST_ASSERT(success);
 				TEST_ASSERT(result == 123);
 			}
 			{
 				bool success = false;
-				wtoi_test(L"4294967295", success);
+				atoi_test("4294967295", success);
 				TEST_ASSERT(!success);
 			}
 			{
 				bool success = false;
-				wtoi_test(L"4294967296", success);
+				atoi_test("4294967296", success);
 				TEST_ASSERT(!success);
 			}
 			{
 				bool success = false;
-				wtoi_test(L"9223372036854775808", success);
+				atoi_test("9223372036854775808", success);
 				TEST_ASSERT(!success);
 			}
 
 			{
 				bool success = false;
-				wtou_test(L"123abc", success);
+				atou_test("123abc", success);
 				TEST_ASSERT(!success);
 			}
 			{
 				bool success = false;
-				auto result = wtou_test(L"123", success);
+				auto result = atou_test("123", success);
 				TEST_ASSERT(success);
 				TEST_ASSERT(result == 123);
 			}
 			{
 				bool success = false;
-				auto result = wtou_test(L"4294967295", success);
+				auto result = atou_test("4294967295", success);
 				TEST_ASSERT(success);
 				TEST_ASSERT(result == 4294967295);
 			}
 			{
 				bool success = false;
-				wtou_test(L"4294967296", success);
+				atou_test("4294967296", success);
 				TEST_ASSERT(!success);
 			}
 			{
 				bool success = false;
-				wtou_test(L"9223372036854775808", success);
+				atou_test("9223372036854775808", success);
 				TEST_ASSERT(!success);
 			}
 
 			{
 				bool success = false;
-				wtoi64_test(L"123abc", success);
+				atoi64_test("123abc", success);
 				TEST_ASSERT(!success);
 			}
 			{
 				bool success = false;
-				auto result = wtoi64_test(L"123", success);
+				auto result = atoi64_test("123", success);
 				TEST_ASSERT(success);
 				TEST_ASSERT(result == 123);
 			}
 			{
 				bool success = false;
-				auto result = wtoi64_test(L"4294967295", success);
+				auto result = atoi64_test("4294967295", success);
 				TEST_ASSERT(success);
 				TEST_ASSERT(result == 4294967295);
 			}
 			{
 				bool success = false;
-				auto result = wtoi64_test(L"4294967296", success);
+				auto result = atoi64_test("4294967296", success);
 				TEST_ASSERT(success);
 				TEST_ASSERT(result == 4294967296);
 			}
 			{
 				bool success = false;
-				wtoi64_test(L"9223372036854775808", success);
+				atoi64_test("9223372036854775808", success);
 				TEST_ASSERT(!success);
 			}
 
 			{
 				bool success = false;
-				wtou64_test(L"123abc", success);
+				atou64_test("123abc", success);
 				TEST_ASSERT(!success);
 			}
 			{
 				bool success = false;
-				auto result = wtou64_test(L"123", success);
+				auto result = atou64_test("123", success);
 				TEST_ASSERT(success);
 				TEST_ASSERT(result == 123);
 			}
 			{
 				bool success = false;
-				auto result = wtou64_test(L"4294967295", success);
+				auto result = atou64_test("4294967295", success);
 				TEST_ASSERT(success);
 				TEST_ASSERT(result == 4294967295);
 			}
 			{
 				bool success = false;
-				auto result = wtou64_test(L"4294967296", success);
+				auto result = atou64_test("4294967296", success);
 				TEST_ASSERT(success);
 				TEST_ASSERT(result == 4294967296);
 			}
 			{
 				bool success = false;
-				auto result = wtou64_test(L"9223372036854775808", success);
+				auto result = atou64_test("9223372036854775808", success);
 				TEST_ASSERT(success);
 				TEST_ASSERT(result == 9223372036854775808);
 			}
 
 			{
 				bool success = false;
-				wtof_test(L"123abc", success);
+				atof_test("123abc", success);
 				TEST_ASSERT(!success);
 			}
 			{
 				bool success = false;
-				auto result = wtof_test(L"1.5", success);
+				auto result = atof_test("1.5", success);
 				TEST_ASSERT(success);
 				TEST_ASSERT(result == 1.5);
 			}
