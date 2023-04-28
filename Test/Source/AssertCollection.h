@@ -95,11 +95,61 @@ struct Moveonly
 		TestReadonlyGroup(CONTAINER, __keys__, __values__, __counts__, sizeof(__keys__)/sizeof(*__keys__));\
 	}while(0)\
 
+template<typename T>
+void TestCloningEnumeratorFromZero(IEnumerator<T>* enumerator, vint* items, vint count)
+{
+	auto cloned = Ptr(enumerator->Clone());
+	TEST_ASSERT(cloned->Next());
+	TEST_ASSERT(cloned->Current() == items[0]);
+	TEST_ASSERT(cloned->Index() == 0);
+}
+
+template<typename T>
+void TestCloningEnumeratorFromOne(IEnumerator<T>* enumerator, vint* items, vint count)
+{
+	auto cloned = Ptr(enumerator->Clone());
+	TEST_ASSERT(cloned->Next() == count >= 2);
+	if (count >= 2)
+	{
+		TEST_ASSERT(cloned->Current() == items[1]);
+		TEST_ASSERT(cloned->Index() == 1);
+	}
+
+	cloned->Reset();
+	TEST_ASSERT(cloned->Next());
+	TEST_ASSERT(cloned->Current() == items[0]);
+	TEST_ASSERT(cloned->Index() == 0);
+}
+
 template<typename TList>
 void TestReadonlyList(const TList& list, vint* items, vint count)
 {
 	TEST_ASSERT(list.Count() == count);
 	auto enumerator = list.CreateEnumerator();
+	if (count > 0)
+	{
+		TestCloningEnumeratorFromZero(enumerator, items, count);
+
+		TEST_ASSERT(enumerator->Next());
+		TEST_ASSERT(enumerator->Current() == items[0]);
+		TEST_ASSERT(enumerator->Index() == 0);
+		TestCloningEnumeratorFromOne(enumerator, items, count);
+
+		enumerator->Reset();
+		TestCloningEnumeratorFromZero(enumerator, items, count);
+
+		TEST_ASSERT(enumerator->Next());
+		TEST_ASSERT(enumerator->Current() == items[0]);
+		TEST_ASSERT(enumerator->Index() == 0);
+		TestCloningEnumeratorFromOne(enumerator, items, count);
+
+		enumerator->Reset();
+	}
+	else
+	{
+		auto cloned = Ptr(enumerator->Clone());
+		TEST_ASSERT(cloned->Next() == false);
+	}
 	for (vint i = 0; i < count; i++)
 	{
 		TEST_ASSERT(list.Contains(items[i]));
