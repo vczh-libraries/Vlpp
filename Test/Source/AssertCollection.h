@@ -65,6 +65,12 @@ struct Moveonly
 		TestReadonlyList(CONTAINER,__items__, sizeof(__items__)/sizeof(*__items__));\
 	}while(0)\
 
+#define CHECK_LIST_COPYFROM_ITEMS(CONTAINER, LINQ, ITEMS)\
+	do{\
+		CopyFrom(CONTAINER, LINQ);\
+		CHECK_LIST_ITEMS(CONTAINER,ITEMS);\
+	}while(0)\
+
 #define CHECK_EMPTY_DICTIONARY(CONTAINER)\
 	TestReadonlyDictionary(\
 		CONTAINER,\

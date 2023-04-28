@@ -25,8 +25,11 @@ TEST_FILE
 		{
 			src.Add(i);
 		}
-		CopyFrom(dst, From(src).Select(Square).Select(Double));
-		CHECK_LIST_ITEMS(dst, {2 _ 8 _ 18 _ 32 _ 50 _ 72 _ 98 _ 128 _ 162 _ 200});
+		CHECK_LIST_COPYFROM_ITEMS(
+			dst,
+			(From(src).Select(Square).Select(Double)),
+			{2 _ 8 _ 18 _ 32 _ 50 _ 72 _ 98 _ 128 _ 162 _ 200}
+			);
 		CompareEnumerable(dst, From(src).Select(Square).Select(Double));
 	});
 
@@ -35,15 +38,18 @@ TEST_FILE
 		vint src[] = {1,2,3};
 		List<vint> dst;
 
-		CopyFrom(dst, From(src).SelectMany([](auto i)
-		{
-			auto xs = Ptr(new List<decltype(i)>);
-			xs->Add(i);
-			xs->Add(i * 2);
-			xs->Add(i * 3);
-			return LazyList<decltype(i)>(xs);
-		}));
-		CHECK_LIST_ITEMS(dst, {1 _ 2 _ 3 _ 2 _ 4 _ 6 _ 3 _ 6 _ 9});
+		CHECK_LIST_COPYFROM_ITEMS(
+			dst,
+			(From(src).SelectMany([](auto i)
+			{
+				auto xs = Ptr(new List<decltype(i)>);
+				xs->Add(i);
+				xs->Add(i * 2);
+				xs->Add(i * 3);
+				return LazyList<decltype(i)>(xs);
+			})),
+			{1 _ 2 _ 3 _ 2 _ 4 _ 6 _ 3 _ 6 _ 9}
+			);
 	});
 
 	TEST_CASE(L"Test Where()")
@@ -54,10 +60,16 @@ TEST_FILE
 		{
 			src.Add(i);
 		}
-		CopyFrom(dst, From(src).Where(Odd).Select(Square));
-		CHECK_LIST_ITEMS(dst, {1 _ 9 _ 25 _ 49 _ 81});
-		CopyFrom(dst, From(src).Where(Odd));
-		CHECK_LIST_ITEMS(dst, {1 _ 3 _ 5 _ 7 _ 9});
+		CHECK_LIST_COPYFROM_ITEMS(
+			dst,
+			(From(src).Where(Odd).Select(Square)),
+			{1 _ 9 _ 25 _ 49 _ 81}
+			);
+		CHECK_LIST_COPYFROM_ITEMS(
+			dst,
+			(From(src).Where(Odd)),
+			{1 _ 3 _ 5 _ 7 _ 9}
+			);
 		CompareEnumerable(dst, From(src).Where(Odd));
 	});
 
@@ -105,16 +117,21 @@ TEST_FILE
 		src.Add(3);
 
 		List<vint> dst;
-		CopyFrom(dst, From(src)
-			.Select([](auto&& i) {return i ? i.Value() : -1; })
+		CHECK_LIST_COPYFROM_ITEMS(
+			dst,
+			(From(src)
+				.Select([](auto&& i) {return i ? i.Value() : -1; })
+				),
+			{1 _ - 1 _ 2 _ - 1 _ 3}
 			);
-		CHECK_LIST_ITEMS(dst, {1 _ - 1 _ 2 _ - 1 _ 3});
-
-		CopyFrom(dst, From(src)
-			.Where([](auto&& i) {return i; })
-			.Select([](auto&& i) {return i.Value(); })
+		CHECK_LIST_COPYFROM_ITEMS(
+			dst,
+			(From(src)
+				.Where([](auto&& i) {return i; })
+				.Select([](auto&& i) {return i.Value(); })
+				),
+			{1 _ 2 _ 3}
 			);
-		CHECK_LIST_ITEMS(dst, {1 _ 2 _ 3});
 	});
 
 	TEST_CASE(L"Test Linq with List<Tuple<T, U>>")
@@ -125,11 +142,14 @@ TEST_FILE
 		src.Add({3, WString::Unmanaged(L"a")});
 
 		List<vint> dst;
-		CopyFrom(dst, From(src)
-			.OrderByKey([](auto&& t)->decltype(auto) { return t.template get<1>(); })
-			.Select([](auto&& t) { auto&& [x, y] = t; return x; })
-		);
-		CHECK_LIST_ITEMS(dst, { 3 _ 2 _ 1 });
+		CHECK_LIST_COPYFROM_ITEMS(
+			dst,
+			(From(src)
+				.OrderByKey([](auto&& t)->decltype(auto) { return t.template get<1>(); })
+				.Select([](auto&& t) { auto&& [x, y] = t; return x; })
+				),
+			{ 3 _ 2 _ 1 }
+			);
 	});
 
 	TEST_CASE(L"Test Linq with functions")
@@ -146,40 +166,55 @@ TEST_FILE
 		{
 			src.Add(i);
 		}
-		CopyFrom(dst, From(src).Where(selector));
-		CHECK_LIST_ITEMS(dst, {30 _ 60 _ 90});
+		CHECK_LIST_COPYFROM_ITEMS(
+			dst,
+			(From(src).Where(selector)),
+			{30 _ 60 _ 90}
+			);
 	});
 
 	TEST_CASE(L"Test OrderBy(Compare)")
 	{
 		vint numbers[] = {7, 1, 12, 2, 8, 3, 11, 4, 9, 5, 13, 6, 10};
 		List<vint> list;
-		CopyFrom(list, From(numbers).OrderBy(Compare));
-		CHECK_LIST_ITEMS(list, {1 _ 2 _ 3 _ 4 _ 5 _ 6 _ 7 _ 8 _ 9 _ 10 _ 11 _ 12 _ 13});
+		CHECK_LIST_COPYFROM_ITEMS(
+			list,
+			(From(numbers).OrderBy(Compare)),
+			{1 _ 2 _ 3 _ 4 _ 5 _ 6 _ 7 _ 8 _ 9 _ 10 _ 11 _ 12 _ 13}
+			);
 	});
 
 	TEST_CASE(L"Test OrderBy(ReverseCompare)")
 	{
 		vint numbers[] = { 7, 1, 12, 2, 8, 3, 11, 4, 9, 5, 13, 6, 10 };
 		List<vint> list;
-		CopyFrom(list, From(numbers).OrderBy(ReverseCompare));
-		CHECK_LIST_ITEMS(list, { 13 _ 12 _ 11 _ 10 _ 9 _ 8 _ 7 _ 6 _ 5 _ 4 _ 3 _ 2 _ 1 });
+		CHECK_LIST_COPYFROM_ITEMS(
+			list,
+			(From(numbers).OrderBy(ReverseCompare)),
+			{ 13 _ 12 _ 11 _ 10 _ 9 _ 8 _ 7 _ 6 _ 5 _ 4 _ 3 _ 2 _ 1 }
+			);
 	});
 
 	TEST_CASE(L"Test OrderBySelf()")
 	{
 		vint numbers[] = { 7, 1, 12, 2, 8, 3, 11, 4, 9, 5, 13, 6, 10 };
 		List<vint> list;
-		CopyFrom(list, From(numbers).OrderBySelf());
-		CHECK_LIST_ITEMS(list, { 1 _ 2 _ 3 _ 4 _ 5 _ 6 _ 7 _ 8 _ 9 _ 10 _ 11 _ 12 _ 13 });
+		CHECK_LIST_COPYFROM_ITEMS(
+			list,
+			(From(numbers).OrderBySelf()),
+			{ 1 _ 2 _ 3 _ 4 _ 5 _ 6 _ 7 _ 8 _ 9 _ 10 _ 11 _ 12 _ 13 }
+			);
 	});
 
 	TEST_CASE(L"Test OrderByKey()")
 	{
 		vint numbers[] = { 7, 1, 12, 2, 8, 3, 11, 4, 9, 5, 13, 6, 10 };
 		List<vint> list;
-		CopyFrom(list, From(numbers).OrderByKey(Minus));
-		CHECK_LIST_ITEMS(list, { 13 _ 12 _ 11 _ 10 _ 9 _ 8 _ 7 _ 6 _ 5 _ 4 _ 3 _ 2 _ 1 });
+		CHECK_LIST_COPYFROM_ITEMS(
+			list,
+			(From(numbers).OrderByKey(Minus)),
+			{ 13 _ 12 _ 11 _ 10 _ 9 _ 8 _ 7 _ 6 _ 5 _ 4 _ 3 _ 2 _ 1 }
+			);
 	});
 
 	TEST_CASE(L"Test GroupBy()")
@@ -188,8 +223,11 @@ TEST_FILE
 		List<vint> keys;
 		CopyFrom(groups, Range<vint>(1, 10).GroupBy([](auto i) {return itow(i % 3); }));
 
-		CopyFrom(keys, From(groups.Keys()).Select(wtoi));
-		CHECK_LIST_ITEMS(keys, {0 _ 1 _ 2});
+		CHECK_LIST_COPYFROM_ITEMS(
+			keys,
+			(From(groups.Keys()).Select(wtoi)),
+			{0 _ 1 _ 2}
+			);
 		CopyFrom(keys, groups[L"0"]);
 		CHECK_LIST_ITEMS(keys, {3 _ 6 _ 9});
 		CopyFrom(keys, groups[L"1"]);
