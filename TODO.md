@@ -9,7 +9,7 @@
 - Refine test file structure and add more unit test.
   - TODO in `TestBasic.cpp`.
     - Test references.
-    - Test ordering for all 3 kinds of ordering or mixed.
+  - Test ordering for all 3 kinds of ordering or mixed.
   - Split `List` and `SortedList` into two files.
   - Move `for-loop` on contains from `TestList_LoopFromMisc.cpp` to each containers.
 - `Union<T...>`.

@@ -85,6 +85,27 @@ TEST_FILE
 
 	TEST_CASE(L"Test Nullable<T> comparison")
 	{
-		// TODO:
+		Nullable<vint> a = 1, b = 2, n;
+
+		TEST_ASSERT((a == a) == true);
+		TEST_ASSERT((a != a) == false);
+		TEST_ASSERT((a < a) == false);
+		TEST_ASSERT((a <= a) == true);
+		TEST_ASSERT((a > a) == false);
+		TEST_ASSERT((a >= a) == true);
+
+		TEST_ASSERT((a == b) == false);
+		TEST_ASSERT((a != b) == true);
+		TEST_ASSERT((a < b) == true);
+		TEST_ASSERT((a <= b) == true);
+		TEST_ASSERT((a > b) == false);
+		TEST_ASSERT((a >= b) == false);
+
+		TEST_ASSERT((a == n) == false);
+		TEST_ASSERT((a != n) == true);
+		TEST_ASSERT((a < n) == false);
+		TEST_ASSERT((a <= n) == false);
+		TEST_ASSERT((a > n) == true);
+		TEST_ASSERT((a >= n) == true);
 	});
 }

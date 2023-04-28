@@ -85,7 +85,21 @@ TEST_FILE
 
 	TEST_CASE(L"Test Tuple<T...> comparison")
 	{
-		// TODO:
+		Tuple<vint, vint> a{ 1, 1 }, b{ 1, 2 };
+
+		TEST_ASSERT((a == a) == true);
+		TEST_ASSERT((a != a) == false);
+		TEST_ASSERT((a < a) == false);
+		TEST_ASSERT((a <= a) == true);
+		TEST_ASSERT((a > a) == false);
+		TEST_ASSERT((a >= a) == true);
+
+		TEST_ASSERT((a == b) == false);
+		TEST_ASSERT((a != b) == true);
+		TEST_ASSERT((a < b) == true);
+		TEST_ASSERT((a <= b) == true);
+		TEST_ASSERT((a > b) == false);
+		TEST_ASSERT((a >= b) == false);
 	});
 
 	TEST_CASE(L"Test Tuple<T...> structured binding")
