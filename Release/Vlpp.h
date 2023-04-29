@@ -14,9 +14,10 @@ Licensed under https://github.com/vczh-libraries/License
 #ifndef VCZH_BASIC
 #define VCZH_BASIC
 
+#include <stdlib.h>
+
 #ifdef VCZH_CHECK_MEMORY_LEAKS
 #define _CRTDBG_MAP_ALLOC
-#include <stdlib.h>
 #include <crtdbg.h>
 #define VCZH_CHECK_MEMORY_LEAKS_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
 #define new VCZH_CHECK_MEMORY_LEAKS_NEW
@@ -53,13 +54,6 @@ static_assert(sizeof(wchar_t) == sizeof(char32_t), "wchar_t is not UTF-32.");
 static_assert(false, "wchar_t configuration is not right.");
 #endif
 
-#if defined VCZH_ARM
-#elif defined VCZH_MSVC
-#include <intrin.h>
-#elif defined VCZH_GCC
-#include <x86intrin.h>
-#endif
-
 #if defined VCZH_GCC
 #include <stdint.h>
 #include <stddef.h>
@@ -89,9 +83,7 @@ static_assert(false, "wchar_t configuration is not right.");
 #include <utility>
 #include <compare>
 #include <new>
-
-#define L_(x) L__(x)
-#define L__(x) L ## x
+#include <atomic>
 
 namespace vl
 {
@@ -145,6 +137,11 @@ x86 and x64 Compatbility
 #endif
 	/// <summary>Signed interger representing position.</summary>
 	typedef vint64_t				pos_t;
+	/// <summary>Signed atomic integer.</summary>
+	typedef std::atomic<vint>		atomic_vint;
+
+#define INCRC(ATOMIC) ((ATOMIC)->fetch_add(1) + 1)
+#define DECRC(ATOMIC) ((ATOMIC)->fetch_sub(1) - 1)
 
 #ifdef VCZH_64
 #define ITOA_S		_i64toa_s
@@ -155,16 +152,6 @@ x86 and x64 Compatbility
 #define UITOW_S		_ui64tow_s
 #define UI64TOA_S	_ui64toa_s
 #define UI64TOW_S	_ui64tow_s
-#if defined VCZH_MSVC
-#define INCRC(x)	(_InterlockedIncrement64(x))
-#define DECRC(x)	(_InterlockedDecrement64(x))
-#elif defined VCZH_ARM
-#define INCRC(x)	(__atomic_add_fetch(x, 1, __ATOMIC_SEQ_CST))
-#define DECRC(x)	(__atomic_sub_fetch(x, 1, __ATOMIC_SEQ_CST))
-#elif defined VCZH_GCC
-#define INCRC(x)	(__sync_add_and_fetch(x, 1))
-#define DECRC(x)	(__sync_sub_and_fetch(x, 1))
-#endif
 #else
 #define ITOA_S		_itoa_s
 #define ITOW_S		_itow_s
@@ -174,16 +161,6 @@ x86 and x64 Compatbility
 #define UITOW_S		_ui64tow_s
 #define UI64TOA_S	_ui64toa_s
 #define UI64TOW_S	_ui64tow_s
-#if defined VCZH_MSVC
-#define INCRC(x)	(_InterlockedIncrement((volatile long*)(x)))
-#define DECRC(x)	(_InterlockedDecrement((volatile long*)(x)))
-#elif defined VCZH_ARM
-#define INCRC(x)	(__atomic_add_fetch(x, 1, __ATOMIC_SEQ_CST))
-#define DECRC(x)	(__atomic_sub_fetch(x, 1, __ATOMIC_SEQ_CST))
-#elif defined VCZH_GCC
-#define INCRC(x)	(__sync_add_and_fetch(x, 1))
-#define DECRC(x)	(__sync_sub_and_fetch(x, 1))
-#endif
 #endif
 
 /***********************************************************************
@@ -850,15 +827,15 @@ ReferenceCounterOperator
 		/// <summary>Create the reference counter of an object.</summary>
 		/// <returns>The pointer to the reference counter.</returns>
 		/// <param name="reference">The object.</param>
-		static __forceinline volatile vint* CreateCounter(T* reference)
+		static __forceinline atomic_vint* CreateCounter(T* reference)
 		{
-			return new vint(0);
+			return new atomic_vint(0);
 		}
 
 		/// <summary>Delete the reference counter from an object.</summary>
 		/// <param name="counter">The pointer to the reference counter.</param>
 		/// <param name="reference">The object.</param>
-		static __forceinline void DeleteReference(volatile vint* counter, void* reference)
+		static __forceinline void DeleteReference(atomic_vint* counter, void* reference)
 		{
 			delete counter;
 			delete (T*)reference;
@@ -887,9 +864,9 @@ Ptr
 		template<typename X>
 		friend class Ptr;
 	protected:
-		typedef void(*Destructor)(volatile vint*, void*);
+		typedef void(*Destructor)(atomic_vint*, void*);
 
-		volatile vint*		counter = nullptr;
+		atomic_vint*		counter = nullptr;
 		T*					reference = nullptr;
 		void*				originalReference = nullptr;
 		Destructor			originalDestructor = nullptr;
@@ -925,12 +902,12 @@ Ptr
 			}
 		}
 
-		volatile vint* Counter()const
+		atomic_vint* Counter()const
 		{
 			return counter;
 		}
 
-		Ptr(volatile vint* _counter, T* _reference, void* _originalReference, Destructor _originalDestructor)
+		Ptr(atomic_vint* _counter, T* _reference, void* _originalReference, Destructor _originalDestructor)
 			:counter(_counter)
 			, reference(_reference)
 			, originalReference(_originalReference)
@@ -1138,7 +1115,7 @@ ComPtr
 	class ComPtr
 	{
 	protected:
-		volatile vint* counter = nullptr;
+		atomic_vint* counter = nullptr;
 		T* reference = nullptr;
 
 		void SetEmpty()
@@ -1168,12 +1145,12 @@ ComPtr
 			}
 		}
 
-		volatile vint* Counter()const
+		atomic_vint* Counter()const
 		{
 			return counter;
 		}
 
-		ComPtr(volatile vint* _counter, T* _reference)
+		ComPtr(atomic_vint* _counter, T* _reference)
 			:counter(_counter)
 			, reference(_reference)
 		{
@@ -1188,7 +1165,7 @@ ComPtr
 		{
 			if (pointer)
 			{
-				counter = new volatile vint(1);
+				counter = new atomic_vint(1);
 				reference = pointer;
 			}
 			else
@@ -1228,7 +1205,7 @@ ComPtr
 			Dec();
 			if (pointer)
 			{
-				counter = new vint(1);
+				counter = new atomic_vint(1);
 				reference = pointer;
 			}
 			else
@@ -6035,7 +6012,7 @@ namespace vl
 		static const T				zero;
 
 		mutable T*					buffer = (T*)&zero;
-		mutable volatile vint*		counter = nullptr;
+		mutable atomic_vint*		counter = nullptr;
 		mutable vint				start = 0;
 		mutable vint				length = 0;
 		mutable vint				realLength = 0;
@@ -6130,7 +6107,7 @@ namespace vl
 			if (index == 0 && count == length) return source;
 
 			ObjectString<T> str;
-			str.counter = new vint(1);
+			str.counter = new atomic_vint(1);
 			str.start = 0;
 			str.length = length - count + source.length;
 			str.realLength = str.length;
@@ -6186,7 +6163,7 @@ namespace vl
 		ObjectString(const T* _buffer)
 		{
 			CHECK_ERROR(_buffer != 0, L"ObjectString<T>::ObjectString(const T*)#Cannot construct a string from nullptr.");
-			counter = new vint(1);
+			counter = new atomic_vint(1);
 			start = 0;
 			length = CalculateLength(_buffer);
 			buffer = new T[length + 1];
@@ -6203,7 +6180,7 @@ namespace vl
 			CHECK_ERROR(_length >= 0, L"ObjectString<T>::TakeOver(T*, vint)#Length should not be negative.");
 			CHECK_ERROR(_buffer[_length] == 0, L"ObjectString<T>::TakeOver(T*, vint)#Buffer is not properly zero-terminated.");
 			ObjectString<T> str;
-			str.counter = new vint(1);
+			str.counter = new atomic_vint(1);
 			str.length = _length;
 			str.realLength = _length;
 			str.buffer = _buffer;
@@ -6234,7 +6211,7 @@ namespace vl
 				str.buffer = new T[_length + 1];
 				memcpy(str.buffer, _buffer, _length * sizeof(T));
 				str.buffer[_length] = 0;
-				str.counter = new vint(1);
+				str.counter = new atomic_vint(1);
 				str.start = 0;
 				str.length = _length;
 				str.realLength = _length;
@@ -6297,7 +6274,7 @@ namespace vl
 				newBuffer[length]=0;
 				Dec();
 				buffer=newBuffer;
-				counter=new vint(1);
+				counter=new atomic_vint(1);
 				start=0;
 				realLength=length;
 			}
