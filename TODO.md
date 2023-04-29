@@ -17,6 +17,7 @@
     - lock operations that affect index, from top to the current position, return `T&`
   - `updatable_reversed`, `updatable_reversed_indexed`
     - lock operations that affect index, from top to the current position - 1, return `T&`
+  - thinks about `Dictionary` and `Group` iterating.
   - Check for `for (vint ` and refactor
     - When iterating cannot apply, log and wait for more container types.
 - `Union<T...>`.
