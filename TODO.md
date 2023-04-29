@@ -10,6 +10,15 @@
   - Test ordering for all 3 kinds of ordering or mixed.
   - Split `List` and `SortedList` into two files.
   - Move `for-loop` on contains from `TestList_LoopFromMisc.cpp` to each containers.
+- Enumerable and enumerator fail when container is deleted.
+  - enumerating, `index`, `reversed`, `reversed_indexed`
+    - lock the container, return `const T&`
+  - `mutable`, `updatable_indexed`
+    - lock from top to the current position, can assign current position, return `T&`
+  - `updatable_reversed`, `updatable_reversed_indexed`
+    - lock from top to the current position - 1, can assign current position, return `T&`
+  - Check for `for (vint ` and refactor
+    - When iterating cannot apply, log and wait for more container types.
 - `Union<T...>`.
   - If any type is `T*`, `Ptr<T>` or `Nullable<T>`, A `nullptr_t` is added automatically.
     - Any `Nullable<T>` becomes `T`.
@@ -21,6 +30,26 @@
   - Support VlppParser2
   - Support Workflow
 
+## Refactoring Note
+
+- Vlpp
+  - `PartialOrderingProcessor`
+    - Example in comment: use foreach
+    - enumerate in group, get `(key, values)` instead of `(key, value)`.
+    - `InitWithFunc`: Join + Where + CopyFrom
+    - `InitWithSubClass`: CopyFrom, foreach, enumerate in group
+    - `VisitUnvisitedNode`, `AssignUnassignedNode`, `Sort`: enumerate, reverse enumerate
+- VlppRegex
+  - enumerate, reverse enumerate, RemoveRange
+- VlppReflection
+  - enumerate
+- VlppParser2
+  - enumerate, revserse enumerate (edit)
+- Workflow
+  - enumerate (edit), reverse enumerate
+- GacUI
+  - reverse + CopyFrom, enumerate (edit), revserse enumerate (edit)
+
 ## 2.0
 
 - Revisit `README.md` for all repos.
@@ -30,14 +59,6 @@
 - `LazyList` operators test container types and perform different solution to improve performance.
   - Or add optional random access interface to IEnumerable.
 - In place merge sort: reversly sort the right side and treat it as a heap, root is in the right most position, add all items from the left side, and pop them.
-- Enumerable and enumerator fail when container is deleted.
-  - `updatable`, offer `Set` operation.
-  - `updatable_indexed`, offer `Set` operation.
-  - `reversed`.
-  - `reversed_indexed`.
-  - `updatable_reverse`, offer `Set` and `Remove` operation.
-  - `updatable_reverse_indexed`, offer `Set` and `Remove` operation.
-  - Check the whole org and replace `for` with `ranged-for`.
 - `Queue<T>`.
   - Check the whole org and change some `for` or visiting/visited with `Queue`.
 - `Deque`.
