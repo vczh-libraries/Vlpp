@@ -6,9 +6,10 @@ Licensed under https://github.com/vczh-libraries/License
 #ifndef VCZH_BASIC
 #define VCZH_BASIC
 
+#include <stdlib.h>
+
 #ifdef VCZH_CHECK_MEMORY_LEAKS
 #define _CRTDBG_MAP_ALLOC
-#include <stdlib.h>
 #include <crtdbg.h>
 #define VCZH_CHECK_MEMORY_LEAKS_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
 #define new VCZH_CHECK_MEMORY_LEAKS_NEW
@@ -45,14 +46,6 @@ static_assert(sizeof(wchar_t) == sizeof(char32_t), "wchar_t is not UTF-32.");
 static_assert(false, "wchar_t configuration is not right.");
 #endif
 
-#if defined VCZH_ARM
-#include <stdlib.h>
-#elif defined VCZH_MSVC
-#include <intrin.h>
-#elif defined VCZH_GCC
-#include <x86intrin.h>
-#endif
-
 #if defined VCZH_GCC
 #include <stdint.h>
 #include <stddef.h>
@@ -82,9 +75,7 @@ static_assert(false, "wchar_t configuration is not right.");
 #include <utility>
 #include <compare>
 #include <new>
-
-#define L_(x) L__(x)
-#define L__(x) L ## x
+#include <atomic>
 
 namespace vl
 {
@@ -138,6 +129,11 @@ x86 and x64 Compatbility
 #endif
 	/// <summary>Signed interger representing position.</summary>
 	typedef vint64_t				pos_t;
+	/// <summary>Signed atomic integer.</summary>
+	typedef std::atomic<vint>		atomic_vint;
+
+#define INCRC(ATOMIC) ((ATOMIC)->fetch_add(1) + 1)
+#define DECRC(ATOMIC) ((ATOMIC)->fetch_sub(1) - 1)
 
 #ifdef VCZH_64
 #define ITOA_S		_i64toa_s
@@ -148,16 +144,6 @@ x86 and x64 Compatbility
 #define UITOW_S		_ui64tow_s
 #define UI64TOA_S	_ui64toa_s
 #define UI64TOW_S	_ui64tow_s
-#if defined VCZH_MSVC
-#define INCRC(x)	(_InterlockedIncrement64(x))
-#define DECRC(x)	(_InterlockedDecrement64(x))
-#elif defined VCZH_ARM
-#define INCRC(x)	(__atomic_add_fetch(x, 1, __ATOMIC_SEQ_CST))
-#define DECRC(x)	(__atomic_sub_fetch(x, 1, __ATOMIC_SEQ_CST))
-#elif defined VCZH_GCC
-#define INCRC(x)	(__sync_add_and_fetch(x, 1))
-#define DECRC(x)	(__sync_sub_and_fetch(x, 1))
-#endif
 #else
 #define ITOA_S		_itoa_s
 #define ITOW_S		_itow_s
@@ -167,16 +153,6 @@ x86 and x64 Compatbility
 #define UITOW_S		_ui64tow_s
 #define UI64TOA_S	_ui64toa_s
 #define UI64TOW_S	_ui64tow_s
-#if defined VCZH_MSVC
-#define INCRC(x)	(_InterlockedIncrement((volatile long*)(x)))
-#define DECRC(x)	(_InterlockedDecrement((volatile long*)(x)))
-#elif defined VCZH_ARM
-#define INCRC(x)	(__atomic_add_fetch(x, 1, __ATOMIC_SEQ_CST))
-#define DECRC(x)	(__atomic_sub_fetch(x, 1, __ATOMIC_SEQ_CST))
-#elif defined VCZH_GCC
-#define INCRC(x)	(__sync_add_and_fetch(x, 1))
-#define DECRC(x)	(__sync_sub_and_fetch(x, 1))
-#endif
 #endif
 
 /***********************************************************************

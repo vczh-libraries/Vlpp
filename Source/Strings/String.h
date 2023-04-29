@@ -25,7 +25,7 @@ namespace vl
 		static const T				zero;
 
 		mutable T*					buffer = (T*)&zero;
-		mutable volatile vint*		counter = nullptr;
+		mutable atomic_vint*		counter = nullptr;
 		mutable vint				start = 0;
 		mutable vint				length = 0;
 		mutable vint				realLength = 0;
@@ -120,7 +120,7 @@ namespace vl
 			if (index == 0 && count == length) return source;
 
 			ObjectString<T> str;
-			str.counter = new vint(1);
+			str.counter = new atomic_vint(1);
 			str.start = 0;
 			str.length = length - count + source.length;
 			str.realLength = str.length;
@@ -176,7 +176,7 @@ namespace vl
 		ObjectString(const T* _buffer)
 		{
 			CHECK_ERROR(_buffer != 0, L"ObjectString<T>::ObjectString(const T*)#Cannot construct a string from nullptr.");
-			counter = new vint(1);
+			counter = new atomic_vint(1);
 			start = 0;
 			length = CalculateLength(_buffer);
 			buffer = new T[length + 1];
@@ -193,7 +193,7 @@ namespace vl
 			CHECK_ERROR(_length >= 0, L"ObjectString<T>::TakeOver(T*, vint)#Length should not be negative.");
 			CHECK_ERROR(_buffer[_length] == 0, L"ObjectString<T>::TakeOver(T*, vint)#Buffer is not properly zero-terminated.");
 			ObjectString<T> str;
-			str.counter = new vint(1);
+			str.counter = new atomic_vint(1);
 			str.length = _length;
 			str.realLength = _length;
 			str.buffer = _buffer;
@@ -224,7 +224,7 @@ namespace vl
 				str.buffer = new T[_length + 1];
 				memcpy(str.buffer, _buffer, _length * sizeof(T));
 				str.buffer[_length] = 0;
-				str.counter = new vint(1);
+				str.counter = new atomic_vint(1);
 				str.start = 0;
 				str.length = _length;
 				str.realLength = _length;
@@ -287,7 +287,7 @@ namespace vl
 				newBuffer[length]=0;
 				Dec();
 				buffer=newBuffer;
-				counter=new vint(1);
+				counter=new atomic_vint(1);
 				start=0;
 				realLength=length;
 			}

@@ -34,15 +34,15 @@ ReferenceCounterOperator
 		/// <summary>Create the reference counter of an object.</summary>
 		/// <returns>The pointer to the reference counter.</returns>
 		/// <param name="reference">The object.</param>
-		static __forceinline volatile vint* CreateCounter(T* reference)
+		static __forceinline atomic_vint* CreateCounter(T* reference)
 		{
-			return new vint(0);
+			return new atomic_vint(0);
 		}
 
 		/// <summary>Delete the reference counter from an object.</summary>
 		/// <param name="counter">The pointer to the reference counter.</param>
 		/// <param name="reference">The object.</param>
-		static __forceinline void DeleteReference(volatile vint* counter, void* reference)
+		static __forceinline void DeleteReference(atomic_vint* counter, void* reference)
 		{
 			delete counter;
 			delete (T*)reference;
@@ -71,9 +71,9 @@ Ptr
 		template<typename X>
 		friend class Ptr;
 	protected:
-		typedef void(*Destructor)(volatile vint*, void*);
+		typedef void(*Destructor)(atomic_vint*, void*);
 
-		volatile vint*		counter = nullptr;
+		atomic_vint*		counter = nullptr;
 		T*					reference = nullptr;
 		void*				originalReference = nullptr;
 		Destructor			originalDestructor = nullptr;
@@ -109,12 +109,12 @@ Ptr
 			}
 		}
 
-		volatile vint* Counter()const
+		atomic_vint* Counter()const
 		{
 			return counter;
 		}
 
-		Ptr(volatile vint* _counter, T* _reference, void* _originalReference, Destructor _originalDestructor)
+		Ptr(atomic_vint* _counter, T* _reference, void* _originalReference, Destructor _originalDestructor)
 			:counter(_counter)
 			, reference(_reference)
 			, originalReference(_originalReference)
@@ -322,7 +322,7 @@ ComPtr
 	class ComPtr
 	{
 	protected:
-		volatile vint* counter = nullptr;
+		atomic_vint* counter = nullptr;
 		T* reference = nullptr;
 
 		void SetEmpty()
@@ -352,12 +352,12 @@ ComPtr
 			}
 		}
 
-		volatile vint* Counter()const
+		atomic_vint* Counter()const
 		{
 			return counter;
 		}
 
-		ComPtr(volatile vint* _counter, T* _reference)
+		ComPtr(atomic_vint* _counter, T* _reference)
 			:counter(_counter)
 			, reference(_reference)
 		{
@@ -372,7 +372,7 @@ ComPtr
 		{
 			if (pointer)
 			{
-				counter = new volatile vint(1);
+				counter = new atomic_vint(1);
 				reference = pointer;
 			}
 			else
@@ -412,7 +412,7 @@ ComPtr
 			Dec();
 			if (pointer)
 			{
-				counter = new vint(1);
+				counter = new atomic_vint(1);
 				reference = pointer;
 			}
 			else
