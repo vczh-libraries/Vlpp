@@ -12,11 +12,11 @@
   - Move `for-loop` on contains from `TestList_LoopFromMisc.cpp` to each containers.
 - Enumerable and enumerator fail when container is deleted.
   - enumerating, `index`, `reversed`, `reversed_indexed`
-    - lock the container, return `const T&`
+    - lock operations that affect index, return `const T&`
   - `mutable`, `updatable_indexed`
-    - lock from top to the current position, can assign current position, return `T&`
+    - lock operations that affect index, from top to the current position, return `T&`
   - `updatable_reversed`, `updatable_reversed_indexed`
-    - lock from top to the current position - 1, can assign current position, return `T&`
+    - lock operations that affect index, from top to the current position - 1, return `T&`
   - Check for `for (vint ` and refactor
     - When iterating cannot apply, log and wait for more container types.
 - `Union<T...>`.
