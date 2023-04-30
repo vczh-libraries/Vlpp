@@ -279,6 +279,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Source\AssertCollection.h" />
+    <ClInclude Include="..\..\Source\PrimitiveTypesForTest.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Vlpp\Vlpp.vcxproj">

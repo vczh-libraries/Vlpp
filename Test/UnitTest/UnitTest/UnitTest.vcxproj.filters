@@ -101,5 +101,8 @@
     <ClInclude Include="..\..\Source\AssertCollection.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\PrimitiveTypesForTest.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
