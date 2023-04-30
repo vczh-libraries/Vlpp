@@ -194,15 +194,18 @@ namespace vl
 		/// </returns>
 		/// <param name="a">The first nullable value to compare.</param>
 		/// <param name="b">The second nullable value to compare.</param>
-		auto operator<=>(const Nullable<T>& b) const -> decltype(std::declval<T>() <=> std::declval<T>())
+		auto operator<=>(const Nullable<T>& b) const
+			requires(std::three_way_comparable<T>)
 		{
+			using TOrdering = decltype(object <=> b.object);
 			if (initialized && b.initialized) return object <=> b.object;
-			if (initialized) return  std::strong_ordering::greater;
-			if (b.initialized) return  std::strong_ordering::less;
-			return  std::strong_ordering::equal;
+			if (initialized) return (TOrdering)std::strong_ordering::greater;
+			if (b.initialized) return (TOrdering)std::strong_ordering::less;
+			return (TOrdering)std::strong_ordering::equal;
 		}
 
 		bool operator==(const Nullable<T>& b)const
+			requires(std::equality_comparable<T>)
 		{
 			if (initialized && b.initialized) return object == b.object;
 			return initialized == b.initialized;

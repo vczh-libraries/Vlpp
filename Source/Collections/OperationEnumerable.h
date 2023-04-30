@@ -188,7 +188,7 @@ CompareEnumerable
 		/// In other cases, the results represents the comparison result of the first pair of inequal values in enumerables.
 		/// </remarks>
 		template<typename T, typename U>
-		auto CompareEnumerable(const IEnumerable<T>& a, const IEnumerable<U>& b)
+		auto CompareEnumerable(const IEnumerable<T>& a, const IEnumerable<U>& b) -> decltype(std::declval<T>() <=> std::declval<T>())
 		{
 			auto ator = Ptr(a.CreateEnumerator());
 			auto btor = Ptr(b.CreateEnumerator());

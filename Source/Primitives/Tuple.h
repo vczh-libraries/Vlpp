@@ -95,7 +95,7 @@ namespace vl
 			}
 		};
 
-		template<typename T, typename U>
+		template<typename TOrdering, typename T, typename U>
 		struct TupleElementComparison
 		{
 			const T&				t;
@@ -107,11 +107,11 @@ namespace vl
 			{
 			}
 
-			template<typename TOrdering>
-			friend auto operator*(TOrdering order, const TupleElementComparison<T, U>& t)
+			template<typename TPreviousOrdering>
+			friend TOrdering operator*(TPreviousOrdering order, const TupleElementComparison<TOrdering, T, U>& t)
 			{
-				if (order != 0) return order;
-				return t.t <=> t.u;
+				if (order != 0) return (TOrdering)order;
+				return (TOrdering)(t.t <=> t.u);
 			}
 		};
 
@@ -185,10 +185,12 @@ namespace vl
 			template<typename ...UArgs>
 			auto Compare(const TCompatible<UArgs...>& t) const
 			{
-				return (std::strong_ordering::equal * ... * (TupleElementComparison<TArgs, UArgs>(
-					static_cast<const TupleElement<Is, TArgs>*>(this)->GetElement(),
-					static_cast<const TupleElement<Is, UArgs>&>(t).GetElement()
-					)));
+#define LEFT_ELEMENT (static_cast<const TupleElement<Is, TArgs>*>(this)->GetElement())
+#define RIGHT_ELEMENT (static_cast<const TupleElement<Is, UArgs>&>(t).GetElement())
+				using TOrdering = OrderingOf<decltype(LEFT_ELEMENT <=> RIGHT_ELEMENT)...>;
+				return (std::strong_ordering::equal * ... * (TupleElementComparison<TOrdering, TArgs, UArgs>(LEFT_ELEMENT, RIGHT_ELEMENT)));
+#undef LEFT_ELEMENT
+#undef RIGHT_ELEMENT
 			}
 		};
 	}
@@ -254,12 +256,14 @@ namespace vl
 
 		template<typename ...UArgs>
 		auto operator<=>(const TCompatible<UArgs...>& t)const
+			requires (true && ... && std::three_way_comparable_with<TArgs, UArgs>)
 		{
 			return this->Compare(t);
 		}
 
 		template<typename ...UArgs>
 		bool operator==(const TCompatible<UArgs...>& t)const
+			requires (true && ... && std::equality_comparable_with<TArgs, UArgs>)
 		{
 			return this->AreEqual(t);
 		}
