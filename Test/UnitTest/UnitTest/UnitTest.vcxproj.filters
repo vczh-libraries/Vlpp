@@ -96,12 +96,18 @@
     <ClCompile Include="..\..\Source\TestLinq_NoLambda.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\TestList_Container_SortedList.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Source\AssertCollection.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\PrimitiveTypesForTest.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\TestList_Container_ListCommon.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>

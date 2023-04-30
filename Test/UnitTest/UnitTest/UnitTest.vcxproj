@@ -271,6 +271,7 @@
     <ClCompile Include="..\..\Source\TestList_Container_Dictionary.cpp" />
     <ClCompile Include="..\..\Source\TestList_Container_Group.cpp" />
     <ClCompile Include="..\..\Source\TestList_Container_List.cpp" />
+    <ClCompile Include="..\..\Source\TestList_Container_SortedList.cpp" />
     <ClCompile Include="..\..\Source\TestList_CopyFrom.cpp" />
     <ClCompile Include="..\..\Source\TestList_LoopFromMisc.cpp" />
     <ClCompile Include="..\..\Source\TestPartialOrdering.cpp" />
@@ -280,6 +281,7 @@
   <ItemGroup>
     <ClInclude Include="..\..\Source\AssertCollection.h" />
     <ClInclude Include="..\..\Source\PrimitiveTypesForTest.h" />
+    <ClInclude Include="..\..\Source\TestList_Container_ListCommon.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Vlpp\Vlpp.vcxproj">

@@ -704,17 +704,23 @@ SortedList
 				while (start <= end)
 				{
 					index = start + (end - start) / 2;
-					if (this->buffer[index] == item)
+					auto ordering = this->buffer[index] <=> item;
+					if constexpr (std::is_same_v<decltype(ordering), std::partial_ordering>)
 					{
-						return index;
+						CHECK_ERROR(ordering != std::partial_ordering::unordered, L"vl::collections::SortedList<T>::IndexOfInternal(Key&, vint&)#This function could not apply on elements in partial ordering.");
 					}
-					else if (this->buffer[index] > item)
+
+					if (ordering < 0)
+					{
+						start = index + 1;
+					}
+					else if (ordering > 0)
 					{
 						end = index - 1;
 					}
 					else
 					{
-						start = index + 1;
+						return index;
 					}
 				}
 				return -1;

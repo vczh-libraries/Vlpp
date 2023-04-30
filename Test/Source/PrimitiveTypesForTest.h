@@ -60,7 +60,7 @@ struct Copyable
 	Copyable<T>& operator=(const Copyable<T>&) = delete;
 	Copyable<T>& operator=(Copyable<T>&&) = default;
 
-	auto operator<=>(const Copyable<T>& c) const
+	decltype(std::declval<T>() <=> std::declval<T>()) operator<=>(const Copyable<T>& c) const
 	{
 		if (value && c.value)
 		{
