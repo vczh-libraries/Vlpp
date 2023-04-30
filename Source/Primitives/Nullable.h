@@ -194,7 +194,7 @@ namespace vl
 		/// </returns>
 		/// <param name="a">The first nullable value to compare.</param>
 		/// <param name="b">The second nullable value to compare.</param>
-		auto operator<=>(const Nullable<T>& b) const -> decltype(object <=> b.object)
+		auto operator<=>(const Nullable<T>& b) const -> decltype(std::declval<T>() <=> std::declval<T>())
 		{
 			if (initialized && b.initialized) return object <=> b.object;
 			if (initialized) return  std::strong_ordering::greater;

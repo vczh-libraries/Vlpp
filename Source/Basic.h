@@ -251,6 +251,41 @@ Type Traits
 		}
 	};
 
+	namespace ordering_decision
+	{
+		template<bool PO, bool WO, bool SO>
+		struct OrderingSelection
+		{
+			using Type = std::partial_ordering;
+		};
+
+		template<bool SO>
+		struct OrderingSelection<false, true, SO>
+		{
+			using Type = std::weak_ordering;
+		};
+
+		template<bool WO, bool SO>
+		struct OrderingSelection<true, WO, SO>
+		{
+			using Type = std::partial_ordering;
+		};
+
+		template<typename... TOrderings>
+		struct OrderingDecision
+		{
+			static constexpr const vint POs = (0 + ... + (std::is_same_v<std::remove_cvref_t<TOrderings>, std::partial_ordering>));
+			static constexpr const vint WOs = (0 + ... + (std::is_same_v<std::remove_cvref_t<TOrderings>, std::weak_ordering>));
+			static constexpr const vint SOs = (0 + ... + (std::is_same_v<std::remove_cvref_t<TOrderings>, std::strong_ordering>));
+			static_assert(POs + WOs + SOs == sizeof...(TOrderings), "vl::OrderingDecision can only be used on std::(strong|weak|partial)_ordering.");
+
+			using Type = typename OrderingSelection<(POs > 0), (WOs > 0), (SOs > 0)>::Type;
+		};
+	}
+
+	template<typename... TOrderings>
+	using OrderingOf = typename ordering_decision::OrderingDecision<TOrderings...>::Type;
+
 /***********************************************************************
 Interface
 ***********************************************************************/

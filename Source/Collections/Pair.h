@@ -92,10 +92,10 @@ namespace vl
 			auto operator<=>(const Pair<TKey, TValue>& p) const
 				requires(std::three_way_comparable_with<const K, const TKey> && std::three_way_comparable_with<const V, const TValue>)
 			{
-				std::strong_ordering
-				result = key <=> p.key; if (result != 0) return result;
-				result = value <=> p.value; if (result != 0) return result;
-				return std::strong_ordering::equal;
+				using TOrdering = OrderingOf<decltype(key <=> p.key), decltype(value <=> p.value)>;
+				{ auto result = key <=> p.key; if (result != 0) return (TOrdering)result; }
+				{ auto result = value <=> p.value; if (result != 0) return (TOrdering)result; }
+				return (TOrdering)std::strong_ordering::equal;
 			}
 
 			template<typename TKey, typename TValue>
