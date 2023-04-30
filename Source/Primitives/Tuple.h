@@ -107,7 +107,8 @@ namespace vl
 			{
 			}
 
-			friend std::strong_ordering operator*(std::strong_ordering order, const TupleElementComparison<T, U>& t)
+			template<typename TOrdering>
+			friend auto operator*(TOrdering order, const TupleElementComparison<T, U>& t)
 			{
 				if (order != 0) return order;
 				return t.t <=> t.u;
@@ -182,7 +183,7 @@ namespace vl
 			}
 
 			template<typename ...UArgs>
-			std::strong_ordering Compare(const TCompatible<UArgs...>& t) const
+			auto Compare(const TCompatible<UArgs...>& t) const
 			{
 				return (std::strong_ordering::equal * ... * (TupleElementComparison<TArgs, UArgs>(
 					static_cast<const TupleElement<Is, TArgs>*>(this)->GetElement(),
@@ -252,7 +253,7 @@ namespace vl
 		}
 
 		template<typename ...UArgs>
-		std::strong_ordering operator<=>(const TCompatible<UArgs...>& t)const
+		auto operator<=>(const TCompatible<UArgs...>& t)const
 		{
 			return this->Compare(t);
 		}

@@ -1,5 +1,6 @@
 #include "../../Source/UnitTest/UnitTest.h"
 #include "../../Source/Primitives/Nullable.h"
+#include "PrimitiveTypesForTest.h"
 
 using namespace vl;
 
@@ -163,9 +164,9 @@ TEST_FILE
 		}
 	});
 
-	TEST_CASE(L"Test Nullable<T> comparison")
+	auto TestNullableComparison = []<typename T>()
 	{
-		Nullable<vint> a = 1, b = 2, n;
+		Nullable<T> a{ 1 }, b{ 2 }, n;
 
 		TEST_ASSERT((a == a) == true);
 		TEST_ASSERT((a != a) == false);
@@ -187,5 +188,20 @@ TEST_FILE
 		TEST_ASSERT((a <= n) == false);
 		TEST_ASSERT((a > n) == true);
 		TEST_ASSERT((a >= n) == true);
+	};
+
+	TEST_CASE(L"Test Nullable<T> comparison (SO)")
+	{
+		TestNullableComparison.operator()<so_vint>();
+	});
+
+	TEST_CASE(L"Test Nullable<T> comparison (WO)")
+	{
+		TestNullableComparison.operator()<wo_vint>();
+	});
+
+	TEST_CASE(L"Test Nullable<T> comparison (PO)")
+	{
+		TestNullableComparison.operator()<po_vint>();
 	});
 }

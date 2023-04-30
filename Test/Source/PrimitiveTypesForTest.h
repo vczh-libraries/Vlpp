@@ -16,9 +16,11 @@ struct ordering_vint
 	ordering_vint<T>& operator=(const ordering_vint<T>&) = default;
 	ordering_vint<T>& operator=(ordering_vint<T>&&) = default;
 
+	ordering_vint(vint _value) :value(_value) {}
+
 	friend T operator<=>(const ordering_vint<T>& a, const ordering_vint<T>& b)
 	{
-		if (std::is_same_v<T, std::partial_ordering>)
+		if constexpr (std::is_same_v<T, std::partial_ordering>)
 		{
 			if (a.value == UNORDERABLE_INT_CONSTANT || b.value == UNORDERABLE_INT_CONSTANT)
 			{

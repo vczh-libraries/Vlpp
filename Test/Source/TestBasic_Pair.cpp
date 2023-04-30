@@ -1,6 +1,7 @@
 #include "../../Source/UnitTest/UnitTest.h"
 #include "../../Source/Primitives/Tuple.h"
 #include "../../Source/Collections/Pair.h"
+#include "PrimitiveTypesForTest.h"
 
 using namespace vl;
 using namespace vl::collections;
@@ -155,25 +156,6 @@ TEST_FILE
 		//	TEST_ASSERT(&p.key == &k);
 		//	TEST_ASSERT(&p.value == &v);
 		//}
-	});
-
-	TEST_CASE(L"Test Pair<K, V> comparison")
-	{
-		Pair<vint, vint> a{ 1, 1 }, b{ 1, 2 };
-
-		TEST_ASSERT((a == a) == true);
-		TEST_ASSERT((a != a) == false);
-		TEST_ASSERT((a < a) == false);
-		TEST_ASSERT((a <= a) == true);
-		TEST_ASSERT((a > a) == false);
-		TEST_ASSERT((a >= a) == true);
-
-		TEST_ASSERT((a == b) == false);
-		TEST_ASSERT((a != b) == true);
-		TEST_ASSERT((a < b) == true);
-		TEST_ASSERT((a <= b) == true);
-		TEST_ASSERT((a > b) == false);
-		TEST_ASSERT((a >= b) == false);
 	});
 
 	TEST_CASE(L"Test Pair<K, V> structured binding")
@@ -394,5 +376,69 @@ TEST_FILE
 			static_assert(std::is_same_v<decltype(c1), const vint&>);
 			static_assert(std::is_same_v<decltype(c2), const WString&>);
 		}
+	});
+
+	auto TestPairComparison = []<typename T, typename U>()
+	{
+		Pair<T, U> a{ 1, 1 }, b{ 1, 2 };
+
+		TEST_ASSERT((a == a) == true);
+		TEST_ASSERT((a != a) == false);
+		TEST_ASSERT((a < a) == false);
+		TEST_ASSERT((a <= a) == true);
+		TEST_ASSERT((a > a) == false);
+		TEST_ASSERT((a >= a) == true);
+
+		TEST_ASSERT((a == b) == false);
+		TEST_ASSERT((a != b) == true);
+		TEST_ASSERT((a < b) == true);
+		TEST_ASSERT((a <= b) == true);
+		TEST_ASSERT((a > b) == false);
+		TEST_ASSERT((a >= b) == false);
+	};
+
+	TEST_CASE(L"Test Pair<K, V> comparison (SO, SO)")
+	{
+		TestPairComparison.operator()<so_vint, so_vint>();
+	});
+
+	TEST_CASE(L"Test Pair<K, V> comparison (SO, WO)")
+	{
+		TestPairComparison.operator()<so_vint, wo_vint>();
+	});
+
+	TEST_CASE(L"Test Pair<K, V> comparison (SO, PO)")
+	{
+		TestPairComparison.operator()<so_vint, po_vint>();
+	});
+
+	TEST_CASE(L"Test Pair<K, V> comparison (WO, SO)")
+	{
+		TestPairComparison.operator()<wo_vint, so_vint>();
+	});
+
+	TEST_CASE(L"Test Pair<K, V> comparison (WO, WO)")
+	{
+		TestPairComparison.operator()<wo_vint, wo_vint>();
+	});
+
+	TEST_CASE(L"Test Pair<K, V> comparison (WO, PO)")
+	{
+		TestPairComparison.operator()<wo_vint, po_vint>();
+	});
+
+	TEST_CASE(L"Test Pair<K, V> comparison (PO, SO)")
+	{
+		TestPairComparison.operator()<po_vint, so_vint>();
+	});
+
+	TEST_CASE(L"Test Pair<K, V> comparison (PO, WO)")
+	{
+		TestPairComparison.operator()<po_vint, wo_vint>();
+	});
+
+	TEST_CASE(L"Test Pair<K, V> comparison (PO, PO)")
+	{
+		TestPairComparison.operator()<po_vint, po_vint>();
 	});
 }

@@ -89,8 +89,8 @@ namespace vl
 			Pair<K, V>& operator=(Pair<K, V>&&) = default;
 
 			template<typename TKey, typename TValue>
-			std::strong_ordering operator<=>(const Pair<TKey, TValue>& p) const
-				requires(std::three_way_comparable_with<const K, const TKey, std::strong_ordering> && std::three_way_comparable_with<const V, const TValue, std::strong_ordering>)
+			auto operator<=>(const Pair<TKey, TValue>& p) const
+				requires(std::three_way_comparable_with<const K, const TKey> && std::three_way_comparable_with<const V, const TValue>)
 			{
 				std::strong_ordering
 				result = key <=> p.key; if (result != 0) return result;

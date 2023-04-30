@@ -1,6 +1,7 @@
 #include "../../Source/UnitTest/UnitTest.h"
 #include "../../Source/Primitives/Tuple.h"
 #include "../../Source/Collections/Pair.h"
+#include "PrimitiveTypesForTest.h"
 
 using namespace vl;
 using namespace vl::collections;
@@ -179,25 +180,6 @@ TEST_FILE
 			TEST_ASSERT(&pk == &k);
 			TEST_ASSERT(&pv == &v);
 		}
-	});
-
-	TEST_CASE(L"Test Tuple<T...> comparison")
-	{
-		Tuple<vint, vint> a{ 1, 1 }, b{ 1, 2 };
-
-		TEST_ASSERT((a == a) == true);
-		TEST_ASSERT((a != a) == false);
-		TEST_ASSERT((a < a) == false);
-		TEST_ASSERT((a <= a) == true);
-		TEST_ASSERT((a > a) == false);
-		TEST_ASSERT((a >= a) == true);
-
-		TEST_ASSERT((a == b) == false);
-		TEST_ASSERT((a != b) == true);
-		TEST_ASSERT((a < b) == true);
-		TEST_ASSERT((a <= b) == true);
-		TEST_ASSERT((a > b) == false);
-		TEST_ASSERT((a >= b) == false);
 	});
 
 	TEST_CASE(L"Test Tuple<T...> structured binding")
@@ -418,5 +400,88 @@ TEST_FILE
 			static_assert(std::is_same_v<decltype(c1), const vint&>);
 			static_assert(std::is_same_v<decltype(c2), const WString&>);
 		}
+	});
+
+	TEST_CASE(L"Test Tuple<T...> comparison")
+	{
+		Tuple<vint, vint> a{ 1, 1 }, b{ 1, 2 };
+
+		TEST_ASSERT((a == a) == true);
+		TEST_ASSERT((a != a) == false);
+		TEST_ASSERT((a < a) == false);
+		TEST_ASSERT((a <= a) == true);
+		TEST_ASSERT((a > a) == false);
+		TEST_ASSERT((a >= a) == true);
+
+		TEST_ASSERT((a == b) == false);
+		TEST_ASSERT((a != b) == true);
+		TEST_ASSERT((a < b) == true);
+		TEST_ASSERT((a <= b) == true);
+		TEST_ASSERT((a > b) == false);
+		TEST_ASSERT((a >= b) == false);
+	});
+
+	auto TestTupleComparison = []<typename T, typename U>()
+	{
+		Tuple<T, U> a{ 1, 1 }, b{ 1, 2 };
+
+		TEST_ASSERT((a == a) == true);
+		TEST_ASSERT((a != a) == false);
+		TEST_ASSERT((a < a) == false);
+		TEST_ASSERT((a <= a) == true);
+		TEST_ASSERT((a > a) == false);
+		TEST_ASSERT((a >= a) == true);
+
+		TEST_ASSERT((a == b) == false);
+		TEST_ASSERT((a != b) == true);
+		TEST_ASSERT((a < b) == true);
+		TEST_ASSERT((a <= b) == true);
+		TEST_ASSERT((a > b) == false);
+		TEST_ASSERT((a >= b) == false);
+	};
+
+	TEST_CASE(L"Test Tuple<K, V> comparison (SO, SO)")
+	{
+		TestTupleComparison.operator()<so_vint, so_vint>();
+	});
+
+	TEST_CASE(L"Test Tuple<K, V> comparison (SO, WO)")
+	{
+		TestTupleComparison.operator()<so_vint, wo_vint>();
+	});
+
+	TEST_CASE(L"Test Tuple<K, V> comparison (SO, PO)")
+	{
+		TestTupleComparison.operator()<so_vint, po_vint>();
+	});
+
+	TEST_CASE(L"Test Tuple<K, V> comparison (WO, SO)")
+	{
+		TestTupleComparison.operator()<wo_vint, so_vint>();
+	});
+
+	TEST_CASE(L"Test Tuple<K, V> comparison (WO, WO)")
+	{
+		TestTupleComparison.operator()<wo_vint, wo_vint>();
+	});
+
+	TEST_CASE(L"Test Tuple<K, V> comparison (WO, PO)")
+	{
+		TestTupleComparison.operator()<wo_vint, po_vint>();
+	});
+
+	TEST_CASE(L"Test Tuple<K, V> comparison (PO, SO)")
+	{
+		TestTupleComparison.operator()<po_vint, so_vint>();
+	});
+
+	TEST_CASE(L"Test Tuple<K, V> comparison (PO, WO)")
+	{
+		TestTupleComparison.operator()<po_vint, wo_vint>();
+	});
+
+	TEST_CASE(L"Test Tuple<K, V> comparison (PO, PO)")
+	{
+		TestTupleComparison.operator()<po_vint, po_vint>();
 	});
 }
