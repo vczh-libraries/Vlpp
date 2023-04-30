@@ -3,14 +3,17 @@
 ## Progressing
 
 - Enumerable and enumerator fail when container is deleted.
-  - enumerating, `index`, `reversed`, `reversed_indexed`
-    - lock operations that affect index, return `const T&`
-  - `mutable`, `updatable_indexed`
-    - lock operations that affect index, from top to the current position, return `T&`
-  - `updatable_reversed`, `updatable_reversed_indexed`
-    - lock operations that affect index, from top to the current position - 1, return `T&`
-  - thinks about `Dictionary` and `Group` iterating.
-  - Check for `for (vint ` and refactor
+  - Disable `xs[i] = v` in `List<T>` and `ObservableListBase<T>`.
+  - enumerable, `reversed`.
+    - lock the list, return `const T&`.
+  - `alterable`.
+    - lock operations that affect index, from top to the current position, return `T&`.
+  - `alterable_reversed`.
+    - lock operations that affect index, from top to the current position - 1, return `T&`.
+  - `indexed` can be used on `reversed`, `alterable` and `alterable_reversed`.
+    - `indexed(reversed)` and `indexed(alterable_reversed)` need to be careful about the index, it is from `Count() - 1` to `0`.
+  - Thinks about `Dictionary` and `Group` iterating.
+  - Check for `for (vint ` and refactor.
     - When iterating cannot apply, log and wait for more container types.
 - `Union<T...>`.
   - If any type is `T*`, `Ptr<T>` or `Nullable<T>`, A `nullptr_t` is added automatically.
