@@ -3,10 +3,7 @@
 ## Progressing
 
 - `operator<=>` part 2:
-  - stop specifying ordering for `operator<=>(...) = default`.
-  - sort or binary search supports all 3 kinds of ordering, crashes when `partial_ordering` is incomparible.
   - check all other repos.
-  - Test ordering for `Nullable`, `Pair` and `Tuple` with strong/weak/partial ordering element mixed.
   - Test `SortLambda` and `CompareEnumerable` on each ordering.
 - Refine test file structure and add more unit test.
   - Split `List` and `SortedList` into two files.
