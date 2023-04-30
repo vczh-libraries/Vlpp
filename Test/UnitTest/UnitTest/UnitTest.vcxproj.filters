@@ -63,7 +63,7 @@
     <ClCompile Include="..\..\Source\TestLinq_GenericLambda.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\TestList_LoopFromMisc.cpp">
+    <ClCompile Include="..\..\Source\TestList_LoopFrom_LazyList.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\TestList_CopyFrom.cpp">
@@ -97,6 +97,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\TestList_Container_SortedList.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\TestList_Container_ByetObjectMap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\TestList_LoopFrom_Ordered_Locked.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

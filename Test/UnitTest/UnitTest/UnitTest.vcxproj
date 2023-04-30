@@ -268,12 +268,14 @@
     <ClCompile Include="..\..\Source\TestLinq_GenericLambda.cpp" />
     <ClCompile Include="..\..\Source\TestLinq_NoLambda.cpp" />
     <ClCompile Include="..\..\Source\TestList_Container_Array.cpp" />
+    <ClCompile Include="..\..\Source\TestList_Container_ByetObjectMap.cpp" />
     <ClCompile Include="..\..\Source\TestList_Container_Dictionary.cpp" />
     <ClCompile Include="..\..\Source\TestList_Container_Group.cpp" />
     <ClCompile Include="..\..\Source\TestList_Container_List.cpp" />
     <ClCompile Include="..\..\Source\TestList_Container_SortedList.cpp" />
     <ClCompile Include="..\..\Source\TestList_CopyFrom.cpp" />
-    <ClCompile Include="..\..\Source\TestList_LoopFromMisc.cpp" />
+    <ClCompile Include="..\..\Source\TestList_LoopFrom_LazyList.cpp" />
+    <ClCompile Include="..\..\Source\TestList_LoopFrom_Ordered_Locked.cpp" />
     <ClCompile Include="..\..\Source\TestPartialOrdering.cpp" />
     <ClCompile Include="..\..\Source\TestSort.cpp" />
     <ClCompile Include="Main.cpp" />

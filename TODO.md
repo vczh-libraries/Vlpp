@@ -4,8 +4,6 @@
 
 - `operator<=>` part 2:
   - check all other repos.
-- Refine test file structure and add more unit test.
-  - Move `for-loop` on contains from `TestList_LoopFromMisc.cpp` to each containers.
 - Enumerable and enumerator fail when container is deleted.
   - enumerating, `index`, `reversed`, `reversed_indexed`
     - lock operations that affect index, return `const T&`
