@@ -2,8 +2,6 @@
 
 ## Progressing
 
-- `operator<=>` part 2:
-  - check all other repos.
 - Enumerable and enumerator fail when container is deleted.
   - enumerating, `index`, `reversed`, `reversed_indexed`
     - lock operations that affect index, return `const T&`
