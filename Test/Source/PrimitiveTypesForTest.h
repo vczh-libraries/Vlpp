@@ -24,7 +24,14 @@ struct ordering_vint
 		{
 			if (a.value == UNORDERABLE_INT_CONSTANT || b.value == UNORDERABLE_INT_CONSTANT)
 			{
-				return std::partial_ordering::unordered;
+				if (a.value == b.value)
+				{
+					return std::partial_ordering::equivalent;
+				}
+				else
+				{
+					return std::partial_ordering::unordered;
+				}
 			}
 		}
 		return a.value <=> b.value;
