@@ -4,16 +4,18 @@
 
 - Enumerable and enumerator fail when container is deleted.
   - Disable `xs[i] = v` in `List<T>` and `ObservableListBase<T>`.
-  - enumerable, `reversed`.
+  - enumerating, `reversed`.
     - lock the list, return `const T&`.
+    - if the container does not offer locking interface, then the type should only be `LazyList<T>` and `IEnumerable<T>`.
   - `alterable`.
     - lock operations that affect index, from top to the current position, return `T&`.
-  - `alterable_reversed`.
+  - `alterable(reversed)`.
     - lock operations that affect index, from top to the current position - 1, return `T&`.
-  - `indexed` can be used on `reversed`, `alterable` and `alterable_reversed`.
-    - `indexed(reversed)` and `indexed(alterable_reversed)` need to be careful about the index, it is from `Count() - 1` to `0`.
+  - `indexed` can be used on `reversed`, `alterable` and `alterable(reversed)`.
+    - `indexed(reversed)` and `indexed(alterable(reversed))` need to be careful about the index, it is from `Count() - 1` to `0`.
+  - `locked` and `alterable` are like reader writer lock, but it crashes when it is not able to acquire immediately.
   - Thinks about `Dictionary` and `Group` iterating.
-  - Check for `for (vint ` and refactor.
+  - Check for `for\s*\((auto|vint)` and refactor.
     - When iterating cannot apply, log and wait for more container types.
 - `Union<T...>`.
   - If any type is `T*`, `Ptr<T>` or `Nullable<T>`, A `nullptr_t` is added automatically.
