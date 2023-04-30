@@ -101,10 +101,13 @@ Quick Sort
 						vint candidate = (flag ? left : length - right - 1);
 						vint factor = (flag ? -1 : 1);
 
-						if (
-							std::strong_ordering ordering = orderer(items[pivot], items[candidate]);
-							(factor == 1 && ordering <= 0) || (factor == -1 && ordering >= 0)
-							)
+						auto ordering = orderer(items[pivot], items[candidate]);
+						if constexpr (std::is_same_v<decltype(ordering), std::partial_ordering>)
+						{
+							CHECK_ERROR(ordering != std::partial_ordering::unordered, L"vl::collections::SortLambda(T*, vint, F&&)#This function could not apply on elements in partial ordering.");
+						}
+
+						if ((factor == 1 && ordering <= 0) || (factor == -1 && ordering >= 0))
 						{
 							mine++;
 						}
@@ -125,10 +128,13 @@ Quick Sort
 					vint writing = reading;
 					while (reading >= 0)
 					{
-						if (
-							std::strong_ordering ordering = orderer(items[pivot], items[reading]);
-							ordering == 0
-							)
+						auto ordering = orderer(items[pivot], items[reading]);
+						if constexpr (std::is_same_v<decltype(ordering), std::partial_ordering>)
+						{
+							CHECK_ERROR(ordering != std::partial_ordering::unordered, L"vl::collections::SortLambda(T*, vint, F&&)#This function could not apply on elements in partial ordering.");
+						}
+
+						if (ordering == 0)
 						{
 							if (reading != writing)
 							{

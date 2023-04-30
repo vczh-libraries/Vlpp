@@ -188,7 +188,7 @@ CompareEnumerable
 		/// In other cases, the results represents the comparison result of the first pair of inequal values in enumerables.
 		/// </remarks>
 		template<typename T, typename U>
-		std::strong_ordering CompareEnumerable(const IEnumerable<T>& a, const IEnumerable<U>& b)
+		auto CompareEnumerable(const IEnumerable<T>& a, const IEnumerable<U>& b)
 		{
 			auto ator = Ptr(a.CreateEnumerator());
 			auto btor = Ptr(b.CreateEnumerator());
@@ -202,7 +202,7 @@ CompareEnumerable
 
 				const T& ac = ator->Current();
 				const U& bc = btor->Current();
-				std::strong_ordering ordering = ac <=> bc;
+				auto ordering = ac <=> bc;
 				if (ordering != 0) return ordering;
 			}
 			return std::strong_ordering::equal;

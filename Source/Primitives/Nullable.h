@@ -189,12 +189,12 @@ namespace vl
 
 		/// <summary>Comparing two nullable values.</summary>
 		/// <returns>
-		/// Returns std::strong_ordering indicating the order of the two values.
+		/// Returns a value indicating the order of the two values, the type is decided by T.
 		/// When one is null and another one is not, the non-null one is greater.
 		/// </returns>
 		/// <param name="a">The first nullable value to compare.</param>
 		/// <param name="b">The second nullable value to compare.</param>
-		std::strong_ordering operator<=>(const Nullable<T>& b)const
+		auto operator<=>(const Nullable<T>& b)const
 		{
 			if (initialized && b.initialized) return object <=> b.object;
 			if (initialized) return std::strong_ordering::greater;

@@ -19,7 +19,7 @@ struct Copyable
 	Copyable<T>& operator=(const Copyable<T>&) = delete;
 	Copyable<T>& operator=(Copyable<T>&&) = default;
 
-	std::strong_ordering operator<=>(const Copyable<T>& c) const
+	auto operator<=>(const Copyable<T>& c) const
 	{
 		if (value && c.value)
 		{
@@ -50,8 +50,7 @@ struct Moveonly
 	Moveonly<T>& operator=(const Moveonly<T>&) = delete;
 	Moveonly<T>& operator=(Moveonly<T>&&) = default;
 
-	std::strong_ordering operator<=>(const Moveonly<T>&) const = default;
-	bool operator==(const Moveonly<T>& value) const = default;
+	auto operator<=>(const Moveonly<T>&) const = default;
 };
 
 #define _ ,
