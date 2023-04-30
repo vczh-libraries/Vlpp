@@ -1,21 +1,11 @@
 #include "AssertCollection.h"
 
-namespace TestList_TestObjects
-{
-	std::strong_ordering Compare(vint a, vint b)
-	{
-		return a <=> b;
-	}
-}
-
-using namespace TestList_TestObjects;
-
 TEST_FILE
 {
 	TEST_CASE(L"Test SortLambda with unique numbers")
 	{
 		vint numbers[] = {7,1,12,2,8,3,11,4,9,5,13,6,10};
-		SortLambda(numbers, sizeof(numbers) / sizeof(numbers[0]), Compare);
+		Sort(numbers, sizeof(numbers) / sizeof(numbers[0]));
 
 		for (vint i = 0; i < sizeof(numbers) / sizeof(numbers[0]); i++)
 		{
@@ -29,7 +19,7 @@ TEST_FILE
 	TEST_CASE(L"Test SortLambda with repeated numbers")
 	{
 		vint numbers[] = {7,7,1,1,12,12,2,2,8,8,3,3,11,11,4,4,9,9,5,5,13,13,6,6,10,10};
-		SortLambda(numbers, sizeof(numbers) / sizeof(numbers[0]), Compare);
+		Sort(numbers, sizeof(numbers) / sizeof(numbers[0]));
 
 		for (vint i = 0; i < sizeof(numbers) / sizeof(numbers[0]); i++)
 		{
@@ -43,7 +33,7 @@ TEST_FILE
 	TEST_CASE(L"Test SortLambda with more repeated numbers")
 	{
 		vint numbers[] = {7,7,7,1,1,1,12,12,12,2,2,2,8,8,8,3,3,3,11,11,11,4,4,4,9,9,9,5,5,5,13,13,13,6,6,6,10,10,10};
-		SortLambda(numbers, sizeof(numbers) / sizeof(numbers[0]), Compare);
+		Sort(numbers, sizeof(numbers) / sizeof(numbers[0]));
 
 		for (vint i = 0; i < sizeof(numbers) / sizeof(numbers[0]); i++)
 		{
@@ -57,7 +47,7 @@ TEST_FILE
 	TEST_CASE(L"Test SortLambda with zeros")
 	{
 		vint numbers[] = {0,0,0,0,0,0,0,0,0,0};
-		SortLambda(numbers, sizeof(numbers) / sizeof(numbers[0]), Compare);
+		Sort(numbers, sizeof(numbers) / sizeof(numbers[0]));
 
 		for (vint i = 0; i < sizeof(numbers) / sizeof(numbers[0]); i++)
 		{
@@ -78,7 +68,7 @@ TEST_FILE
 			numbers[i * 3 + 1] = 0;
 			numbers[i * 3 + 2] = 2;
 		}
-		SortLambda(&numbers[0], numbers.Count(), Compare);
+		Sort(&numbers[0], numbers.Count());
 
 		for (vint i = 0; i < numbers.Count(); i++)
 		{
@@ -93,7 +83,7 @@ TEST_FILE
 	{
 		Array<vint> numbers(100000);
 		memset(&numbers[0], 0, sizeof(vint) * numbers.Count());
-		SortLambda(&numbers[0], numbers.Count(), Compare);
+		Sort(&numbers[0], numbers.Count());
 
 		for (vint i = 0; i < numbers.Count(); i++)
 		{
