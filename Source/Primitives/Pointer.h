@@ -279,14 +279,14 @@ Ptr
 			return reference <=> pointer.reference;
 		}
 
-		bool operator==(const T* value) const
+		bool operator==(const T* pointer) const
 		{
-			return operator<=>(value) == 0;
+			return reference == pointer;
 		}
 
-		bool operator==(const Ptr<T>& value) const
+		bool operator==(const Ptr<T>& pointer) const
 		{
-			return operator<=>(value) == 0;
+			return reference == pointer.reference;
 		}
 
 		/// <summary>Test if it is an empty shared pointer.</summary>

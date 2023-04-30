@@ -101,7 +101,7 @@ Date and Time
 
 		bool operator==(const DateTime& value) const
 		{
-			return operator<=>(value) == 0;
+			return filetime == value.filetime;
 		}
 	};
 }

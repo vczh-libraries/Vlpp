@@ -80,7 +80,7 @@ Quick Sort
 		/// <param name="items">Pointer to element array to sort.</param>
 		/// <param name="length">The number of elements to sort.</param>
 		/// <param name="orderer">
-		/// The comparar for two elements returning std::string_ordering.
+		/// The comparar for two elements returning std::(strong|weak|partial)_ordering.
 		/// </param>
 		template<typename T, typename F>
 		void SortLambda(T* items, vint length, F&& orderer)
@@ -188,7 +188,7 @@ Quick Sort
 		/// <param name="items">Pointer to element array to sort.</param>
 		/// <param name="length">The number of elements to sort.</param>
 		/// <param name="orderer">
-		/// The comparar for two elements returning std::string_ordering.
+		/// The comparar for two elements returning std::(strong|weak|partial)_ordering.
 		/// </param>
 		template<typename T, typename F>
 		void Sort(T* items, vint length, F&& orderer)
@@ -382,7 +382,7 @@ LazyList
 			/// <typeparam name="F">Type of the comparer.</typeparam>
 			/// <returns>The created lazy list.</returns>
 			/// <param name="f">
-			/// The comparar for two elements returning std::string_ordering.
+			/// The comparar for two elements returning std::(strong|weak|partial)_ordering.
 			/// </param>
 			/// <example><![CDATA[
 			/// int main()
