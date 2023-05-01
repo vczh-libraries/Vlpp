@@ -2,21 +2,28 @@
 
 ## Progressing
 
-- Enumerable and enumerator fail when container is deleted.
-  - Disable `xs[i] = v` in `List<T>` and `ObservableListBase<T>`.
+- Enumerable and enumerator fail when container is deleted (1/3).
   - enumerating, `reversed`.
     - lock the list, return `const T&`.
-    - if the container does not offer locking interface, then the type should only be `LazyList<T>` and `IEnumerable<T>`.
+    - if a container supports random access, it needs to do something to explicitly enable enumerating and `reversed`.
+      - otherwise an error needs to be generated instead of falling back to use `IEnumerable<T>` version.
+  - `indexed` can be used on `reversed`.
+    - `indexed(reversed)` need to be careful about the index, it is from `Count() - 1` to `0`.
+  - Check for `for\s*\((auto|vint)` and refactor.
+    - When iterating cannot apply, mark `//TODO: (enumerating) TheNeededContainerType`.
+    - When a foreach loop needs to update the container, mark `//TODO: (enumerating) alterable`
+- Enumerable and enumerator fail when container is deleted (2/3).
   - `alterable`.
     - lock operations that affect index, from top to the current position, return `T&`.
   - `alterable(reversed)`.
     - lock operations that affect index, from top to the current position - 1, return `T&`.
-  - `indexed` can be used on `reversed`, `alterable` and `alterable(reversed)`.
-    - `indexed(reversed)` and `indexed(alterable(reversed))` need to be careful about the index, it is from `Count() - 1` to `0`.
+  - `indexed` can be used on `alterable` and `alterable(reversed)`.
+    - `indexed(alterable(reversed))` need to be careful about the index, it is from `Count() - 1` to `0`.
   - `locked` and `alterable` are like reader writer lock, but it crashes when it is not able to acquire immediately.
+  - Check for `//TODO: (enumerating)` and refactor.
+- Enumerable and enumerator fail when container is deleted (3/3).
   - Thinks about `Dictionary` and `Group` iterating.
-  - Check for `for\s*\((auto|vint)` and refactor.
-    - When iterating cannot apply, log and wait for more container types.
+  - Disable `xs[i] = v` in `List<T>` and `ObservableListBase<T>`.
 - `Union<T...>`.
   - If any type is `T*`, `Ptr<T>` or `Nullable<T>`, A `nullptr_t` is added automatically.
     - Any `Nullable<T>` becomes `T`.
