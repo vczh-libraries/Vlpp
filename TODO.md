@@ -7,6 +7,7 @@
     - lock the list, return `const T&`.
     - if a container supports random access, it needs to do something to explicitly enable enumerating and `reversed`.
       - otherwise an error needs to be generated instead of falling back to use `IEnumerable<T>` version.
+      - the `something` needs to tell if it supports `alterable`.
   - `indexed` can be used on `reversed`.
     - `indexed(reversed)` need to be careful about the index, it is from `Count() - 1` to `0`.
   - Check for `for\s*\((auto|vint)` and refactor.
