@@ -16,6 +16,7 @@
 - Enumerable and enumerator fail when container is deleted (2/3).
   - `alterable`.
     - lock operations that affect index, from top to the current position, return `T&`.
+    - does not compile when applying on a const container.
   - `alterable(reversed)`.
     - lock operations that affect index, from top to the current position - 1, return `T&`.
   - `indexed` can be used on `alterable` and `alterable(reversed)`.
@@ -24,6 +25,10 @@
   - Check for `//TODO: (enumerating)` and refactor.
 - Enumerable and enumerator fail when container is deleted (3/3).
   - Thinks about `Dictionary` and `Group` iterating.
+    - iterating group in both `(key, value[])` (allow `alterable` and `reversed`) and `(key, value)`.
+    - iterating dictionary in `(key, value)` (allow `alterable` and `reversed`).
+  - `Dictionary::Values()` returns a special list object other than `List`, allowing set.
+  - `Group::GetByIndex(vint)` returns a special list object other than `List`, allowing all list operations, when it becomes empty the key will be removed.
   - Disable `xs[i] = v` in `List<T>` and `ObservableListBase<T>`.
 - `Union<T...>`.
   - If any type is `T*`, `Ptr<T>` or `Nullable<T>`, A `nullptr_t` is added automatically.
