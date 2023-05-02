@@ -70,12 +70,14 @@
 - `LazyList` operators test container types and perform different solution to improve performance.
   - Or add optional random access interface to IEnumerable.
 - In place merge sort: reversly sort the right side and treat it as a heap, root is in the right most position, add all items from the left side, and pop them.
-- `Queue<T>`.
-  - Check the whole org and change some `for` or visiting/visited with `Queue`.
-- `Deque`.
-- `FixedRingBuffer`.
-- `DequeRingBuffer`.
-- `Heap`.
+- Containers
+  - Allow `std::move` between `Array`, `List` and `SortedList`.
+  - `Queue<T>`.
+    - Check the whole org and change some `for` or visiting/visited with `Queue`.
+  - `Deque`.
+  - `FixedRingBuffer`.
+  - `DequeRingBuffer`.
+  - `Heap`.
 
 ## Optional
 
