@@ -1,5 +1,9 @@
 # TODO
 
+## Known Issues
+
+- When constructing `Func` from another `Func`, ensure the invoker is shared to the new `Func`, instead of creating an invoker to call the old `Func`.
+
 ## Progressing
 
 - `Union<T...>`.
