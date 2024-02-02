@@ -23,6 +23,7 @@
 
 ## Enumerable and enumerator fail when container is deleted
 
+- Begin this task after GacUI unit tests are done.
 - (1/3).
   - enumerating, `reversed`.
     - lock the list, return `const T&`.
@@ -89,11 +90,11 @@
   - `FixedRingBuffer`.
   - `DequeRingBuffer`.
   - `Heap`.
+- Support all calling convention (be careful about x64 when everything is `__fastcall`)
+- Perfect forwarding for `Func`. Today passing a `Func` to another `Func` creates a layer like lambda expression.
 
 ## Optional
 
-- Support all calling convention (be careful about x64 when everything is `__fastcall`)
-- Perfect forwarding for Func.
 - Mark `ObjectString::ObjectString` explicit for `const T*`
 - Heterougeneous tree string.
 - Redesign `VCZH_MSVC` series macros.
