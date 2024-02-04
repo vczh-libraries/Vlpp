@@ -27,10 +27,39 @@ TEST_FILE
 
 		TEST_CASE(L"Test Variant<T> copy constructor")
 		{
+			WString a = WString::Unmanaged(L"ABC");
+
+			Variant<WString> v1 = a;
+			TEST_ASSERT(v1.Index() == 0);
+			TEST_ASSERT(v1.TryGet<WString>() != nullptr);
+			TEST_ASSERT(v1.Get<WString>() == L"ABC");
+
+			Variant<WString> v2 = v1;
+			TEST_ASSERT(v2.Index() == 0);
+			TEST_ASSERT(v2.TryGet<WString>() != nullptr);
+			TEST_ASSERT(v2.Get<WString>() == L"ABC");
+
+			TEST_ASSERT(a == L"ABC");
 		});
 
 		TEST_CASE(L"Test Variant<T> move constructor")
 		{
+			WString a = WString::Unmanaged(L"ABC");
+
+			Variant<WString> v1 = std::move(a);
+			TEST_ASSERT(v1.Index() == 0);
+			TEST_ASSERT(v1.TryGet<WString>() != nullptr);
+			TEST_ASSERT(v1.Get<WString>() == L"ABC");
+
+			Variant<WString> v2 = std::move(v1);
+			TEST_ASSERT(v2.Index() == 0);
+			TEST_ASSERT(v2.TryGet<WString>() != nullptr);
+			TEST_ASSERT(v2.Get<WString>() == L"ABC");
+
+			TEST_ASSERT(a == WString::Empty);
+			TEST_ASSERT(v1.Index() == 0);
+			TEST_ASSERT(v1.TryGet<WString>() != nullptr);
+			TEST_ASSERT(v1.Get<WString>() == WString::Empty);
 		});
 
 		TEST_CASE(L"Test Variant<T> copy assignment")

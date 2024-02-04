@@ -251,7 +251,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugNoReflection|Win32'">false</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="..\..\Source\TestBasic_Nullabe.cpp" />
+    <ClCompile Include="..\..\Source\TestBasic_Nullable.cpp" />
     <ClCompile Include="..\..\Source\TestBasic_Pair.cpp" />
     <ClCompile Include="..\..\Source\TestBasic_Tuple.cpp" />
     <ClCompile Include="..\..\Source\TestBasic_Variant.cpp" />

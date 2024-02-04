@@ -69,7 +69,7 @@ namespace vl::variant_internal
 			}
 		}
 
-		static bool i_CopyCtor(vint index, char* buffer, char* source)
+		static bool i_CopyCtor(vint index, char* buffer, const char* source)
 		{
 			if constexpr (std::is_copy_constructible_v<T>)
 			{
@@ -104,7 +104,7 @@ namespace vl::variant_internal
 			return true;
 		}
 
-		static bool i_CopyAssign(vint index, char* buffer, char* source)
+		static bool i_CopyAssign(vint index, char* buffer, const char* source)
 		{
 			if constexpr (std::is_copy_assignable_v<T>)
 			{
@@ -188,7 +188,7 @@ namespace vl::variant_internal
 			return (VariantElement<Is, TElements>::i_efaultCtor(index, buffer) || ...);
 		}
 
-		static bool CopyCtor(vint index, char* buffer, char* source)
+		static bool CopyCtor(vint index, char* buffer, const char* source)
 		{
 			return (VariantElement<Is, TElements>::i_CopyCtor(index, buffer, source) || ...);
 		}
@@ -203,7 +203,7 @@ namespace vl::variant_internal
 			return (VariantElement<Is, TElements>::i_Dtor(index, buffer) || ...);
 		}
 
-		static bool CopyAssign(vint index, char* buffer, char* source)
+		static bool CopyAssign(vint index, char* buffer, const char* source)
 		{
 			return (VariantElement<Is, TElements>::i_CopyAssign(index, buffer, source) || ...);
 		}
@@ -266,25 +266,25 @@ namespace vl
 			requires((std::is_same_v<T, TElements> || ...))
 		Variant(const T& element)
 		{
-			consteval auto i = IndexOf<T>;
+			constexpr auto i = IndexOf<T>;
 			index = i;
-			ElementPack::CopyCtor(VariantIndex<i>{}, element);
+			ElementPack::CopyCtor(VariantIndex<i>{}, buffer, element);
 		}
 
 		template<typename T>
 			requires((std::is_same_v<T, TElements> || ...))
 		Variant(T&& element)
 		{
-			consteval auto i = IndexOf<T>;
+			constexpr auto i = IndexOf<T>;
 			index = i;
-			ElementPack::MoveCtor(VariantIndex<i>{}, std::move(element));
+			ElementPack::MoveCtor(VariantIndex<i>{}, buffer, std::move(element));
 		}
 
 		template<vint I, typename ...TArgs>
 		Variant(VariantIndex<I> i, TArgs&& ...args)
 			: index(i)
 		{
-			ElementPack::Ctor(i, std::forward<TArgs&&>(args)...);
+			ElementPack::Ctor(i, buffer, std::forward<TArgs&&>(args)...);
 		}
 
 		~Variant()
@@ -326,7 +326,7 @@ namespace vl
 			requires((std::is_same_v<T, TElements> || ...))
 		Variant<TElements...>& operator=(const T& element)
 		{
-			consteval auto i = IndexOf<T>;
+			constexpr auto i = IndexOf<T>;
 			if (index == i)
 			{
 				ElementPack::CopyAssign(VariantIndex<i>{}, buffer, element);
@@ -344,7 +344,7 @@ namespace vl
 			requires((std::is_same_v<T, TElements> || ...))
 		Variant<TElements...>& operator=(T&& element)
 		{
-			consteval auto i = IndexOf<T>;
+			constexpr auto i = IndexOf<T>;
 			if (index == i)
 			{
 				ElementPack::MoveAssign(VariantIndex<i>{}, buffer, std::move(element));
@@ -355,6 +355,7 @@ namespace vl
 				index = i;
 				ElementPack::MoveCtor(VariantIndex<i>{}, buffer, std::move(element));
 			}
+			return *this;
 		}
 
 		vint Index() const
