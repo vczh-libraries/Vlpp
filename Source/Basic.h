@@ -182,6 +182,21 @@ Basic Types
 	if(bool __scope_variable_flag__=true)\
 		for(TYPE VARIABLE = VALUE;__scope_variable_flag__;__scope_variable_flag__=false)
 
+	/// <summary>
+	/// Base type of all classes.
+	/// This type has a virtual destructor, making all derived classes destructors virtual.
+	/// In this way an object is allowed to be deleted using a pointer of a qualified base type pointing to this object.
+	/// </summary>
+	class Object
+	{
+	public:
+		virtual ~Object() = default;
+	};
+
+/***********************************************************************
+Type Traits
+***********************************************************************/
+
 	template<typename ...TArgs>
 	struct TypeTuple
 	{
@@ -210,28 +225,6 @@ Basic Types
 
 	template<typename T, vint I>
 	struct RemoveCVRefArrayCtad<T(&)[I]> { using Type = T*; };
-
-	/// <summary>
-	/// Base type of all classes.
-	/// This type has a virtual destructor, making all derived classes destructors virtual.
-	/// In this way an object is allowed to be deleted using a pointer of a qualified base type pointing to this object.
-	/// </summary>
-	class Object
-	{
-	public:
-		virtual ~Object() = default;
-	};
-
-	template<typename T, size_t minSize>
-	union BinaryRetriver
-	{
-		T t;
-		char binary[sizeof(T) > minSize ? sizeof(T) : minSize];
-	};
-
-/***********************************************************************
-Type Traits
-***********************************************************************/
 
 	/// <summary>Type for specify and create a representative value for comparing another value of a specific type for containers.</summary>
 	/// <typeparam name="T">The element type for containers.</typeparam>
