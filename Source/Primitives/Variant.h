@@ -44,8 +44,8 @@ namespace vl::variant_internal
 	struct VariantElement
 	{
 		template<typename U>
-		static consteval VariantIndex<I> IndexOf()
 			requires(std::is_same_v<T, U>)
+		static consteval VariantIndex<I> IndexOf()
 		{
 			return {};
 		}
@@ -176,6 +176,8 @@ namespace vl::variant_internal
 	template<std::size_t ...Is, typename ...TElements>
 	struct VariantElementPack<std::index_sequence<Is...>, TElements...> : VariantElement<Is, TElements>...
 	{
+		using VariantElement<Is, TElements>::IndexOf...;
+		using VariantElement<Is, TElements>::TypeOf...;
 		using VariantElement<Is, TElements>::DefaultCtor...;
 		using VariantElement<Is, TElements>::Ctor...;
 		using VariantElement<Is, TElements>::CopyCtor...;
