@@ -348,6 +348,10 @@ TEST_FILE
 
 	TEST_CATEGORY(L"Visit and interoperation between different Variant")
 	{
+		// TODO:
+		//   Variant<T...>::Visit(func) -> void, compile error if not fully matchable
+		//   Variant<T...>::TryVisit(func) -> bool, returns false if not fully matched
+		//   Callback(lambdas, ...) to combine multiple functor to one
 	});
 
 	TEST_CATEGORY(L"Test comparison with elements")
