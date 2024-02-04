@@ -15,7 +15,10 @@ Licensed under https://github.com/vczh-libraries/License
 namespace vl
 {
 	template<vint I>
-	struct VariantIndex {};
+	struct VariantIndex
+	{
+		static constexpr vint value = I;
+	};
 }
 
 namespace vl::variant_internal
@@ -41,10 +44,10 @@ namespace vl::variant_internal
 	struct VariantElement
 	{
 		template<typename U>
-		static consteval vint IndexOf()
+		static consteval VariantIndex<I> IndexOf()
 			requires(std::is_same_v<T, U>)
 		{
-			return I;
+			return {};
 		}
 
 		static consteval T* TypeOf(VariantIndex<I>)
@@ -57,7 +60,7 @@ namespace vl::variant_internal
 			if constexpr (std::is_default_constructible_v<T>)
 			{
 				if (I != index) return false;
-				new T(buffer)();
+				new (buffer)T();
 				return true;
 			}
 			else
@@ -71,7 +74,7 @@ namespace vl::variant_internal
 			if constexpr (std::is_copy_constructible_v<T>)
 			{
 				if (I != index) return false;
-				new T(buffer)(*reinterpret_cast<const T*>(source));
+				new (buffer)T(*reinterpret_cast<const T*>(source));
 				return true;
 			}
 			else
@@ -85,7 +88,7 @@ namespace vl::variant_internal
 			if constexpr (std::is_move_constructible_v<T>)
 			{
 				if (I != index) return false;
-				new T(buffer)(std::move(*reinterpret_cast<T*>(source)));
+				new (buffer)T(std::move(*reinterpret_cast<T*>(source)));
 				return true;
 			}
 			else
@@ -133,25 +136,25 @@ namespace vl::variant_internal
 		static void Ctor(VariantIndex<I>, char* buffer, TArgs&& ...args)
 			requires(std::is_constructible_v<T, TArgs&&...>)
 		{
-			new T(buffer)(std::forward<TArgs&&>(args)...);
+			new (buffer)T(std::forward<TArgs&&>(args)...);
 		}
 
 		static void DefaultCtor(VariantIndex<I>, char* buffer)
 			requires(std::is_default_constructible_v<T>)
 		{
-			new T(buffer);
+			new (buffer)T();
 		}
 
 		static void CopyCtor(VariantIndex<I>, char* buffer, const T& source)
 			requires(std::is_copy_constructible_v<T>)
 		{
-			new T(buffer)(source);
+			new (buffer)T(source);
 		}
 
 		static void MoveCtor(VariantIndex<I>, char* buffer, T&& source)
 			requires(std::is_move_constructible_v<T>)
 		{
-			new T(buffer)(std::move(source));
+			new (buffer)T(std::move(source));
 		}
 
 		static void CopyAssign(VariantIndex<I>, char* buffer, const T& source)
@@ -178,69 +181,70 @@ namespace vl::variant_internal
 		using VariantElement<Is, TElements>::CopyCtor...;
 		using VariantElement<Is, TElements>::MoveCtor...;
 		using VariantElement<Is, TElements>::CopyAssign...;
-		using VariantElement<Is, TElements>::CopyAssign...;
+		using VariantElement<Is, TElements>::MoveAssign...;
 
 		static bool DefaultCtor(vint index, char* buffer)
 		{
-			return (VariantElement<Is, TElements>::DefaultCtor(index, buffer) || ...);
+			return (VariantElement<Is, TElements>::i_efaultCtor(index, buffer) || ...);
 		}
 
 		static bool CopyCtor(vint index, char* buffer, char* source)
 		{
-			return (VariantElement<Is, TElements>::CopyCtor(index, buffer, source) || ...);
+			return (VariantElement<Is, TElements>::i_CopyCtor(index, buffer, source) || ...);
 		}
 
 		static bool MoveCtor(vint index, char* buffer, char* source)
 		{
-			return (VariantElement<Is, TElements>::MoveCtor(index, buffer, source) || ...);
+			return (VariantElement<Is, TElements>::i_MoveCtor(index, buffer, source) || ...);
 		}
 
 		static bool Dtor(vint index, char* buffer)
 		{
-			return (VariantElement<Is, TElements>::Dtor(index, buffer) || ...);
+			return (VariantElement<Is, TElements>::i_Dtor(index, buffer) || ...);
 		}
 
 		static bool CopyAssign(vint index, char* buffer, char* source)
 		{
-			return (VariantElement<Is, TElements>::CopyAssign(index, buffer, source) || ...);
+			return (VariantElement<Is, TElements>::i_CopyAssign(index, buffer, source) || ...);
 		}
 
 		static bool MoveAssign(vint index, char* buffer, char* source)
 		{
-			return (VariantElement<Is, TElements>::MoveAssign(index, buffer, source) || ...);
+			return (VariantElement<Is, TElements>::i_MoveAssign(index, buffer, source) || ...);
 		}
-	};
-
-	template<typename ...TElements>
-	using VariantElementPackOf = VariantElementPack<std::make_index_sequence<sizeof...(TElements)>, TElements...>;
-}
-
-namespace std
-{
-	template<size_t Index, typename ...TArgs>
-	struct tuple_element<Index, vl::variant_internal::VariantElementPackOf<TArgs...>>
-	{
-		using type = decltype(vl::variant_internal::VariantElementPackOf<TArgs...>::TypeOf(vl::VariantIndex<Index>{}));
 	};
 }
 
 namespace vl
 {
-	template<typename ...TElements>
-		requires((
-			(std::is_same_v<TElements, std::remove_cvref_t<TElements>>)
-			&& ...
-		))
+	template<typename T>
+	concept VariantElementType = requires()
+	{
+		std::is_same_v<T, std::remove_cvref_t<T>>;
+	};
+
+	template<VariantElementType ...TElements>
 	class alignas(TElements...) Variant
 	{
-		using ElementPack = variant_internal::VariantElementPackOf<TElements>;
+	public:
+		template<VariantElementType ...UElements>
+		friend class Variant;
+
+		using ElementPack = variant_internal::VariantElementPack<std::make_index_sequence<sizeof...(TElements)>, TElements...>;
+
+		template<typename T>
+		static constexpr vint IndexOf = decltype(ElementPack::template IndexOf<T>())::value;
+
+		template<std::size_t I>
+		using ElementOf = std::remove_pointer_t<decltype(ElementPack::TypeOf(VariantIndex<I>{}))>;
+
 		static constexpr std::size_t	MaxSize = variant_internal::MaxOf(sizeof(TElements)...);
 		vint							index = -1;
 		char							buffer[MaxSize];
 
 	public:
 		Variant()
-			requires(std::is_default_constructible_v<std::tuple_element_t<0, ElementPack>>)
+			requires(std::is_default_constructible_v<ElementOf<0>>)
 			: index(0)
 		{
 			ElementPack::DefaultCtor(VariantIndex<0>{}, buffer);
@@ -261,7 +265,7 @@ namespace vl
 		template<typename T>
 		Variant(const T& element)
 		{
-			consteval auto i = ElementPack::template IndexOf<T>();
+			consteval auto i = IndexOf<T>;
 			index = i;
 			ElementPack::CopyCtor(VariantIndex<i>{}, element);
 		}
@@ -269,7 +273,7 @@ namespace vl
 		template<typename T>
 		Variant(T&& element)
 		{
-			consteval auto i = ElementPack::template IndexOf<T>();
+			consteval auto i = IndexOf<T>;
 			index = i;
 			ElementPack::MoveCtor(VariantIndex<i>{}, std::move(element));
 		}
@@ -319,7 +323,7 @@ namespace vl
 		template<typename T>
 		Variant<TElements...>& operator=(const T& element)
 		{
-			consteval auto i = ElementPack::template IndexOf<T>();
+			consteval auto i = IndexOf<T>;
 			if (index == i)
 			{
 				ElementPack::CopyAssign(VariantIndex<i>{}, buffer, element);
@@ -336,7 +340,7 @@ namespace vl
 		template<typename T>
 		Variant<TElements...>& operator=(T&& element)
 		{
-			consteval auto i = ElementPack::template IndexOf<T>();
+			consteval auto i = IndexOf<T>;
 			if (index == i)
 			{
 				ElementPack::MoveAssign(VariantIndex<i>{}, buffer, std::move(element));
@@ -381,13 +385,13 @@ namespace vl
 		template<typename T>
 		T* TryGet()
 		{
-			return const_cast<T*>(static_cast<const Variant<TElements...>>(this)->TryGet());
+			return const_cast<T*>(static_cast<const Variant<TElements...>*>(this)->TryGet<T>());
 		}
 
 		template<typename T>
 		const T* TryGet() const
 		{
-			consteval auto i = ElementPack::template IndexOf<T>();
+			constexpr auto i = IndexOf<T>;
 			return index == i ? reinterpret_cast<const T*>(buffer) : nullptr;
 		}
 	};
