@@ -158,18 +158,6 @@ TEST_FILE
 			AssertEmptyString(v1);
 			AssertString(v2);
 		});
-
-		TEST_CASE(L"Test Variant<T> comparison (SO)")
-		{
-		});
-
-		TEST_CASE(L"Test Variant<T> comparison (WO)")
-		{
-		});
-
-		TEST_CASE(L"Test Variant<T> comparison (PO)")
-		{
-		});
 	});
 
 	TEST_CATEGORY(L"Multiple Elements")
@@ -293,18 +281,6 @@ TEST_FILE
 				AssertInt(v2);
 			}
 		});
-
-		TEST_CASE(L"Test Variant<T...> comparison (SO)")
-		{
-		});
-
-		TEST_CASE(L"Test Variant<T...> comparison (WO)")
-		{
-		});
-
-		TEST_CASE(L"Test Variant<T...> comparison (PO)")
-		{
-		});
 	});
 
 	TEST_CATEGORY(L"Auto type conversion")
@@ -328,21 +304,54 @@ TEST_FILE
 		TEST_CASE(L"Test Variant<T...> move assignment")
 		{
 		});
-
-		TEST_CASE(L"Test Variant<T...> comparison (SO)")
-		{
-		});
-
-		TEST_CASE(L"Test Variant<T...> comparison (WO)")
-		{
-		});
-
-		TEST_CASE(L"Test Variant<T...> comparison (PO)")
-		{
-		});
 	});
 
 	TEST_CATEGORY(L"Visit and interoperation between different Variant")
 	{
+	});
+
+	TEST_CATEGORY(L"Test comparison with elements")
+	{
+		TEST_CASE(L"(SO)")
+		{
+		});
+
+		TEST_CASE(L"(WO)")
+		{
+		});
+
+		TEST_CASE(L"(PO)")
+		{
+		});
+	});
+
+	TEST_CATEGORY(L"Test comparison with same variants")
+	{
+		TEST_CASE(L"(SO)")
+		{
+		});
+
+		TEST_CASE(L"(WO)")
+		{
+		});
+
+		TEST_CASE(L"(PO)")
+		{
+		});
+	});
+
+	TEST_CATEGORY(L"Test comparison with different variants")
+	{
+		TEST_CASE(L"(SO)")
+		{
+		});
+
+		TEST_CASE(L"(WO)")
+		{
+		});
+
+		TEST_CASE(L"(PO)")
+		{
+		});
 	});
 }

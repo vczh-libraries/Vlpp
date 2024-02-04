@@ -140,7 +140,7 @@ namespace vl
 			{
 				Reset();
 			}
-			else
+			else if (this != &nullable)
 			{
 				if constexpr (std::is_copy_assignable_v<T>)
 				{
@@ -167,7 +167,7 @@ namespace vl
 			{
 				Reset();
 			}
-			else
+			else if (this != &nullable)
 			{
 				if constexpr (std::is_move_assignable_v<T>)
 				{

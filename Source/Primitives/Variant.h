@@ -296,30 +296,36 @@ namespace vl
 
 		Variant<TElements...>& operator=(const Variant<TElements...>& variant)
 		{
-			if (index == variant.index)
+			if (this != &variant)
 			{
-				ElementPack::CopyAssign(index, buffer, variant.buffer);
-			}
-			else
-			{
-				ElementPack::Dtor(index, buffer);
-				index = variant.index;
-				ElementPack::CopyCtor(index, buffer, variant.buffer);
+				if (index == variant.index)
+				{
+					ElementPack::CopyAssign(index, buffer, variant.buffer);
+				}
+				else
+				{
+					ElementPack::Dtor(index, buffer);
+					index = variant.index;
+					ElementPack::CopyCtor(index, buffer, variant.buffer);
+				}
 			}
 			return *this;
 		}
 
 		Variant<TElements...>& operator=(Variant<TElements...>&& variant)
 		{
-			if (index == variant.index)
+			if (this != &variant)
 			{
-				ElementPack::MoveAssign(index, buffer, variant.buffer);
-			}
-			else
-			{
-				ElementPack::Dtor(index, buffer);
-				index = variant.index;
-				ElementPack::MoveCtor(index, buffer, variant.buffer);
+				if (index == variant.index)
+				{
+					ElementPack::MoveAssign(index, buffer, variant.buffer);
+				}
+				else
+				{
+					ElementPack::Dtor(index, buffer);
+					index = variant.index;
+					ElementPack::MoveCtor(index, buffer, variant.buffer);
+				}
 			}
 			return *this;
 		}
