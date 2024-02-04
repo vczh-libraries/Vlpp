@@ -24,6 +24,7 @@ DEVELOPER: Zihan Chen(vczh)
 #include "..\..\Source\Primitives\Event.h"
 #include "..\..\Source\Primitives\Tuple.h"
 #include "..\..\Source\Collections\OperationForEach.h"
+#include "..\..\Source\Primitives\Variant.h"
 #include "..\..\Source\Strings\String.h"
 #include "..\..\Source\Collections\OperationString.h"
 #include "..\..\Source\Collections\Operation.h"
