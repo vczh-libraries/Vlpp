@@ -321,10 +321,28 @@ TEST_FILE
 	{
 		TEST_CASE(L"Test Variant<T...> constructor")
 		{
+			{
+				Variant<WString, vint> v = L"ABC";
+				AssertString(v);
+			}
+			{
+				Variant<WString, vint> v = 100;
+				AssertInt(v);
+			}
 		});
 
 		TEST_CASE(L"Test Variant<T...> assignment")
 		{
+			{
+				Variant<WString, vint> v;
+				v = L"ABC";
+				AssertString(v);
+			}
+			{
+				Variant<WString, vint> v;
+				v = 100;
+				AssertInt(v);
+			}
 		});
 	});
 
