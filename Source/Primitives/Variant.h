@@ -52,7 +52,7 @@ namespace vl::variant_internal
 		static consteval VariantIndex<I> IndexOfCtor() { return {}; }
 
 		template<typename U>
-			requires(std::is_assignable_v<T, U> || (std::is_copy_constructible_v<T> && std::is_convertible_v<U, V>))
+			requires(std::is_assignable_v<T, U> || (std::is_copy_constructible_v<T> && std::is_convertible_v<U, T>))
 		static consteval VariantIndex<I> IndexOfAssign() { return {}; }
 
 		static consteval T* TypeOf(VariantIndex<I>) { return nullptr; }
