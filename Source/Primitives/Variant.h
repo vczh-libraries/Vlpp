@@ -411,7 +411,7 @@ namespace vl
 			return *this;
 		}
 
-		template<vint I, typename T>
+		template<typename T>
 			requires(
 				!std::is_same_v<std::remove_cvref_t<T>, Variant<TElements...>> &&
 				((!std::is_same_v<std::remove_cvref_t<T>, TElements>) && ...)
@@ -419,7 +419,7 @@ namespace vl
 		Variant<TElements...>& operator=(T&& value)
 		{
 			constexpr auto i = IndexOfAssign<T&&>;
-			return Set(VariantIndex<I>{}, std::forward<T&&>(value));
+			return Set(VariantIndex<i>{}, std::forward<T&&>(value));
 		}
 
 		vint Index() const
