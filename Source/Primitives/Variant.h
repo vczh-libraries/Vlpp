@@ -54,7 +54,7 @@ namespace vl::variant_internal
 		static bool i_Apply(vint index, char* buffer, TCallback&& callback)
 		{
 			if (I != index) return false;
-			callback(*reinterpret_cast<T*>(callback));
+			callback(*reinterpret_cast<T*>(buffer));
 			return true;
 		}
 
@@ -62,7 +62,7 @@ namespace vl::variant_internal
 		static bool i_Apply(vint index, const char* buffer, TCallback&& callback)
 		{
 			if (I != index) return false;
-			callback(*reinterpret_cast<const T*>(callback));
+			callback(*reinterpret_cast<const T*>(buffer));
 			return true;
 		}
 
