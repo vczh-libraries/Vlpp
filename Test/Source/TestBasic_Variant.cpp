@@ -386,7 +386,7 @@ TEST_FILE
 		{
 			{
 				Variant<WString, vint> v = L"ABC";
-				auto result = v.TryApply(
+				bool result = v.TryApply(
 					[](WString& s) { TEST_ASSERT(s == L"ABC"); s = L"DEF"; }
 					);
 				TEST_ASSERT(v.Get<WString>() == L"DEF");
@@ -394,14 +394,14 @@ TEST_FILE
 			}
 			{
 				const Variant<WString, vint> v = L"ABC";
-				auto result = v.TryApply(
+				bool result = v.TryApply(
 					[](const vint&) { TEST_ASSERT(false); }
 					);
 				TEST_ASSERT(result == false);
 			}
 			{
 				Variant<WString, vint> v = 100;
-				auto result = v.TryApply(
+				bool result = v.TryApply(
 					[](vint& i) { TEST_ASSERT(i == 100); i = 200; }
 					);
 				TEST_ASSERT(v.Get<vint>() == 200);
@@ -409,7 +409,7 @@ TEST_FILE
 			}
 			{
 				const Variant<WString, vint> v = 100;
-				v.TryApply(
+				bool result = v.TryApply(
 					[](const WString&) { TEST_ASSERT(false); }
 					);
 				TEST_ASSERT(result == false);

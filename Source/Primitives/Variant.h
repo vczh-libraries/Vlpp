@@ -495,6 +495,28 @@ namespace vl
 		{
 			ElementPack::Apply(index, buffer, std::forward<TCallback&&>(callback));
 		}
+
+		template<typename TCallback>
+		bool TryApply(TCallback&& callback)
+		{
+			bool result = true;
+			Apply(Callbacks(
+				std::forward<TCallback&&>(callback),
+				[&result](...) { result = false; }
+				));
+			return result;
+		}
+
+		template<typename TCallback>
+		bool TryApply(TCallback&& callback) const
+		{
+			bool result = true;
+			Apply(Callbacks(
+				std::forward<TCallback&&>(callback),
+				[&result](...) { result = false; }
+				));
+			return result;
+		}
 	};
 }
 
