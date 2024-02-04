@@ -181,6 +181,7 @@ vl::Func<R(TArgs...)>
 		/// <typeparam name="C">Type of the functor to copy.</typeparam>
 		/// <param name="function">The functor to copy. It could be a lambda expression, or any types that has operator() members.</param>
 		template<typename C>
+			requires(!std::is_same_v<std::remove_cvref_t<C>, Func<R(TArgs...)>>)
 		Func(C&& function)
 			requires (
 				std::is_invocable_v<C, TArgs...>

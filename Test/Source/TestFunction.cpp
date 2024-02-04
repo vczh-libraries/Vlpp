@@ -139,18 +139,22 @@ TEST_FILE
 			Func<vint(vint,vint)> add1 = Add1;
 			Func<vint(vint,vint)> add2(&add,&Add2::operator());
 			Func<vint(vint,vint)> add3 = add;
+			Func<vint(vint,vint)> add4 = add1;
 
 			TEST_ASSERT(add1(1,2) == 3);
 			TEST_ASSERT(add2(1,2) == 3);
 			TEST_ASSERT(add3(1,2) == 3);
+			TEST_ASSERT(add4(1,2) == 3);
 
-			Func<vint(vint,vint)> add4;
-			add4 = add1;
-			TEST_ASSERT(add4(1,2) == 3);
-			add4 = add2;
-			TEST_ASSERT(add4(1,2) == 3);
-			add4 = add3;
-			TEST_ASSERT(add4(1,2) == 3);
+			Func<vint(vint,vint)> add5;
+			add5 = add1;
+			TEST_ASSERT(add5(1,2) == 3);
+			add5 = add2;
+			TEST_ASSERT(add5(1,2) == 3);
+			add5 = add3;
+			TEST_ASSERT(add5(1,2) == 3);
+			add5 = add4;
+			TEST_ASSERT(add5(1,2) == 3);
 
 			List<Func<vint(vint,vint)>> adds;
 			adds.Add(add1);
