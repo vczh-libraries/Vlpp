@@ -47,15 +47,8 @@ namespace vl::variant_internal
 			requires(std::is_same_v<T, U>)
 		static consteval VariantIndex<I> IndexOf() { return {}; }
 
-		template<typename U>
-			requires(std::is_constructible_v<T, U>)
-		static consteval VariantIndex<I> IndexOfCtor() { return {}; }
-
-		template<typename U>
-			requires(std::is_assignable_v<T, U> || (std::is_copy_constructible_v<T> && std::is_convertible_v<U, T>))
-		static consteval VariantIndex<I> IndexOfAssign() { return {}; }
-
-		static consteval T* TypeOf(VariantIndex<I>) { return nullptr; }
+		static consteval VariantIndex<I> IndexOfCast(const T&) { return {}; }
+		static consteval VariantIndex<I> IndexOfCast(T&&) { return {}; }
 
 		static bool i_DefaultCtor(vint index, char* buffer)
 		{
@@ -179,9 +172,7 @@ namespace vl::variant_internal
 	struct VariantElementPack<std::index_sequence<Is...>, TElements...> : VariantElement<Is, TElements>...
 	{
 		using VariantElement<Is, TElements>::IndexOf...;
-		using VariantElement<Is, TElements>::IndexOfCtor...;
-		using VariantElement<Is, TElements>::IndexOfAssign...;
-		using VariantElement<Is, TElements>::TypeOf...;
+		using VariantElement<Is, TElements>::IndexOfCast...;
 		using VariantElement<Is, TElements>::DefaultCtor...;
 		using VariantElement<Is, TElements>::Ctor...;
 		using VariantElement<Is, TElements>::CopyCtor...;
@@ -249,13 +240,7 @@ namespace vl
 		static constexpr vint IndexOf = decltype(ElementPack::template IndexOf<T>())::value;
 
 		template<typename T>
-		static constexpr vint IndexOfCtor = decltype(ElementPack::template IndexOfCtor<T>())::value;
-
-		template<typename T>
-		static constexpr vint IndexOfAssign = decltype(ElementPack::template IndexOfAssign<T>())::value;
-
-		template<std::size_t I>
-		using ElementOf = std::remove_pointer_t<decltype(ElementPack::TypeOf(VariantIndex<I>{}))>;
+		static constexpr vint IndexOfCast = decltype(ElementPack::template IndexOfCast(std::declval<T>()))::value;
 
 		static constexpr std::size_t	MaxSize = variant_internal::MaxOf(sizeof(TElements)...);
 		vint							index = -1;
@@ -263,7 +248,7 @@ namespace vl
 
 	public:
 		Variant()
-			requires(std::is_default_constructible_v<ElementOf<0>>)
+			requires(std::is_default_constructible_v<TypeTupleElement<0, TypeTuple<TElements...>>>)
 			: index(0)
 		{
 			ElementPack::DefaultCtor(VariantIndex<0>{}, buffer);
@@ -313,7 +298,7 @@ namespace vl
 			)
 		Variant(T&& value)
 		{
-			constexpr auto i = IndexOfCtor<T&&>;
+			constexpr auto i = IndexOfCast<T&&>;
 			index = i;
 			ElementPack::Ctor(VariantIndex<i>{}, buffer, std::forward<T&&>(value));
 		}
@@ -418,7 +403,7 @@ namespace vl
 			)
 		Variant<TElements...>& operator=(T&& value)
 		{
-			constexpr auto i = IndexOfAssign<T&&>;
+			constexpr auto i = IndexOfCast<T&&>;
 			return Set(VariantIndex<i>{}, std::forward<T&&>(value));
 		}
 
