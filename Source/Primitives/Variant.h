@@ -263,6 +263,7 @@ namespace vl
 		}
 
 		template<typename T>
+			requires((std::is_same_v<T, TElements> || ...))
 		Variant(const T& element)
 		{
 			consteval auto i = IndexOf<T>;
@@ -271,6 +272,7 @@ namespace vl
 		}
 
 		template<typename T>
+			requires((std::is_same_v<T, TElements> || ...))
 		Variant(T&& element)
 		{
 			consteval auto i = IndexOf<T>;
@@ -321,6 +323,7 @@ namespace vl
 		}
 
 		template<typename T>
+			requires((std::is_same_v<T, TElements> || ...))
 		Variant<TElements...>& operator=(const T& element)
 		{
 			consteval auto i = IndexOf<T>;
@@ -338,6 +341,7 @@ namespace vl
 		}
 
 		template<typename T>
+			requires((std::is_same_v<T, TElements> || ...))
 		Variant<TElements...>& operator=(T&& element)
 		{
 			consteval auto i = IndexOf<T>;
@@ -359,6 +363,7 @@ namespace vl
 		}
 
 		template<typename T>
+			requires((std::is_same_v<T, TElements> || ...))
 		T& Get()&
 		{
 			auto result = TryGet<T>();
@@ -367,6 +372,7 @@ namespace vl
 		}
 
 		template<typename T>
+			requires((std::is_same_v<T, TElements> || ...))
 		T&& Get()&&
 		{
 			auto result = TryGet<T>();
@@ -375,6 +381,7 @@ namespace vl
 		}
 
 		template<typename T>
+			requires((std::is_same_v<T, TElements> || ...))
 		const T& Get() const&
 		{
 			auto result = TryGet<T>();
@@ -383,12 +390,14 @@ namespace vl
 		}
 
 		template<typename T>
+			requires((std::is_same_v<T, TElements> || ...))
 		T* TryGet()
 		{
 			return const_cast<T*>(static_cast<const Variant<TElements...>*>(this)->TryGet<T>());
 		}
 
 		template<typename T>
+			requires((std::is_same_v<T, TElements> || ...))
 		const T* TryGet() const
 		{
 			constexpr auto i = IndexOf<T>;
