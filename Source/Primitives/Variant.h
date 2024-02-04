@@ -3,8 +3,8 @@ Author: Zihan Chen (vczh)
 Licensed under https://github.com/vczh-libraries/License
 ***********************************************************************/
 
-#ifndef VCZH_NULLABLE
-#define VCZH_NULLABLE
+#ifndef VCZH_VARIANT
+#define VCZH_VARIANT
 
 #include "../Basic.h"
 
