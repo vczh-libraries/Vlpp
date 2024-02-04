@@ -54,23 +54,44 @@ namespace vl::variant_internal
 
 		static bool i_DefaultCtor(vint index, char* buffer)
 		{
-			if (I != index) return false;
-			new T(buffer)();
-			return true;
+			if constexpr (std::is_default_constructible_v<T>)
+			{
+				if (I != index) return false;
+				new T(buffer)();
+				return true;
+			}
+			else
+			{
+				return false;
+			}
 		}
 
 		static bool i_CopyCtor(vint index, char* buffer, char* source)
 		{
-			if (I != index) return false;
-			new T(buffer)(*reinterpret_cast<const T*>(source));
-			return true;
+			if constexpr (std::is_copy_constructible_v<T>)
+			{
+				if (I != index) return false;
+				new T(buffer)(*reinterpret_cast<const T*>(source));
+				return true;
+			}
+			else
+			{
+				return false;
+			}
 		}
 
 		static bool i_MoveCtor(vint index, char* buffer, char* source)
 		{
-			if (I != index) return false;
-			new T(buffer)(std::move(*reinterpret_cast<T*>(source)));
-			return true;
+			if constexpr (std::is_move_constructible_v<T>)
+			{
+				if (I != index) return false;
+				new T(buffer)(std::move(*reinterpret_cast<T*>(source)));
+				return true;
+			}
+			else
+			{
+				return false;
+			}
 		}
 
 		static bool i_Dtor(vint index, char* buffer)
@@ -82,45 +103,65 @@ namespace vl::variant_internal
 
 		static bool i_CopyAssign(vint index, char* buffer, char* source)
 		{
-			if (I != index) return false;
-			*reinterpret_cast<T*>(buffer) = *reinterpret_cast<T*>(source);
-			return true;
+			if constexpr (std::is_copy_assignable_v<T>)
+			{
+				if (I != index) return false;
+				*reinterpret_cast<T*>(buffer) = *reinterpret_cast<T*>(source);
+				return true;
+			}
+			else
+			{
+				return false;
+			}
 		}
 
 		static bool i_MoveAssign(vint index, char* buffer, char* source)
 		{
-			if (I != index) return false;
-			*reinterpret_cast<T*>(buffer) = std::move(*reinterpret_cast<T*>(source));
-			return true;
+			if constexpr (std::is_move_constructible_v<T>)
+			{
+				if (I != index) return false;
+				*reinterpret_cast<T*>(buffer) = std::move(*reinterpret_cast<T*>(source));
+				return true;
+			}
+			else
+			{
+				return false;
+			}
 		}
 
 		template<typename ...TArgs>
 		static void Ctor(VariantIndex<I>, char* buffer, TArgs&& ...args)
+			requires(std::is_constructible_v<T, TArgs&&...>)
 		{
 			new T(buffer)(std::forward<TArgs&&>(args)...);
 		}
 
 		static void DefaultCtor(VariantIndex<I>, char* buffer)
+			requires(std::is_default_constructible_v<T>)
 		{
 			new T(buffer);
 		}
 
 		static void CopyCtor(VariantIndex<I>, char* buffer, const T& source)
+			requires(std::is_copy_constructible_v<T>)
 		{
 			new T(buffer)(source);
 		}
 
 		static void MoveCtor(VariantIndex<I>, char* buffer, T&& source)
+			requires(std::is_move_constructible_v<T>)
 		{
 			new T(buffer)(std::move(source));
 		}
 
 		static void CopyAssign(VariantIndex<I>, char* buffer, const T& source)
+			requires(std::is_copy_assignable_v<T>)
 		{
 			*reinterpret_cast<T*>(buffer) = source;
 		}
 
-		static void CopyAssign(VariantIndex<I>, char* buffer, T&& source)
+		static void MoveAssign(VariantIndex<I>, char* buffer, T&& source)
+			requires(std::is_move_assignable_v<T>)
 		{
 			*reinterpret_cast<T*>(buffer) = std::move(source);
 		}

@@ -14,7 +14,7 @@ TEST_FILE
 			Variant<WString> v;
 			TEST_ASSERT(v.Index() == 0);
 			TEST_ASSERT(v.TryGet<WString>() != nullptr);
-			TEST_ASSERT(v.Get<WString>() == WString::Unmanaged());
+			TEST_ASSERT(v.Get<WString>() == WString::Empty);
 		});
 
 		TEST_CASE(L"Test Variant<T> copy constructor")
