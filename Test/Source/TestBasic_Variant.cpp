@@ -346,12 +346,46 @@ TEST_FILE
 		});
 	});
 
-	TEST_CATEGORY(L"Visit and interoperation between different Variant")
+	TEST_CATEGORY(L"Visit")
 	{
+		TEST_CASE(L"Apply")
+		{
+			{
+				Variant<WString, vint> v = L"ABC";
+				v.Apply(Callbacks(
+					[](WString& s) { TEST_ASSERT(s == L"ABC"); },
+					[](vint&) { TEST_ASSERT(false); }
+					));
+			}
+			{
+				const Variant<WString, vint> v = L"ABC";
+				v.Apply(Callbacks(
+					[](const WString& s) { TEST_ASSERT(s == L"ABC"); },
+					[](const vint&) { TEST_ASSERT(false); }
+					));
+			}
+			{
+				Variant<WString, vint> v = 100;
+				v.Apply(Callbacks(
+					[](WString&) { TEST_ASSERT(false); },
+					[](vint& i) { TEST_ASSERT(i == 100); }
+					));
+			}
+			{
+				const Variant<WString, vint> v = 100;
+				v.Apply(Callbacks(
+					[](const WString&) { TEST_ASSERT(false); },
+					[](const vint& i) { TEST_ASSERT(i == 100); }
+					));
+			}
+		});
+
 		// TODO:
-		//   Variant<T...>::Visit(func) -> void, compile error if not fully matchable
-		//   Variant<T...>::TryVisit(func) -> bool, returns false if not fully matched
-		//   Callback(lambdas, ...) to combine multiple functor to one
+		//   Variant<T...>::TryApply(func) -> bool, returns false if not fully matched
+	});
+
+	TEST_CATEGORY(L"Construct and assign from different variants")
+	{
 	});
 
 	TEST_CATEGORY(L"Test comparison with elements")

@@ -50,18 +50,20 @@ namespace vl::variant_internal
 		static consteval VariantIndex<I> IndexOfCast(const T&) { return {}; }
 		static consteval VariantIndex<I> IndexOfCast(T&&) { return {}; }
 
-		static bool i_DefaultCtor(vint index, char* buffer)
+		template<typename TCallback>
+		static bool i_Apply(vint index, char* buffer, TCallback&& callback)
 		{
-			if constexpr (std::is_default_constructible_v<T>)
-			{
-				if (I != index) return false;
-				new (buffer)T();
-				return true;
-			}
-			else
-			{
-				return false;
-			}
+			if (I != index) return false;
+			callback(*reinterpret_cast<T*>(callback));
+			return true;
+		}
+
+		template<typename TCallback>
+		static bool i_Apply(vint index, const char* buffer, TCallback&& callback)
+		{
+			if (I != index) return false;
+			callback(*reinterpret_cast<const T*>(callback));
+			return true;
 		}
 
 		static bool i_CopyCtor(vint index, char* buffer, const char* source)
@@ -181,10 +183,18 @@ namespace vl::variant_internal
 		using VariantElement<Is, TElements>::CopyAssign...;
 		using VariantElement<Is, TElements>::MoveAssign...;
 
-		static void DefaultCtor(vint index, char* buffer)
+		template<typename TCallback>
+		static void Apply(vint index, char* buffer, TCallback&& callback)
 		{
-			bool result = (VariantElement<Is, TElements>::i_efaultCtor(index, buffer) || ...);
-			CHECK_ERROR(result, L"vl::variant_internal::VariantElementPack<...>::DefaultCtor(...)#Internal error: none of elements are selected.");
+			bool result = (VariantElement<Is, TElements>::i_Apply(index, buffer, std::forward<TCallback&&>(callback)) || ...);
+			CHECK_ERROR(result, L"vl::variant_internal::VariantElementPack<...>::Apply(...)#Internal error: none of elements are selected.");
+		}
+
+		template<typename TCallback>
+		static void Apply(vint index, const char* buffer, TCallback&& callback)
+		{
+			bool result = (VariantElement<Is, TElements>::i_Apply(index, buffer, std::forward<TCallback&&>(callback)) || ...);
+			CHECK_ERROR(result, L"vl::variant_internal::VariantElementPack<...>::Apply(...)#Internal error: none of elements are selected.");
 		}
 
 		static void CopyCtor(vint index, char* buffer, const char* source)
@@ -453,7 +463,39 @@ namespace vl
 			constexpr auto i = IndexOf<T>;
 			return index == i ? reinterpret_cast<const T*>(buffer) : nullptr;
 		}
+
+		template<typename TCallback>
+		void Apply(TCallback&& callback)
+		{
+			ElementPack::Apply(index, buffer, std::forward<TCallback&&>(callback));
+		}
+
+		template<typename TCallback>
+		void Apply(TCallback&& callback) const
+		{
+			ElementPack::Apply(index, buffer, std::forward<TCallback&&>(callback));
+		}
 	};
+
+	template<typename ...TCallbacks>
+	struct Callbacks : TCallbacks ...
+	{
+		using TCallbacks::operator()...;
+
+		Callbacks() = delete;
+		Callbacks(const Callbacks<TCallbacks...>&) = default;
+		Callbacks(Callbacks<TCallbacks...>&&) = default;
+		~Callbacks() = default;
+
+		template<typename ...UCallbacks>
+		Callbacks(UCallbacks&& ...callbacks)
+			: TCallbacks(std::forward<UCallbacks&&>(callbacks))...
+		{
+		}
+	};
+
+	template<typename ...TCallbacks>
+	Callbacks(TCallbacks&&...) -> Callbacks<std::remove_cvref_t<TCallbacks>...>;
 }
 
 #ifdef VCZH_CHECK_MEMORY_LEAKS_NEW
