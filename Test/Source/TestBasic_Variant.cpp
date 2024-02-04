@@ -353,9 +353,10 @@ TEST_FILE
 			{
 				Variant<WString, vint> v = L"ABC";
 				v.Apply(Callbacks(
-					[](WString& s) { TEST_ASSERT(s == L"ABC"); },
+					[](WString& s) { TEST_ASSERT(s == L"ABC"); s = L"DEF"; },
 					[](vint&) { TEST_ASSERT(false); }
 					));
+				TEST_ASSERT(v.Get<WString>() == L"DEF");
 			}
 			{
 				const Variant<WString, vint> v = L"ABC";
@@ -368,8 +369,9 @@ TEST_FILE
 				Variant<WString, vint> v = 100;
 				v.Apply(Callbacks(
 					[](WString&) { TEST_ASSERT(false); },
-					[](vint& i) { TEST_ASSERT(i == 100); }
+					[](vint& i) { TEST_ASSERT(i == 100); i = 200; }
 					));
+				TEST_ASSERT(v.Get<vint>() == 200);
 			}
 			{
 				const Variant<WString, vint> v = 100;
