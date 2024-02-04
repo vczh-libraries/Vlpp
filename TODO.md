@@ -2,14 +2,8 @@
 
 ## Known Issues
 
-- When constructing `Func` from another `Func`, ensure the invoker is shared to the new `Func`, instead of creating an invoker to call the old `Func`.
-
 ## Progressing
 
-- `Variant<T...>`
-  - No optimization/merging at all, 100% trust the type list.
-  - This is a raw union implementation.
-  - Could be used in `Union<U...>`.
 - `Union<T...>`.
   - If any type is `T*`, `Ptr<T>` or `Nullable<T>`, A `nullptr_t` is added automatically.
     - Any `Nullable<T>` becomes `T`.
