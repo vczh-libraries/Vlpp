@@ -109,7 +109,7 @@ namespace vl::variant_internal
 			if constexpr (std::is_copy_assignable_v<T>)
 			{
 				if (I != index) return false;
-				*reinterpret_cast<T*>(buffer) = *reinterpret_cast<T*>(source);
+				*reinterpret_cast<T*>(buffer) = *reinterpret_cast<const T*>(source);
 				return true;
 			}
 			else
