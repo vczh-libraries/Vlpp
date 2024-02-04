@@ -185,6 +185,7 @@
     <ClInclude Include="..\..\..\Source\Primitives\Nullable.h" />
     <ClInclude Include="..\..\..\Source\Primitives\Pointer.h" />
     <ClInclude Include="..\..\..\Source\Primitives\Tuple.h" />
+    <ClInclude Include="..\..\..\Source\Primitives\Variant.h" />
     <ClInclude Include="..\..\..\Source\Strings\Conversion.h" />
     <ClInclude Include="..\..\..\Source\Strings\LoremIpsum.h" />
     <ClInclude Include="..\..\..\Source\Strings\String.h" />

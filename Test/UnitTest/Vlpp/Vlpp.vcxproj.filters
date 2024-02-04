@@ -120,6 +120,9 @@
     <ClInclude Include="..\..\..\Source\Primitives\Nullable.h">
       <Filter>Common\Primitives</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\Source\Primitives\Variant.h">
+      <Filter>Common\Primitives</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\Source\Console.cpp">
