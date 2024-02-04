@@ -134,37 +134,37 @@ namespace vl::variant_internal
 
 		template<typename ...TArgs>
 		static void Ctor(VariantIndex<I>, char* buffer, TArgs&& ...args)
-			requires(std::is_constructible_v<T, TArgs&&...>)
 		{
 			new (buffer)T(std::forward<TArgs&&>(args)...);
 		}
 
 		static void DefaultCtor(VariantIndex<I>, char* buffer)
-			requires(std::is_default_constructible_v<T>)
 		{
 			new (buffer)T();
 		}
 
 		static void CopyCtor(VariantIndex<I>, char* buffer, const T& source)
-			requires(std::is_copy_constructible_v<T>)
 		{
 			new (buffer)T(source);
 		}
 
 		static void MoveCtor(VariantIndex<I>, char* buffer, T&& source)
-			requires(std::is_move_constructible_v<T>)
 		{
 			new (buffer)T(std::move(source));
 		}
 
+		template<typename TArg>
+		static void Assign(VariantIndex<I>, char* buffer, TArg&& value)
+		{
+			*reinterpret_cast<T*>(buffer) = std::forward<TArg&&>(value);
+		}
+
 		static void CopyAssign(VariantIndex<I>, char* buffer, const T& source)
-			requires(std::is_copy_assignable_v<T>)
 		{
 			*reinterpret_cast<T*>(buffer) = source;
 		}
 
 		static void MoveAssign(VariantIndex<I>, char* buffer, T&& source)
-			requires(std::is_move_assignable_v<T>)
 		{
 			*reinterpret_cast<T*>(buffer) = std::move(source);
 		}
@@ -182,6 +182,7 @@ namespace vl::variant_internal
 		using VariantElement<Is, TElements>::Ctor...;
 		using VariantElement<Is, TElements>::CopyCtor...;
 		using VariantElement<Is, TElements>::MoveCtor...;
+		using VariantElement<Is, TElements>::Assign...;
 		using VariantElement<Is, TElements>::CopyAssign...;
 		using VariantElement<Is, TElements>::MoveAssign...;
 
@@ -284,7 +285,7 @@ namespace vl
 
 		template<vint I, typename ...TArgs>
 		Variant(VariantIndex<I> i, TArgs&& ...args)
-			: index(i)
+			: index(I)
 		{
 			ElementPack::Ctor(i, buffer, std::forward<TArgs&&>(args)...);
 		}
@@ -362,6 +363,22 @@ namespace vl
 				ElementPack::Dtor(index, buffer);
 				index = i;
 				ElementPack::MoveCtor(VariantIndex<i>{}, buffer, std::move(element));
+			}
+			return *this;
+		}
+
+		template<vint I, typename T>
+		Variant<TElements...>& Set(VariantIndex<I> i, T&& value)
+		{
+			if (index == I)
+			{
+				ElementPack::Assign(i, buffer, std::forward<T&&>(value));
+			}
+			else
+			{
+				ElementPack::Dtor(index, buffer);
+				index = I;
+				ElementPack::Ctor(i, buffer, std::forward<T&&>(value));
 			}
 			return *this;
 		}

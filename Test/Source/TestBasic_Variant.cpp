@@ -283,25 +283,47 @@ TEST_FILE
 		});
 	});
 
-	TEST_CATEGORY(L"Auto type conversion")
+	TEST_CATEGORY(L"Test inplace construction")
 	{
-		TEST_CASE(L"Test Variant<T...>")
+		TEST_CASE(L"Test Variant<T...> constructor")
+		{
+			{
+				Variant<WString, vint> v(VariantIndex<0>{}, L"ABC");
+				AssertString(v);
+			}
+			{
+				Variant<WString, vint> v(VariantIndex<1>{}, 100);
+				AssertInt(v);
+			}
+		});
+
+		TEST_CASE(L"Test Variant<T...> assignment")
+		{
+			{
+				Variant<WString, vint> v;
+				v.Set(VariantIndex<0>{}, L"ABC");
+				AssertString(v);
+			}
+			{
+				Variant<WString, vint> v;
+				v.Set(VariantIndex<0>{}, WString::Unmanaged(L"ABC"));
+				AssertString(v);
+			}
+			{
+				Variant<WString, vint> v;
+				v.Set(VariantIndex<1>{}, 100);
+				AssertInt(v);
+			}
+		});
+	});
+
+	TEST_CATEGORY(L"Test auto type conversion")
+	{
+		TEST_CASE(L"Test Variant<T...> constructor")
 		{
 		});
 
-		TEST_CASE(L"Test Variant<T...> copy constructor")
-		{
-		});
-
-		TEST_CASE(L"Test Variant<T...> move constructor")
-		{
-		});
-
-		TEST_CASE(L"Test Variant<T...> copy assignment")
-		{
-		});
-
-		TEST_CASE(L"Test Variant<T...> move assignment")
+		TEST_CASE(L"Test Variant<T...> assignment")
 		{
 		});
 	});
