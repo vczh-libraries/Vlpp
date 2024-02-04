@@ -21,24 +21,24 @@ namespace vl
 	};
 
 	template<typename ...TCallbacks>
-	struct Callbacks : TCallbacks ...
+	struct Overloading : TCallbacks ...
 	{
 		using TCallbacks::operator()...;
 
-		Callbacks() = delete;
-		Callbacks(const Callbacks<TCallbacks...>&) = default;
-		Callbacks(Callbacks<TCallbacks...>&&) = default;
-		~Callbacks() = default;
+		Overloading() = delete;
+		Overloading(const Overloading<TCallbacks...>&) = default;
+		Overloading(Overloading<TCallbacks...>&&) = default;
+		~Overloading() = default;
 
 		template<typename ...UCallbacks>
-		Callbacks(UCallbacks&& ...callbacks)
+		Overloading(UCallbacks&& ...callbacks)
 			: TCallbacks(std::forward<UCallbacks&&>(callbacks))...
 		{
 		}
 	};
 
 	template<typename ...TCallbacks>
-	Callbacks(TCallbacks&&...) -> Callbacks<std::remove_cvref_t<TCallbacks>...>;
+	Overloading(TCallbacks&&...) -> Overloading<std::remove_cvref_t<TCallbacks>...>;
 }
 
 namespace vl::variant_internal
@@ -500,7 +500,7 @@ namespace vl
 		bool TryApply(TCallback&& callback)
 		{
 			bool result = true;
-			Apply(Callbacks(
+			Apply(Overloading(
 				std::forward<TCallback&&>(callback),
 				[&result](...) { result = false; }
 				));
@@ -511,7 +511,7 @@ namespace vl
 		bool TryApply(TCallback&& callback) const
 		{
 			bool result = true;
-			Apply(Callbacks(
+			Apply(Overloading(
 				std::forward<TCallback&&>(callback),
 				[&result](...) { result = false; }
 				));

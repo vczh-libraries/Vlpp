@@ -352,7 +352,7 @@ TEST_FILE
 		{
 			{
 				Variant<WString, vint> v = L"ABC";
-				v.Apply(Callbacks(
+				v.Apply(Overloading(
 					[](WString& s) { TEST_ASSERT(s == L"ABC"); s = L"DEF"; },
 					[](vint&) { TEST_ASSERT(false); }
 					));
@@ -360,14 +360,14 @@ TEST_FILE
 			}
 			{
 				const Variant<WString, vint> v = L"ABC";
-				v.Apply(Callbacks(
+				v.Apply(Overloading(
 					[](const WString& s) { TEST_ASSERT(s == L"ABC"); },
 					[](const vint&) { TEST_ASSERT(false); }
 					));
 			}
 			{
 				Variant<WString, vint> v = 100;
-				v.Apply(Callbacks(
+				v.Apply(Overloading(
 					[](WString&) { TEST_ASSERT(false); },
 					[](vint& i) { TEST_ASSERT(i == 100); i = 200; }
 					));
@@ -375,7 +375,7 @@ TEST_FILE
 			}
 			{
 				const Variant<WString, vint> v = 100;
-				v.Apply(Callbacks(
+				v.Apply(Overloading(
 					[](const WString&) { TEST_ASSERT(false); },
 					[](const vint& i) { TEST_ASSERT(i == 100); }
 					));
