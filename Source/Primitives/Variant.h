@@ -45,15 +45,17 @@ namespace vl::variant_internal
 	{
 		template<typename U>
 			requires(std::is_same_v<T, U>)
-		static consteval VariantIndex<I> IndexOf()
-		{
-			return {};
-		}
+		static consteval VariantIndex<I> IndexOf() { return {}; }
 
-		static consteval T* TypeOf(VariantIndex<I>)
-		{
-			return nullptr;
-		}
+		template<typename U>
+			requires(std::is_constructible_v<T, U>)
+		static consteval VariantIndex<I> IndexOfCtor() { return {}; }
+
+		template<typename U>
+			requires(std::is_assignable_v<T, U> || (std::is_copy_constructible_v<T> && std::is_convertible_v<U, V>))
+		static consteval VariantIndex<I> IndexOfAssign() { return {}; }
+
+		static consteval T* TypeOf(VariantIndex<I>) { return nullptr; }
 
 		static bool i_DefaultCtor(vint index, char* buffer)
 		{
@@ -177,6 +179,8 @@ namespace vl::variant_internal
 	struct VariantElementPack<std::index_sequence<Is...>, TElements...> : VariantElement<Is, TElements>...
 	{
 		using VariantElement<Is, TElements>::IndexOf...;
+		using VariantElement<Is, TElements>::IndexOfCtor...;
+		using VariantElement<Is, TElements>::IndexOfAssign...;
 		using VariantElement<Is, TElements>::TypeOf...;
 		using VariantElement<Is, TElements>::DefaultCtor...;
 		using VariantElement<Is, TElements>::Ctor...;
@@ -244,6 +248,12 @@ namespace vl
 		template<typename T>
 		static constexpr vint IndexOf = decltype(ElementPack::template IndexOf<T>())::value;
 
+		template<typename T>
+		static constexpr vint IndexOfCtor = decltype(ElementPack::template IndexOfCtor<T>())::value;
+
+		template<typename T>
+		static constexpr vint IndexOfAssign = decltype(ElementPack::template IndexOfAssign<T>())::value;
+
 		template<std::size_t I>
 		using ElementOf = std::remove_pointer_t<decltype(ElementPack::TypeOf(VariantIndex<I>{}))>;
 
@@ -294,6 +304,18 @@ namespace vl
 			: index(I)
 		{
 			ElementPack::Ctor(i, buffer, std::forward<TArgs&&>(args)...);
+		}
+
+		template<typename T>
+			requires(
+				!std::is_same_v<std::remove_cvref_t<T>, Variant<TElements...>> &&
+				((!std::is_same_v<std::remove_cvref_t<T>, TElements>) && ...)
+			)
+		Variant(T&& value)
+		{
+			constexpr auto i = IndexOfCtor<T&&>;
+			index = i;
+			ElementPack::Ctor(VariantIndex<i>{}, buffer, std::forward<T&&>(value));
 		}
 
 		~Variant()
@@ -387,6 +409,17 @@ namespace vl
 				ElementPack::Ctor(i, buffer, std::forward<T&&>(value));
 			}
 			return *this;
+		}
+
+		template<vint I, typename T>
+			requires(
+				!std::is_same_v<std::remove_cvref_t<T>, Variant<TElements...>> &&
+				((!std::is_same_v<std::remove_cvref_t<T>, TElements>) && ...)
+			)
+		Variant<TElements...>& operator=(T&& value)
+		{
+			constexpr auto i = IndexOfAssign<T&&>;
+			return Set(VariantIndex<I>{}, std::forward<T&&>(value));
 		}
 
 		vint Index() const
