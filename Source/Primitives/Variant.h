@@ -19,6 +19,26 @@ namespace vl
 	{
 		static constexpr vint value = I;
 	};
+
+	template<typename ...TCallbacks>
+	struct Callbacks : TCallbacks ...
+	{
+		using TCallbacks::operator()...;
+
+		Callbacks() = delete;
+		Callbacks(const Callbacks<TCallbacks...>&) = default;
+		Callbacks(Callbacks<TCallbacks...>&&) = default;
+		~Callbacks() = default;
+
+		template<typename ...UCallbacks>
+		Callbacks(UCallbacks&& ...callbacks)
+			: TCallbacks(std::forward<UCallbacks&&>(callbacks))...
+		{
+		}
+	};
+
+	template<typename ...TCallbacks>
+	Callbacks(TCallbacks&&...) -> Callbacks<std::remove_cvref_t<TCallbacks>...>;
 }
 
 namespace vl::variant_internal
@@ -476,26 +496,6 @@ namespace vl
 			ElementPack::Apply(index, buffer, std::forward<TCallback&&>(callback));
 		}
 	};
-
-	template<typename ...TCallbacks>
-	struct Callbacks : TCallbacks ...
-	{
-		using TCallbacks::operator()...;
-
-		Callbacks() = delete;
-		Callbacks(const Callbacks<TCallbacks...>&) = default;
-		Callbacks(Callbacks<TCallbacks...>&&) = default;
-		~Callbacks() = default;
-
-		template<typename ...UCallbacks>
-		Callbacks(UCallbacks&& ...callbacks)
-			: TCallbacks(std::forward<UCallbacks&&>(callbacks))...
-		{
-		}
-	};
-
-	template<typename ...TCallbacks>
-	Callbacks(TCallbacks&&...) -> Callbacks<std::remove_cvref_t<TCallbacks>...>;
 }
 
 #ifdef VCZH_CHECK_MEMORY_LEAKS_NEW

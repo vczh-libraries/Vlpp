@@ -382,8 +382,39 @@ TEST_FILE
 			}
 		});
 
-		// TODO:
-		//   Variant<T...>::TryApply(func) -> bool, returns false if not fully matched
+		TEST_CASE(L"TryApply")
+		{
+			{
+				Variant<WString, vint> v = L"ABC";
+				auto result = v.TryApply(
+					[](WString& s) { TEST_ASSERT(s == L"ABC"); s = L"DEF"; }
+					);
+				TEST_ASSERT(v.Get<WString>() == L"DEF");
+				TEST_ASSERT(result == true);
+			}
+			{
+				const Variant<WString, vint> v = L"ABC";
+				auto result = v.TryApply(
+					[](const vint&) { TEST_ASSERT(false); }
+					);
+				TEST_ASSERT(result == false);
+			}
+			{
+				Variant<WString, vint> v = 100;
+				auto result = v.TryApply(
+					[](vint& i) { TEST_ASSERT(i == 100); i = 200; }
+					);
+				TEST_ASSERT(v.Get<vint>() == 200);
+				TEST_ASSERT(result == true);
+			}
+			{
+				const Variant<WString, vint> v = 100;
+				v.TryApply(
+					[](const WString&) { TEST_ASSERT(false); }
+					);
+				TEST_ASSERT(result == false);
+			}
+		});
 	});
 
 	TEST_CATEGORY(L"Construct and assign from different variants")
