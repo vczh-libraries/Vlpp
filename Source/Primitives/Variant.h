@@ -186,34 +186,40 @@ namespace vl::variant_internal
 		using VariantElement<Is, TElements>::CopyAssign...;
 		using VariantElement<Is, TElements>::MoveAssign...;
 
-		static bool DefaultCtor(vint index, char* buffer)
+		static void DefaultCtor(vint index, char* buffer)
 		{
-			return (VariantElement<Is, TElements>::i_efaultCtor(index, buffer) || ...);
+			bool result = (VariantElement<Is, TElements>::i_efaultCtor(index, buffer) || ...);
+			CHECK_ERROR(result, L"vl::variant_internal::VariantElementPack<...>::DefaultCtor(...)#Internal error: none of elements are selected.");
 		}
 
-		static bool CopyCtor(vint index, char* buffer, const char* source)
+		static void CopyCtor(vint index, char* buffer, const char* source)
 		{
-			return (VariantElement<Is, TElements>::i_CopyCtor(index, buffer, source) || ...);
+			bool result = (VariantElement<Is, TElements>::i_CopyCtor(index, buffer, source) || ...);
+			CHECK_ERROR(result, L"vl::variant_internal::VariantElementPack<...>::CopyCtor(...)#Internal error: none of elements are selected.");
 		}
 
-		static bool MoveCtor(vint index, char* buffer, char* source)
+		static void MoveCtor(vint index, char* buffer, char* source)
 		{
-			return (VariantElement<Is, TElements>::i_MoveCtor(index, buffer, source) || ...);
+			bool result = (VariantElement<Is, TElements>::i_MoveCtor(index, buffer, source) || ...);
+			CHECK_ERROR(result, L"vl::variant_internal::VariantElementPack<...>::MoveCtor(...)#Internal error: none of elements are selected.");
 		}
 
-		static bool Dtor(vint index, char* buffer)
+		static void Dtor(vint index, char* buffer)
 		{
-			return (VariantElement<Is, TElements>::i_Dtor(index, buffer) || ...);
+			bool result = (VariantElement<Is, TElements>::i_Dtor(index, buffer) || ...);
+			CHECK_ERROR(result, L"vl::variant_internal::VariantElementPack<...>::Dtor(...)#Internal error: none of elements are selected.");
 		}
 
-		static bool CopyAssign(vint index, char* buffer, const char* source)
+		static void CopyAssign(vint index, char* buffer, const char* source)
 		{
-			return (VariantElement<Is, TElements>::i_CopyAssign(index, buffer, source) || ...);
+			bool result = (VariantElement<Is, TElements>::i_CopyAssign(index, buffer, source) || ...);
+			CHECK_ERROR(result, L"vl::variant_internal::VariantElementPack<...>::CopyAssign(...)#Internal error: none of elements are selected.");
 		}
 
-		static bool MoveAssign(vint index, char* buffer, char* source)
+		static void MoveAssign(vint index, char* buffer, char* source)
 		{
-			return (VariantElement<Is, TElements>::i_MoveAssign(index, buffer, source) || ...);
+			bool result = (VariantElement<Is, TElements>::i_MoveAssign(index, buffer, source) || ...);
+			CHECK_ERROR(result, L"vl::variant_internal::VariantElementPack<...>::MoveAssign(...)#Internal error: none of elements are selected.");
 		}
 	};
 }
