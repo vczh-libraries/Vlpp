@@ -24,17 +24,6 @@ namespace vl
 	struct Overloading : TCallbacks ...
 	{
 		using TCallbacks::operator()...;
-
-		Overloading() = delete;
-		Overloading(const Overloading<TCallbacks...>&) = default;
-		Overloading(Overloading<TCallbacks...>&&) = default;
-		~Overloading() = default;
-
-		template<typename ...UCallbacks>
-		Overloading(UCallbacks&& ...callbacks)
-			: TCallbacks(std::forward<UCallbacks&&>(callbacks))...
-		{
-		}
 	};
 
 	template<typename ...TCallbacks>
