@@ -20,6 +20,23 @@ namespace vl
 
 namespace vl::variant_internal
 {
+	template<typename T, typename ...TArgs>
+	consteval T MaxOf(T first, TArgs ...others)
+	{
+		T result = first;
+		T nexts[] = { others... };
+		for (T next : nexts)
+		{
+			if (result < next) result = next;
+		}
+		return result;
+	}
+	template<typename T>
+	consteval T MaxOf(T first)
+	{
+		return first;
+	}
+
 	template<vint I, typename T>
 	struct VariantElement
 	{
@@ -176,7 +193,7 @@ namespace vl
 	class alignas(TElements...) Variant
 	{
 		using ElementPack = variant_internal::VariantElementPackOf<TElements>;
-		static constexpr std::size_t	MaxSize = std::max(sizeof(TElements...));
+		static constexpr std::size_t	MaxSize = variant_internal::MaxOf(sizeof(TElements)...);
 		vint							index = -1;
 		char							buffer[MaxSize];
 
