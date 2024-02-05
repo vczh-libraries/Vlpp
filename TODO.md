@@ -4,6 +4,8 @@
 
 ## Progressing
 
+- `Variant<T...>`
+  - Finish the rest of the features and tests.
 - `Union<T...>`.
   - If any type is `T*`, `Ptr<T>` or `Nullable<T>`, A `nullptr_t` is added automatically.
     - Any `Nullable<T>` becomes `T`.
@@ -11,9 +13,11 @@
     - null goes to `nullptr_t`.
     - optimize when all types are `Ptr<T>`.
   - Support VlppReflection
+    - Both `Variant` and `Union` are reflectable.
     - Replace `enum` with `enum class` in type related enums, for discovering which place used these things, to handle union.
   - Support VlppParser2
   - Support Workflow
+    - Generate `Union` if there is no hint.
 
 ## Enumerable and enumerator fail when container is deleted
 
