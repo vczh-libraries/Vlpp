@@ -4,6 +4,8 @@
 
 ## Progressing
 
+- `ObjectString<T>`
+  - Add `const T*` version for `operator=`, `operator+=` and `operator+`
 - `Variant<T...>`
   - Finish the rest of the features and tests.
 - `Union<T...>`.
