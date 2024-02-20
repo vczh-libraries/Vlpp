@@ -20,6 +20,11 @@
   - Support VlppParser2
   - Support Workflow
     - Generate `Union` if there is no hint.
+- Extensible `vl::DateTime`.
+  - Inject Local/UTC time.
+  - Access to real date time from the OS after injecting.
+    - `vl::OSDateTime` static class to access OS date time as `vl::DateTime`.
+    - `vl::InjectDateTimeImpl(vl::IDateTimeImpl*)`, `nullptr` to cancel, a default implementation using `vl::OSDateTime` will take place.
 
 ## Enumerable and enumerator fail when container is deleted
 
