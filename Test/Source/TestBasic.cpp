@@ -165,28 +165,53 @@ TEST_FILE
 			TEST_ASSERT(dt.second == 0);
 			TEST_ASSERT(dt.milliseconds == 0);
 
-			dt = DateTime::FromFileTime(dt.filetime);
+			auto dt2 = DateTime::FromFileTime(dt.filetime);
+			TEST_ASSERT(dt == dt2);
+
+			auto dt3 = dt.Forward(100);
+			TEST_ASSERT(dt3.year == 2000);
+			TEST_ASSERT(dt3.month == 1);
+			TEST_ASSERT(dt3.day == 1);
+			TEST_ASSERT(dt3.dayOfWeek == 6);
+			TEST_ASSERT(dt3.hour == 0);
+			TEST_ASSERT(dt3.minute == 0);
+			TEST_ASSERT(dt3.second == 0);
+			TEST_ASSERT(dt3.milliseconds == 100);
+
+			auto dt4 = dt3.Backward(100);
+			TEST_ASSERT(dt == dt4);
+			TEST_ASSERT(dt == dt.ToUtcTime().ToLocalTime());
+			TEST_ASSERT(dt == dt.ToLocalTime().ToUtcTime());
+		}
+		{
+			// 2000/1/1 is saturday
+			DateTime dt = DateTime::FromDateTime(2000, 1, 1, 1, 2, 3, 4);
 			TEST_ASSERT(dt.year == 2000);
 			TEST_ASSERT(dt.month == 1);
 			TEST_ASSERT(dt.day == 1);
 			TEST_ASSERT(dt.dayOfWeek == 6);
-			TEST_ASSERT(dt.hour == 0);
-			TEST_ASSERT(dt.minute == 0);
-			TEST_ASSERT(dt.second == 0);
-			TEST_ASSERT(dt.milliseconds == 0);
+			TEST_ASSERT(dt.hour == 1);
+			TEST_ASSERT(dt.minute == 2);
+			TEST_ASSERT(dt.second == 3);
+			TEST_ASSERT(dt.milliseconds == 4);
 
-			auto dt2 = dt.Forward(100);
-			TEST_ASSERT(dt2.year == 2000);
-			TEST_ASSERT(dt2.month == 1);
-			TEST_ASSERT(dt2.day == 1);
-			TEST_ASSERT(dt2.dayOfWeek == 6);
-			TEST_ASSERT(dt2.hour == 0);
-			TEST_ASSERT(dt2.minute == 0);
-			TEST_ASSERT(dt2.second == 0);
-			TEST_ASSERT(dt2.milliseconds == 100);
+			auto dt2 = DateTime::FromFileTime(dt.filetime);
+			TEST_ASSERT(dt == dt2);
 
-			auto dt3 = dt2.Backward(100);
-			TEST_ASSERT(dt == dt3);
+			auto dt3 = dt.Forward(100);
+			TEST_ASSERT(dt3.year == 2000);
+			TEST_ASSERT(dt3.month == 1);
+			TEST_ASSERT(dt3.day == 1);
+			TEST_ASSERT(dt3.dayOfWeek == 6);
+			TEST_ASSERT(dt3.hour == 1);
+			TEST_ASSERT(dt3.minute == 2);
+			TEST_ASSERT(dt3.second == 3);
+			TEST_ASSERT(dt3.milliseconds == 104);
+
+			auto dt4 = dt3.Backward(100);
+			TEST_ASSERT(dt == dt4);
+			TEST_ASSERT(dt == dt.ToUtcTime().ToLocalTime());
+			TEST_ASSERT(dt == dt.ToLocalTime().ToUtcTime());
 		}
 		{
 			auto l1 = DateTime::LocalTime();
