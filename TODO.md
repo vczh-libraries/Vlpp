@@ -4,7 +4,6 @@
 
 ## Progressing
 
-- Remove `Sys::CreateDateTime(int)` in Workflow script.
 - Use `GetSystemTimeAsFileTime` by `GetProcAddress` with `GetModuleHandle` if exists.
 - `Variant<T...>`
   - Finish the rest of the features and tests.

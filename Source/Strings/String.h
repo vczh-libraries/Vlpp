@@ -131,6 +131,13 @@ namespace vl
 			str.buffer[str.length] = 0;
 			return std::move(str);
 		}
+
+		ObjectString<T> ReplaceUnsafe(const T* source, vint index, vint count)const
+		{
+			if ((!source || !*source) && count == 0) return *this;
+			if (index == 0 && count == length) return { source };
+			return ReplaceUnsafe(Unmanaged(source), index, count);
+		}
 	public:
 		static const ObjectString<T>		Empty;
 
@@ -364,12 +371,19 @@ namespace vl
 		/// <param name="string">The string to append.</param>
 		ObjectString<T> operator+(const T* str)const
 		{
-			return ReplaceUnsafe(Unmanaged(str), length, 0);
+			return ReplaceUnsafe(str, length, 0);
 		}
 
 		friend ObjectString<T> operator+(const T* left, const ObjectString<T>& right)
 		{
-			return Unmanaged(left) + right;
+			if (right.Length() == 0)
+			{
+				return { left };
+			}
+			else
+			{
+				return Unmanaged(left) + right;
+			}
 		}
 
 		/// <summary>Get a code point in the specified position.</summary>
