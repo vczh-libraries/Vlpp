@@ -33,8 +33,8 @@ DateTime
 		dt.milliseconds = milliseconds;
 
 		// in Linux and macOS, filetime will be mktime(t) * 1000 + gettimeofday().tv_usec / 1000
-		dt.filetime = (vuint64_t)timer * 1000 + milliseconds;
-		dt.totalMilliseconds = (vuint64_t)timer * 1000 + milliseconds;
+		dt.osInternal = (vuint64_t)timer * 1000 + milliseconds;
+		dt.osMilliseconds = (vuint64_t)timer * 1000 + milliseconds;
 		return dt;
 	}
 
@@ -68,7 +68,7 @@ DateTime
 		return ConvertTMToDateTime(&timeinfo, _milliseconds);
 	}
 
-	DateTime DateTime::FromFileTime(vuint64_t filetime)
+	DateTime DateTime::FromOSInternal(vuint64_t filetime)
 	{
 		time_t timer = (time_t)(filetime / 1000);
 		tm* timeinfo = localtime(&timer);
@@ -79,25 +79,25 @@ DateTime
 	{
 		time_t localTimer = time(nullptr);
 		time_t utcTimer = mktime(gmtime(&localTimer));
-		time_t timer = (time_t)(filetime / 1000) + localTimer - utcTimer;
+		time_t timer = (time_t)(osInternal / 1000) + localTimer - utcTimer;
 		tm* timeinfo = localtime(&timer);
 		return ConvertTMToDateTime(timeinfo, milliseconds);
 	}
 
 	DateTime DateTime::ToUtcTime()
 	{
-		time_t timer = (time_t)(filetime / 1000);
+		time_t timer = (time_t)(osInternal / 1000);
 		tm* timeinfo = gmtime(&timer);
 		return ConvertTMToDateTime(timeinfo, milliseconds);
 	}
 
 	DateTime DateTime::Forward(vuint64_t milliseconds)
 	{
-		return FromFileTime(filetime + milliseconds);
+		return FromDateTime(osInternal + milliseconds);
 	}
 
 	DateTime DateTime::Backward(vuint64_t milliseconds)
 	{
-		return FromFileTime(filetime - milliseconds);
+		return FromDateTime(osInternal - milliseconds);
 	}
 }

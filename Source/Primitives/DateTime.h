@@ -42,14 +42,14 @@ Date and Time
 		/// You should not rely on the fact about how this value is created.
 		/// The only invariant thing is that, when an date time is earlier than another, the totalMilliseconds is lesser.
 		/// </summary>
-		vuint64_t			totalMilliseconds = 0;
+		vuint64_t			osMilliseconds = 0;
 
 		/// <summary>
-		/// The calculated file time for the date and time. It is OS dependent.
+		/// The OS dependent internal representation for the date and time.
 		/// You should not rely on the fact about how this value is created.
-		/// The only invariant thing is that, when an date time is earlier than another, the filetime is lesser.
+		/// It only ensure that, lesser osInternal means eariler date and time.
 		/// </summary>
-		vuint64_t			filetime = 0;
+		vuint64_t			osInternal = 0;
 
 		/// <summary>Get the current local time.</summary>
 		/// <returns>The current local time.</returns>
@@ -73,10 +73,7 @@ Date and Time
 		/// <summary>Create a date time value from a file time.</summary>
 		/// <returns>The created date time value.</returns>
 		/// <param name="filetime">The file time.</param>
-		static DateTime		FromFileTime(vuint64_t filetime);
-
-		/// <summary>Create an empty date time value that is not meaningful.</summary>
-		DateTime() = default;
+		static DateTime		FromOSInternal(vuint64_t filetime);
 
 		/// <summary>Convert the UTC time to the local time.</summary>
 		/// <returns>The UTC time.</returns>
@@ -95,12 +92,12 @@ Date and Time
 
 		std::strong_ordering operator<=>(const DateTime& value) const
 		{
-			return filetime <=> value.filetime;
+			return osInternal <=> value.osInternal;
 		}
 
 		bool operator==(const DateTime& value) const
 		{
-			return filetime == value.filetime;
+			return osInternal == value.osInternal;
 		}
 	};
 

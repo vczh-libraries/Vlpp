@@ -35,8 +35,8 @@ DateTime
 		ULARGE_INTEGER largeInteger;
 		largeInteger.HighPart = fileTime.dwHighDateTime;
 		largeInteger.LowPart = fileTime.dwLowDateTime;
-		dateTime.filetime = largeInteger.QuadPart;
-		dateTime.totalMilliseconds = dateTime.filetime / 10000;
+		dateTime.osInternal = largeInteger.QuadPart;
+		dateTime.osMilliseconds = dateTime.osInternal / 10000;
 
 		return dateTime;
 	}
@@ -44,7 +44,7 @@ DateTime
 	SYSTEMTIME DateTimeToSystemTime(const DateTime& dateTime)
 	{
 		ULARGE_INTEGER largeInteger;
-		largeInteger.QuadPart = dateTime.filetime;
+		largeInteger.QuadPart = dateTime.osInternal;
 		FILETIME fileTime;
 		fileTime.dwHighDateTime = largeInteger.HighPart;
 		fileTime.dwLowDateTime = largeInteger.LowPart;
@@ -86,7 +86,7 @@ DateTime
 		return SystemTimeToDateTime(systemTime);
 	}
 
-	DateTime DateTime::FromFileTime(vuint64_t filetime)
+	DateTime DateTime::FromOSInternal(vuint64_t filetime)
 	{
 		ULARGE_INTEGER largeInteger;
 		largeInteger.QuadPart = filetime;
@@ -117,11 +117,11 @@ DateTime
 
 	DateTime DateTime::Forward(vuint64_t milliseconds)
 	{
-		return FromFileTime(filetime + milliseconds * 10000);
+		return FromOSInternal(osInternal + milliseconds * 10000);
 	}
 
 	DateTime DateTime::Backward(vuint64_t milliseconds)
 	{
-		return FromFileTime(filetime - milliseconds * 10000);
+		return FromOSInternal(osInternal - milliseconds * 10000);
 	}
 }

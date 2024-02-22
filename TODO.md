@@ -8,11 +8,7 @@
   - Add `const T*` version for `operator=`, `operator+=` and `operator+`
   - Add `constexpr/const (&)T[S]` too all, but check if it will be used on string literal first.
 - Extensible `vl::DateTime`.
-  - Remove `DateTime()` constructor.
-  - Rename `DateTime::FromFileTime` to `FromOSInternal`
-    - Rename `filetime` to `osInternal`.
-    - Rename `totalMilliseconds` to `osMilliseconds`.
-    - Remove `Sys::CreateDateTime(int)` in Workflow script.
+  - Remove `Sys::CreateDateTime(int)` in Workflow script.
   - Use `GetSystemTimeAsFileTime` on Windows.
     - Use `GetSystemTimeAsFileTime` by `GetProcAddress` with `GetModuleHandle` if exists.
   - Access to real date time from the OS after injecting.

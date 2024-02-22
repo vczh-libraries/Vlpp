@@ -165,7 +165,7 @@ TEST_FILE
 			TEST_ASSERT(dt.second == 0);
 			TEST_ASSERT(dt.milliseconds == 0);
 
-			auto dt2 = DateTime::FromFileTime(dt.filetime);
+			auto dt2 = DateTime::FromOSInternal(dt.osInternal);
 			TEST_ASSERT(dt == dt2);
 
 			auto dt3 = dt.Forward(100);
@@ -195,7 +195,7 @@ TEST_FILE
 			TEST_ASSERT(dt.second == 3);
 			TEST_ASSERT(dt.milliseconds == 4);
 
-			auto dt2 = DateTime::FromFileTime(dt.filetime);
+			auto dt2 = DateTime::FromOSInternal(dt.osInternal);
 			TEST_ASSERT(dt == dt2);
 
 			auto dt3 = dt.Forward(100);
