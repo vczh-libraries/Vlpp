@@ -4,8 +4,6 @@
 
 ## Progressing
 
-- `ObjectString<T>`
-  - Add `constexpr/const (&)T[S]` too all, but check if it will be used on string literal first.
 - Remove `Sys::CreateDateTime(int)` in Workflow script.
 - Use `GetSystemTimeAsFileTime` by `GetProcAddress` with `GetModuleHandle` if exists.
 - `Variant<T...>`
