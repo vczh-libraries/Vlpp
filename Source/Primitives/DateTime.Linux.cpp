@@ -23,7 +23,26 @@ DateTime
 	{
 	public:
 
-		DateTime ConvertTMToDateTime(tm* timeinfo, vint milliseconds)
+		static void TimeToOSInternal(time_t timer, vint milliseconds, vuint64_t& osInternal)
+		{
+			osInternal = (vuint64_t)timer * 1000 + milliseconds;
+		}
+
+		static void OSInternalToTime(vuint64_t osInternal, time_t& timer, vint& milliseconds)
+		{
+			timer = (time_t)(osInternal / 1000);
+			milliseconds = (vint)(osInternal % 1000);
+		}
+
+		static vuint64_t ConvertTMTToOSInternal(tm* timeinfo, vint milliseconds)
+		{
+			time_t timer = mktime(timeinfo);
+			vuint64_t osInternal;
+			TimeToOSInternal(timer, milliseconds, osInternal);
+			return osInternal;
+		}
+
+		static DateTime ConvertTMToDateTime(tm* timeinfo, vint milliseconds)
 		{
 			time_t timer = mktime(timeinfo);
 			DateTime dt;
@@ -37,60 +56,12 @@ DateTime
 			dt.milliseconds = milliseconds;
 
 			// in Linux and macOS, filetime will be mktime(t) * 1000 + gettimeofday().tv_usec / 1000
-			dt.osInternal = (vuint64_t)timer * 1000 + milliseconds;
-			dt.osMilliseconds = (vuint64_t)timer * 1000 + milliseconds;
+			TimeToOSInternal(timer, milliseconds, dt.osInternal);
+			dt.osMilliseconds = dt.osInternal;
 			return dt;
 		}
 
 		DateTime FromDateTime(vint _year, vint _month, vint _day, vint _hour, vint _minute, vint _second, vint _milliseconds) override
-		{
-		}
-
-		DateTime FromOSInternal(vuint64_t osInternal) override
-		{
-		}
-
-		vuint64_t LocalTime() override
-		{
-		}
-
-		vuint64_t UtcTime() override
-		{
-		}
-
-		vuint64_t LocalToUtcTime(vuint64_t osInternal) override
-		{
-		}
-
-		vuint64_t UtcToLocalTime(vuint64_t osInternal) override
-		{
-		}
-
-		vuint64_t Forward(vuint64_t osInternal, vuint64_t milliseconds) override
-		{
-		}
-
-		vuint64_t Backward(vuint64_t osInternal, vuint64_t milliseconds) override
-		{
-		}
-
-		DateTime DateTime::LocalTime()
-		{
-			struct timeval tv;
-			gettimeofday(&tv, nullptr);
-			tm* timeinfo = localtime(&tv.tv_sec);
-			return ConvertTMToDateTime(timeinfo, tv.tv_usec / 1000);
-		}
-
-		DateTime DateTime::UtcTime()
-		{
-			struct timeval tv;
-			gettimeofday(&tv, nullptr);
-			tm* timeinfo = gmtime(&tv.tv_sec);
-			return ConvertTMToDateTime(timeinfo, tv.tv_usec / 1000);
-		}
-
-		DateTime DateTime::FromDateTime(vint _year, vint _month, vint _day, vint _hour, vint _minute, vint _second, vint _milliseconds)
 		{
 			tm timeinfo;
 			memset(&timeinfo, 0, sizeof(timeinfo));
@@ -104,37 +75,64 @@ DateTime
 			return ConvertTMToDateTime(&timeinfo, _milliseconds);
 		}
 
-		DateTime DateTime::FromOSInternal(vuint64_t filetime)
+		DateTime FromOSInternal(vuint64_t osInternal) override
 		{
-			time_t timer = (time_t)(filetime / 1000);
-			tm* timeinfo = localtime(&timer);
-			return ConvertTMToDateTime(timeinfo, filetime % 1000);
-		}
+			time_t timer;
+			vint milliseconds;
+			OSInternalToTime(osInternal, timer, milliseconds);
 
-		DateTime DateTime::ToLocalTime()
-		{
-			time_t localTimer = time(nullptr);
-			time_t utcTimer = mktime(gmtime(&localTimer));
-			time_t timer = (time_t)(osInternal / 1000) + localTimer - utcTimer;
 			tm* timeinfo = localtime(&timer);
 			return ConvertTMToDateTime(timeinfo, milliseconds);
 		}
 
-		DateTime DateTime::ToUtcTime()
+		vuint64_t LocalTime() override
 		{
-			time_t timer = (time_t)(osInternal / 1000);
+			struct timeval tv;
+			gettimeofday(&tv, nullptr);
+			tm* timeinfo = localtime(&tv.tv_sec);
+			return ConvertTMTToOSInternal(timeinfo, tv.tv_usec / 1000);
+		}
+
+		vuint64_t UtcTime() override
+		{
+			struct timeval tv;
+			gettimeofday(&tv, nullptr);
+			tm* timeinfo = gmtime(&tv.tv_sec);
+			return ConvertTMTToOSInternal(timeinfo, tv.tv_usec / 1000);
+		}
+
+		vuint64_t LocalToUtcTime(vuint64_t osInternal) override
+		{
+			time_t timer;
+			vint milliseconds;
+			OSInternalToTime(osInternal, timer, milliseconds);
+
 			tm* timeinfo = gmtime(&timer);
-			return ConvertTMToDateTime(timeinfo, milliseconds);
+			return ConvertTMTToOSInternal(timeinfo, milliseconds);
 		}
 
-		DateTime DateTime::Forward(vuint64_t milliseconds)
+		vuint64_t UtcToLocalTime(vuint64_t osInternal) override
 		{
-			return FromDateTime(osInternal + milliseconds);
+			time_t timer;
+			vint milliseconds;
+			OSInternalToTime(osInternal, timer, milliseconds);
+
+			time_t localTimer = mktime(localtime(&timer));
+			time_t utcTimer = mktime(gmtime(&timer));
+			timer += localTimer - utcTimer;
+
+			TimeToOSInternal(timer, milliseconds, osInternal);
+			return osInternal;
 		}
 
-		DateTime DateTime::Backward(vuint64_t milliseconds)
+		vuint64_t Forward(vuint64_t osInternal, vuint64_t milliseconds) override
 		{
-			return FromDateTime(osInternal - milliseconds);
+			return osInternal + milliseconds;
+		}
+
+		vuint64_t Backward(vuint64_t osInternal, vuint64_t milliseconds) override
+		{
+			return osInternal - milliseconds;
 		}
 	};
 
