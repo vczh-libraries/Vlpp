@@ -88,13 +88,19 @@ TEST_FILE
 		TEST_CASE(L"Test string with operator+")
 		{
 			WString string = L"vczh is genius";
-			CheckString(string.Left(7) + string.Right(7),L"vczh is genius");
+			CheckString(string.Left(7) + string.Right(7), L"vczh is genius");
 		});
 
-		TEST_CASE(L"Test string with operator+ and buffer")
+		TEST_CASE(L"Test string with operator+ and buffer (1)")
 		{
 			WString string = L"vczh is genius";
-			CheckString(L"vczh is" + string.Right(7),L"vczh is genius");
+			CheckString(L"vczh is" + string.Right(7), L"vczh is genius");
+		});
+
+		TEST_CASE(L"Test string with operator+ and buffer (2)")
+		{
+			WString string = L"vczh is genius";
+			CheckString(string.Left(7) + L" genius", L"vczh is genius");
 		});
 
 		TEST_CASE(L"Test string comparison")
@@ -115,11 +121,30 @@ TEST_FILE
 			}
 		});
 
-		TEST_CASE(L"Test string comparison with buffer")
+		TEST_CASE(L"Test string comparison with buffer (1)")
 		{
 			WString full = L"VCZHgeniusvczh";
 			const wchar_t* left[3] = {L"VCZH", L"genius", L"vczh"};
 			WString right[3] = {full.Left(4), full.Sub(4, 6), full.Right(4)};
+			for (vint i = 0; i < 3; i++)
+			{
+				for (vint j = 0; j < 3; j++)
+				{
+					TEST_ASSERT((left[i] == right[j]) == (i == j));
+					TEST_ASSERT((left[i] != right[j]) == (i != j));
+					TEST_ASSERT((left[i] < right[j]) == (i < j));
+					TEST_ASSERT((left[i] <= right[j]) == (i <= j));
+					TEST_ASSERT((left[i] > right[j]) == (i > j));
+					TEST_ASSERT((left[i] >= right[j]) == (i >= j));
+				}
+			}
+		});
+
+		TEST_CASE(L"Test string comparison with buffer (2)")
+		{
+			WString full = L"VCZHgeniusvczh";
+			WString left[3] = { full.Left(4), full.Sub(4, 6), full.Right(4) };
+			const wchar_t* right[3] = { L"VCZH", L"genius", L"vczh" };
 			for (vint i = 0; i < 3; i++)
 			{
 				for (vint j = 0; j < 3; j++)
