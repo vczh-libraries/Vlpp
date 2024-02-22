@@ -33,7 +33,6 @@ Date and Time
 		vint				milliseconds = 0;
 
 		/// <summary>
-		/// The calculated total milliseconds. It is OS dependent because the start time is different.
 		/// It is from 0 to 6, representing Sunday to Saturday.
 		/// </summary>
 		vint				dayOfWeek = 0;
@@ -103,6 +102,19 @@ Date and Time
 		{
 			return filetime == value.filetime;
 		}
+	};
+
+	class IDateTimeImpl : public virtual Interface
+	{
+	public:
+		virtual DateTime			FromDateTime(vint _year, vint _month, vint _day, vint _hour, vint _minute, vint _second, vint _milliseconds) = 0;
+		virtual DateTime			FromOSInternal(vuint64_t osInternal) = 0;
+		virtual vuint64_t			LocalTime() = 0;
+		virtual vuint64_t			UtcTime() = 0;
+		virtual vuint64_t			LocalToUtcTime(vuint64_t osInternal) = 0;
+		virtual vuint64_t			UtcToLocalTime(vuint64_t osInternal) = 0;
+		virtual vuint64_t			Forward(vuint64_t osInternal, vuint64_t milliseconds) = 0;
+		virtual vuint64_t			Backward(vuint64_t osInternal, vuint64_t milliseconds) = 0;
 	};
 }
 
