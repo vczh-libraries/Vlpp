@@ -56,12 +56,12 @@ namespace vl
 
 		std::strong_ordering operator<=>(const T* str)const
 		{
-			return operator<=>(ObjectString<T>::Unmanaged(str));
+			return operator<=>(Unmanaged(str));
 		}
 
 		friend std::strong_ordering operator<=>(const T* left, const ObjectString<T>& right)
 		{
-			return ObjectString<T>::Unmanaged(left) <=> right;
+			return Unmanaged(left) <=> right;
 		}
 
 		bool operator==(const ObjectString<T>& str)const
@@ -71,7 +71,7 @@ namespace vl
 
 		bool operator==(const T* str)const
 		{
-			return operator<=>(ObjectString<T>::Unmanaged(str)) == 0;
+			return operator<=>(Unmanaged(str)) == 0;
 		}
 
 		friend bool operator==(const T* left, const ObjectString<T>& right)
@@ -348,7 +348,7 @@ namespace vl
 		/// <param name="string">The string to append.</param>
 		ObjectString<T>& operator+=(const T* str)
 		{
-			return *this += ObjectString<T>::Unmanaged(str);
+			return *this = *this + str;
 		}
 
 		/// <summary>Create a new string by concatenating two strings.</summary>
@@ -364,12 +364,12 @@ namespace vl
 		/// <param name="string">The string to append.</param>
 		ObjectString<T> operator+(const T* str)const
 		{
-			return *this + ObjectString<T>::Unmanaged(str);
+			return ReplaceUnsafe(Unmanaged(str), length, 0);
 		}
 
 		friend ObjectString<T> operator+(const T* left, const ObjectString<T>& right)
 		{
-			return ObjectString<T>::Unmanaged(left) + right;
+			return Unmanaged(left) + right;
 		}
 
 		/// <summary>Get a code point in the specified position.</summary>
