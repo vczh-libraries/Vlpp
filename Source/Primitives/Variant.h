@@ -24,6 +24,18 @@ namespace vl
 	struct Overloading : TCallbacks ...
 	{
 		using TCallbacks::operator()...;
+#ifdef VCZH_GCC
+		Overloading(const Overloading<TCallbacks...>&) = default;
+		Overloading(Overloading<TCallbacks...>&&) = default;
+		Overloading<TCallbacks...>& operator=(const Overloading<TCallbacks...>&) = default;
+		Overloading<TCallbacks...>& operator=(Overloading<TCallbacks...>&&) = default;
+
+		template<typename ...TArguments>
+		Overloading(TArguments&& ...arguments)
+			: TCallbacks(std::forward<TArguments&&>(arguments))...
+		{
+		}
+#endif
 	};
 
 	template<typename ...TCallbacks>
@@ -259,7 +271,7 @@ namespace vl
 		static constexpr vint IndexOf = decltype(ElementPack::template IndexOf<T>())::value;
 
 		template<typename T>
-		static constexpr vint IndexOfCast = decltype(ElementPack::template IndexOfCast(std::declval<T>()))::value;
+		static constexpr vint IndexOfCast = decltype(ElementPack::IndexOfCast(std::declval<T>()))::value;
 
 		static constexpr std::size_t	MaxSize = variant_internal::MaxOf(sizeof(TElements)...);
 		vint							index = -1;
@@ -491,7 +503,7 @@ namespace vl
 			bool result = true;
 			Apply(Overloading(
 				std::forward<TCallback&&>(callback),
-				[&result](...) { result = false; }
+				[&result](auto&&) { result = false; }
 				));
 			return result;
 		}
@@ -502,7 +514,7 @@ namespace vl
 			bool result = true;
 			Apply(Overloading(
 				std::forward<TCallback&&>(callback),
-				[&result](...) { result = false; }
+				[&result](auto&&) { result = false; }
 				));
 			return result;
 		}
