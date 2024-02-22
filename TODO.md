@@ -7,13 +7,8 @@
 - `ObjectString<T>`
   - Add `const T*` version for `operator=`, `operator+=` and `operator+`
   - Add `constexpr/const (&)T[S]` too all, but check if it will be used on string literal first.
-- Extensible `vl::DateTime`.
-  - Remove `Sys::CreateDateTime(int)` in Workflow script.
-  - Use `GetSystemTimeAsFileTime` on Windows.
-    - Use `GetSystemTimeAsFileTime` by `GetProcAddress` with `GetModuleHandle` if exists.
-  - Access to real date time from the OS after injecting.
-    - `vl::OSDateTime` static class to access OS date time as `vl::DateTime`.
-    - `vl::InjectDateTimeImpl(vl::IDateTimeImpl*)`, `nullptr` to cancel, a default implementation using `vl::OSDateTime` will take place.
+- Remove `Sys::CreateDateTime(int)` in Workflow script.
+- Use `GetSystemTimeAsFileTime` by `GetProcAddress` with `GetModuleHandle` if exists.
 - `Variant<T...>`
   - Finish the rest of the features and tests.
 - `Union<T...>`.

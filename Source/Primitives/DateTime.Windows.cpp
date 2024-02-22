@@ -22,58 +22,26 @@ DateTime
 	{
 	public:
 
-		DateTime ConvertTMToDateTime(tm* timeinfo, vint milliseconds)
+		static vuint64_t FileTimeToOSInternal(FILETIME fileTime)
 		{
-			time_t timer = mktime(timeinfo);
-			DateTime dt;
-			dt.year = timeinfo->tm_year + 1900;
-			dt.month = timeinfo->tm_mon + 1;
-			dt.day = timeinfo->tm_mday;
-			dt.dayOfWeek = timeinfo->tm_wday;
-			dt.hour = timeinfo->tm_hour;
-			dt.minute = timeinfo->tm_min;
-			dt.second = timeinfo->tm_sec;
-			dt.milliseconds = milliseconds;
-
-			// in Linux and macOS, filetime will be mktime(t) * 1000 + gettimeofday().tv_usec / 1000
-			dt.osInternal = (vuint64_t)timer * 1000 + milliseconds;
-			dt.osMilliseconds = (vuint64_t)timer * 1000 + milliseconds;
-			return dt;
+			ULARGE_INTEGER largeInteger;
+			largeInteger.HighPart = fileTime.dwHighDateTime;
+			largeInteger.LowPart = fileTime.dwLowDateTime;
+			return largeInteger.QuadPart;
 		}
 
-		DateTime FromDateTime(vint _year, vint _month, vint _day, vint _hour, vint _minute, vint _second, vint _milliseconds) override
+		static FILETIME OSInternalToFileTime(vuint64_t osInternal)
 		{
+			ULARGE_INTEGER largeInteger;
+			largeInteger.QuadPart = osInternal;
+
+			FILETIME fileTime;
+			fileTime.dwHighDateTime = largeInteger.HighPart;
+			fileTime.dwLowDateTime = largeInteger.LowPart;
+			return fileTime;
 		}
 
-		DateTime FromOSInternal(vuint64_t osInternal) override
-		{
-		}
-
-		vuint64_t LocalTime() override
-		{
-		}
-
-		vuint64_t UtcTime() override
-		{
-		}
-
-		vuint64_t LocalToUtcTime(vuint64_t osInternal) override
-		{
-		}
-
-		vuint64_t UtcToLocalTime(vuint64_t osInternal) override
-		{
-		}
-
-		vuint64_t Forward(vuint64_t osInternal, vuint64_t milliseconds) override
-		{
-		}
-
-		vuint64_t Backward(vuint64_t osInternal, vuint64_t milliseconds) override
-		{
-		}
-
-		DateTime SystemTimeToDateTime(const SYSTEMTIME& systemTime)
+		static DateTime SystemTimeToDateTime(const SYSTEMTIME& systemTime)
 		{
 			DateTime dateTime;
 			dateTime.year = systemTime.wYear;
@@ -87,43 +55,13 @@ DateTime
 
 			FILETIME fileTime;
 			SystemTimeToFileTime(&systemTime, &fileTime);
-			ULARGE_INTEGER largeInteger;
-			largeInteger.HighPart = fileTime.dwHighDateTime;
-			largeInteger.LowPart = fileTime.dwLowDateTime;
-			dateTime.osInternal = largeInteger.QuadPart;
+			dateTime.osInternal = FileTimeToOSInternal(fileTime);
 			dateTime.osMilliseconds = dateTime.osInternal / 10000;
 
 			return dateTime;
 		}
 
-		SYSTEMTIME DateTimeToSystemTime(const DateTime& dateTime)
-		{
-			ULARGE_INTEGER largeInteger;
-			largeInteger.QuadPart = dateTime.osInternal;
-			FILETIME fileTime;
-			fileTime.dwHighDateTime = largeInteger.HighPart;
-			fileTime.dwLowDateTime = largeInteger.LowPart;
-
-			SYSTEMTIME systemTime;
-			FileTimeToSystemTime(&fileTime, &systemTime);
-			return systemTime;
-		}
-
-		DateTime DateTime::LocalTime()
-		{
-			SYSTEMTIME systemTime;
-			GetLocalTime(&systemTime);
-			return SystemTimeToDateTime(systemTime);
-		}
-
-		DateTime DateTime::UtcTime()
-		{
-			SYSTEMTIME utcTime;
-			GetSystemTime(&utcTime);
-			return SystemTimeToDateTime(utcTime);
-		}
-
-		DateTime DateTime::FromDateTime(vint _year, vint _month, vint _day, vint _hour, vint _minute, vint _second, vint _milliseconds)
+		DateTime FromDateTime(vint _year, vint _month, vint _day, vint _hour, vint _minute, vint _second, vint _milliseconds) override
 		{
 			SYSTEMTIME systemTime;
 			memset(&systemTime, 0, sizeof(systemTime));
@@ -141,10 +79,10 @@ DateTime
 			return SystemTimeToDateTime(systemTime);
 		}
 
-		DateTime DateTime::FromOSInternal(vuint64_t filetime)
+		DateTime FromOSInternal(vuint64_t osInternal) override
 		{
 			ULARGE_INTEGER largeInteger;
-			largeInteger.QuadPart = filetime;
+			largeInteger.QuadPart = osInternal;
 			FILETIME fileTime;
 			fileTime.dwHighDateTime = largeInteger.HighPart;
 			fileTime.dwLowDateTime = largeInteger.LowPart;
@@ -154,30 +92,51 @@ DateTime
 			return SystemTimeToDateTime(systemTime);
 		}
 
-		DateTime DateTime::ToLocalTime()
+		vuint64_t LocalTime() override
 		{
-			SYSTEMTIME utcTime = DateTimeToSystemTime(*this);
-			SYSTEMTIME localTime;
-			SystemTimeToTzSpecificLocalTime(NULL, &utcTime, &localTime);
-			return SystemTimeToDateTime(localTime);
+			SYSTEMTIME systemTime;
+			GetLocalTime(&systemTime);
+
+			FILETIME fileTime;
+			SystemTimeToFileTime(&systemTime, &fileTime);
+			return FileTimeToOSInternal(fileTime);
 		}
 
-		DateTime DateTime::ToUtcTime()
+		vuint64_t UtcTime() override
 		{
-			SYSTEMTIME localTime = DateTimeToSystemTime(*this);
-			SYSTEMTIME utcTime;
+			FILETIME fileTime;
+			GetSystemTimeAsFileTime(&fileTime);
+			return FileTimeToOSInternal(fileTime);
+		}
+
+		vuint64_t LocalToUtcTime(vuint64_t osInternal) override
+		{
+			FILETIME fileTime = OSInternalToFileTime(osInternal);
+			SYSTEMTIME utcTime, localTime;
+			FileTimeToSystemTime(&fileTime, &localTime);
 			TzSpecificLocalTimeToSystemTime(NULL, &localTime, &utcTime);
-			return SystemTimeToDateTime(utcTime);
+			SystemTimeToFileTime(&utcTime, &fileTime);
+			return FileTimeToOSInternal(fileTime);
 		}
 
-		DateTime DateTime::Forward(vuint64_t milliseconds)
+		vuint64_t UtcToLocalTime(vuint64_t osInternal) override
 		{
-			return FromOSInternal(osInternal + milliseconds * 10000);
+			FILETIME fileTime = OSInternalToFileTime(osInternal);
+			SYSTEMTIME utcTime, localTime;
+			FileTimeToSystemTime(&fileTime, &utcTime);
+			SystemTimeToTzSpecificLocalTime(NULL, &utcTime, &localTime);
+			SystemTimeToFileTime(&localTime, &fileTime);
+			return FileTimeToOSInternal(fileTime);
 		}
 
-		DateTime DateTime::Backward(vuint64_t milliseconds)
+		vuint64_t Forward(vuint64_t osInternal, vuint64_t milliseconds) override
 		{
-			return FromOSInternal(osInternal - milliseconds * 10000);
+			return osInternal + milliseconds * 10000;
+		}
+
+		vuint64_t Backward(vuint64_t osInternal, vuint64_t milliseconds) override
+		{
+			return osInternal - milliseconds * 10000;
 		}
 	};
 
