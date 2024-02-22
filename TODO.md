@@ -6,6 +6,12 @@
 
 - `ObjectString<T>`
   - Add `const T*` version for `operator=`, `operator+=` and `operator+`
+  - Add `constexpr/const (&)T[S]` too all, but check if it will be used on string literal first.
+- Extensible `vl::DateTime`.
+  - Inject Local/UTC time.
+  - Access to real date time from the OS after injecting.
+    - `vl::OSDateTime` static class to access OS date time as `vl::DateTime`.
+    - `vl::InjectDateTimeImpl(vl::IDateTimeImpl*)`, `nullptr` to cancel, a default implementation using `vl::OSDateTime` will take place.
 - `Variant<T...>`
   - Finish the rest of the features and tests.
 - `Union<T...>`.
@@ -20,11 +26,6 @@
   - Support VlppParser2
   - Support Workflow
     - Generate `Union` if there is no hint.
-- Extensible `vl::DateTime`.
-  - Inject Local/UTC time.
-  - Access to real date time from the OS after injecting.
-    - `vl::OSDateTime` static class to access OS date time as `vl::DateTime`.
-    - `vl::InjectDateTimeImpl(vl::IDateTimeImpl*)`, `nullptr` to cancel, a default implementation using `vl::OSDateTime` will take place.
 
 ## Enumerable and enumerator fail when container is deleted
 
