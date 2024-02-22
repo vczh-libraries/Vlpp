@@ -9,6 +9,7 @@ DEVELOPER: Zihan Chen(vczh)
 #include "..\..\Source\Exception.cpp"
 #include "..\..\Source\GlobalStorage.cpp"
 #include "..\..\Source\Collections\PartialOrdering.cpp"
+#include "..\..\Source\Primitives\DateTime.cpp"
 #include "..\..\Source\Strings\Conversion.cpp"
 #include "..\..\Source\Strings\LoremIpsum.cpp"
 #include "..\..\Source\Strings\String.cpp"
