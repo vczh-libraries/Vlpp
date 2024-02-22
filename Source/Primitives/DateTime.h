@@ -73,7 +73,7 @@ Date and Time
 		/// <summary>Create a date time value from a file time.</summary>
 		/// <returns>The created date time value.</returns>
 		/// <param name="filetime">The file time.</param>
-		static DateTime		FromOSInternal(vuint64_t filetime);
+		static DateTime		FromOSInternal(vuint64_t _osInternal);
 
 		/// <summary>Convert the UTC time to the local time.</summary>
 		/// <returns>The UTC time.</returns>
@@ -113,6 +113,8 @@ Date and Time
 		virtual vuint64_t			Forward(vuint64_t osInternal, vuint64_t milliseconds) = 0;
 		virtual vuint64_t			Backward(vuint64_t osInternal, vuint64_t milliseconds) = 0;
 	};
+
+	extern void						InjectDateTimeImpl(IDateTimeImpl* impl);
 }
 
 #endif

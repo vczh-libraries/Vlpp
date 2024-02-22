@@ -204,6 +204,7 @@
     <ClCompile Include="..\..\..\Source\Console.Windows.cpp" />
     <ClCompile Include="..\..\..\Source\Exception.cpp" />
     <ClCompile Include="..\..\..\Source\GlobalStorage.cpp" />
+    <ClCompile Include="..\..\..\Source\Primitives\DateTime.cpp" />
     <ClCompile Include="..\..\..\Source\Primitives\DateTime.Windows.cpp" />
     <ClCompile Include="..\..\..\Source\Primitives\DateTime.Linux.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>

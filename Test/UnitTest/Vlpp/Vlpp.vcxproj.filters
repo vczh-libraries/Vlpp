@@ -176,5 +176,8 @@
     <ClCompile Include="..\..\..\Source\Strings\Conversion.Windows.cpp">
       <Filter>Common\Strings</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\Source\Primitives\DateTime.cpp">
+      <Filter>Common\Primitives</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
