@@ -69,9 +69,9 @@ namespace vl
 			return operator<=>(str) == 0;
 		}
 
-		bool operator==(T* str)const
+		bool operator==(const T* str)const
 		{
-			return operator<=>(str) == 0;
+			return operator<=>(ObjectString<T>::Unmanaged(str)) == 0;
 		}
 
 		friend bool operator==(const T* left, const ObjectString<T>& right)
@@ -340,7 +340,15 @@ namespace vl
 		/// <param name="string">The string to append.</param>
 		ObjectString<T>& operator+=(const ObjectString<T>& string)
 		{
-			return *this=*this+string;
+			return *this = *this + string;
+		}
+
+		/// <summary>Replace the string by appending another string.</summary>
+		/// <returns>The string itself.</returns>
+		/// <param name="string">The string to append.</param>
+		ObjectString<T>& operator+=(const T* str)
+		{
+			return *this += ObjectString<T>::Unmanaged(str);
 		}
 
 		/// <summary>Create a new string by concatenating two strings.</summary>
@@ -349,6 +357,14 @@ namespace vl
 		ObjectString<T> operator+(const ObjectString<T>& string)const
 		{
 			return ReplaceUnsafe(string, length, 0);
+		}
+
+		/// <summary>Create a new string by concatenating two strings.</summary>
+		/// <returns>The new string.</returns>
+		/// <param name="string">The string to append.</param>
+		ObjectString<T> operator+(const T* str)const
+		{
+			return *this + ObjectString<T>::Unmanaged(str);
 		}
 
 		friend ObjectString<T> operator+(const T* left, const ObjectString<T>& right)
