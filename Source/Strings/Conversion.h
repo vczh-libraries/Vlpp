@@ -10,8 +10,22 @@ Licensed under https://github.com/vczh-libraries/License
 
 namespace vl
 {
+	struct char16be_t
+	{
+		char16_t					value;
+	};
+
 	namespace encoding
 	{
+		template<typename T>
+		__forceinline void SwapByteForUtf16BE(T& c)
+		{
+			static_assert(sizeof(T) == sizeof(char16_t));
+			vuint8_t* bytes = (vuint8_t*)&c;
+			vuint8_t t = bytes[0];
+			bytes[0] = bytes[1];
+			bytes[1] = t;
+		}
 
 /***********************************************************************
 UtfConversion<T>
@@ -49,6 +63,15 @@ UtfConversion<T>
 
 			static vint				From32(char32_t source, char16_t(&dest)[BufferLength]);
 			static vint				To32(const char16_t* source, vint sourceLength, char32_t& dest);
+		};
+
+		template<>
+		struct UtfConversion<char16be_t>
+		{
+			static const vint		BufferLength = 2;
+
+			static vint				From32(char32_t source, char16be_t(&dest)[BufferLength]);
+			static vint				To32(const char16be_t* source, vint sourceLength, char32_t& dest);
 		};
 
 /***********************************************************************
@@ -230,6 +253,44 @@ UtfStringConsumer<T>
 		};
 
 /***********************************************************************
+UtfStringRangeConsumer<T>
+***********************************************************************/
+
+		template<typename T>
+		class UtfStringRangeConsumer : public Object
+		{
+		protected:
+			const T*				starting = nullptr;
+			const T*				ending = nullptr;
+			const T*				consuming = nullptr;
+
+			T Consume()
+			{
+				if (consuming == ending) return 0;
+				return *consuming++;
+			}
+		public:
+			UtfStringRangeConsumer(const T* _starting, const T* _ending)
+				: starting(_starting)
+				, ending(_ending)
+				, consuming(_starting)
+			{
+			}
+
+			UtfStringRangeConsumer(const T* _starting, vint count)
+				: starting(_starting)
+				, ending(_starting + count)
+				, consuming(_starting)
+			{
+			}
+
+			bool HasIllegalChar() const
+			{
+				return false;
+			}
+		};
+
+/***********************************************************************
 UtfReaderConsumer<T>
 ***********************************************************************/
 
@@ -279,6 +340,10 @@ UtfStringFrom32Reader<T> and UtfStringTo32Reader<T>
 			{
 			}
 		};
+
+/***********************************************************************
+UtfStringToStringReader<TFrom, TTo>
+***********************************************************************/
 
 		template<typename TFrom, typename TTo>
 		class UtfStringToStringReader : public UtfFrom32ReaderBase<TTo, UtfReaderConsumer<UtfStringTo32Reader<TFrom>>>

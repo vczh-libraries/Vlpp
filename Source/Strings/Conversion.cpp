@@ -245,6 +245,31 @@ UtfConversion<char16_t>
 				return 1;
 			}
 		}
+
+/***********************************************************************
+UtfConversion<char16be_t>
+***********************************************************************/
+
+		vint UtfConversion<char16be_t>::From32(char32_t source, char16be_t(&dest)[BufferLength])
+		{
+			char16_t destle[BufferLength];
+			vint result = UtfConversion<char16_t>::From32(source, destle);
+			SwapByteForUtf16BE(destle[0]);
+			SwapByteForUtf16BE(destle[1]);
+			dest[0].value = destle[0];
+			dest[1].value = destle[1];
+			return result;
+		}
+
+		vint UtfConversion<char16be_t>::To32(const char16be_t* source, vint sourceLength, char32_t& dest)
+		{
+			char16_t destle[BufferLength];
+			if (sourceLength >= 1) destle[0] = source[0].value;
+			if (sourceLength >= 2) destle[1] = source[1].value;
+			SwapByteForUtf16BE(destle[0]);
+			SwapByteForUtf16BE(destle[1]);
+			return UtfConversion<char16_t>::To32(destle, sourceLength, dest);
+		}
 	}
 
 /***********************************************************************
