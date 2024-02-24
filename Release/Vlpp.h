@@ -8598,6 +8598,27 @@ namespace vl
 	struct char16be_t
 	{
 		char16_t					value;
+
+		char16be_t() = default;
+		char16be_t(const char16be_t&) = default;
+		char16be_t(char16be_t&&) = default;
+		char16be_t& operator=(const char16be_t&) = default;
+		char16be_t& operator=(char16be_t&&) = default;
+
+		char16be_t(char16_t c)
+			: value(c)
+		{
+		}
+
+		__forceinline auto operator<=>(char16be_t c) const
+		{
+			return value <=> c.value;
+		}
+
+		operator bool() const
+		{
+			return static_cast<bool>(value);
+		}
 	};
 
 	namespace encoding
