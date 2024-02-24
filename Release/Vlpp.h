@@ -8986,35 +8986,6 @@ String Conversions (buffer walkthrough)
 	extern vint					_wtoa(const wchar_t* w, char* a, vint chars);
 	extern vint					_atow(const char* a, wchar_t* w, vint chars);
 
-	template<typename T>
-	vint						_utftou32(const T* s, char32_t* d, vint chars);
-	template<typename T>
-	vint						_u32toutf(const char32_t* s, T* d, vint chars);
-
-	extern template vint		_utftou32<wchar_t>(const wchar_t* s, char32_t* d, vint chars);
-	extern template vint		_utftou32<char8_t>(const char8_t* s, char32_t* d, vint chars);
-	extern template vint		_utftou32<char16_t>(const char16_t* s, char32_t* d, vint chars);
-	extern template vint		_u32toutf<wchar_t>(const char32_t* s, wchar_t* d, vint chars);
-	extern template vint		_u32toutf<char8_t>(const char32_t* s, char8_t* d, vint chars);
-	extern template vint		_u32toutf<char16_t>(const char32_t* s, char16_t* d, vint chars);
-
-/***********************************************************************
-String Conversions (direct)
-***********************************************************************/
-
-	extern AString				wtoa	(const WString& source);
-	extern WString				atow	(const AString& source);
-	extern U32String			wtou32	(const WString& source);
-	extern WString				u32tow	(const U32String& source);
-	extern U32String			u8tou32	(const U8String& source);
-	extern U8String				u32tou8	(const U32String& source);
-	extern U32String			u16tou32(const U16String& source);
-	extern U16String			u32tou16(const U32String& source);
-
-/***********************************************************************
-String Conversions (buffer walkthrough indirect)
-***********************************************************************/
-
 	template<typename TFrom, typename TTo>
 	vint						_utftoutf(const TFrom* s, TTo* d, vint chars);
 
@@ -9025,9 +8996,23 @@ String Conversions (buffer walkthrough indirect)
 	extern template vint		_utftoutf<char16_t, wchar_t>(const char16_t* s, wchar_t* d, vint chars);
 	extern template vint		_utftoutf<char16_t, char8_t>(const char16_t* s, char8_t* d, vint chars);
 
+	extern template vint		_utftoutf<char32_t, char8_t>(const char32_t* s, char8_t* d, vint chars);
+	extern template vint		_utftoutf<char32_t, char16_t>(const char32_t* s, char16_t* d, vint chars);
+	extern template vint		_utftoutf<char32_t, wchar_t>(const char32_t* s, wchar_t* d, vint chars);
+	extern template vint		_utftoutf<char8_t, char32_t>(const char8_t* s, char32_t* d, vint chars);
+	extern template vint		_utftoutf<char16_t, char32_t>(const char16_t* s, char32_t* d, vint chars);
+	extern template vint		_utftoutf<wchar_t, char32_t>(const wchar_t* s, char32_t* d, vint chars);
+
 /***********************************************************************
-String Conversions (unicode indirect)
+String Conversions (Utf)
 ***********************************************************************/
+
+	extern U32String			wtou32	(const WString& source);
+	extern WString				u32tow	(const U32String& source);
+	extern U32String			u8tou32	(const U8String& source);
+	extern U8String				u32tou8	(const U32String& source);
+	extern U32String			u16tou32(const U16String& source);
+	extern U16String			u32tou16(const U32String& source);
 
 	extern U8String				wtou8	(const WString& source);
 	extern WString				u8tow	(const U8String& source);
@@ -9037,8 +9022,11 @@ String Conversions (unicode indirect)
 	extern U8String				u16tou8	(const U16String& source);
 
 /***********************************************************************
-String Conversions (ansi indirect)
+String Conversions (Ansi)
 ***********************************************************************/
+
+	extern AString				wtoa(const WString& source);
+	extern WString				atow(const AString& source);
 
 	inline U8String				atou8	(const AString& source)		{ return wtou8(atow(source)); }
 	inline U16String			atou16	(const AString& source)		{ return wtou16(atow(source)); }
