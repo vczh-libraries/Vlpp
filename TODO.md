@@ -102,4 +102,6 @@
 - Object Model
   - WeakPtr
   - Make all classes from `Object` and `Interface` shared_from_this, instead of only `Descriptable`.
-  - General object disposing notification in `Object`
+  - General object disposing notification in `Object` and `Interface`.
+  - Make sure interface types are virtually inherited.
+    - Check all repos.
