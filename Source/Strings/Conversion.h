@@ -81,74 +81,6 @@ UtfConversion<T>
 		};
 
 /***********************************************************************
-UtfStringConsumer<T>
-***********************************************************************/
-
-		template<typename T>
-		class UtfStringConsumer : public Object
-		{
-		protected:
-			const T*				starting = nullptr;
-			const T*				consuming = nullptr;
-
-			T Consume()
-			{
-				T c = *consuming;
-				if (c) consuming++;
-				return c;
-			}
-		public:
-			UtfStringConsumer(const T* _starting)
-				: starting(_starting)
-				, consuming(_starting)
-			{
-			}
-
-			bool HasIllegalChar() const
-			{
-				return false;
-			}
-		};
-
-/***********************************************************************
-UtfStringRangeConsumer<T>
-***********************************************************************/
-
-		template<typename T>
-		class UtfStringRangeConsumer : public Object
-		{
-		protected:
-			const T*				starting = nullptr;
-			const T*				ending = nullptr;
-			const T*				consuming = nullptr;
-
-			T Consume()
-			{
-				if (consuming == ending) return 0;
-				return *consuming++;
-			}
-		public:
-			UtfStringRangeConsumer(const T* _starting, const T* _ending)
-				: starting(_starting)
-				, ending(_ending)
-				, consuming(_starting)
-			{
-			}
-
-			UtfStringRangeConsumer(const T* _starting, vint count)
-				: starting(_starting)
-				, ending(_starting + count)
-				, consuming(_starting)
-			{
-			}
-
-			bool HasIllegalChar() const
-			{
-				return false;
-			}
-		};
-
-/***********************************************************************
 UtfReaderConsumer<T>
 ***********************************************************************/
 
@@ -318,6 +250,95 @@ UtfTo32ReaderBase<T>
 			bool HasIllegalChar() const
 			{
 				return error || TConsumer::HasIllegalChar();
+			}
+		};
+
+/***********************************************************************
+UtfToUtfReaderBase<TFrom, TTo, TConsumer>
+***********************************************************************/
+
+		template<typename TFrom, typename TTo, typename TConsumer>
+		class UtfToUtfReaderBase : public UtfFrom32ReaderBase<TTo, UtfReaderConsumer<UtfFrom32ReaderBase<TFrom, TConsumer>>>
+		{
+			using TBase = UtfFrom32ReaderBase<TTo, UtfReaderConsumer<UtfFrom32ReaderBase<TFrom, TConsumer>>>;
+		public:
+			template<typename ...TArguments>
+			UtfToUtfReaderBase(TArguments&& ...arguments)
+				: TConsumer(std::forward<TArguments&&>(arguments)...)
+			{
+			}
+
+			UtfCharCluster SourceCluster() const
+			{
+				return this->internalReader.SourceCluster();
+			}
+		};
+
+/***********************************************************************
+UtfStringConsumer<T>
+***********************************************************************/
+
+		template<typename T>
+		class UtfStringConsumer : public Object
+		{
+		protected:
+			const T*				starting = nullptr;
+			const T*				consuming = nullptr;
+
+			T Consume()
+			{
+				T c = *consuming;
+				if (c) consuming++;
+				return c;
+			}
+		public:
+			UtfStringConsumer(const T* _starting)
+				: starting(_starting)
+				, consuming(_starting)
+			{
+			}
+
+			bool HasIllegalChar() const
+			{
+				return false;
+			}
+		};
+
+/***********************************************************************
+UtfStringRangeConsumer<T>
+***********************************************************************/
+
+		template<typename T>
+		class UtfStringRangeConsumer : public Object
+		{
+		protected:
+			const T*				starting = nullptr;
+			const T*				ending = nullptr;
+			const T*				consuming = nullptr;
+
+			T Consume()
+			{
+				if (consuming == ending) return 0;
+				return *consuming++;
+			}
+		public:
+			UtfStringRangeConsumer(const T* _starting, const T* _ending)
+				: starting(_starting)
+				, ending(_ending)
+				, consuming(_starting)
+			{
+			}
+
+			UtfStringRangeConsumer(const T* _starting, vint count)
+				: starting(_starting)
+				, ending(_starting + count)
+				, consuming(_starting)
+			{
+			}
+
+			bool HasIllegalChar() const
+			{
+				return false;
 			}
 		};
 
