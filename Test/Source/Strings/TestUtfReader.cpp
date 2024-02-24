@@ -10,7 +10,7 @@ namespace test_utf8_reader
 	template<typename T, vint SourceLength, vint DestLength>
 	void TestFrom32(const T(&st)[DestLength], const char32_t(&s32)[SourceLength])
 	{
-		UtfStringFrom32Reader<T> reader(s32);
+		UtfStringToStringReader<char32_t, T> reader(s32);
 		TEST_ASSERT(reader.ReadingIndex() == -1);
 		TEST_ASSERT(reader.SourceCluster().index == 0);
 		TEST_ASSERT(reader.SourceCluster().size == 0);
@@ -28,7 +28,7 @@ namespace test_utf8_reader
 	template<typename T, vint SourceLength, vint DestLength>
 	void TestTo32(const T(&st)[SourceLength], const char32_t(&s32)[DestLength])
 	{
-		UtfStringTo32Reader<T> reader(st);
+		UtfStringToStringReader<T, char32_t> reader(st);
 		TEST_ASSERT(reader.ReadingIndex() == -1);
 		TEST_ASSERT(reader.SourceCluster().index == 0);
 		TEST_ASSERT(reader.SourceCluster().size == 0);

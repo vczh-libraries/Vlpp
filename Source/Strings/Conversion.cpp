@@ -304,13 +304,13 @@ String Conversions (buffer walkthrough)
 	template<typename T>
 	vint _utftou32(const T* s, char32_t* d, vint chars)
 	{
-		return _utftoutf_reader<T, char32_t, encoding::UtfStringTo32Reader<T>>(s, d, chars);
+		return _utftoutf_reader<T, char32_t, encoding::UtfStringToStringReader<T, char32_t>>(s, d, chars);
 	}
 
 	template<typename T>
 	vint _u32toutf(const char32_t* s, T* d, vint chars)
 	{
-		return _utftoutf_reader<char32_t, T, encoding::UtfStringFrom32Reader<T>>(s, d, chars);
+		return _utftoutf_reader<char32_t, T, encoding::UtfStringToStringReader<char32_t, T>>(s, d, chars);
 	}
 
 	template vint			_utftou32<wchar_t>(const wchar_t* s, char32_t* d, vint chars);

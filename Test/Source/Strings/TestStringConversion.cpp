@@ -21,13 +21,6 @@ namespace TestString_TestObjects
 		return size;
 	}
 
-	template<typename TFrom, typename TTo>
-	struct ReaderOf { using Type = UtfStringToStringReader<TFrom, TTo>; };
-	template<typename TTo>
-	struct ReaderOf<char32_t, TTo> { using Type = UtfStringFrom32Reader<TTo>; };
-	template<typename TFrom>
-	struct ReaderOf<TFrom, char32_t> { using Type = UtfStringTo32Reader<TFrom>; };
-
 	template<typename TFrom, typename TTo, vint TextSizeFrom, vint TextSizeTo, vint ClusterSize>
 	void TestCluster(
 		const TFrom(&textFrom)[TextSizeFrom],
@@ -36,7 +29,7 @@ namespace TestString_TestObjects
 		const vint(&clusterTo)[ClusterSize]
 		)
 	{
-		typename ReaderOf<TFrom, TTo>::Type reader(textFrom);
+		UtfStringToStringReader<TFrom, TTo> reader(textFrom);
 		vint iFrom = 0;
 		vint iTo = 0;
 		for (vint c = 0; c < ClusterSize; c++)
