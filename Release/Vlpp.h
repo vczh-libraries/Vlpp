@@ -8595,8 +8595,28 @@ Licensed under https://github.com/vczh-libraries/License
 
 namespace vl
 {
+	struct char16be_t
+	{
+		char16_t					value;
+	};
+
 	namespace encoding
 	{
+		struct UtfCharCluster
+		{
+			vint					index;
+			vint					size;
+		};
+
+		template<typename T>
+		__forceinline void SwapByteForUtf16BE(T& c)
+		{
+			static_assert(sizeof(T) == sizeof(char16_t));
+			vuint8_t* bytes = (vuint8_t*)&c;
+			vuint8_t t = bytes[0];
+			bytes[0] = bytes[1];
+			bytes[1] = t;
+		}
 
 /***********************************************************************
 UtfConversion<T>
@@ -8636,18 +8656,48 @@ UtfConversion<T>
 			static vint				To32(const char16_t* source, vint sourceLength, char32_t& dest);
 		};
 
-/***********************************************************************
-UtfFrin32ReaderBase<T> and UtfTo32ReaderBase<T>
-***********************************************************************/
-
-		struct UtfCharCluster
+		template<>
+		struct UtfConversion<char16be_t>
 		{
-			vint		index;
-			vint		size;
+			static const vint		BufferLength = 2;
+
+			static vint				From32(char32_t source, char16be_t(&dest)[BufferLength]);
+			static vint				To32(const char16be_t* source, vint sourceLength, char32_t& dest);
 		};
 
-		template<typename T, typename TBase>
-		class UtfFrom32ReaderBase : public TBase
+/***********************************************************************
+UtfReaderConsumer<T>
+***********************************************************************/
+
+		template<typename TReader>
+		class UtfReaderConsumer : public Object
+		{
+		protected:
+			TReader					internalReader;
+
+			auto Consume()
+			{
+				return internalReader.Read();
+			}
+		public:
+			template<typename ...TArguments>
+			UtfReaderConsumer(TArguments&& ...arguments)
+				: internalReader(std::forward<TArguments&&>(arguments)...)
+			{
+			}
+
+			bool HasIllegalChar() const
+			{
+				return internalReader.HasIllegalChar();
+			}
+		};
+
+/***********************************************************************
+UtfFrom32ReaderBase<T>
+***********************************************************************/
+
+		template<typename T, typename TConsumer>
+		class UtfFrom32ReaderBase : public TConsumer
 		{
 			static const vint		BufferLength = UtfConversion<T>::BufferLength;
 			vint					read = 0;
@@ -8661,7 +8711,7 @@ UtfFrin32ReaderBase<T> and UtfTo32ReaderBase<T>
 		public:
 			template<typename ...TArguments>
 			UtfFrom32ReaderBase(TArguments&& ...arguments)
-				: TBase(std::forward<TArguments&&>(arguments)...)
+				: TConsumer(std::forward<TArguments&&>(arguments)...)
 			{
 			}
 
@@ -8704,12 +8754,16 @@ UtfFrin32ReaderBase<T> and UtfTo32ReaderBase<T>
 
 			bool HasIllegalChar() const
 			{
-				return error || TBase::HasIllegalChar();
+				return error || TConsumer::HasIllegalChar();
 			}
 		};
 
-		template<typename T, typename TBase>
-		class UtfTo32ReaderBase : public TBase
+/***********************************************************************
+UtfTo32ReaderBase<T>
+***********************************************************************/
+
+		template<typename T, typename TConsumer>
+		class UtfTo32ReaderBase : public TConsumer
 		{
 			static const vint		BufferLength = UtfConversion<T>::BufferLength;
 			vint					available = 0;
@@ -8722,7 +8776,7 @@ UtfFrin32ReaderBase<T> and UtfTo32ReaderBase<T>
 		public:
 			template<typename ...TArguments>
 			UtfTo32ReaderBase(TArguments&& ...arguments)
-				: TBase(std::forward<TArguments&&>(arguments)...)
+				: TConsumer(std::forward<TArguments&&>(arguments)...)
 			{
 			}
 
@@ -8780,7 +8834,52 @@ UtfFrin32ReaderBase<T> and UtfTo32ReaderBase<T>
 
 			bool HasIllegalChar() const
 			{
-				return error || TBase::HasIllegalChar();
+				return error || TConsumer::HasIllegalChar();
+			}
+		};
+
+/***********************************************************************
+UtfToUtfReaderBase<TFrom, TTo, TConsumer>
+***********************************************************************/
+
+		template<typename TFrom, typename TTo, typename TConsumer>
+		class UtfToUtfReaderBase : public UtfFrom32ReaderBase<TTo, UtfReaderConsumer<UtfTo32ReaderBase<TFrom, TConsumer>>>
+		{
+			using TBase = UtfFrom32ReaderBase<TTo, UtfReaderConsumer<UtfTo32ReaderBase<TFrom, TConsumer>>>;
+		public:
+			template<typename ...TArguments>
+			UtfToUtfReaderBase(TArguments&& ...arguments)
+				: TBase(std::forward<TArguments&&>(arguments)...)
+			{
+			}
+
+			UtfCharCluster SourceCluster() const
+			{
+				return this->internalReader.SourceCluster();
+			}
+		};
+
+		template<typename TTo, typename TConsumer>
+		class UtfToUtfReaderBase<char32_t, TTo, TConsumer> : public UtfFrom32ReaderBase<TTo, TConsumer>
+		{
+			using TBase = UtfFrom32ReaderBase<TTo, TConsumer>;
+		public:
+			template<typename ...TArguments>
+			UtfToUtfReaderBase(TArguments&& ...arguments)
+				: TBase(std::forward<TArguments&&>(arguments)...)
+			{
+			}
+		};
+
+		template<typename TFrom, typename TConsumer>
+		class UtfToUtfReaderBase<TFrom, char32_t, TConsumer> : public UtfTo32ReaderBase<TFrom, TConsumer>
+		{
+			using TBase = UtfTo32ReaderBase<TFrom, TConsumer>;
+		public:
+			template<typename ...TArguments>
+			UtfToUtfReaderBase(TArguments&& ...arguments)
+				: TBase(std::forward<TArguments&&>(arguments)...)
+			{
 			}
 		};
 
@@ -8814,69 +8913,68 @@ UtfStringConsumer<T>
 			}
 		};
 
+		template<typename TFrom, typename TTo>
+		class UtfStringToStringReader : public UtfToUtfReaderBase<TFrom, TTo, UtfStringConsumer<TFrom>>
+		{
+			using TBase = UtfToUtfReaderBase<TFrom, TTo, UtfStringConsumer<TFrom>>;
+		public:
+			UtfStringToStringReader(const TFrom* _starting)
+				: TBase(_starting)
+			{
+			}
+		};
+
 /***********************************************************************
-UtfReaderConsumer<T>
+UtfStringRangeConsumer<T>
 ***********************************************************************/
 
-		template<typename TReader>
-		class UtfReaderConsumer : public Object
+		template<typename T>
+		class UtfStringRangeConsumer : public Object
 		{
 		protected:
-			TReader					internalReader;
+			const T*				starting = nullptr;
+			const T*				ending = nullptr;
+			const T*				consuming = nullptr;
 
-			auto Consume()
+			T Consume()
 			{
-				return internalReader.Read();
+				if (consuming == ending) return 0;
+				return *consuming++;
 			}
 		public:
-			template<typename ...TArguments>
-			UtfReaderConsumer(TArguments&& ...arguments)
-				: internalReader(std::forward<TArguments&&>(arguments)...)
+			UtfStringRangeConsumer(const T* _starting, const T* _ending)
+				: starting(_starting)
+				, ending(_ending)
+				, consuming(_starting)
+			{
+			}
+
+			UtfStringRangeConsumer(const T* _starting, vint count)
+				: starting(_starting)
+				, ending(_starting + count)
+				, consuming(_starting)
 			{
 			}
 
 			bool HasIllegalChar() const
 			{
-				return internalReader.HasIllegalChar();
-			}
-		};
-
-/***********************************************************************
-UtfStringFrom32Reader<T> and UtfStringTo32Reader<T>
-***********************************************************************/
-
-		template<typename T>
-		class UtfStringFrom32Reader : public UtfFrom32ReaderBase<T, UtfStringConsumer<char32_t>>
-		{
-		public:
-			UtfStringFrom32Reader(const char32_t* _starting)
-				: UtfFrom32ReaderBase<T, UtfStringConsumer<char32_t>>(_starting)
-			{
-			}
-		};
-
-		template<typename T>
-		class UtfStringTo32Reader : public UtfTo32ReaderBase<T, UtfStringConsumer<T>>
-		{
-		public:
-			UtfStringTo32Reader(const T* _starting)
-				: UtfTo32ReaderBase<T, UtfStringConsumer<T>>(_starting)
-			{
+				return false;
 			}
 		};
 
 		template<typename TFrom, typename TTo>
-		class UtfStringToStringReader : public UtfFrom32ReaderBase<TTo, UtfReaderConsumer<UtfStringTo32Reader<TFrom>>>
+		class UtfStringRangeToStringRangeReader : public UtfToUtfReaderBase<TFrom, TTo, UtfStringRangeConsumer<TFrom>>
 		{
+			using TBase = UtfToUtfReaderBase<TFrom, TTo, UtfStringConsumer<TFrom>>;
 		public:
-			UtfStringToStringReader(const TFrom* _starting)
-				: UtfFrom32ReaderBase<TTo, UtfReaderConsumer<UtfStringTo32Reader<TFrom>>>(_starting)
+			UtfStringRangeToStringRangeReader(const TFrom* _starting, const TFrom* _ending)
+				: TBase(_starting, _ending)
 			{
 			}
 
-			UtfCharCluster SourceCluster() const
+			UtfStringRangeToStringRangeReader(const TFrom* _starting, vint count)
+				: TBase(_starting, count)
 			{
-				return this->internalReader.SourceCluster();
 			}
 		};
 	}
