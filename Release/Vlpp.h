@@ -8965,7 +8965,7 @@ UtfStringRangeConsumer<T>
 		template<typename TFrom, typename TTo>
 		class UtfStringRangeToStringRangeReader : public UtfToUtfReaderBase<TFrom, TTo, UtfStringRangeConsumer<TFrom>>
 		{
-			using TBase = UtfToUtfReaderBase<TFrom, TTo, UtfStringConsumer<TFrom>>;
+			using TBase = UtfToUtfReaderBase<TFrom, TTo, UtfStringRangeConsumer<TFrom>>;
 		public:
 			UtfStringRangeToStringRangeReader(const TFrom* _starting, const TFrom* _ending)
 				: TBase(_starting, _ending)
