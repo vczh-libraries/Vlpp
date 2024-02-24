@@ -258,9 +258,9 @@ UtfToUtfReaderBase<TFrom, TTo, TConsumer>
 ***********************************************************************/
 
 		template<typename TFrom, typename TTo, typename TConsumer>
-		class UtfToUtfReaderBase : public UtfFrom32ReaderBase<TTo, UtfReaderConsumer<UtfFrom32ReaderBase<TFrom, TConsumer>>>
+		class UtfToUtfReaderBase : public UtfFrom32ReaderBase<TTo, UtfReaderConsumer<UtfTo32ReaderBase<TFrom, TConsumer>>>
 		{
-			using TBase = UtfFrom32ReaderBase<TTo, UtfReaderConsumer<UtfFrom32ReaderBase<TFrom, TConsumer>>>;
+			using TBase = UtfFrom32ReaderBase<TTo, UtfReaderConsumer<UtfTo32ReaderBase<TFrom, TConsumer>>>;
 		public:
 			template<typename ...TArguments>
 			UtfToUtfReaderBase(TArguments&& ...arguments)
