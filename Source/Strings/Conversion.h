@@ -17,6 +17,12 @@ namespace vl
 
 	namespace encoding
 	{
+		struct UtfCharCluster
+		{
+			vint					index;
+			vint					size;
+		};
+
 		template<typename T>
 		__forceinline void SwapByteForUtf16BE(T& c)
 		{
@@ -72,154 +78,6 @@ UtfConversion<T>
 
 			static vint				From32(char32_t source, char16be_t(&dest)[BufferLength]);
 			static vint				To32(const char16be_t* source, vint sourceLength, char32_t& dest);
-		};
-
-/***********************************************************************
-UtfFrin32ReaderBase<T> and UtfTo32ReaderBase<T>
-***********************************************************************/
-
-		struct UtfCharCluster
-		{
-			vint		index;
-			vint		size;
-		};
-
-		template<typename T, typename TBase>
-		class UtfFrom32ReaderBase : public TBase
-		{
-			static const vint		BufferLength = UtfConversion<T>::BufferLength;
-			vint					read = 0;
-			vint					available = 0;
-			T						buffer[BufferLength];
-
-			UtfCharCluster			sourceCluster = { 0,0 };
-			vint					readCounter = -1;
-			bool					error = false;
-
-		public:
-			template<typename ...TArguments>
-			UtfFrom32ReaderBase(TArguments&& ...arguments)
-				: TBase(std::forward<TArguments&&>(arguments)...)
-			{
-			}
-
-			T Read()
-			{
-				if (available == -1) return 0;
-				if (read == available)
-				{
-					char32_t c = this->Consume();
-					if (c)
-					{
-						available = UtfConversion<T>::From32(c, buffer);
-						if (available == -1) return 0;
-						sourceCluster.index += sourceCluster.size;
-						sourceCluster.size = 1;
-					}
-					else
-					{
-						available = -1;
-						readCounter++;
-						sourceCluster.index += sourceCluster.size;
-						sourceCluster.size = 0;
-						return 0;
-					}
-					read = 0;
-				}
-				readCounter++;
-				return buffer[read++];
-			}
-
-			vint ReadingIndex() const
-			{
-				return readCounter;
-			}
-
-			UtfCharCluster SourceCluster() const
-			{
-				return sourceCluster;
-			}
-
-			bool HasIllegalChar() const
-			{
-				return error || TBase::HasIllegalChar();
-			}
-		};
-
-		template<typename T, typename TBase>
-		class UtfTo32ReaderBase : public TBase
-		{
-			static const vint		BufferLength = UtfConversion<T>::BufferLength;
-			vint					available = 0;
-			T						buffer[BufferLength];
-
-			UtfCharCluster			sourceCluster = { 0,0 };
-			vint					readCounter = -1;
-			bool					error = false;
-
-		public:
-			template<typename ...TArguments>
-			UtfTo32ReaderBase(TArguments&& ...arguments)
-				: TBase(std::forward<TArguments&&>(arguments)...)
-			{
-			}
-
-			char32_t Read()
-			{
-				if (available == -1) return 0;
-				while (available < BufferLength)
-				{
-					T c = this->Consume();
-					if (c)
-					{
-						buffer[available++] = c;
-					}
-					else
-					{
-						if (available == 0)
-						{
-							available = -1;
-							readCounter++;
-							sourceCluster.index += sourceCluster.size;
-							sourceCluster.size = 0;
-							return 0;
-						}
-						break;
-					}
-				}
-
-				char32_t dest = 0;
-				vint result = UtfConversion<T>::To32(buffer, available, dest);
-				if (result == -1)
-				{
-					available = -1;
-					return 0;
-				}
-				available -= result;
-				for (vint i = 0; i < available; i++)
-				{
-					buffer[i] = buffer[i + result];
-				}
-				readCounter++;
-				sourceCluster.index += sourceCluster.size;
-				sourceCluster.size = result;
-				return dest;
-			}
-
-			vint ReadingIndex() const
-			{
-				return readCounter;
-			}
-
-			UtfCharCluster SourceCluster() const
-			{
-				return sourceCluster;
-			}
-
-			bool HasIllegalChar() const
-			{
-				return error || TBase::HasIllegalChar();
-			}
 		};
 
 /***********************************************************************
@@ -314,6 +172,152 @@ UtfReaderConsumer<T>
 			bool HasIllegalChar() const
 			{
 				return internalReader.HasIllegalChar();
+			}
+		};
+
+/***********************************************************************
+UtfFrom32ReaderBase<T>
+***********************************************************************/
+
+		template<typename T, typename TConsumer>
+		class UtfFrom32ReaderBase : public TConsumer
+		{
+			static const vint		BufferLength = UtfConversion<T>::BufferLength;
+			vint					read = 0;
+			vint					available = 0;
+			T						buffer[BufferLength];
+
+			UtfCharCluster			sourceCluster = { 0,0 };
+			vint					readCounter = -1;
+			bool					error = false;
+
+		public:
+			template<typename ...TArguments>
+			UtfFrom32ReaderBase(TArguments&& ...arguments)
+				: TConsumer(std::forward<TArguments&&>(arguments)...)
+			{
+			}
+
+			T Read()
+			{
+				if (available == -1) return 0;
+				if (read == available)
+				{
+					char32_t c = this->Consume();
+					if (c)
+					{
+						available = UtfConversion<T>::From32(c, buffer);
+						if (available == -1) return 0;
+						sourceCluster.index += sourceCluster.size;
+						sourceCluster.size = 1;
+					}
+					else
+					{
+						available = -1;
+						readCounter++;
+						sourceCluster.index += sourceCluster.size;
+						sourceCluster.size = 0;
+						return 0;
+					}
+					read = 0;
+				}
+				readCounter++;
+				return buffer[read++];
+			}
+
+			vint ReadingIndex() const
+			{
+				return readCounter;
+			}
+
+			UtfCharCluster SourceCluster() const
+			{
+				return sourceCluster;
+			}
+
+			bool HasIllegalChar() const
+			{
+				return error || TConsumer::HasIllegalChar();
+			}
+		};
+
+/***********************************************************************
+UtfTo32ReaderBase<T>
+***********************************************************************/
+
+		template<typename T, typename TConsumer>
+		class UtfTo32ReaderBase : public TConsumer
+		{
+			static const vint		BufferLength = UtfConversion<T>::BufferLength;
+			vint					available = 0;
+			T						buffer[BufferLength];
+
+			UtfCharCluster			sourceCluster = { 0,0 };
+			vint					readCounter = -1;
+			bool					error = false;
+
+		public:
+			template<typename ...TArguments>
+			UtfTo32ReaderBase(TArguments&& ...arguments)
+				: TConsumer(std::forward<TArguments&&>(arguments)...)
+			{
+			}
+
+			char32_t Read()
+			{
+				if (available == -1) return 0;
+				while (available < BufferLength)
+				{
+					T c = this->Consume();
+					if (c)
+					{
+						buffer[available++] = c;
+					}
+					else
+					{
+						if (available == 0)
+						{
+							available = -1;
+							readCounter++;
+							sourceCluster.index += sourceCluster.size;
+							sourceCluster.size = 0;
+							return 0;
+						}
+						break;
+					}
+				}
+
+				char32_t dest = 0;
+				vint result = UtfConversion<T>::To32(buffer, available, dest);
+				if (result == -1)
+				{
+					available = -1;
+					return 0;
+				}
+				available -= result;
+				for (vint i = 0; i < available; i++)
+				{
+					buffer[i] = buffer[i + result];
+				}
+				readCounter++;
+				sourceCluster.index += sourceCluster.size;
+				sourceCluster.size = result;
+				return dest;
+			}
+
+			vint ReadingIndex() const
+			{
+				return readCounter;
+			}
+
+			UtfCharCluster SourceCluster() const
+			{
+				return sourceCluster;
+			}
+
+			bool HasIllegalChar() const
+			{
+				return error || TConsumer::HasIllegalChar();
 			}
 		};
 
