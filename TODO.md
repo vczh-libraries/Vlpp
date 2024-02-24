@@ -19,6 +19,8 @@
   - Support VlppParser2
   - Support Workflow
     - Generate `Union` if there is no hint.
+- `UtfStringConsumer<T>` inherits from `Object`.
+- `Utf(From|To)32ReaderBase<T, TBase>` inherits from `TBase`.
 
 ## Enumerable and enumerator fail when container is deleted
 
