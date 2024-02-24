@@ -5,14 +5,15 @@
 ## Progressing
 
 - Use `GetSystemTimeAsFileTime` by `GetProcAddress` with `GetModuleHandle` if exists.
-- `Variant<T...>`
-  - Finish the rest of the features and tests.
-- `Union<T...>`.
-  - If any type is `T*`, `Ptr<T>` or `Nullable<T>`, A `nullptr_t` is added automatically.
-    - Any `Nullable<T>` becomes `T`.
-    - `T*` and `Ptr<T>` will be non-null.
-    - null goes to `nullptr_t`.
-    - optimize when all types are `Ptr<T>`.
+- Union type
+  - `Variant<T...>`
+    - Finish the rest of the features and tests.
+  - `Union<T...>`.
+    - If any type is `T*`, `Ptr<T>` or `Nullable<T>`, A `nullptr_t` is added automatically.
+      - Any `Nullable<T>` becomes `T`.
+      - `T*` and `Ptr<T>` will be non-null.
+      - null goes to `nullptr_t`.
+      - optimize when all types are `Ptr<T>`.
   - Support VlppReflection
     - Both `Variant` and `Union` are reflectable.
     - Replace `enum` with `enum class` in type related enums, for discovering which place used these things, to handle union.
