@@ -102,7 +102,7 @@ UtfConversion<T>
 		};
 
 /***********************************************************************
-UtfReaderConsumer<T>
+UtfReaderConsumer<TReader>
 ***********************************************************************/
 
 		template<typename TReader>
@@ -129,7 +129,7 @@ UtfReaderConsumer<T>
 		};
 
 /***********************************************************************
-UtfFrom32ReaderBase<T>
+UtfFrom32ReaderBase<T, TConsumer>
 ***********************************************************************/
 
 		template<typename T, typename TConsumer>
@@ -195,7 +195,7 @@ UtfFrom32ReaderBase<T>
 		};
 
 /***********************************************************************
-UtfTo32ReaderBase<T>
+UtfTo32ReaderBase<T, TConsumer>
 ***********************************************************************/
 
 		template<typename T, typename TConsumer>
@@ -275,54 +275,41 @@ UtfTo32ReaderBase<T>
 		};
 
 /***********************************************************************
-Utf16LEBEReaderBase<T>
+Utf32DirectReaderBase<TConsumer>
 ***********************************************************************/
 
-/***********************************************************************
-UtfDirectReaderBase<T>
-***********************************************************************/
-
-		template<typename T, typename TConsumer>
-		class UtfDirectReaderBase : public TConsumer
+		template<typename TConsumer>
+		class Utf32DirectReaderBase : public TConsumer
 		{
 			UtfCharCluster			sourceCluster = { -1,1 };
-			vint					readingIndex = -1;
 			bool					ended = false;
 
 		public:
 			template<typename ...TArguments>
-			UtfDirectReaderBase(TArguments&& ...arguments)
+			Utf32DirectReaderBase(TArguments&& ...arguments)
 				: TConsumer(std::forward<TArguments&&>(arguments)...)
 			{
 			}
 
-			T Read()
+			char32_t Read()
 			{
 				auto dest = this->Consume();
-				static_assert(sizeof(dest) == sizeof(T));
-
-				if (dest)
+				static_assert(std::is_same_v<decltype(dest), char32_t>);
+				if (dest || !ended)
 				{
-					readingIndex += 1;
 					sourceCluster.index += 1;
-				}
-				else
-				{
-					if (!ended)
+					if (!dest)
 					{
-						readingIndex += 1;
-						sourceCluster.index += 1;
+						ended = true;
+						sourceCluster.size = 0;
 					}
-
-					ended = true;
-					sourceCluster.size = 0;
 				}
-				return static_cast<T>(dest);
+				return dest;
 			}
 
 			vint ReadingIndex() const
 			{
-				return readingIndex;
+				return sourceCluster.index;
 			}
 
 			UtfCharCluster SourceCluster() const
@@ -370,29 +357,13 @@ UtfToUtfReaderBase<TFrom, TTo, TConsumer>
 			using Reader = UtfTo32ReaderBase<TFrom, TConsumer>;
 		};
 
-#define DEFINE_UTF_DIRECT_READER_SELECTOR(TFROM, TTO)\
-		template<>\
-		struct UtfToUtfReaderSelector<TFROM, TTO>\
-		{\
-			template<typename TConsumer>\
-			using Reader = UtfDirectReaderBase<TTO, TConsumer>;\
-		}\
-
-		//DEFINE_UTF_DIRECT_READER_SELECTOR(wchar_t, wchar_t);
-		//DEFINE_UTF_DIRECT_READER_SELECTOR(char8_t, char8_t);
-		//DEFINE_UTF_DIRECT_READER_SELECTOR(char16_t, char16_t);
-		//DEFINE_UTF_DIRECT_READER_SELECTOR(char16be_t, char16be_t);
-		DEFINE_UTF_DIRECT_READER_SELECTOR(char32_t, char32_t);
-
-#if defined VCZH_WCHAR_UTF16
-		//DEFINE_UTF_DIRECT_READER_SELECTOR(wchar_t, char16_t);
-		//DEFINE_UTF_DIRECT_READER_SELECTOR(char16_t, wchar_t);
-#elif defined VCZH_WCHAR_UTF32
-		//DEFINE_UTF_DIRECT_READER_SELECTOR(wchar_t, char32_t);
-		//DEFINE_UTF_DIRECT_READER_SELECTOR(char32_t, wchar_t);
-#endif
-
-#undef DEFINE_UTF_DIRECT_READER_SELECTOR
+		template<>
+		struct UtfToUtfReaderSelector<char32_t, char32_t>
+		{
+			// in order to keep SourceCluster correct, only char32_t<->char32_t gets the special implementation
+			template<typename TConsumer>
+			using Reader = Utf32DirectReaderBase<TConsumer>;
+		};
 
 		template<typename TFrom, typename TTo, typename TConsumer>
 		using UtfToUtfReaderBase = typename UtfToUtfReaderSelector<TFrom, TTo>::template Reader<TConsumer>;
