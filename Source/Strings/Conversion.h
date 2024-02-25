@@ -294,7 +294,7 @@ Utf32DirectReaderBase<TConsumer>
 			char32_t Read()
 			{
 				auto dest = this->Consume();
-				static_assert(std::is_same_v<decltype(dest), char32_t>);
+				static_assert(sizeof(dest) == sizeof(char32_t));
 				if (dest || !ended)
 				{
 					sourceCluster.index += 1;
@@ -304,7 +304,7 @@ Utf32DirectReaderBase<TConsumer>
 						sourceCluster.size = 0;
 					}
 				}
-				return dest;
+				return static_cast<char32_t>(dest);
 			}
 
 			vint ReadingIndex() const
@@ -357,13 +357,23 @@ UtfToUtfReaderBase<TFrom, TTo, TConsumer>
 			using Reader = UtfTo32ReaderBase<TFrom, TConsumer>;
 		};
 
-		template<>
-		struct UtfToUtfReaderSelector<char32_t, char32_t>
-		{
-			// in order to keep SourceCluster correct, only char32_t<->char32_t gets the special implementation
-			template<typename TConsumer>
-			using Reader = Utf32DirectReaderBase<TConsumer>;
-		};
+#define DEFINE_UTF32_DIRECT_READER(TFROM, TTO)\
+		template<>\
+		struct UtfToUtfReaderSelector<TFROM, TTO>\
+		{\
+			template<typename TConsumer>\
+			using Reader = Utf32DirectReaderBase<TConsumer>;\
+		}\
+
+		// in order to keep SourceCluster correct, only char32_t<->char32_t gets the special implementation
+		DEFINE_UTF32_DIRECT_READER(char32_t, char32_t);
+
+#ifdef VCZH_WCHAR_UTF32
+		DEFINE_UTF32_DIRECT_READER(wchar_t, char32_t);
+		DEFINE_UTF32_DIRECT_READER(char32_t, wchar_t);
+#endif
+
+#undef DEFINE_UTF32_DIRECT_READER
 
 		template<typename TFrom, typename TTo, typename TConsumer>
 		using UtfToUtfReaderBase = typename UtfToUtfReaderSelector<TFrom, TTo>::template Reader<TConsumer>;
