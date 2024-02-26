@@ -23,6 +23,7 @@
 - String conversion
   - In VlppOS `UtfStreamToStreamReader` need to partial instantiate because consumer API needs to be redirected when `char32_t` is not involved.
   - Create a mechanism for general consumer API redirection, could be a new template argument with a default type that doesn't do API redirection.
+  - Add `extern template` for strings.
 
 ## Enumerable and enumerator fail when container is deleted
 
