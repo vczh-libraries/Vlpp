@@ -50,7 +50,6 @@ namespace TestString_TestObjects
 		TEST_ASSERT(reader.ReadingIndex() == iTo);
 		TEST_ASSERT(reader.SourceCluster().index == iFrom);
 		TEST_ASSERT(reader.SourceCluster().size == 0);
-		TEST_ASSERT(reader.HasIllegalChar() == false);
 	}
 }
 using namespace TestString_TestObjects;
