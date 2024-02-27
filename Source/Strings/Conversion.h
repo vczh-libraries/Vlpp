@@ -278,7 +278,7 @@ Utf32DirectReaderBase<TConsumer>
 		template<typename TConsumer>
 		class Utf32DirectReaderBase : public TConsumer
 		{
-			UtfCharCluster			sourceCluster = { -1,1 };
+			vint					readCounter = -1;
 			bool					ended = false;
 
 		public:
@@ -296,24 +296,22 @@ Utf32DirectReaderBase<TConsumer>
 				static_assert(sizeof(dest) == sizeof(char32_t));
 				if (dest || !ended)
 				{
-					sourceCluster.index += 1;
-					if (!dest)
-					{
-						ended = true;
-						sourceCluster.size = 0;
-					}
+					readCounter++;
 				}
+				ended = !dest;
 				return static_cast<char32_t>(dest);
 			}
 
 			vint ReadingIndex() const
 			{
-				return sourceCluster.index;
+				return readCounter;
 			}
 
 			UtfCharCluster SourceCluster() const
 			{
-				return sourceCluster;
+				if (readCounter == -1) return { 0,0 };
+				if (ended) return { readCounter,0 };
+				return { readCounter,1 };
 			}
 		};
 

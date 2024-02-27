@@ -84,6 +84,11 @@ TEST_FILE
 	const char16_t textU16[] = u"𩰪㦲𦰗𠀼 𣂕𣴑𣱳𦁚 Vczh is genius!@我是天才";
 	const char32_t textU32[] = U"𩰪㦲𦰗𠀼 𣂕𣴑𣱳𦁚 Vczh is genius!@我是天才";
 
+	TEST_CASE(L"char32_t -> char32_t")
+	{
+		TestFrom32(textU32, textU32);
+	});
+
 	TEST_CASE(L"char32_t -> wchar_t")
 	{
 		TestFrom32(textL, textU32);
