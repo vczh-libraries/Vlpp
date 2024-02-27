@@ -507,6 +507,12 @@ namespace vl
 	template<typename T>
 	const T ObjectString<T>::zero=0;
 
+	extern template class ObjectString<char>;
+	extern template class ObjectString<wchar_t>;
+	extern template class ObjectString<char8_t>;
+	extern template class ObjectString<char16_t>;
+	extern template class ObjectString<char32_t>;
+
 	/// <summary>Ansi string in local code page.</summary>
 	typedef ObjectString<char>		AString;
 	/// <summary>Unicode string, UTF-16 on Windows, UTF-32 on Linux and macOS.</summary>
