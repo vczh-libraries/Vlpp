@@ -7090,6 +7090,12 @@ namespace vl
 	template<typename T>
 	const T ObjectString<T>::zero=0;
 
+	extern template class ObjectString<char>;
+	extern template class ObjectString<wchar_t>;
+	extern template class ObjectString<char8_t>;
+	extern template class ObjectString<char16_t>;
+	extern template class ObjectString<char32_t>;
+
 	/// <summary>Ansi string in local code page.</summary>
 	typedef ObjectString<char>		AString;
 	/// <summary>Unicode string, UTF-16 on Windows, UTF-32 on Linux and macOS.</summary>
@@ -8690,8 +8696,17 @@ UtfConversion<T>
 UtfReaderConsumer<TReader>
 ***********************************************************************/
 
-		template<typename TReader>
-		class UtfReaderConsumer : public Object
+		template<typename TInternalConsumer>
+		class UtfEmptyConsumerRedirection : public Object
+		{
+		public:
+			UtfEmptyConsumerRedirection(TInternalConsumer&)
+			{
+			}
+		};
+
+		template<typename TReader, template<typename> class TConsumerRedirection>
+		class UtfReaderConsumer : public TConsumerRedirection<typename TReader::ConsumerType>
 		{
 		protected:
 			TReader					internalReader;
@@ -8704,12 +8719,8 @@ UtfReaderConsumer<TReader>
 			template<typename ...TArguments>
 			UtfReaderConsumer(TArguments&& ...arguments)
 				: internalReader(std::forward<TArguments&&>(arguments)...)
+				, TConsumerRedirection<typename TReader::ConsumerType>(internalReader)
 			{
-			}
-
-			bool HasIllegalChar() const
-			{
-				return internalReader.HasIllegalChar();
 			}
 		};
 
@@ -8727,9 +8738,10 @@ UtfFrom32ReaderBase<T, TConsumer>
 
 			UtfCharCluster			sourceCluster = { 0,0 };
 			vint					readCounter = -1;
-			bool					error = false;
 
 		public:
+			using ConsumerType = TConsumer;
+
 			template<typename ...TArguments>
 			UtfFrom32ReaderBase(TArguments&& ...arguments)
 				: TConsumer(std::forward<TArguments&&>(arguments)...)
@@ -8772,11 +8784,6 @@ UtfFrom32ReaderBase<T, TConsumer>
 			{
 				return sourceCluster;
 			}
-
-			bool HasIllegalChar() const
-			{
-				return error || TConsumer::HasIllegalChar();
-			}
 		};
 
 /***********************************************************************
@@ -8792,9 +8799,10 @@ UtfTo32ReaderBase<T, TConsumer>
 
 			UtfCharCluster			sourceCluster = { 0,0 };
 			vint					readCounter = -1;
-			bool					error = false;
 
 		public:
+			using ConsumerType = TConsumer;
+
 			template<typename ...TArguments>
 			UtfTo32ReaderBase(TArguments&& ...arguments)
 				: TConsumer(std::forward<TArguments&&>(arguments)...)
@@ -8852,11 +8860,6 @@ UtfTo32ReaderBase<T, TConsumer>
 			{
 				return sourceCluster;
 			}
-
-			bool HasIllegalChar() const
-			{
-				return error || TConsumer::HasIllegalChar();
-			}
 		};
 
 /***********************************************************************
@@ -8870,6 +8873,8 @@ Utf32DirectReaderBase<TConsumer>
 			bool					ended = false;
 
 		public:
+			using ConsumerType = TConsumer;
+
 			template<typename ...TArguments>
 			Utf32DirectReaderBase(TArguments&& ...arguments)
 				: TConsumer(std::forward<TArguments&&>(arguments)...)
@@ -8910,10 +8915,10 @@ UtfToUtfReaderBase<TFrom, TTo, TConsumer>
 		template<typename TFrom, typename TTo>
 		struct UtfToUtfReaderSelector
 		{
-			template<typename TConsumer>
-			class Reader : public UtfFrom32ReaderBase<TTo, UtfReaderConsumer<UtfTo32ReaderBase<TFrom, TConsumer>>>
+			template<typename TConsumer, template<typename> class TConsumerRedirection>
+			class Reader : public UtfFrom32ReaderBase<TTo, UtfReaderConsumer<UtfTo32ReaderBase<TFrom, TConsumer>, TConsumerRedirection>>
 			{
-				using TBase = UtfFrom32ReaderBase<TTo, UtfReaderConsumer<UtfTo32ReaderBase<TFrom, TConsumer>>>;
+				using TBase = UtfFrom32ReaderBase<TTo, UtfReaderConsumer<UtfTo32ReaderBase<TFrom, TConsumer>, TConsumerRedirection>>;
 			public:
 				template<typename ...TArguments>
 				Reader(TArguments&& ...arguments)
@@ -8931,14 +8936,14 @@ UtfToUtfReaderBase<TFrom, TTo, TConsumer>
 		template<typename TTo>
 		struct UtfToUtfReaderSelector<char32_t, TTo>
 		{
-			template<typename TConsumer>
+			template<typename TConsumer, template<typename> class>
 			using Reader = UtfFrom32ReaderBase<TTo, TConsumer>;
 		};
 
 		template<typename TFrom>
 		struct UtfToUtfReaderSelector<TFrom, char32_t>
 		{
-			template<typename TConsumer>
+			template<typename TConsumer, template<typename> class>
 			using Reader = UtfTo32ReaderBase<TFrom, TConsumer>;
 		};
 
@@ -8946,7 +8951,7 @@ UtfToUtfReaderBase<TFrom, TTo, TConsumer>
 		template<>\
 		struct UtfToUtfReaderSelector<TFROM, TTO>\
 		{\
-			template<typename TConsumer>\
+			template<typename TConsumer, template<typename> class>\
 			using Reader = Utf32DirectReaderBase<TConsumer>;\
 		}\
 
@@ -8960,8 +8965,8 @@ UtfToUtfReaderBase<TFrom, TTo, TConsumer>
 
 #undef DEFINE_UTF32_DIRECT_READER
 
-		template<typename TFrom, typename TTo, typename TConsumer>
-		using UtfToUtfReaderBase = typename UtfToUtfReaderSelector<TFrom, TTo>::template Reader<TConsumer>;
+		template<typename TFrom, typename TTo, typename TConsumer, template<typename> class TConsumerRedirection = UtfEmptyConsumerRedirection>
+		using UtfToUtfReaderBase = typename UtfToUtfReaderSelector<TFrom, TTo>::template Reader<TConsumer, TConsumerRedirection>;
 
 /***********************************************************************
 UtfStringConsumer<T>
@@ -8985,11 +8990,6 @@ UtfStringConsumer<T>
 				: starting(_starting)
 				, consuming(_starting)
 			{
-			}
-
-			bool HasIllegalChar() const
-			{
-				return false;
 			}
 		};
 
@@ -9034,11 +9034,6 @@ UtfStringRangeConsumer<T>
 				, ending(_starting + count)
 				, consuming(_starting)
 			{
-			}
-
-			bool HasIllegalChar() const
-			{
-				return false;
 			}
 		};
 
