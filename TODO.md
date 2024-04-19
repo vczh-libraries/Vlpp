@@ -20,6 +20,7 @@
   - Support VlppParser2
   - Support Workflow
     - Generate `Union` if there is no hint.
+- Use concept on `ReferenceCounterOperator` and fix comment.
 
 ## Enumerable and enumerator fail when container is deleted
 
