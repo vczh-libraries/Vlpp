@@ -10,6 +10,7 @@ Licensed under https://github.com/vczh-libraries/License
 #include "../Primitives/Function.h"
 #include "../Primitives/Nullable.h"
 #include "../Exception.h"
+#include "../Collections/List.h"
 
 namespace vl
 {
@@ -108,7 +109,7 @@ namespace vl
 		protected:
 			static bool IsDebuggerAttached();
 			static int PrintUsages();
-			static int RunAndDisposeTests(Nullable<WString> option);
+			static int RunAndDisposeTests(const collections::Array<WString>& options);
 
 		public:
 			UnitTest() = delete;
