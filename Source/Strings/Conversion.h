@@ -486,6 +486,44 @@ String Conversions (buffer walkthrough)
 	extern template vint		_utftoutf<wchar_t, char32_t>(const wchar_t* s, char32_t* d, vint chars);
 
 /***********************************************************************
+String Conversions (ObjectString)
+***********************************************************************/
+
+	template<typename TFrom, typename TTo>
+	ObjectString<TTo> ConvertUtfString(const ObjectString<TFrom>& source);
+
+	extern template ObjectString<char8_t>		ConvertUtfString<wchar_t, char8_t>(const ObjectString<wchar_t>& source);
+	extern template ObjectString<char16_t>		ConvertUtfString<wchar_t, char16_t>(const ObjectString<wchar_t>& source);
+	extern template ObjectString<wchar_t>		ConvertUtfString<char8_t, wchar_t>(const ObjectString<char8_t>& source);
+	extern template ObjectString<char16_t>		ConvertUtfString<char8_t, char16_t>(const ObjectString<char8_t>& source);
+	extern template ObjectString<wchar_t>		ConvertUtfString<char16_t, wchar_t>(const ObjectString<char16_t>& source);
+	extern template ObjectString<char8_t>		ConvertUtfString<char16_t, char8_t>(const ObjectString<char16_t>& source);
+
+	extern template ObjectString<char8_t>		ConvertUtfString<char32_t, char8_t>(const ObjectString<char32_t>& source);
+	extern template ObjectString<char16_t>		ConvertUtfString<char32_t, char16_t>(const ObjectString<char32_t>& source);
+	extern template ObjectString<wchar_t>		ConvertUtfString<char32_t, wchar_t>(const ObjectString<char32_t>& source);
+	extern template ObjectString<char32_t>		ConvertUtfString<char8_t, char32_t>(const ObjectString<char8_t>& source);
+	extern template ObjectString<char32_t>		ConvertUtfString<char16_t, char32_t>(const ObjectString<char16_t>& source);
+	extern template ObjectString<char32_t>		ConvertUtfString<wchar_t, char32_t>(const ObjectString<wchar_t>& source);
+
+	template<typename TFrom, typename TTo>
+	void ConvertUtfString(const ObjectString<TFrom>& source, ObjectString<TTo>& dest);
+
+	extern template void		ConvertUtfString<wchar_t, char8_t>(const ObjectString<wchar_t>&source, ObjectString<char8_t>& dest);
+	extern template void		ConvertUtfString<wchar_t, char16_t>(const ObjectString<wchar_t>&source, ObjectString<char16_t>& dest);
+	extern template void		ConvertUtfString<char8_t, wchar_t>(const ObjectString<char8_t>&source, ObjectString<wchar_t>& dest);
+	extern template void		ConvertUtfString<char8_t, char16_t>(const ObjectString<char8_t>&source, ObjectString<char16_t>& dest);
+	extern template void		ConvertUtfString<char16_t, wchar_t>(const ObjectString<char16_t>&source, ObjectString<wchar_t>& dest);
+	extern template void		ConvertUtfString<char16_t, char8_t>(const ObjectString<char16_t>&source, ObjectString<char8_t>& dest);
+
+	extern template void		ConvertUtfString<char32_t, char8_t>(const ObjectString<char32_t>&source, ObjectString<char8_t>& dest);
+	extern template void		ConvertUtfString<char32_t, char16_t>(const ObjectString<char32_t>&source, ObjectString<char16_t>& dest);
+	extern template void		ConvertUtfString<char32_t, wchar_t>(const ObjectString<char32_t>&source, ObjectString<wchar_t>& dest);
+	extern template void		ConvertUtfString<char8_t, char32_t>(const ObjectString<char8_t>&source, ObjectString<char32_t>& dest);
+	extern template void		ConvertUtfString<char16_t, char32_t>(const ObjectString<char16_t>&source, ObjectString<char32_t>& dest);
+	extern template void		ConvertUtfString<wchar_t, char32_t>(const ObjectString<wchar_t>&source, ObjectString<char32_t>& dest);
+
+/***********************************************************************
 String Conversions (Utf)
 ***********************************************************************/
 

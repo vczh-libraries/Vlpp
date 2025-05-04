@@ -86,6 +86,30 @@ TEST_FILE
 		TEST_CASE_ASSERT(u32tow(textU32) == textL);
 		TEST_CASE_ASSERT(u32tou8(textU32) == textU8);
 		TEST_CASE_ASSERT(u32tou16(textU32) == textU16);
+
+		TEST_CASE_ASSERT(wtou8(textL) == textU8);
+		TEST_CASE_ASSERT(wtou16(textL) == textU16);
+		TEST_CASE_ASSERT(u8tow(textU8) == textL);
+		TEST_CASE_ASSERT(u8tou16(textU8) == textU16);
+		TEST_CASE_ASSERT(u16tow(textU16) == textL);
+		TEST_CASE_ASSERT(u16tou8(textU16) == textU8);
+	});
+
+	TEST_CATEGORY(L"Unicode String Conversion 2")
+	{
+		TEST_CASE_ASSERT((ConvertUtfString<wchar_t, char32_t>(WString::Unmanaged(textL)) == textU32));
+		TEST_CASE_ASSERT((ConvertUtfString<char8_t, char32_t>(U8String::Unmanaged(textU8)) == textU32));
+		TEST_CASE_ASSERT((ConvertUtfString<char16_t, char32_t>(U16String::Unmanaged(textU16)) == textU32));
+		TEST_CASE_ASSERT((ConvertUtfString<char32_t, wchar_t>(U32String::Unmanaged(textU32)) == textL));
+		TEST_CASE_ASSERT((ConvertUtfString<char32_t, char8_t>(U32String::Unmanaged(textU32)) == textU8));
+		TEST_CASE_ASSERT((ConvertUtfString<char32_t, char16_t>(U32String::Unmanaged(textU32)) == textU16));
+
+		TEST_CASE_ASSERT((ConvertUtfString<wchar_t, char8_t>(WString::Unmanaged(textL)) == textU8));
+		TEST_CASE_ASSERT((ConvertUtfString<wchar_t, char16_t>(WString::Unmanaged(textL)) == textU16));
+		TEST_CASE_ASSERT((ConvertUtfString<char8_t, wchar_t>(U8String::Unmanaged(textU8)) == textL));
+		TEST_CASE_ASSERT((ConvertUtfString<char8_t, char16_t>(U8String::Unmanaged(textU8)) == textU16));
+		TEST_CASE_ASSERT((ConvertUtfString<char16_t, wchar_t>(U16String::Unmanaged(textU16)) == textL));
+		TEST_CASE_ASSERT((ConvertUtfString<char16_t, char8_t>(U16String::Unmanaged(textU16)) == textU8));
 	});
 
 	const char text2A[] = "ABCDEFG-HIJKLMN-OPQRST-UVWXYZ";
@@ -94,7 +118,7 @@ TEST_FILE
 	const char16_t text2U16[] = u"ABCDEFG-HIJKLMN-OPQRST-UVWXYZ";
 	const char32_t text2U32[] = U"ABCDEFG-HIJKLMN-OPQRST-UVWXYZ";
 
-	TEST_CATEGORY(L"All String Conversion")
+	TEST_CATEGORY(L"ANSI String Conversion")
 	{
 		TEST_CASE_ASSERT(wtoa(text2L) == text2A);
 		TEST_CASE_ASSERT(atow(text2A) == text2L);
