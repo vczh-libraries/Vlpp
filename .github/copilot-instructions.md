@@ -35,6 +35,8 @@ You have to verify your code by running each unit test projects in order:
 
 - `Test/Linux/makefile`
 
+Make sure each source file you are editing get covered by at least one of the makefiles. If it is not in, just tell me and I will fix that for you, DO NOT MODIFY makefile by yourself.
+
 After running all unit test projects, some files may be changed:
 
 - When you see a C++ warning like `increment of object of volatile-qualified tyoe is deprecated`, ignore it.
