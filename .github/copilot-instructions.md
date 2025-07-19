@@ -16,13 +16,23 @@ In this repo, we are developing a crossed-platform C++ library.
     - `List<T>` for vector, `SortedList<T>` if elements need to keep ordered.
     - `Dictionary<K, V>` for 1:1 mapping and `Group<K, V>` for 1:n mapping.
   - Do not use regular expression unless directed by me.
+- This is the document of dependencies:
+  - `Vlpp`, basic C++ constructions: https://gaclib.net/doc/current/vlpp/home.html
+  - `VlppOS`, a simple OS abstraction: https://gaclib.net/doc/current/vlppos/home.html
+  - `VlppRegex`, regular expression: https://gaclib.net/doc/current/vlppregex/home.html
+  - `VlppReflection`, reflection: https://gaclib.net/doc/current/vlppreflection/home.html
 
 ## for Copilot Chat/Agent in Visual Studio
 
+- You are on Windows running in Visual Studio
 - Before saying anything, say "Yes, vczh!". I use it to make sure instruction files are taking effect.
 - Before generating any code, if the file is changed, read it. Not all changes come from you, I will edit the file too. Do not generate code based on out-dated version in your memory.
 
 ## for Copilot Authoring a Pull Request
+
+- You are on Linux
+
+### Verifying via Unit Test
 
 There are unit test projects that available in Linux, they are authored as makefile.
 To use compile and run a unit test project, you need to `cd` to each folder that stores the makefile, and:
@@ -77,3 +87,4 @@ TEST_FILE
 There can be mulitple `TEST_CATEGORY`, `TEST_CATEGORY` can be nested inside another `TEST_CATEGORY`.
 There can be mulitple `TEST_CASE` in `TEST_FILE` or `TEST_CATEGORY`, `TEST_CASE` cannot be nested inside another `TEST_CASE`.
 `TEST_ASSERT` can only appear in `TEST_CASE`.
+
