@@ -5,6 +5,7 @@
   - If there is any compile warning, only fix warnings that caused by your code change. Do no fix any other warnings.
   - Run the unit test and see if they passed. If anything is good, you will only see test files and test cases that are executed.
     - Make sure added test cases are actually executed.
+    - When all test cases passes, there will be a summarize about how many test cases are executed. Otherwise it crashed.
     - If any test case fails on a test assertion, the content of `TEST_ASSERT` or other macros will be printed to the output.
     - If any test case just crashes, the failed test case will be the last one printed. In this case, you might need to add logging to the code.
       - In any test case, `TEST_PRINT` would help.
