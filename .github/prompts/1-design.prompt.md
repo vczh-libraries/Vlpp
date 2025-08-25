@@ -2,7 +2,8 @@
 
 - The problem I would like to solve is in the chat messages sending with this request, under the `#Problem` section. If there are other sections, they are extra instructions for you in higher priority.
 - Before solving my problem, read `Copilot_Task.md` and find if there is any `# !!!FINISHED!!!` mark.
-  - If the mark exists, or the file contains only a title, it means the content of the file is out-dated. You must execute `.\copilotPrepare.ps1` to clean up everything from the last run.
+  - If there is only a title, you are on a fresh start.
+  - If the mark exists, it means the content of the file is out-dated. You must execute `.\copilotPrepare.ps1` to clean up everything from the last run.
     - You must execute `.\copilotPrepare.ps1`, must not be `copilotPrepare.ps1`, as PowerShell refuses to run a script file if there is only a simple file name.
     - Make sure the current directory is set to the folder containing the solution file, which I believe is the default location.
   - If the mark does not exist, it means you are accidentally stopped. Please continue the work, the problem description should be in `Copilot_Task.md`.
