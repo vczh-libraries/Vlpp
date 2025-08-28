@@ -30,6 +30,13 @@ UnitTest
 				Category,
 				Case,
 			};
+
+			enum class FailureMode
+			{
+				Debug,    // corresponds to /D - no exception suppression
+				Release,  // corresponds to /R - suppress and continue  
+				Copilot   // corresponds to /C - suppress, record, and rethrow
+			};
 			
 			struct UnitTestContext
 			{
@@ -44,7 +51,7 @@ UnitTest
 			vint							passedFiles = 0;
 			vint							totalCases = 0;
 			vint							passedCases = 0;
-			bool							suppressFailure = false;
+			FailureMode						failureMode = FailureMode::Debug;
 
 			template<typename TMessage>
 			void RecordFailure(TMessage errorMessage)
@@ -68,22 +75,46 @@ UnitTest
 				catch (const UnitTestAssertError& e)
 				{
 					RecordFailure(e.message);
+					if (failureMode == FailureMode::Copilot)
+					{
+						throw UnitTestJustCrashError{};
+					}
 				}
 				catch (const UnitTestConfigError& e)
 				{
 					RecordFailure(e.message);
+					if (failureMode == FailureMode::Copilot)
+					{
+						throw UnitTestJustCrashError{};
+					}
 				}
 				catch (const Error& e)
 				{
 					RecordFailure(e.Description());
+					if (failureMode == FailureMode::Copilot)
+					{
+						throw UnitTestJustCrashError{};
+					}
 				}
 				catch (const Exception& e)
 				{
 					RecordFailure(e.Message());
+					if (failureMode == FailureMode::Copilot)
+					{
+						throw UnitTestJustCrashError{};
+					}
+				}
+				catch (const UnitTestJustCrashError&)
+				{
+					throw;
 				}
 				catch (...)
 				{
 					RecordFailure(L"Unknown exception occurred!");
+					if (failureMode == FailureMode::Copilot)
+					{
+						throw UnitTestJustCrashError{};
+					}
 				}
 			}
 
@@ -107,12 +138,15 @@ UnitTest
 			template<typename TCallback>
 			void ExecuteAndSuppressFailure(TCallback&& callback)
 			{
-				if (suppressFailure)
+				switch (failureMode)
 				{
+				case vl::unittest::execution_impl::FailureMode::Release:
 					SuppressCFailure(std::forward<TCallback&&>(callback));
-				}
-				else
-				{
+					break;
+				case vl::unittest::execution_impl::FailureMode::Copilot:
+					SuppressCppFailure(std::forward<TCallback&&>(callback));
+					break;
+				default:
 					callback();
 				}
 			}
@@ -150,7 +184,7 @@ UnitTest
 
 		int UnitTest::PrintUsages()
 		{
-			PrintMessage(L"Usage: [/D | /R] {/F:TestFile}", MessageKind::Error);
+			PrintMessage(L"Usage: [/D | /R | /C] {/F:TestFile}", MessageKind::Error);
 			return 1;
 		}
 
@@ -162,6 +196,7 @@ UnitTest
 			bool unrecognized = false;
 			bool _D = false;
 			bool _R = false;
+			bool _C = false;
 			List<AString> _Fs;
 
 			for (auto&& option : From(options))
@@ -174,6 +209,10 @@ UnitTest
 				{
 					_R = true;
 				}
+				else if (option == L"/C")
+				{
+					_C = true;
+				}
 				else if (option.Length() > 3 && option.Left(3) == L"/F:")
 				{
 					_Fs.Add(wtoa(option.Sub(3, option.Length() - 3)));
@@ -184,22 +223,30 @@ UnitTest
 				}
 			}
 
-			if (unrecognized || (_D && _R))
+			vint modeCount = 0;
+			if (_D) modeCount++;
+			if (_R) modeCount++;
+			if (_C) modeCount++;
+			if (unrecognized || modeCount > 1)
 			{
 				return PrintUsages();
 			}
 
 			if (_D)
 			{
-				suppressFailure = false;
+				failureMode = FailureMode::Debug;
 			}
 			else if (_R)
 			{
-				suppressFailure = true;
+				failureMode = FailureMode::Release;
+			}
+			else if (_C)
+			{
+				failureMode = FailureMode::Copilot;
 			}
 			else
 			{
-				suppressFailure = !IsDebuggerAttached();
+				failureMode = IsDebuggerAttached() ? FailureMode::Debug : FailureMode::Release;
 			}
 
 			{
@@ -210,13 +257,17 @@ UnitTest
 				totalCases = 0;
 				passedCases = 0;
 
-				if (suppressFailure)
+				switch (failureMode)
 				{
-					PrintMessage(L"Failures are suppressed.", MessageKind::Info);
-				}
-				else
-				{
+				case FailureMode::Debug:
 					PrintMessage(L"Failures are not suppressed.", MessageKind::Info);
+					break;
+				case FailureMode::Release:
+					PrintMessage(L"Failures are suppressed.", MessageKind::Info);
+					break;
+				case FailureMode::Copilot:
+					PrintMessage(L"Failures cause immediate exit.", MessageKind::Info);
+					break;
 				}
 
 				auto current = testHead;

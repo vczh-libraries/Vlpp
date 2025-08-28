@@ -24,7 +24,7 @@ Reconsider the test part. It is actually funny to test unit test by unit test, s
 
 The goal of this phrase is to add a new command line mode `/C` (Crash on failure) that will cause the unit test framework to print the first error/exception/runtime error and immediately exit. This will be implemented by converting the existing `suppressFailure` boolean to an enum class that can represent three states: `/D` (Debug), `/R` (Release), and `/C` (Crash). The exception handling functions `SuppressCppFailure` and `SuppressCFailure` will check the enum value and rethrow exceptions in `/C` mode to cause immediate program termination.
 
-### Task 1-1: Convert suppressFailure to Enum and Implement /C Mode Logic
+### Task 1-1: Convert suppressFailure to Enum and Implement /C Mode Logic [PROCESSED]
 
 Replace the existing boolean `suppressFailure` with an enum class that represents the three failure handling modes, and implement the corresponding logic in command line parsing and exception handling functions.
 
