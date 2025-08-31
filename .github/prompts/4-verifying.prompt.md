@@ -1,6 +1,9 @@
 # Verifying
 
 - All instructions in `Copilot_Execution.md` has already been applied to the source code.
+- If you spot any difference between `Copilot_Execution.md` and the current code:
+  - It means I edited them. I have my reason. DO NOT change the code back to match `Copilot_Execution.md`.
+  - Write down every differences you spotted, make a `# User Update Spotted` section in `Copilot_Execution.md`.
 - Your goal is to verify if they are good enough. You need to compiler the whole solution. Fix the code to avoid all compile errors.
   - If there is any compile warning, only fix warnings that caused by your code change. Do no fix any other warnings.
   - Run the unit test and see if they passed. If anything is good, you will only see test files and test cases that are executed.
@@ -11,7 +14,7 @@
       - In any test case, `TEST_PRINT` would help.
       - In other source code, `vl::console::Console::WriteLine` would help. In `Vlpp` project, you should `#include` `Console.h`. In other projects, the `Console` class should just be available.
       - When added logging are not longer necessary, you should remove all of them.
-  - Find the `Verifying your code edit` section in `copilot-instructions.md`, it has everything you need to know about how to verify your code edit.
+  - Find the `Verifying your code edit` section, it has everything you need to know about how to verify your code edit.
 - For every attempt of fixing the source code:
   - Explain why the original change did not work.
   - Explain what you need to do.
@@ -78,6 +81,7 @@ When you create a new guideline:
   - Call `.\copilotExecute.ps1 -Executable <PROJECT-NAME>`. `<PROJECT-NAME>` is the project name in the list.
     - You must call `.\copilotExecute.ps1`, must not call `copilotExecute.ps1`, as PowerShell refuses to run a script file if there is only a simple file name.
     - Make sure the current directory is set to the folder containing the solution file, which I believe is the default location.
+- You must keep fixing the code until all errors are eliminated.
 
 ## Unit Test Projects to Execute
 

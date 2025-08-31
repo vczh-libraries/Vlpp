@@ -1,30 +1,30 @@
-# Execution
+# Update Knowledge Base
 
-- The design document is in `Copilot_Task.md`, the planning document is in `Copilot_Planning.md`.
-- If there is anything in the chat message, they are extra instructions for you in higher priority.
-- Before solving my problem, read `Copilot_Execution.md` and find if there is any `# !!!FINISHED!!!` mark.
-  - If there is only a title, you are on a fresh start.
-  - If the mark does not exist, it means you are accidentally stopped. Please continue editing `Copilot_Execution.md`.
-  - If the mark exists:
-    - There might be `# Update` in the chat history, those usually have been implemented, only check the LATEST chat message.
-    - If there is an `# Update` section in the LATEST chat message:
-      - Copy my update precisely to the beginning of the document. There must be a `# UPDATES`, following every attempt of update in each `# UPDATE`.
-    - If the LATEST chat message is empty:
-      - It means you are accidentally stopped, but the editing on `Copilot_Execution.md` is actually finished, please continue editing source code.
-- Your goal is to summary code change in `Copilot_Execution.md` and apply them to source files.
-- **Copilot_Execution.md**:
-  - All changes you need to made is already in `Copilot_Planning.md`, but it contains many explanation.
-    - If there is only a title in `Copilot_Planning.md`, it means I believe the plan in `Copilot_Task.md` is detailed enough. Use `Copilot_Task.md` instead in the following steps.
-  - Read `Copilot_Planning.md`, copy only code changes to `Copilot_Execution.md`, including which part of code will be replaced with what new code.
-  - Code changes in both `Improvement Plan` and `Test Plan` will need to be included. Create `Improvement Plan` and `Test Plan` in `Copilot_Execution.md` for them.
-  - Do not include any explanations or comments around the code change, please only include the code changes.
-  - Make sure only wrap code in code block, do not wrap markdown content in code block.
-  - Append `# !!!FINISHED!!!` to `Copilot_Execution.md` to indicate the work has been finished.
-- **Execution**:
-  - Apply all instructions in `Copilot_Execution.md` to the source code.
-- **Verifying**
-  - Fix all compile errors.
-  - You do not have to worry about running unit tests at the moment. Do not run unit tests, you are good if the code compiles.
+- Your goal is to update the knowledge base.
+- If there is an `# Update` section in the LATEST chat message, it means you must update the knowledge base according to the work you have implemented in the document.
+  - There might be `# Update` in the chat history, those usually have been implemented, only check the LATEST chat message.
+  - I have not designed what to do, so please print a `# NOT IMPLEMENTED!` and stop immediately.
+- If there is no title in the section, it means you must update the knowledge base according to the LATEST chat message.
+
+## Implement the Knowledge Base
+
+- Find out the `Accessing Knowledge Base` section. Understand the organization of the knowledge base.
+- Read the `Index.md` of the knowledge base first.
+- There could be multiple places as the request might include multiple objectives. For each objective:
+  - Find out which project does it belong to.
+  - Read through all categories, find out which category is the best fit.
+    - If there is no obvious best answer, create a new category.A new category comes with a new guideline file, you must add it to the `KnowledgeBase` project.
+    - Please be careful about the place to insert the new category, a new category should be added at the end of the belonging project.
+  - Update the category description if you think there is anything worth menthioning.
+  - Read through the file of the hyperlink in the category, update the content to reflect the change I want you to make.
+
+## Adding or Updating an `API Explanation` guideline
+
+- Content in such guideline must be compact. Do not repeat anything that could be read from the source code.
+- Do not simply add code samples.
+  - If you do, keep the code sample stick to only usage of APIs.
+  - Do not add code sample just to show best practices or what it can do or what it is commonly used or something like that, describe these topics in words.
+  - A code sample is only necessary when many functions or classes must be involved in a specific order. A good example would be the `TEST_FILE` structure.
 
 # for Copilot with Agent mode in Visual Studio
 

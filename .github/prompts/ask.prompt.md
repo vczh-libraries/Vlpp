@@ -1,30 +1,9 @@
-# Execution
+# Analysis
 
-- The design document is in `Copilot_Task.md`, the planning document is in `Copilot_Planning.md`.
-- If there is anything in the chat message, they are extra instructions for you in higher priority.
-- Before solving my problem, read `Copilot_Execution.md` and find if there is any `# !!!FINISHED!!!` mark.
-  - If there is only a title, you are on a fresh start.
-  - If the mark does not exist, it means you are accidentally stopped. Please continue editing `Copilot_Execution.md`.
-  - If the mark exists:
-    - There might be `# Update` in the chat history, those usually have been implemented, only check the LATEST chat message.
-    - If there is an `# Update` section in the LATEST chat message:
-      - Copy my update precisely to the beginning of the document. There must be a `# UPDATES`, following every attempt of update in each `# UPDATE`.
-    - If the LATEST chat message is empty:
-      - It means you are accidentally stopped, but the editing on `Copilot_Execution.md` is actually finished, please continue editing source code.
-- Your goal is to summary code change in `Copilot_Execution.md` and apply them to source files.
-- **Copilot_Execution.md**:
-  - All changes you need to made is already in `Copilot_Planning.md`, but it contains many explanation.
-    - If there is only a title in `Copilot_Planning.md`, it means I believe the plan in `Copilot_Task.md` is detailed enough. Use `Copilot_Task.md` instead in the following steps.
-  - Read `Copilot_Planning.md`, copy only code changes to `Copilot_Execution.md`, including which part of code will be replaced with what new code.
-  - Code changes in both `Improvement Plan` and `Test Plan` will need to be included. Create `Improvement Plan` and `Test Plan` in `Copilot_Execution.md` for them.
-  - Do not include any explanations or comments around the code change, please only include the code changes.
-  - Make sure only wrap code in code block, do not wrap markdown content in code block.
-  - Append `# !!!FINISHED!!!` to `Copilot_Execution.md` to indicate the work has been finished.
-- **Execution**:
-  - Apply all instructions in `Copilot_Execution.md` to the source code.
-- **Verifying**
-  - Fix all compile errors.
-  - You do not have to worry about running unit tests at the moment. Do not run unit tests, you are good if the code compiles.
+- This is analysis work, DO NOT update any source code.
+- Find out the `Accessing Knowledge Base` section. Understand the organization of the knowledge base.
+- You are in a large C++ project, you must try your best to read any source code that may possibly related to the analysis work.
+- Follow the chat message, try your best to answer an analysis work.
 
 # for Copilot with Agent mode in Visual Studio
 
