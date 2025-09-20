@@ -21,5 +21,6 @@
     <None Include="$(MSBuildThisFileDirectory).gitignore" />
     <None Include="$(MSBuildThisFileDirectory)copilotPrepare.ps1" />
     <None Include="$(MSBuildThisFileDirectory)copilotExecute.ps1" />
+    <None Include="$(MSBuildThisFileDirectory)copilotBuild.ps1" />
   </ItemGroup>
 </Project>
