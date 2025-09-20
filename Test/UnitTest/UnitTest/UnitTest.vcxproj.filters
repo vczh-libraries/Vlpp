@@ -24,6 +24,9 @@
     <ClCompile Include="..\..\Source\TestFunction.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\TestFeatureInjection.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\TestGlobalStorage.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
