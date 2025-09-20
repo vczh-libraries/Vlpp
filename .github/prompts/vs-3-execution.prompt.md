@@ -10,10 +10,8 @@
 - `# !!!EXECUTION!!!`: This file always begin with this title.
 - `# UPDATES`: An exact copy of the problem description I gave you.
   - `## UPDATE`: There could be multiple occurrences. Each one has an exact copy of the update description I gave you.
-- `# CODE CHANGES`.
-  - `## STEP X: The Step Title`: Copied from `Copilot_Planning.md`, only include code changes, do not copy explanations.
-  - It must include both code changes in improvement plan and test plan from `Copilot_Planning.md`.
-  - Code changes in test plan do not have a step title and step number, just continue with the numeber and add new `## STEP X` in `Copilot_Execution.md`.
+- `# IMPROVEMENT PLAN`.
+- `# TEST PLAN`.
 
 ## Step 1. Identify the Problem
 
@@ -31,9 +29,12 @@
 
 - Your need to summary code change in `Copilot_Execution.md`.
 - All changes you need to made is already in `Copilot_Planning.md`, but it contains many explanations.
-- Read `Copilot_Planning.md`, copy only code changes to `Copilot_Execution.md`, including which part of code will be replaced with what new code.
-- Code changes in both `Improvement Plan` and `Test Plan` will need to be included. Organize them as steps in `# CODE CHANGES` in `Copilot_Execution.md`.
-- Do not include any explanations or comments around the code change, please only include the code changes.
+- Read `Copilot_Planning.md`, copy the following parts to `Copilot_Execution.md`:
+  - `# IMPROVEMENT PLAN`
+    - Only include actual code changes. Do not include any explanations or comments around them.
+  - `# TEST PLAN`
+    - Only include actual code changes. Do not include any explanations or comments around them.
+- Do not copy `# UPDATES` from `Copilot_Planning.md` to `Copilot_Execution.md`. The `# UPDATES` in `Copilot_Execution.md` is for update requests for `Copilot_Execution.md` and the actual source code.
 
 ## Step 3. Mark the Completion
 
