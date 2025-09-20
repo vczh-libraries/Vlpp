@@ -50,6 +50,7 @@
 ## Step 3. Finish the Document
 
 - Your goal is to write a design document to `Copilot_Planning.md`. DO NOT update any other file including source code.
+- The code change proposed in the improvement plan must contain actual code. I need to review them before going to the next phrase.
 
 ## Step 5. Mark the Completion
 

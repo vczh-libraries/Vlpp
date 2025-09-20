@@ -14,6 +14,7 @@ The goal of this project is to reduce the dependency to STL.
 - You can modify source code in the `Source` and `Test` folder.
 - Use tabs for indentation in C++ source code.
 - Header files are guarded with macros instead of `#pragma once`.
+- Use `auto` to define variables if it is doable. Use `auto&&` when the type is big or when it is a collection type.
 - In header files, do not use `using namespace` statement, full name of types are always required. In a class/struct/union declaration, member names must be aligned in the same column at least in the same public, protected or private session. Please follow this coding style just like other part of the code.
 - In cpp files, use `using namespace` statement if necessary to prevent from repeating namespace everywhere.
 - The project only uses a very minimal subset of the standard library. I have substitutions for most of the STL constructions. Always use mine if possible:
