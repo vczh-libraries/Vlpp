@@ -112,3 +112,7 @@ You need to locate listed files in `TaskLogs.vcxitems`.
 
 - `UnitTest`
 
+### Calling copilotBuild.ps1 and copilotExecute.ps1
+
+This solution is in `Test\UnitTest`, after `ls` to this folder, scripts will be in `..\..\.github`.
+
