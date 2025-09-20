@@ -1,23 +1,11 @@
-param(
-    [Parameter(Mandatory=$true)]
-    [string]$Executable
-)
-
-# Ensure the executable name has .exe extension
-if (-not $Executable.EndsWith(".exe")) {
-    $executableName = $Executable + ".exe"
-} else {
-    $executableName = $Executable
-}
-
 # Find the solution folder by looking for *.sln files
 $currentDir = Get-Location
 $solutionFile = $null
 
-while ($currentDir -ne $null -and $currentDir.Parent -ne $null) {
+while ($currentDir -ne $null) {
     $solutionFiles = Get-ChildItem -Path $currentDir.Path -Filter "*.sln" -ErrorAction SilentlyContinue
     if ($solutionFiles.Count -gt 0) {
-        $solutionFile = $solutionFiles[0]
+        $solutionFile = "$($currentDir.Path)\$($solutionFiles[0])"
         Write-Host "Found solution file: $solutionFile"
         break
     }

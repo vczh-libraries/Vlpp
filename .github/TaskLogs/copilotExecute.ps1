@@ -14,7 +14,7 @@ if (-not $Executable.EndsWith(".exe")) {
 $currentDir = Get-Location
 $solutionFolder = $null
 
-while ($currentDir -ne $null -and $currentDir.Parent -ne $null) {
+while ($currentDir -ne $null) {
     $solutionFiles = Get-ChildItem -Path $currentDir.Path -Filter "*.sln" -ErrorAction SilentlyContinue
     if ($solutionFiles.Count -gt 0) {
         $solutionFolder = $currentDir.Path
