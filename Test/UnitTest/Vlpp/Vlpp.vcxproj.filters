@@ -134,9 +134,6 @@
     <ClCompile Include="..\..\..\Source\Exception.cpp">
       <Filter>Common</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\Source\FeatureInjection.cpp">
-      <Filter>Common</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\Source\GlobalStorage.cpp">
       <Filter>Common</Filter>
     </ClCompile>

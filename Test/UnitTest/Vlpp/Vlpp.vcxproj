@@ -204,7 +204,6 @@
     </ClCompile>
     <ClCompile Include="..\..\..\Source\Console.Windows.cpp" />
     <ClCompile Include="..\..\..\Source\Exception.cpp" />
-    <ClCompile Include="..\..\..\Source\FeatureInjection.cpp" />
     <ClCompile Include="..\..\..\Source\GlobalStorage.cpp" />
     <ClCompile Include="..\..\..\Source\Primitives\DateTime.cpp" />
     <ClCompile Include="..\..\..\Source\Primitives\DateTime.Windows.cpp" />
