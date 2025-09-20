@@ -3,7 +3,10 @@
 - Copilot would only work after executing the following script in the `UnitTest.sln` folder:
   - `Tools\Copilot\copilotInit.ps1`
   - `Tools` is the `Tools` repo under the same github organization.
-- To initialize a code change, use `#prompt:0-scrum.prompt.md` and type your problem in chat, with `# Problem`.
+- To initialize a code change, use `0-scrum.prompt.md` and type your problem in chat, with `# Problem`.
+  - `win-` is for Visual Studio Code running on Windows. You need to type `#win-0-scrum.prompt.md` to use it.
+  - `vs-` is for Visual Studio. You need to type `#prompt:vs-0-scrum.prompt.md` to use it.
+  
 - The `prompts` folder copies all task in Visual Studio github copilot recognized format.
   - `0-scrum.prompt.md` creates `Copilot_Scrum.md`.
     - Use `# Problem` for the problem.
@@ -17,7 +20,7 @@
 ## Demo
 
 The `sampleLogFiles` folder copies generated document files for a simple task as a demo.
-It is a scrum with 3 tasks. Each folder contains documents created from each task.
+It is a scrum with several tasks. Each folder contains documents created from each task.
 Only `Copilot_Scrum.md` will be kept, all other documents will be deleted when `1-design.prompt.md` is activated for a new task.
 
 ![Prompts](sampleLogFiles/Prompts.png)
