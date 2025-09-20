@@ -32,6 +32,7 @@
         "npx vitest run": true,
         "cd": true,
         "findstr": true,
+        "Test-Path": true,
         "rm": false,
         "rmdir": false,
         "del": false,
@@ -52,8 +53,6 @@
         "/^New-Item\\b/i": false,
         "/^Copy-Item\\b/i": false,
         "/^Move-Item\\b/i": false,
-        ".\\copilotPrepare.ps1": true,
-        ".\\copilotBuild.ps1": true,
-        ".\\copilotExecute.ps1": true
+        "/\\bcopilot(Prepare|Build|Execute)\\.ps1\\b/i": true
     }
 }
