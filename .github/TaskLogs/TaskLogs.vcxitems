@@ -2,7 +2,7 @@
   <PropertyGroup Label="Globals">
     <MSBuildAllProjects Condition="'$(MSBuildVersion)' == '' Or '$(MSBuildVersion)' &lt; '16.0'">$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
     <HasSharedItems>true</HasSharedItems>
-    <ItemsProjectGuid>{d178e490-7c2b-43fa-a8b3-a3bed748eb38}</ItemsProjectGuid>
+    <ItemsProjectGuid>{8626528F-9C97-4480-A018-CDCCCB9CACAE}</ItemsProjectGuid>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
