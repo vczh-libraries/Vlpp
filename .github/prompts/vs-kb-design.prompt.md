@@ -112,3 +112,5 @@
 - When looking for any file mentioned, always look for them in the solution.
   - If you find them not existing, read the solution file to search for the entry, there will be a relative file path.
 
+# Accessing Log Files
+
