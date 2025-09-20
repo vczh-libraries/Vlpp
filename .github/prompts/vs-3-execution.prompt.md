@@ -2,17 +2,26 @@
 
 ## Goal and Constraints
 
-- Your goal is to finish an execution document in `Copilot_Execution.md` from `Copilot_Planning.md`.
+- Your goal is to finish an execution document in `Copilot_Execution.md` according to `Copilot_Task.md` and `Copilot_Planning.md`.
 - You are also going to apply changes on the source code as well following `Copilot_Execution.md`.
+
+## Copilot_Planning.md Structure
+
+- `# !!!EXECUTION!!!`: This file always begin with this title.
+- `# UPDATES`: An exact copy of the problem description I gave you.
+  - `## UPDATE`: There could be multiple occurrences. Each one has an exact copy of the update description I gave you.
+- `# CODE CHANGES`.
+  - `## STEP X: The Step Title`: Copied from `Copilot_Planning.md`, only include code changes, do not copy explanations.
+  - It must include both code changes in improvement plan and test plan from `Copilot_Planning.md`.
+  - Code changes in test plan do not have a step title and step number, just continue with the numeber and add new `## STEP X` in `Copilot_Execution.md`.
 
 ## Step 1. Identify the Problem
 
 - The design document is in `Copilot_Task.md`, the planning document is in `Copilot_Planning.md`.
 - Find `# Update` in the LATEST chat message. Ignore any `# Update` in the chat history.
 - If there is an `# Update` section: it means I am going to propose some change to `Copilot_Execution.md` and the source code together.
-  - You should continue to work out more details.
   - Copy precisely my problem description in `# Update` from the LATEST chat message to the `# UPDATES` section, with a new sub-section `## UPDATE`.
-  - Follow my update to change the planning document and the source code.
+  - Follow my update to change the execution document and the source code.
 - If there is nothing:
   - If `Copilot_Execution.md` only has a title, you are on a fresh start.
   - If there is a `# !!!FINISHED!!!` mark in `Copilot_Execution.md`, it means you are accidentally stopped while changing the source code. Please continue your work.
@@ -21,12 +30,10 @@
 ## Step 2. Finish the Document
 
 - Your need to summary code change in `Copilot_Execution.md`.
-- All changes you need to made is already in `Copilot_Planning.md`, but it contains many explanation.
-  - If there is only a title in `Copilot_Planning.md`, it means I believe the plan in `Copilot_Task.md` is detailed enough. Use `Copilot_Task.md` instead in the following steps.
+- All changes you need to made is already in `Copilot_Planning.md`, but it contains many explanations.
 - Read `Copilot_Planning.md`, copy only code changes to `Copilot_Execution.md`, including which part of code will be replaced with what new code.
-- Code changes in both `Improvement Plan` and `Test Plan` will need to be included. Create `Improvement Plan` and `Test Plan` in `Copilot_Execution.md` for them.
+- Code changes in both `Improvement Plan` and `Test Plan` will need to be included. Organize them as steps in `# CODE CHANGES` in `Copilot_Execution.md`.
 - Do not include any explanations or comments around the code change, please only include the code changes.
-- Make sure only code references are in code blocks. Do not emit code blocks for markdown.
 
 ## Step 3. Mark the Completion
 
@@ -41,15 +48,49 @@
 - Compile the solution and fix all compile errors.
 - You do not have to worry about running unit tests at the moment. Do not run unit tests, you are good if the code compiles.
 
-# for Copilot with Agent mode in Visual Studio
+# General Instruction
 
 - You are on Windows running in Visual Studio.
 - Before saying anything, say "Yes, vczh!". I use it to make sure instruction files are taking effect.
 - Find out the `Accessing Knowledge Base` section, read `Index.md` of `KnowledgeBase` project in the current solution.
 - Before generating any code, if the file is changed, read it. Not all changes come from you, I will edit the file too. Do not generate code based on out-dated version in your memory.
-- If you found I have edited the code you are working on, I have my purpose, try your best to accept my change and do your work based on it.
+- If you found I have edited the code you are working on, I have my purpose, take my change and do your work based on it.
 - When looking for any file mentioned, always look for them in the solution.
   - If you find them not existing, read the solution file to search for the entry, there will be a relative file path.
+- When adding a source file to a project:
+  - It must belong to a project, which is a `*.vcxproj` or `*.vcxitems` file.
+  - It is an XML file.
+  - Edit that project file to include the source file.
+- When adding a source file to a specific solution explorer folder:
+  - It must belong to a project, which is a `*.vcxproj` or `*.vcxitems` file.
+  - Find the `*.filters` file with the same name, it is an XML file.
+  - Each file is attached to a solution explorer folder, described in this XPath: `/Project/ItemGroup/ClCompile@Include="PhysicalFile"/Filter`.
+  - In side the `Filter` tag there is the solution explorer folder.
+  - Edit that `*.filters` file to include the source file.
 
-# Accessing Log Files
+# Accessing Log Files and PowerShell Scripts
+
+This guidance is for accessing following files mentioned in this instruction:
+- `Copilot_Scrum.md`
+- `Copilot_Task.md`
+- `Copilot_Planning.md`
+- `Copilot_Execution.md`
+- `Copilot_KB.md`
+- `copilotExecute.ps1`
+- `copilotPrepare.ps1`
+
+If you are running in Visual Studio, you will find the `TaskLogs` project in the current solution.
+Otherwise, locate the `TaskLogs` project in `REPO-ROOT/.github/TaskLogs/TaskLogs.vcxitems`.
+`REPO-ROOT` is the root folder of the repo.
+
+`TaskLogs.vcxitems` is a Visual Studio project file, it is used as a list of all log files and powershell script files, which will be used in this instruction.
+You need to locate listed files in `TaskLogs.vcxitems`.
+
+## Important Rules for Markdown Document or Log
+
+- Do not print "````````" or "````````markdown" in markdown file.
+- It is totally fine to have multiple top level `# Topic`.
+- When mentioning a C++ name in markdown file:
+  - If it is defined in the standard C++ library or third-party library, use the full name.
+  - If it is defined in the source code, use the full name if there is ambiguity, and then mention the file containing its definition.
 
