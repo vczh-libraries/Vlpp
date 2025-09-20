@@ -178,6 +178,7 @@
     <ClInclude Include="..\..\..\Source\Collections\PartialOrdering.h" />
     <ClInclude Include="..\..\..\Source\Console.h" />
     <ClInclude Include="..\..\..\Source\Exception.h" />
+    <ClInclude Include="..\..\..\Source\FeatureInjection.h" />
     <ClInclude Include="..\..\..\Source\GlobalStorage.h" />
     <ClInclude Include="..\..\..\Source\Primitives\DateTime.h" />
     <ClInclude Include="..\..\..\Source\Primitives\Event.h" />
@@ -203,6 +204,7 @@
     </ClCompile>
     <ClCompile Include="..\..\..\Source\Console.Windows.cpp" />
     <ClCompile Include="..\..\..\Source\Exception.cpp" />
+    <ClCompile Include="..\..\..\Source\FeatureInjection.cpp" />
     <ClCompile Include="..\..\..\Source\GlobalStorage.cpp" />
     <ClCompile Include="..\..\..\Source\Primitives\DateTime.cpp" />
     <ClCompile Include="..\..\..\Source\Primitives\DateTime.Windows.cpp" />
