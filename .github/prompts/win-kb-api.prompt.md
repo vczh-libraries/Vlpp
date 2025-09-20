@@ -29,6 +29,11 @@
 # General Instruction
 
 - You are on Windows running in Visual Studio Code.
+- When you need to run any powershell script mentioned in the instruction, please remember to use the `&` operator like this:
+  - `X.ps1`: invalid command.
+  - `..\X.ps1`: valid command but it doesn't work with you.
+  - `& X.ps1` or `& ..\X.ps1`: good.
+  
 - Before saying anything, say "Yes, vczh!". I use it to make sure instruction files are taking effect.
 - Find out the `Accessing Knowledge Base` section, read `Index.md` of `KnowledgeBase` project in the current solution.
 - Before generating any code, if the file is changed, read it. Not all changes come from you, I will edit the file too. Do not generate code based on out-dated version in your memory.
