@@ -59,10 +59,24 @@ For Task 2. In DateTime.cpp. now we can remove `dateTimeImpl` and `GetDateTimeIm
 
 But clearly we need to initialize it with a default implementation, so maybe add a constructor argument to `FeatureInjection<T>`, and in DateTime.cpp we could just pass `GetOSDateTimeImpl()` to it?
 
+## UPDATE
+
+I think I want to add a specific unit test task between task 1 and 2.
+
+We will create a `TestFeatureInjection.cpp`, adding to `UnitTest` project in `Source Files` solution explorer folder. And make several test cases to test `FeatureInjection<T>`. I want a separate task for unit test because, in the unit test we will need to create some fake implementation of `IFeatureImpl`, it would be a little bit complex, but I believe the test case design will be straignt forward as the feature is quite simple.
+
+## UPDATE
+
+Has `GetDateTimeImpl` been mentioned in the knowledge base? Because this function will be deleted, I don't want the knowledge base to has outdated imformation.
+
+Please confirm, and only make a task when knowledge base needs to be updated.
+
 # TASKS
 
 - [ ] TASK No.1: Implement complete feature injection framework
-- [ ] TASK No.2: Migrate DateTime injection to use the new framework
+- [ ] TASK No.2: Create comprehensive unit tests for feature injection framework
+- [ ] TASK No.3: Migrate DateTime injection to use the new framework
+- [ ] TASK No.4: Update knowledge base to reflect DateTime injection changes
 
 ## TASK No.1: Implement complete feature injection framework
 
@@ -96,7 +110,39 @@ This task implements the entire feature injection framework including the base i
 
 This task focuses purely on the generic feature injection framework without any specific feature implementations. The interface design and template implementation are tightly coupled and should be implemented together as a complete unit. The framework provides the foundation for all future feature injections while maintaining the no-allocation constraint critical for Vlpp's design philosophy. The linked list design allows multiple injections to form chains where implementations can delegate to previous ones, enabling sophisticated composition patterns. By keeping this task generic, it ensures the framework can be applied to any feature type without being tied to specific implementations.
 
-## TASK No.2: Migrate DateTime injection to use the new framework
+## TASK No.2: Create comprehensive unit tests for feature injection framework
+
+This task creates thorough unit tests for the feature injection framework to ensure all functionality works correctly before integrating it with real features like DateTime. The tests will validate injection, ejection, chaining, and error handling scenarios using mock implementations.
+
+### what to be done
+
+- Create `TestFeatureInjection.cpp` file in the Test/Source directory
+- Add the new test file to the UnitTest project in the `Source Files` solution explorer folder
+- Create mock implementations of `IFeatureImpl` for testing purposes with configurable behavior
+- Implement test cases for basic injection and ejection functionality
+- Test constructor initialization with default implementation
+- Test linked list chain management during multiple injections
+- Test ejection from middle of chain with proper cleanup sequence
+- Test edge cases like ejecting non-existent implementations
+- Test error handling for invalid operations
+- Verify no memory leaks occur during injection/ejection cycles
+- Test proper lifecycle management of `BeginInjection()` and `EndInjection()` calls
+
+### how to test it
+
+This task IS the testing task - it creates unit tests for the feature injection framework. The test cases themselves will validate:
+- Framework initialization and default implementation handling
+- Injection and ejection operations work correctly
+- Chain traversal and cleanup happens in correct order
+- Error conditions are handled properly
+- Memory management is correct throughout all operations
+- Lifecycle methods are called at appropriate times
+
+### rationale
+
+Creating dedicated unit tests before integrating with DateTime ensures the framework is robust and well-tested. Mock implementations allow testing complex scenarios without depending on real feature implementations. This approach follows test-driven development principles and ensures any issues with the framework are caught early. The tests will also serve as documentation for how the framework should be used. Since the framework involves complex linked list management and lifecycle handling, thorough testing is essential to prevent subtle bugs that could be difficult to debug when integrated with real features.
+
+## TASK No.3: Migrate DateTime injection to use the new framework
 
 This task demonstrates the framework in action by migrating the existing DateTime injection pattern to use the new infrastructure while maintaining backward compatibility. It involves replacing the existing `dateTimeImpl` global variable and `GetDateTimeImpl()` function with a `FeatureInjection<IDateTimeImpl>` instance initialized with the default OS implementation.
 
@@ -123,5 +169,28 @@ This task demonstrates the framework in action by migrating the existing DateTim
 ### rationale
 
 This task validates that the new framework can successfully replace existing injection patterns without breaking changes. By removing the old `dateTimeImpl` variable and `GetDateTimeImpl()` function and replacing them with a single `FeatureInjection<IDateTimeImpl>` instance, we simplify the code while gaining enhanced capabilities. The constructor-based initialization with `GetOSDateTimeImpl()` ensures that the framework always has a valid default implementation, eliminating the need for null checks. DateTime injection is already well-tested and understood, making it an ideal candidate for demonstrating the framework's capabilities. This migration ensures that the framework design is practical and can handle real-world injection scenarios while maintaining backward compatibility.
+
+## TASK No.4: Update knowledge base to reflect DateTime injection changes
+
+This task updates the knowledge base documentation to reflect the changes made to the DateTime injection system, removing references to deprecated functions and updating examples to use the new feature injection framework.
+
+### what to be done
+
+- Update `KB_Vlpp_DateTimeOperations.md` to remove references to `GetOSDateTimeImpl()` function since it will no longer be publicly accessible
+- Update the "Implementation Injection" section to reflect the new feature injection framework usage
+- Remove or update the manual declaration example for `GetOSDateTimeImpl()` since this function becomes internal implementation detail
+- Update any code examples that reference the old injection pattern to use the new framework
+- Ensure documentation accurately reflects the simplified API where users only need `InjectDateTimeImpl()` for injection
+
+### how to test it
+
+- Review documentation for completeness and accuracy
+- Verify all code examples compile and work correctly with the new implementation
+- Ensure no references to deprecated functions remain in the knowledge base
+- Check that the documentation provides clear guidance for users migrating from old patterns
+
+### rationale
+
+The knowledge base currently mentions `GetOSDateTimeImpl()` function and includes examples for its usage. Since our changes will remove this function from the public API (it becomes an internal implementation detail), the documentation needs to be updated to prevent confusion and outdated information. Keeping the knowledge base synchronized with code changes is essential for maintaining accurate documentation. This task ensures that users won't be misled by outdated examples and will understand how to properly use the new feature injection framework.
 
 # !!!FINISHED!!!
