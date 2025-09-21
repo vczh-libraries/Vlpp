@@ -3,6 +3,7 @@
 Copilot would only work after executing [the script](https://github.com/vczh-libraries/Tools/blob/master/Copilot/copilotInit.ps1):
 - For Visual Studio Code, run the script in any folder.
 - For Visual Studio, run the script in the solution folder, it will also update the `*.sln` file to offer context. Since Copilot in Visual Studio is difficult in locating files.
+- After the script is executed, supporting files will be able to commit to the repo. So you don't have to run it everytime you switch between branches or clone.
 
 To initialize a code change, use `0-scrum.prompt.md` and type your problem in chat, with `# Problem`.
 - `win-` is for Visual Studio Code running on Windows. You need to type `#win-0-scrum.prompt.md` to use it.
