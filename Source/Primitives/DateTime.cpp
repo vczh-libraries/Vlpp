@@ -10,22 +10,26 @@ namespace vl
 {
 	extern IDateTimeImpl* GetOSDateTimeImpl();
 
-	feature_injection::FeatureInjection<IDateTimeImpl> dateTimeInjection(GetOSDateTimeImpl());
+	feature_injection::FeatureInjection<IDateTimeImpl>& GetDateTimeInjection()
+	{
+		static feature_injection::FeatureInjection<IDateTimeImpl> injection(GetOSDateTimeImpl());
+		return injection;
+	}
 
 	void InjectDateTimeImpl(IDateTimeImpl* impl)
 	{
-		dateTimeInjection.Inject(impl);
+		GetDateTimeInjection().Inject(impl);
 	}
 
 	void EjectDateTimeImpl(IDateTimeImpl* impl)
 	{
 		if (impl == nullptr)
 		{
-			dateTimeInjection.EjectAll();
+			GetDateTimeInjection().EjectAll();
 		}
 		else
 		{
-			dateTimeInjection.Eject(impl);
+			GetDateTimeInjection().Eject(impl);
 		}
 	}
 
@@ -35,41 +39,41 @@ DateTime
 
 	DateTime DateTime::LocalTime()
 	{
-		return dateTimeInjection.Get()->FromOSInternal(dateTimeInjection.Get()->LocalTime());
+		return GetDateTimeInjection().Get()->FromOSInternal(GetDateTimeInjection().Get()->LocalTime());
 	}
 
 	DateTime DateTime::UtcTime()
 	{
-		return dateTimeInjection.Get()->FromOSInternal(dateTimeInjection.Get()->UtcTime());
+		return GetDateTimeInjection().Get()->FromOSInternal(GetDateTimeInjection().Get()->UtcTime());
 	}
 
 	DateTime DateTime::FromDateTime(vint _year, vint _month, vint _day, vint _hour, vint _minute, vint _second, vint _milliseconds)
 	{
-		return dateTimeInjection.Get()->FromDateTime(_year, _month, _day, _hour, _minute, _second, _milliseconds);
+		return GetDateTimeInjection().Get()->FromDateTime(_year, _month, _day, _hour, _minute, _second, _milliseconds);
 	}
 
 	DateTime DateTime::FromOSInternal(vuint64_t _osInternal)
 	{
-		return dateTimeInjection.Get()->FromOSInternal(_osInternal);
+		return GetDateTimeInjection().Get()->FromOSInternal(_osInternal);
 	}
 
 	DateTime DateTime::ToLocalTime()
 	{
-		return dateTimeInjection.Get()->FromOSInternal(dateTimeInjection.Get()->UtcToLocalTime(osInternal));
+		return GetDateTimeInjection().Get()->FromOSInternal(GetDateTimeInjection().Get()->UtcToLocalTime(osInternal));
 	}
 
 	DateTime DateTime::ToUtcTime()
 	{
-		return dateTimeInjection.Get()->FromOSInternal(dateTimeInjection.Get()->LocalToUtcTime(osInternal));
+		return GetDateTimeInjection().Get()->FromOSInternal(GetDateTimeInjection().Get()->LocalToUtcTime(osInternal));
 	}
 
 	DateTime DateTime::Forward(vuint64_t milliseconds)
 	{
-		return dateTimeInjection.Get()->FromOSInternal(dateTimeInjection.Get()->Forward(osInternal, milliseconds));
+		return GetDateTimeInjection().Get()->FromOSInternal(GetDateTimeInjection().Get()->Forward(osInternal, milliseconds));
 	}
 
 	DateTime DateTime::Backward(vuint64_t milliseconds)
 	{
-		return dateTimeInjection.Get()->FromOSInternal(dateTimeInjection.Get()->Backward(osInternal, milliseconds));
+		return GetDateTimeInjection().Get()->FromOSInternal(GetDateTimeInjection().Get()->Backward(osInternal, milliseconds));
 	}
 }
