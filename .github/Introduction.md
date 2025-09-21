@@ -10,24 +10,24 @@ To initialize a code change, use `0-scrum.prompt.md` and type your problem in ch
 - `vs-` is for Visual Studio. You need to type `#prompt:vs-0-scrum.prompt.md` to use it.
   
 The `prompts` folder copies all task in Visual Studio github copilot recognized format.
-- [`0-scrum.prompt.md`](prompts/win-0-scrum.prompt.md) creates `Copilot_Scrum.md`.
+- [0-scrum.prompt.md](prompts/win-0-scrum.prompt.md) creates `Copilot_Scrum.md`.
   - Use `# Problem` for the problem.
-- [`1-design.prompt.md`](prompts/win-1-design.prompt.md) creates `Copilot_Task.md`.
+- [1-design.prompt.md](prompts/win-1-design.prompt.md) creates `Copilot_Task.md`.
   - Use `# Problem` for the problem. If the problem is `Complete Task No.X`, it will find the task description in `Copilot_Scrum.md`.
-- [`2-planning.prompt.md`](prompts/win-2-planning.prompt.md) creates `Copilot_Planning.md`.
-- [`3-execution.prompt.md`](prompts/win-3-execution.prompt.md) creates `Copilot_Execution.md`.
-- [`4-verifying.prompt.md`](prompts/win-4-verifying.prompt.md) compiles and runs unit test.
-- [`ask.prompt.md`](prompts/win-ask.prompt.md) offers insights about the source code.
-- [`code.prompt.md`](prompts/win-code.prompt.md) update the source code directly, without having to go through all the process.
-- [`kb-api.prompt.md`](prompts/win-kb-api.prompt.md) make change to the [knowledge base](KnowledgeBase/Index.md), for api document.
-- [`kb-design.prompt.md`](prompts/win-kb-design.prompt.md) creates `Copilot_KB.md` and make change to the [knowledge base](KnowledgeBase/Index.md), for high-level api/design document.
+- [2-planning.prompt.md](prompts/win-2-planning.prompt.md) creates `Copilot_Planning.md`.
+- [3-execution.prompt.md](prompts/win-3-execution.prompt.md) creates `Copilot_Execution.md`.
+- [4-verifying.prompt.md](prompts/win-4-verifying.prompt.md) compiles and runs unit test.
+- [ask.prompt.md](prompts/win-ask.prompt.md) offers insights about the source code.
+- [code.prompt.md](prompts/win-code.prompt.md) update the source code directly, without having to go through all the process.
+- [kb-api.prompt.md](prompts/win-kb-api.prompt.md) make change to the [knowledge base](KnowledgeBase/Index.md), for api document.
+- [kb-design.prompt.md](prompts/win-kb-design.prompt.md) creates `Copilot_KB.md` and make change to the [knowledge base](KnowledgeBase/Index.md), for high-level api/design document.
 - You can always use `# Update` in any phrase for adjustment.
 
 ## Demo
 
 The `sampleLogFiles` folder copies generated document files for a simple task as a demo.
 It is a scrum with several tasks. Each folder contains documents created from each task.
-Only `Copilot_Scrum.md` and `Copilot_KB.md` will be kept, all other documents will be deleted when `1-design.prompt.md` is activated for a new task.
+Only [Copilot_Scrum.md](TaskLogs/Copilot_Scrum.md) and [Copilot_KB.md](TaskLogs/Copilot_KB.md) will be kept, all other documents will be deleted when `1-design.prompt.md` is activated for a new task.
 
 Check out demo logs:
 
