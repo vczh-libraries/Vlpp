@@ -136,10 +136,9 @@ DateTime
 		}
 	};
 
-	LinuxDateTimeImpl osDateTimeImpl;
-
 	IDateTimeImpl* GetOSDateTimeImpl()
 	{
+		static LinuxDateTimeImpl osDateTimeImpl;
 		return &osDateTimeImpl;
 	}
 }

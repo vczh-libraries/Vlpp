@@ -140,10 +140,9 @@ DateTime
 		}
 	};
 
-	WindowsDateTimeImpl osDateTimeImpl;
-
 	IDateTimeImpl* GetOSDateTimeImpl()
 	{
+		static WindowsDateTimeImpl osDateTimeImpl;
 		return &osDateTimeImpl;
 	}
 }
