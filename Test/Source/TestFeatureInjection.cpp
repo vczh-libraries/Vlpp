@@ -171,6 +171,34 @@ TEST_FILE
 			TEST_ASSERT(injection.Get()->GetFeatures() == L"Default-Impl3");
 			TEST_ASSERT(impl3->beginInjectionCallCount == 1);
 		});
+
+		TEST_CASE(L"EjectAll restores default implementation")
+		{
+			auto defaultImpl = new MockFeatureImpl(L"Default");
+			auto impl1 = new MockFeatureImpl(L"Impl1");
+			auto impl2 = new MockFeatureImpl(L"Impl2");
+			auto impl3 = new MockFeatureImpl(L"Impl3");
+			FeatureInjection<IMockFeatureImpl> injection(defaultImpl);
+			
+			// Inject three implementations
+			injection.Inject(impl1);
+			injection.Inject(impl2);
+			injection.Inject(impl3);
+			
+			// Verify current is impl3
+			TEST_ASSERT(injection.Get()->GetFeatures() == L"Default-Impl1-Impl2-Impl3");
+			TEST_ASSERT(injection.Get() == impl3);
+			
+			// EjectAll and verify default is restored
+			injection.EjectAll();
+			TEST_ASSERT(injection.Get()->GetFeatures() == L"Default");
+			TEST_ASSERT(injection.Get() == defaultImpl);
+			
+			// Verify all injected implementations had EndInjection called
+			TEST_ASSERT(impl1->endInjectionCallCount == 1);
+			TEST_ASSERT(impl2->endInjectionCallCount == 1);
+			TEST_ASSERT(impl3->endInjectionCallCount == 1);
+		});
 	});
 
 	TEST_CATEGORY(L"Lifecycle Method Verification")

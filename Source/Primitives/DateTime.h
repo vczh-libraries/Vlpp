@@ -7,6 +7,7 @@ Licensed under https://github.com/vczh-libraries/License
 #define VCZH_DATETIME
 
 #include "../Basic.h"
+#include "../FeatureInjection.h"
 
 namespace vl
 {
@@ -101,7 +102,7 @@ Date and Time
 		}
 	};
 
-	class IDateTimeImpl : public virtual Interface
+	class IDateTimeImpl : public virtual feature_injection::IFeatureImpl
 	{
 	public:
 		virtual DateTime			FromDateTime(vint _year, vint _month, vint _day, vint _hour, vint _minute, vint _second, vint _milliseconds) = 0;
@@ -115,6 +116,7 @@ Date and Time
 	};
 
 	extern void						InjectDateTimeImpl(IDateTimeImpl* impl);
+	extern void						EjectDateTimeImpl(IDateTimeImpl* impl);
 }
 
 #endif

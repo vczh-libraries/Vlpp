@@ -18,7 +18,7 @@ namespace vl
 DateTime
 ***********************************************************************/
 
-	class WindowsDateTimeImpl : public Object, public virtual IDateTimeImpl
+	class WindowsDateTimeImpl : public feature_injection::FeatureImpl<IDateTimeImpl>
 	{
 	public:
 

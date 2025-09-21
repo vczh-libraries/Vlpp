@@ -140,6 +140,17 @@ namespace vl
 					toEject = next;
 				}
 			}
+
+			/// <summary>Eject all implementations, restoring the default implementation.</summary>
+			void EjectAll()
+			{
+				while (currentImpl->GetPreviousImpl() != nullptr)
+				{
+					auto toEject = currentImpl;
+					currentImpl = currentImpl->GetPreviousImpl();
+					toEject->EndInjection();
+				}
+			}
 		};
 	}
 }

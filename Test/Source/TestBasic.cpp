@@ -1,6 +1,7 @@
 #include "../../Source/UnitTest/UnitTest.h"
 #include "../../Source/Primitives/DateTime.h"
 #include "../../Source/Primitives/Pointer.h"
+#include "../../Source/FeatureInjection.h"
 
 using namespace vl;
 
@@ -223,5 +224,86 @@ TEST_FILE
 			auto u2 = u1.ToLocalTime().ToUtcTime();
 			TEST_ASSERT(u1 == u2);
 		}
+	});
+
+	TEST_CASE(L"DateTime Injection and Ejection")
+	{
+		// Create mock implementation that returns fixed time
+		class MockDateTimeImpl : public feature_injection::FeatureImpl<IDateTimeImpl>
+		{
+		public:
+			DateTime FromDateTime(vint _year, vint _month, vint _day, vint _hour, vint _minute, vint _second, vint _milliseconds) override
+			{
+				return Previous()->FromDateTime(_year, _month, _day, _hour, _minute, _second, _milliseconds);
+			}
+			
+			DateTime FromOSInternal(vuint64_t osInternal) override
+			{
+				return Previous()->FromOSInternal(osInternal);
+			}
+			
+			vuint64_t LocalTime() override
+			{
+				// Return fixed time: 2000-1-1 0:0:0:0
+				DateTime fixedDateTime = Previous()->FromDateTime(2000, 1, 1, 0, 0, 0, 0);
+				return fixedDateTime.osInternal;
+			}
+			
+			vuint64_t UtcTime() override
+			{
+				// Return fixed time: 2000-1-1 0:0:0:0
+				DateTime fixedDateTime = Previous()->FromDateTime(2000, 1, 1, 0, 0, 0, 0);
+				return fixedDateTime.osInternal;
+			}
+			
+			vuint64_t LocalToUtcTime(vuint64_t osInternal) override
+			{
+				return Previous()->LocalToUtcTime(osInternal);
+			}
+			
+			vuint64_t UtcToLocalTime(vuint64_t osInternal) override
+			{
+				return Previous()->UtcToLocalTime(osInternal);
+			}
+			
+			vuint64_t Forward(vuint64_t osInternal, vuint64_t milliseconds) override
+			{
+				return Previous()->Forward(osInternal, milliseconds);
+			}
+			
+			vuint64_t Backward(vuint64_t osInternal, vuint64_t milliseconds) override
+			{
+				return Previous()->Backward(osInternal, milliseconds);
+			}
+		};
+		
+		MockDateTimeImpl mockImpl;
+		
+		// Inject mock implementation
+		InjectDateTimeImpl(&mockImpl);
+		
+		// Store results before ejection to ensure cleanup happens even on test failure
+		DateTime localResult = DateTime::LocalTime();
+		DateTime utcResult = DateTime::UtcTime();
+		
+		// Always eject to ensure no side effects on other tests
+		EjectDateTimeImpl(nullptr);
+		
+		// Verify the mock implementation was used
+		TEST_ASSERT(localResult.year == 2000);
+		TEST_ASSERT(localResult.month == 1);
+		TEST_ASSERT(localResult.day == 1);
+		TEST_ASSERT(localResult.hour == 0);
+		TEST_ASSERT(localResult.minute == 0);
+		TEST_ASSERT(localResult.second == 0);
+		TEST_ASSERT(localResult.milliseconds == 0);
+		
+		TEST_ASSERT(utcResult.year == 2000);
+		TEST_ASSERT(utcResult.month == 1);
+		TEST_ASSERT(utcResult.day == 1);
+		TEST_ASSERT(utcResult.hour == 0);
+		TEST_ASSERT(utcResult.minute == 0);
+		TEST_ASSERT(utcResult.second == 0);
+		TEST_ASSERT(utcResult.milliseconds == 0);
 	});
 }
