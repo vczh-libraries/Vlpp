@@ -317,6 +317,17 @@ Cross-process synchronization objects that support waiting operations with timeo
 
 ### Design Explanation
 
+#### Implementing an Injectable Feature
+
+- Linked-list based dependency injection mechanism enabling runtime replacement and extension of feature implementations while maintaining delegation capabilities
+- Three core components: `IFeatureImpl` base interface, `FeatureImpl<TImpl>` template for type-safe delegation, and `FeatureInjection<TImpl>` manager for chain operations
+- Standard implementation pattern with interface definition, default implementation, global management functions using static local variables for thread-safe singleton behavior
+- Delegation mechanism through `Previous()` method allowing partial overrides and full delegation with LIFO injection structure and cascading ejection behavior
+- Critical lifecycle guarantees where `EndInjection` only called during explicit operations, and restriction of injection/ejection to application-level code for proper ordering
+- Real-world implementation demonstrated through DateTime system with platform-specific implementations and testing integration using mock implementations
+
+[Design Explanation](./KB_Vlpp_Design_ImplementingInjectableFeature.md)
+
 ## VlppRegex
 
 Files from Import:
