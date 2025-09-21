@@ -4,6 +4,7 @@ DEVELOPER: Zihan Chen(vczh)
 ***********************************************************************/
 
 #include "..\..\Source\Basic.h"
+#include "..\..\Source\FeatureInjection.h"
 #include "..\..\Source\Collections\Pair.h"
 #include "..\..\Source\Primitives\DateTime.h"
 #include "..\..\Source\Primitives\Nullable.h"
