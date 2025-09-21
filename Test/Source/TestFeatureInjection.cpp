@@ -77,7 +77,7 @@ TEST_FILE
 			injection.Inject(impl1);
 			TEST_ASSERT(injection.Get() == impl1);
 		});
-	})
+	});
 
 	TEST_CATEGORY(L"Injection Chain Management")
 	{
@@ -171,7 +171,7 @@ TEST_FILE
 			TEST_ASSERT(injection.Get()->GetFeatures() == L"Default-Impl3");
 			TEST_ASSERT(impl3->beginInjectionCallCount == 1);
 		});
-	})
+	});
 
 	TEST_CATEGORY(L"Lifecycle Method Verification")
 	{
@@ -234,7 +234,7 @@ TEST_FILE
 			TEST_ASSERT(impl2->endInjectionCallCount == 1);
 			TEST_ASSERT(impl3->endInjectionCallCount == 1);
 		});
-	})
+	});
 
 	TEST_CATEGORY(L"Error Handling")
 	{
@@ -273,5 +273,5 @@ TEST_FILE
 				injection.Eject(nonExistent);
 			});
 		});
-	})
+	});
 }

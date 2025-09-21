@@ -104,7 +104,7 @@ namespace vl
 			/// <returns>The current implementation, never nullptr after proper initialization.</returns>
 			TImpl* Get()
 			{
-				return static_cast<TImpl*>(currentImpl);
+				return dynamic_cast<TImpl*>(currentImpl);
 			}
 
 			/// <summary>Inject a new implementation, making it the current active one.</summary>
@@ -112,7 +112,7 @@ namespace vl
 			void Inject(TImpl* impl)
 			{
 				CHECK_ERROR(impl != nullptr, L"vl::feature_injection::FeatureInjection<TImpl>::Inject(TImpl*): Implementation cannot be nullptr.");
-				static_cast<IFeatureImpl*>(impl)->BeginInjection(currentImpl);
+				dynamic_cast<IFeatureImpl*>(impl)->BeginInjection(currentImpl);
 				currentImpl = impl;
 			}
 
