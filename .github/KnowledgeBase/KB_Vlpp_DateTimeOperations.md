@@ -49,18 +49,28 @@ Both methods return new `DateTime` instances with the specified amount of time a
 Override the default DateTime implementation for testing and customization.
 
 - Use `InjectDateTimeImpl(impl)` to set a custom `IDateTimeImpl` implementation
-- Use `InjectDateTimeImpl(nullptr)` to reset to the default OS-specific implementation
-- Use `GetOSDateTimeImpl()` to get the OS-dependent default implementation (function not in header file, declare manually)
+- Use `EjectDateTimeImpl(impl)` to remove a specific injected implementation from the injection chain
+- Use `EjectDateTimeImpl(nullptr)` to remove all injected implementations and restore the default OS-specific implementation
 
-This functionality allows you to provide predictable time values for testing or implement custom time behaviors. The injected implementation affects all `DateTime` operations globally.
+This functionality allows you to provide predictable time values for testing or implement custom time behaviors. The injected implementations form a chain where each implementation can delegate to the previous one in the chain.
 
-The `GetOSDateTimeImpl()` function provides access to the platform-specific default implementation but is not declared in the header files. You need to declare it manually in your cpp files when needed:
+When using injection for testing, always ensure proper cleanup by calling `EjectDateTimeImpl(nullptr)` to avoid affecting other test cases:
 
 ```cpp
-namespace vl
-{
-    extern IDateTimeImpl* GetOSDateTimeImpl();
-}
+// Test example showing proper injection/ejection pattern
+MockDateTimeImpl mockImpl;
+
+// Inject mock implementation
+InjectDateTimeImpl(&mockImpl);
+
+// Store results before ejection to ensure cleanup happens even on test failure
+DateTime localResult = DateTime::LocalTime();
+
+// Always eject to ensure no side effects on other tests
+EjectDateTimeImpl(nullptr);
+
+// Verify results after cleanup
+TEST_ASSERT(localResult.year == 2000);
 ```
 
 ## Extra Content

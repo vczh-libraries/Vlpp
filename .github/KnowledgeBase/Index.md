@@ -105,6 +105,7 @@ Cross-platform date and time handling with timezone conversions and arithmetic o
 - Use `ToLocalTime()` and `ToUtcTime()` for timezone conversions
 - Use `Forward()` and `Backward()` for time arithmetic operations
 - Use `InjectDateTimeImpl` to replace implementation for testing and customization
+- Use `EjectDateTimeImpl` to remove injected implementations and restore previous ones
 
 [API Explanation](./KB_Vlpp_DateTimeOperations.md)
 
