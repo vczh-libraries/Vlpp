@@ -94,7 +94,9 @@ You need to locate listed files in `TaskLogs.vcxitems`.
 
 # Compile the Solution
 
-- Just compile the current solution.
+- Just let Visual Studio to compile the solution.
+- DO NOT use msbuild by yourself.
+- You must keep fixing the code until all errors are eliminated.
 
 # Verifying your code edit
 

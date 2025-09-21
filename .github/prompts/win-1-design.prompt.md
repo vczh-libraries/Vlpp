@@ -3,9 +3,10 @@
 ## Goal and Constraints
 
 - Your goal is to finish a design document in `Copilot_Task.md` to address a problem.
-- You are only allowed to update `Copilot_Task.md`.
-- You are only allowed to mark a task completed in `Copilot_Scrum.md`.
+- You are only allowed to update `Copilot_Task.md` and mark a task completed in `Copilot_Scrum.md`.
 - You are not allowed to modify any other files.
+- Anything in the instruction is a guidance to complete `Copilot_Task.md`.
+- DO NOT modify any source code.
 
 ## Copilot_Task.md Structure
 

@@ -37,7 +37,7 @@ namespace vl
 		/// </summary>
 		template<typename TImpl>
 		    requires std::is_base_of_v<IFeatureImpl, TImpl>
-		class FeatureImpl : public Object, public virtual IFeatureImpl
+		class FeatureImpl : public Object, public virtual TImpl
         {
 		private:
 			TImpl*				_previousImpl = nullptr;
@@ -69,6 +69,14 @@ namespace vl
 			/// <param name="_previousImpl">The type-safe previous implementation.</param>
 			virtual void BeginInjection(TImpl* _previousImpl)
 			{
+			}
+
+		protected:
+			/// <summary>Get the previous implementation with type safety.</summary>
+			/// <returns>The previous implementation, or nullptr if this is the first in chain.</returns>
+			TImpl* Previous()
+			{
+				return _previousImpl; // Already verified and cast during BeginInjection
 			}
 		};
 

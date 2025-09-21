@@ -5,6 +5,8 @@
 - Your goal is to finish a planning document in `Copilot_Planning.md` to address a problem from `Copilot_Task.md`.
 - You are only allowed to update `Copilot_Planning.md`.
 - You are not allowed to modify any other files.
+- Anything in the instruction is a guidance to complete `Copilot_Planning.md`.
+- DO NOT modify any source code.
 
 ## Copilot_Planning.md Structure
 
@@ -51,8 +53,9 @@
 
 - Your goal is to write a design document to `Copilot_Planning.md`. DO NOT update any other file including source code.
 - The code change proposed in the improvement plan must contain actual code. I need to review them before going to the next phrase.
+- DO NOT copy `# UPDATES` from `Copilot_Task.md` to `Copilot_Planning.md`.
 
-## Step 5. Mark the Completion
+## Step 4. Mark the Completion
 
 - Ensure there is a `# !!!FINISHED!!!` mark at the end of `Copilot_Planning.md` to indicate the document reaches the end.
 
