@@ -27,7 +27,7 @@ The `prompts` folder copies all task in Visual Studio github copilot recognized 
 
 The `sampleLogFiles` folder copies generated document files for a simple task as a demo.
 It is a scrum with several tasks. Each folder contains documents created from each task.
-Only `Copilot_Scrum.md` will be kept, all other documents will be deleted when `1-design.prompt.md` is activated for a new task.
+Only `Copilot_Scrum.md` and `Copilot_KB.md` will be kept, all other documents will be deleted when `1-design.prompt.md` is activated for a new task.
 
 Check out demo logs:
 
