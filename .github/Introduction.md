@@ -46,4 +46,8 @@ Check out demo logs:
   - [Copilot_Planning.md](sampleLogFiles/Task-3/Copilot_Planning.md)
   - [Copilot_Task.md](sampleLogFiles/Task-3/Copilot_Task.md)
 
-![Prompts](sampleLogFiles/Prompts.png)
+### In Visual Studio
+![VS screenshot](sampleLogFiles/Prompts_vs.png)
+
+### In Visual Studio Code
+![VSCode screenshot](sampleLogFiles/Prompts_vsc.png)
