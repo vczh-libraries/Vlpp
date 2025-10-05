@@ -569,4 +569,205 @@ The user confirmed that `a*?*?*?b` is equivalent to `a???*b`, which requires at 
 
 After correcting the test expectations, all 461 test cases pass successfully.
 
+# Comparing my code with user's edit
+
+## Overview
+
+After implementing multiple fixing attempts with increasingly complex logic, the user rewrote the implementation following principles of compactness and DRY (Don't Repeat Yourself). This comparison reveals significant lessons about code simplicity and algorithm design.
+
+## Key Differences
+
+### 1. **Algorithm Approach - The Core Insight**
+
+**My approach (during fixing attempts):**
+- Complex state management with separate `textPtr` and `tryPtr` variables
+- Attempted to preserve the original `textPtr` position while backtracking
+- Overthought the semantics of "consuming" vs "skipping" characters
+- Multiple conditional branches to handle edge cases
+
+**User's approach (final implementation):**
+```cpp
+default:
+{
+    vint minSkip = tokenType;
+    for (vint i = 0; i < minSkip; i++)
+    {
+        if (*text++ == L'\0') return false;
+    }
+
+    while (true)
+    {
+        if (MatchWildcardNaive(wildcard, text, caseSensitive))
+        {
+            return true;
+        }
+        if (*text++ == L'\0') return false;
+    }
+}
+```
+
+**The elegant solution:**
+1. Simply advance `text` by `minSkip` characters (enforcing the minimum requirement)
+2. Backtrack by trying to match the remaining pattern from each position
+3. Use recursion naturally without complex state
+4. Each iteration advances `text` by one more character until success or end-of-string
+
+**Why this works:** After consuming the minimum required characters, the backtracking loop explores all possible "greedy" lengths for the wildcard. The recursion handles nested patterns naturally.
+
+### 2. **Tokenization Simplicity**
+
+**My mental model:**
+- Overanalyzed the interaction between tokenization and matching
+- Worried about whether tokens should "know" about their context
+- Created mental complexity around token semantics
+
+**User's implementation:**
+- `WildcardNextToken` is dead simple: classify the next token and advance the pointer
+- Returns clear codes: -3 (end), -2 (single ?), -1 (literal), ≥0 (star with N question marks)
+- No special cases, no context awareness
+- Perfect separation of concerns
+
+### 3. **DRY Principle Application**
+
+**What I did wrong:**
+- Repeated similar logic in multiple places during fixing attempts
+- Created separate code paths for different scenarios
+- Duplicated the advancement logic
+
+**What the user did right:**
+- Single backtracking loop handles all star wildcard cases
+- Recursion eliminates the need for manual state management
+- No code duplication - each concept appears exactly once
+
+### 4. **State Management**
+
+**My overcomplicated approach:**
+- Introduced variables like `tryPtr` to track "tentative" positions
+- Worried about "consuming" vs "preserving" the text pointer
+- Created mental models about "locking in" characters
+
+**User's simple approach:**
+- Just one pointer (`text`) that moves forward
+- Recursion creates natural checkpoints (function call stack)
+- No need to manually save/restore state
+
+### 5. **Edge Case Handling**
+
+**My approach:**
+- Added explicit checks for pattern ending with `*`
+- Special-cased the empty pattern after star
+- Complex conditional logic
+
+**User's approach:**
+- The natural flow handles all cases correctly
+- When `wildcard` points to `\0`, the next iteration returns `*text == L'\0'`
+- No special cases needed - the algorithm is correct by construction
+
+## Fundamental Lessons Learned
+
+### 1. **Occam's Razor in Algorithm Design**
+When an algorithm feels complicated, it probably is. The simplest solution is usually correct. I was overcomplicating because I didn't fully trust the recursive backtracking approach.
+
+### 2. **Trust the Recursion**
+Recursion naturally handles nested patterns and backtracking. By recursively calling `MatchWildcardNaive` from each position, the algorithm explores all possibilities without manual state management. The call stack IS the state.
+
+### 3. **Advance, Don't Preserve**
+My mistake was thinking I needed to "preserve" the original position. The elegant solution is: advance by minimum required, then keep advancing until we find a match or run out of text. Each recursive call gets its own `text` pointer (by value), so backtracking is automatic.
+
+### 4. **Clear Token Semantics**
+The star token with N question marks means: "match at least N characters, possibly more." This is directly expressed in code:
+- Advance by N (the minimum)
+- Try matching the rest from here
+- If that fails, advance one more and try again
+- Repeat until success or end-of-string
+
+### 5. **Code Should Read Like the Specification**
+The user's code reads almost like the algorithm description:
+- "Advance by minimum required characters"
+- "Try matching the rest from each subsequent position"
+This is the gold standard - the code IS the documentation.
+
+### 6. **When Stuck, Step Back**
+I spent three fixing attempts adding complexity. The right move was to step back and ask: "What's the simplest way to express this algorithm?" The user did exactly this by rewriting from scratch.
+
+### 7. **Variable Naming Clarity**
+The user uses `text` (not `textPtr` or `tryPtr`). Simple, clear, no ambiguity. When you need multiple similar-named variables, that's a code smell.
+
+### 8. **Separation of Concerns**
+- `WildcardNextToken`: Pure tokenization, no matching logic
+- `MatchWildcardNaive`: Pure matching, minimal token knowledge
+Perfect separation makes both functions simple and testable.
+
+## Specific Technical Insights
+
+### Why My "tryPtr" Approach Failed
+I thought I needed to preserve `textPtr` and use a separate `tryPtr` for exploration. This created confusion about:
+- Which pointer to advance when?
+- How to initialize `tryPtr`?
+- When to sync them?
+
+The user's insight: **You don't need two pointers.** Just advance the one pointer and let recursion handle the rest. Each recursive call gets its own copy of the pointer (pass-by-value), which provides natural isolation.
+
+### The Backtracking Loop Beauty
+```cpp
+while (true)
+{
+    if (MatchWildcardNaive(wildcard, text, caseSensitive))
+    {
+        return true;
+    }
+    if (*text++ == L'\0') return false;
+}
+```
+
+This is textbook backtracking:
+1. Try current position
+2. If success, return success
+3. If text exhausted, return failure
+4. Otherwise, advance and try again
+
+No complex conditionals, no edge cases, just pure logic.
+
+### Token Type Encoding Elegance
+- `-3`: End of pattern
+- `-2`: Single `?`
+- `-1`: Literal string
+- `≥0`: Star wildcard with N question marks
+
+This encoding makes the switch statement trivial and eliminates special cases in the tokenizer.
+
+## Impact on Future Development
+
+### Guidelines for Algorithm Implementation
+1. **Start simple**: Write the most straightforward version first
+2. **Trust standard patterns**: Recursion and backtracking are well-understood
+3. **Avoid premature optimization**: Simple code is often fast enough
+4. **When debugging, simplify**: If the fix is complex, the approach may be wrong
+
+### Code Review Questions
+When reviewing my own code or others':
+1. Can this be expressed more simply?
+2. Am I managing state that the language/algorithm handles naturally?
+3. Do I have variables that differ only by name suffix? (e.g., ptr vs tryPtr)
+4. Does the code read like the algorithm description?
+5. Are there repeated patterns that could be unified?
+
+### Mental Model Adjustment
+- **Old model**: "I need to carefully track positions and restore state"
+- **New model**: "Advance the pointer and recurse; the call stack is the state"
+
+This applies beyond wildcard matching to many backtracking and recursive algorithms.
+
+## Conclusion
+
+The user's rewrite demonstrates that **mastery is knowing what NOT to do**. By eliminating unnecessary complexity:
+- The code is shorter (fewer lines)
+- The code is clearer (easier to understand)
+- The code is more correct (fewer edge cases to miss)
+- The code is more maintainable (fewer places for bugs)
+
+This comparison is a masterclass in algorithm design and implementation. The lesson isn't just about wildcard matching - it's about recognizing when you're fighting the problem instead of solving it, and having the discipline to start over with a clearer mental model.
+
+**Key takeaway**: When implementing algorithms, especially recursive ones, the simplest solution that directly expresses the algorithm's semantics is almost always the right one. Complexity is a smell; simplicity is a virtue.
+
 # !!!VERIFIED!!!
