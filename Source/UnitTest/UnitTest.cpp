@@ -8,8 +8,133 @@ Licensed under https://github.com/vczh-libraries/License
 #include "../Strings/Conversion.h"
 #include "../Collections/Operation.h"
 
+#ifdef VCZH_GCC
+#define _wcsnicmp wcsncasecmp
+#endif
+
 namespace vl
 {
+
+/***********************************************************************
+MatchWildcardNaive
+***********************************************************************/
+
+	static vint WildcardNextToken(const wchar_t*& wildcard)
+	{
+		wchar_t c = *wildcard;
+		if (c == L'\0')
+		{
+			return -3;
+		}
+		else if (c == L'?')
+		{
+			wildcard++;
+			return -2;
+		}
+		else if (c == L'*')
+		{
+			vint questionCount = 0;
+			while ((c = *wildcard) == L'*' || c == L'?')
+			{
+				if (c == L'?')
+				{
+					questionCount++;
+				}
+				wildcard++;
+			}
+			return questionCount;
+		}
+		else
+		{
+			while ((c = *wildcard) != L'\0' && c != L'?' && c != L'*')
+			{
+				wildcard++;
+			}
+			return -1;
+		}
+	}
+
+	bool MatchWildcardNaive(const wchar_t* wildcard, const wchar_t* text, bool caseSensitive)
+	{
+#define ERROR_MESSAGE_PREFIX L"vl::MatchWildcardNaive(const wchar_t*, const wchar_t*, bool)#"
+		CHECK_ERROR(wildcard != nullptr, ERROR_MESSAGE_PREFIX L"wildcard cannot be nullptr");
+		CHECK_ERROR(text != nullptr, ERROR_MESSAGE_PREFIX L"text cannot be nullptr");
+		
+		const wchar_t* wcPtr = wildcard;
+		const wchar_t* textPtr = text;
+		
+		while (true)
+		{
+			const wchar_t* tokenStart = wcPtr;
+			vint tokenType = WildcardNextToken(wcPtr);
+			
+			if (tokenType == -3)
+			{
+				break;
+			}
+			
+			if (tokenType == -1)
+			{
+				vint literalLen = wcPtr - tokenStart;
+				
+				vint cmpResult = caseSensitive 
+					? wcsncmp(tokenStart, textPtr, literalLen)
+					: _wcsnicmp(tokenStart, textPtr, literalLen);
+				
+				if (cmpResult != 0)
+				{
+					return false;
+				}
+				
+				textPtr += literalLen;
+			}
+			else if (tokenType == -2)
+			{
+				if (*textPtr == L'\0')
+				{
+					return false;
+				}
+				textPtr++;
+			}
+			else
+			{
+				vint minSkip = tokenType;
+				
+				for (vint i = 0; i < minSkip; i++)
+				{
+					if (*textPtr == L'\0')
+					{
+						return false;
+					}
+					textPtr++;
+				}
+				
+				if (*wcPtr != L'\0')
+				{
+					const wchar_t* tryPtr = textPtr;
+					while (true)
+					{
+						if (MatchWildcardNaive(wcPtr, tryPtr, caseSensitive))
+						{
+							return true;
+						}
+						
+						if (*tryPtr == L'\0')
+						{
+							break;
+						}
+						tryPtr++;
+					}
+					
+					return false;
+				}
+			}
+		}
+		
+		return *textPtr == L'\0';
+#undef ERROR_MESSAGE_PREFIX
+	}
+
 	namespace unittest
 	{
 		using namespace vl::console;
