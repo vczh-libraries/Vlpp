@@ -34,21 +34,25 @@ MatchWildcardNaive
 		else if (c == L'*')
 		{
 			vint questionCount = 0;
-			while ((c = *wildcard) == L'*' || c == L'?')
+			while (true)
 			{
 				if (c == L'?')
 				{
 					questionCount++;
 				}
-				wildcard++;
+				else if (c != L'*')
+				{
+					break;
+				}
+				c = *++wildcard;
 			}
 			return questionCount;
 		}
 		else
 		{
-			while ((c = *wildcard) != L'\0' && c != L'?' && c != L'*')
+			while (c != L'\0' && c != L'?' && c != L'*')
 			{
-				wildcard++;
+				c = *++wildcard;
 			}
 			return -1;
 		}
