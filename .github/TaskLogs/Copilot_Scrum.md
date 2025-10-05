@@ -112,10 +112,78 @@ Create a new test file `TestUnitTestUtilities.cpp` in the `Test/Source` director
 
 ### how to test it
 
+Implement comprehensive test coverage based on the detailed test plan from Task No.1's planning phase:
+
+1. **Basic Literal Matching**:
+   - Pattern: `"hello"`, Text: `"hello"` → `true`
+   - Pattern: `"hello"`, Text: `"world"` → `false`
+   - Pattern: `"hello"`, Text: `"Hello"` with `caseSensitive=true` → `false`
+   - Pattern: `"hello"`, Text: `"Hello"` with `caseSensitive=false` → `true`
+
+2. **Single Character Wildcard (`?`) Tests**:
+   - Pattern: `"h?llo"`, Text: `"hello"` → `true`
+   - Pattern: `"h?llo"`, Text: `"hallo"` → `true`
+   - Pattern: `"h?llo"`, Text: `"hllo"` → `false` (missing character)
+   - Pattern: `"???"`, Text: `"abc"` → `true`
+   - Pattern: `"???"`, Text: `"ab"` → `false` (text too short)
+
+3. **Multi-Character Wildcard (`*`) Tests**:
+   - Pattern: `"*"`, Text: `"anything"` → `true`
+   - Pattern: `"*"`, Text: `""` → `true` (empty text)
+   - Pattern: `"h*o"`, Text: `"hello"` → `true`
+   - Pattern: `"h*o"`, Text: `"ho"` → `true` (zero characters matched by `*`)
+   - Pattern: `"h*o"`, Text: `"hxxxxxo"` → `true`
+   - Pattern: `"*end"`, Text: `"hello end"` → `true`
+   - Pattern: `"start*"`, Text: `"start here"` → `true`
+
+4. **Combined Wildcard Tests**:
+   - Pattern: `"*?*"`, Text: `"x"` → `true` (at least one character due to `?`)
+   - Pattern: `"*?*"`, Text: `""` → `false` (empty text)
+   - Pattern: `"a*?b"`, Text: `"ab"` → `false` (`?` requires at least one character)
+   - Pattern: `"a*?b"`, Text: `"axb"` → `true`
+   - Pattern: `"a*?b"`, Text: `"axxxb"` → `true`
+   - Pattern: `"*??*"`, Text: `"xy"` → `true` (exactly two `?` require at least two characters)
+   - Pattern: `"*??*"`, Text: `"x"` → `false` (not enough characters)
+
+5. **Complex Pattern Tests**:
+   - Pattern: `"a*b*c"`, Text: `"abc"` → `true`
+   - Pattern: `"a*b*c"`, Text: `"aXbYc"` → `true`
+   - Pattern: `"a*b*c"`, Text: `"aXXXbYYYc"` → `true`
+   - Pattern: `"a*b*c"`, Text: `"ac"` → `false` (missing `b`)
+   - Pattern: `"*?*?*"`, Text: `"xy"` → `true`
+   - Pattern: `"*?*?*"`, Text: `"x"` → `false`
+
+6. **Edge Cases - Empty String Tests**:
+   - Pattern: `""`, Text: `""` → `true` (both empty)
+   - Pattern: `"a"`, Text: `""` → `false` (text too short)
+   - Pattern: `""`, Text: `"a"` → `false` (pattern too short)
+   - Pattern: `"*"`, Text: `""` → `true` (`*` matches zero characters)
+
+7. **Edge Cases - Length Mismatch Tests**:
+   - Pattern: `"hello"`, Text: `"hel"` → `false` (text too short)
+   - Pattern: `"hel"`, Text: `"hello"` → `false` (pattern too short, requires full match)
+
+8. **Edge Cases - Case Sensitivity Tests**:
+   - Pattern: `"HeLLo"`, Text: `"hello"` with `caseSensitive=true` → `false`
+   - Pattern: `"HeLLo"`, Text: `"hello"` with `caseSensitive=false` → `true`
+   - Pattern: `"h?llo"`, Text: `"hEllo"` with `caseSensitive=true` → `true` (`?` matches any character)
+   - Pattern: `"H*O"`, Text: `"hello"` with `caseSensitive=false` → `true`
+
+9. **WildcardNextToken Implicit Tests** (verifying correct tokenization through `MatchWildcardNaive`):
+   - Pattern: `"literal"` → Should parse as one Token A
+   - Pattern: `"abc*def"` → Should parse as Token A (`"abc"`), then Token C, then Token A (`"def"`)
+   - Pattern: `"?"` → Should parse as one Token B
+   - Pattern: `"a?b?c"` → Should parse as Token A, Token B, Token A, Token B, Token A
+   - Pattern: `"*"` → Should parse as Token C with 0 `?` count
+   - Pattern: `"*?"` → Should parse as Token C with 1 `?` count
+   - Pattern: `"*??"` → Should parse as Token C with 2 `?` count
+   - Pattern: `"**?"` → Should parse as Token C with 1 `?` count (multiple `*` merged)
+   - Pattern: `"*?*?"` → Should parse as Token C with 2 `?` count (alternating `*?` merged)
+
+After implementation:
 - Run the "Build Unit Tests" task to ensure the new test file compiles without errors.
 - Run the "Run Unit Tests" task to execute all test cases.
-- Verify that all test cases pass, confirming the `MatchWildcardNaive` function works correctly.
-- The test results should show clear success/failure for each test case category.
+- Verify that all test cases pass, confirming the `MatchWildcardNaive` function works correctly for all scenarios listed above.
 
 ### rationale
 
