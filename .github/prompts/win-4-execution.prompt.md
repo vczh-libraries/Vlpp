@@ -1,66 +1,33 @@
-# Planning
-
-- Checkout `Accessing Log Files and PowerShell Scripts` for context about mentioned `*.md` and `*.ps1` files.
-  - All `*.md` and `*.ps1` files should already be existing, you should not create any new files.
+# Execution
 
 ## Goal and Constraints
 
-- Your goal is to finish a planning document in `Copilot_Planning.md` to address a problem from `Copilot_Task.md`.
-- You are only allowed to update `Copilot_Planning.md`.
-- You are not allowed to modify any other files.
-- Anything in the instruction is a guidance to complete `Copilot_Planning.md`.
-- DO NOT modify any source code.
-
-## Copilot_Planning.md Structure
-
-- `# !!!PLANNING!!!`: This file always begin with this title.
-- `# UPDATES`: An exact copy of the problem description I gave you.
-  - `## UPDATE`: There could be multiple occurrences. Each one has an exact copy of the update description I gave you.
-- `# IMPROVEMENT PLAN`.
-  - `## STEP X: The Step Title`: One step in the improvement plan.
-    - A clear description of what to change in the source code.
-    - A clear explanation of why this change is necessary.
-- `# TEST PLAN`.
+- You are going to apply changes on the source code as well following `Copilot_Execution.md`.
 
 ## Step 1. Identify the Problem
 
-- The design document is in `Copilot_Task.md`. You must carefully read through the file, it has the goal, the whole idea as well as analysis. If `Copilot_Task.md` mentions anything about updating the knowledge base, ignore it.
+- The execution document is in `Copilot_Execution.md`
 - Find `# Update` in the LATEST chat message. Ignore any `# Update` in the chat history.
-- If there is an `# Update` section: it means I am going to propose some change to `Copilot_Planning.md`.
+- If there is an `# Update` section: it means I am going to propose some change to `Copilot_Execution.md` and the source code together.
   - Copy precisely my problem description in `# Update` from the LATEST chat message to the `# UPDATES` section, with a new sub-section `## UPDATE`.
-  - Follow my update to change the planning document.
+  - Follow my update to change the execution document and the source code.
 - If there is nothing:
-  - If `Copilot_Planning.md` only has a title, you are on a fresh start.
-  - Otherwise, it means you are accidentally stopped. Please continue your work.
-    - Read `Copilot_Planning.md` througly, it is highly possibly that you were working on the request described in the last section in `# UPDATES`.
+  - Apply all code changes in `Copilot_Execution.md` to the source code.
+  - After applying each step in `Copilot_Execution.md`, mark the step as completed by appending `[DONE]` after the step title. This allow you to find where you are if you are interrupted.
 
-## Step 2. Understand the Goal and Quality Requirement
+## Step 2. Make Sure the Code Compiles but DO NOT Run Unit Test
 
-- You need to write complete two main sections in `Copilot_Planning.md`, an improvement plan and a test plan.
-- **Improvement Plan**:
-  - Read through and understand the task in `Copilot_Task.md`.
-  - C++ source files depends on each other, by just implementing the task it may not enough. Find out what will be affected.
-  - Propose any code change you would like to do. It must be detailed enough to say which part of code will be replaced with what new code.
-  - Explain why you want to make these changes.
-  - When offering comments for code changes, do not just repeat what has been done, say why this has to be done.
-    - If the code is simple and obvious, no comment is needed. Actually most of the code should not have comments.
-    - Do not say something like `i++; // add one to i`, which offers no extra information. Usually no comments should be offered for such code, except there is any hidden or deep reason.
-- **Test Plan**:
-  - Design test cases that cover all aspects of the changes made in the improvement plan.
-  - Ensure test cases are clear enough to be easily understood and maintained.
-  - Carefully think about corner cases to cover.
-  - For refactoring work, existing test cases might have already covered most of the scenarios. Carefully review them and only add new test cases if necessary.
-  - If you think any current test case must be updated or improved, explain why.
-
-## Step 3. Finish the Document
-
-- Your goal is to write a design document to `Copilot_Planning.md`. DO NOT update any other file including source code.
-- The code change proposed in the improvement plan must contain actual code. I need to review them before going to the next phrase.
-- DO NOT copy `# UPDATES` from `Copilot_Task.md` to `Copilot_Planning.md`.
-
-## Step 4. Mark the Completion
-
-- Ensure there is a `# !!!FINISHED!!!` mark at the end of `Copilot_Planning.md` to indicate the document reaches the end.
+- Check out `Compile the Solution` for details about compiling the solution but DO NOT run unit test. If there is any compilation error, address all of them:
+  - If there is any compile warning, only fix warnings that caused by your code change. Do no fix any other warnings.
+  - If there is any compile error, you need to carefully identify, is the issue in the callee side or the caller side. Check out similar code before making a decision.
+  - For every attempt of fixing the source code:
+    - Explain why the original change did not work.
+    - Explain what you need to do.
+    - Explain why you think it would solve the build break.
+    - Log these in `Copilot_Execution.md`, with section `## Fixing attempt No.<attempt_number>` in `# FIXING ATTEMPTS`.
+  - Go back to `Step 5. Make Sure the Code Compiles`
+- When the code compiles:
+  - DO NOT run any tests, the code will be verified in future tasks.
 
 # External Tools Environment and Context
 
@@ -124,4 +91,24 @@ You need to locate listed files in `TaskLogs.vcxitems`.
 - When mentioning a C++ name in markdown file:
   - If it is defined in the standard C++ library or third-party library, use the full name.
   - If it is defined in the source code, use the full name if there is ambiguity, and then mention the file containing its definition.
+
+# Unit Test Projects to Work with
+
+## Compile the Solution
+
+- Just let Visual Studio Code to compile the solution, the `Build Unit Tests` should have been configured in `tasks.json`.
+  - This task only copmile without running.
+- If Visual Studio Code is not well configured, you must warn me in chat with BIG BOLD TEXT and stop immediately.
+- DO NOT use msbuild by yourself.
+- DO NOT modify `tasks.json`.
+
+## Executing Unit Test
+
+- Just let Visual Studio Code to run the unit test, the `Run Unit Tests` should have been configured in `tasks.json`.
+  - If you updated any source files, you should build the unit test before running it, check out `Compile the Solution` for details.
+  - Run the `Run Unit Tests` task.
+  - When all test cases pass, there will be a summarizing about how many test cases are executed. Otherwise it crashed at the last showing test case.
+- If Visual Studio Code is not well configured, you must warn me in chat with BIG BOLD TEXT and stop immediately.
+- DO NOT call executables or scripts yourself.
+- DO NOT modify `tasks.json`.
 

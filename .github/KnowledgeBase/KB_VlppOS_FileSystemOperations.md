@@ -70,24 +70,13 @@ Initializing a `Folder` with a file path with `IsRoot` returning true, is just c
 You can replace the default file system implementation with a custom one for testing and specialized scenarios:
 
 - Use `InjectFileSystemImpl(impl)` to set a custom `IFileSystemImpl` implementation
-- Use `InjectFileSystemImpl(nullptr)` to reset to the default OS-specific implementation
+- Use `EjectFileSystemImpl(impl)` to remove a specific injected implementation
+- Use `EjectFileSystemImpl(nullptr)` to reset to the default OS-specific implementation by ejecting all injected implementations
 - Use `GetOSFileSystemImpl()` to get the OS-dependent default implementation (function not in header file, declare manually)
 
 The injected implementation affects all `FilePath`, `File`, and `Folder` class operations that interact with the file system. This enables you to create in-memory file systems for testing, provide sandboxed file access, implement virtual file systems, or add custom file system behaviors like encryption or compression.
 
 Implementation injection should typically be done during application startup before any multi-threaded usage begins, as it affects global state.
-
-The `GetOSFileSystemImpl()` function provides access to the platform-specific default implementation but is not declared in the header files. You need to declare it manually in your cpp files when needed:
-
-```cpp
-namespace vl
-{
-    namespace filesystem
-    {
-        extern IFileSystemImpl* GetOSFileSystemImpl();
-    }
-}
-```
 
 ### File Stream Implementation
 

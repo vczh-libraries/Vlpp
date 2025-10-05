@@ -61,21 +61,22 @@ All these string manipulation functions internally rewrite the input strings usi
 You can replace the default locale implementation with a custom one for testing and specialized scenarios:
 
 - Use `InjectLocaleImpl(impl)` to set a custom `ILocaleImpl` implementation
-- Use `InjectLocaleImpl(nullptr)` to reset to the default OS-specific implementation
+- Use `EjectLocaleImpl(impl)` to remove a specific injected implementation
+- Use `EjectLocaleImpl(nullptr)` to reset to the default OS-specific implementation by ejecting all injected implementations
 - Use `GetOSLocaleImpl()` to get the OS-dependent default implementation (function not in header file, declare manually)
 
 The injected implementation affects all `Locale` class operations including formatting, string comparison, and cultural operations. This allows you to provide custom localization behavior, create mock locales for testing, or implement specialized cultural rules not supported by the default OS implementation.
 
 Implementation injection should typically be done during application startup before any multi-threaded usage begins, as it affects global state.
 
-The `GetOSLocaleImpl()` function provides access to the platform-specific default implementation but is not declared in the header files. You need to declare it manually in your cpp files when needed:
+### Platform-Independent Fallback Implementation
 
-```cpp
-namespace vl
-{
-    extern ILocaleImpl* GetOSLocaleImpl();
-}
-```
+The `EnUsLocaleImpl` class provides a platform-independent implementation that only supports en-US locale operations. This implementation serves as a final fallback when no OS-specific locale support is available:
+
+- `EnUsLocaleImpl` provides basic English (US) locale functionality
+- It implements all `ILocaleImpl` interface methods with en-US specific behavior
+- Use this implementation when you need consistent en-US behavior across all platforms (e.g. unit test)
+- This is the default implementation for non-Windows platform
 
 ### Character Normalization
 The locale system performs character normalization as part of its string operations. This means that characters that appear different but have the same semantic meaning (such as composed vs. decomposed Unicode characters) are treated as equivalent during comparisons and searches.

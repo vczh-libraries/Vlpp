@@ -1,5 +1,8 @@
 # Scrum
 
+- Checkout `Accessing Log Files and PowerShell Scripts` for context about mentioned `*.md` and `*.ps1` files.
+  - All `*.md` and `*.ps1` files should already be existing, you should not create any new files.
+
 ## Goal and Constraints
 
 - Your goal is to finish a design document in `Copilot_Scrum.md` to address a problem.
@@ -31,6 +34,12 @@
 - If there is an `# Update` section: it means I am going to propose some change to `Copilot_Scrum.md`.
   - Copy precisely my problem description in `# Update` from the LATEST chat message to the `# DESIGN REQUEST` section, with a new sub-section `## UPDATE`.
   - Follow my update to change the design document.
+- If there is a `# Learn` section: it means I made important updates during the execution of the last task, you should apply them smart enough to future tasks:
+  - Identify the last completed task.
+  - There will be multiple `# UPDATE` or `# FIXING ATTEMPTS` sections in `Copilot_Task.md`, `Copilot_Planning.md` and `Copilot_Execution.md`.
+  - These 3 files recorded how you interpreted the last completed task, and how I wanted you to adjust your understanding.
+  - Find out what you can learn from the updates, about my philosophy and preferences.
+  - Check all future tasks, apply what you have learned, and adjust your approach accordingly.
 - If there is nothing: it means you are accidentally stopped. Please continue your work.
 
 ## Step 2. Understand the Goal and Quality Requirement
@@ -77,14 +86,25 @@
 
 - Ensure there is a `# !!!FINISHED!!!` mark at the end of `Copilot_Scrum.md` to indicate the document reaches the end.
 
-# General Instruction
+# External Tools Environment and Context
 
 - You are on Windows running in Visual Studio Code.
-- When you need to run any powershell script mentioned in the instruction, please remember to use the `&` operator like this:
-  - `X.ps1`: invalid command.
-  - `..\X.ps1`: valid command but it doesn't work with you.
-  - `& X.ps1` or `& ..\X.ps1`: good.
-  
+- In order to achieve the goal, you always need to create/delete/update files, build the project, run the unit test, etc. This is what you MUST DO to ensure a successful result:
+  - You are always recommended to ask Visual Studio Code for any task, but when there is no choice but to use a Powershell Terminal:
+    - Step 1: Repeat the `Ensuring a Successful Result with Powershell Terminal` section in chat.
+    - Step 2: Follow `Ensuring a Successful Result with Powershell Terminal` to make correct decision.
+
+## Ensuring a Successful Result with Powershell Terminal
+
+- DO NOT run multiple commands at the same time, except they are connected with pipe (`|`).
+- DO NOT call `msbuild` or other executable files by yourself.
+- DO NOT create any new file unless explicitly directed.
+- MUST run any powershell script in this format: `& absolute-path.ps1 parameters...`.
+- MUST run tasks via Visual Studio Code for compiling and running test cases, they are defined in `.vscode/tasks.json`, DO NOT change this file.
+- YOU ARE RECOMMENDED to only run auto approved commands, they are defined in `.vscode/settings.json`, DO NOT change this file.
+
+# General Instructions
+
 - Before saying anything, say "Yes, vczh!". I use it to make sure instruction files are taking effect.
 - Find out the `Accessing Knowledge Base` section, read `Index.md` of `KnowledgeBase` project in the current solution.
 - Before generating any code, if the file is changed, read it. Not all changes come from you, I will edit the file too. Do not generate code based on out-dated version in your memory.
@@ -110,8 +130,9 @@ This guidance is for accessing following files mentioned in this instruction:
 - `Copilot_Planning.md`
 - `Copilot_Execution.md`
 - `Copilot_KB.md`
-- `copilotExecute.ps1`
 - `copilotPrepare.ps1`
+- `copilotBuild.ps1`
+- `copilotExecute.ps1`
 
 If you are running in Visual Studio, you will find the `TaskLogs` project in the current solution.
 Otherwise, locate the `TaskLogs` project in `REPO-ROOT/.github/TaskLogs/TaskLogs.vcxitems`.

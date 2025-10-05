@@ -11,6 +11,8 @@ The following data types are preferred:
 - Use `atomic_vint` for atomic integers, it is a rename of `std::atomic<vint>`.
 - Use `DateTime` for date times.
 
+[Learning of Coding Preference](./Learning.md)
+
 ## Vlpp
 
 Files from Import:
@@ -213,6 +215,8 @@ Cross-platform localization and globalization with culture-aware string operatio
 - Use `Compare`, `CompareOrdinal`, `CompareOrdinalIgnoreCase` for locale-aware string comparison
 - Use `FindFirst`, `FindLast`, `StartsWith`, `EndsWith` for normalized string searching
 - Use `InjectLocaleImpl` to replace `Locale` implementation for testing and customization
+- Use `EjectLocaleImpl` to remove specific injected implementations or reset to default
+- Use `EnUsLocaleImpl` class as platform-independent en-US fallback implementation
 
 [API Explanation](./KB_VlppOS_LocaleSupport.md)
 
@@ -231,6 +235,7 @@ Cross-platform file and directory manipulation with path handling and content ac
 - Use `GetFolders`, `GetFiles` for directory content enumeration
 - Use `Create` for creating new folders
 - Use `InjectFileSystemImpl` to replace file system implementation for testing and customization
+- Use `EjectFileSystemImpl` to remove specific injected implementations or reset to default
 
 [API Explanation](./KB_VlppOS_FileSystemOperations.md)
 
