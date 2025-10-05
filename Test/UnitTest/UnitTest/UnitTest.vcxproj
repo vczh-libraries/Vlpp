@@ -280,6 +280,7 @@
     <ClCompile Include="..\..\Source\TestList_LoopFrom_Ordered_Locked.cpp" />
     <ClCompile Include="..\..\Source\TestPartialOrdering.cpp" />
     <ClCompile Include="..\..\Source\TestSort.cpp" />
+    <ClCompile Include="..\..\Source\TestUnitTestUtilities.cpp" />
     <ClCompile Include="Main.cpp" />
   </ItemGroup>
   <ItemGroup>
