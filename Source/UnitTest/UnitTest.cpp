@@ -376,25 +376,27 @@ UnitTest
 					if (_Fs.Count() > 0)
 					{
 						skipped = true;
-						for (auto fileName : From(_Fs))
+						
+						// Extract the filename from the full path
+						const char* fullPath = current->fileName;
+						const char* fileNameStart = fullPath;
+						for (const char* p = fullPath; *p != '\0'; p++)
 						{
-							if (current->fileName == fileName)
+							if (*p == '/' || *p == '\\')
+							{
+								fileNameStart = p + 1;
+							}
+						}
+						auto currentFileName = atow(AString::Unmanaged(fileNameStart));
+						
+						// Check if any wildcard pattern matches the filename
+						for (auto pattern : From(_Fs))
+						{
+							auto widePattern = atow(pattern);
+							if (MatchWildcardNaive(widePattern.Buffer(), currentFileName.Buffer(), false))
 							{
 								skipped = false;
 								break;
-							}
-							else
-							{
-								vint len = (vint)strlen(current->fileName);
-								if (len > fileName.Length())
-								{
-									char delimiter = current->fileName[len - fileName.Length() - 1];
-									if ((delimiter == L'/' || delimiter == L'\\') && current->fileName + (len - fileName.Length()) == fileName)
-									{
-										skipped = false;
-										break;
-									}
-								}
 							}
 						}
 					}
