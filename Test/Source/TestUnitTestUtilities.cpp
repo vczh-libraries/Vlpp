@@ -140,7 +140,7 @@ TEST_FILE
 			TEST_CASE_ASSERT(MatchWildcardNaive(L"a*?*?b", L"ab", true) == false);
 			TEST_CASE_ASSERT(MatchWildcardNaive(L"*??", L"x", true) == false);
 			TEST_CASE_ASSERT(MatchWildcardNaive(L"a*?*?*?b", L"aXb", true) == false);
-			TEST_CASE_ASSERT(MatchWildcardNaive(L"a*?*?*?b", L"aXYb", true) == true);
+			TEST_CASE_ASSERT(MatchWildcardNaive(L"a*?*?*?b", L"aXYb", true) == false);
 		});
 	});
 
@@ -263,7 +263,8 @@ TEST_FILE
 		TEST_CATEGORY(L"Complex failure scenarios")
 		{
 			TEST_CASE_ASSERT(MatchWildcardNaive(L"a*?*?*?b", L"ab", true) == false);
-			TEST_CASE_ASSERT(MatchWildcardNaive(L"a*?*?*?b", L"aXYb", true) == true);
+			TEST_CASE_ASSERT(MatchWildcardNaive(L"a*?*?*?b", L"aXYb", true) == false);
+			TEST_CASE_ASSERT(MatchWildcardNaive(L"a*?*?*?b", L"aXYZb", true) == true);
 			TEST_CASE_ASSERT(MatchWildcardNaive(L"a*?*?*?b", L"aXb", true) == false);
 			TEST_CASE_ASSERT(MatchWildcardNaive(L"??*??*", L"abc", true) == false);
 			TEST_CASE_ASSERT(MatchWildcardNaive(L"??*??*", L"abcd", true) == true);
