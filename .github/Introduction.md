@@ -15,8 +15,9 @@ The `prompts` folder copies all task in Visual Studio github copilot recognized 
 - [1-design.prompt.md](prompts/win-1-design.prompt.md) creates `Copilot_Task.md`.
   - Use `# Problem` for the problem. If the problem is `Complete Task No.X`, it will find the task description in `Copilot_Scrum.md`.
 - [2-planning.prompt.md](prompts/win-2-planning.prompt.md) creates `Copilot_Planning.md`.
-- [3-execution.prompt.md](prompts/win-3-execution.prompt.md) creates `Copilot_Execution.md`.
-- [4-verifying.prompt.md](prompts/win-4-verifying.prompt.md) compiles and runs unit test.
+- [3-summarizing.prompt.md](prompts/win-3-summarizing.prompt.md) creates `Copilot_Execution.md`.
+- [4-execution.prompt.md](prompts/win-3-execution.prompt.md) edit source files according to `Copilot_Execution.md`.
+- [5-verifying.prompt.md](prompts/win-5-verifying.prompt.md) compiles and runs unit test.
 - [ask.prompt.md](prompts/win-ask.prompt.md) offers insights about the source code.
 - [code.prompt.md](prompts/win-code.prompt.md) update the source code directly, without having to go through all the process.
 - [kb-api.prompt.md](prompts/win-kb-api.prompt.md) make change to the [knowledge base](KnowledgeBase/Index.md), for api document.
