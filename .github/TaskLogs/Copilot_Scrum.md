@@ -3,7 +3,7 @@
 # DESIGN REQUEST
 
 I would like to create a function
-`bool MatchWildcardNative(const wchar_t* wildcard, const wchar_t* text, bool caseSensitive)`
+`bool MatchWildcardNaive(const wchar_t* wildcard, const wchar_t* text, bool caseSensitive)`
 
 It should be defined in UnitTest.h, although it is about vl::unittest namespace but I would like to define it in vl namespace. So in the header file it would be put on very top, and in the cpp file also very top.
 
@@ -34,16 +34,16 @@ Complete it in two tasks, the first one implements the function, the second one 
 
 # TASKS
 
-- [ ] TASK No.1: Implement MatchWildcardNative Function
-- [ ] TASK No.2: Create Unit Tests for MatchWildcardNative
+- [x] TASK No.1: Implement MatchWildcardNaive Function
+- [ ] TASK No.2: Create Unit Tests for MatchWildcardNaive
 
-## TASK No.1: Implement MatchWildcardNative Function
+## TASK No.1: Implement MatchWildcardNaive Function
 
-Implement the `MatchWildcardNative` function in `UnitTest.h` and `UnitTest.cpp` to support wildcard pattern matching with `*` and `?` characters. The function should be defined in the `vl` namespace (not `vl::unittest`) and placed at the very top of both files, before the `vl::unittest` namespace declarations.
+Implement the `MatchWildcardNaive` function in `UnitTest.h` and `UnitTest.cpp` to support wildcard pattern matching with `*` and `?` characters. The function should be defined in the `vl` namespace (not `vl::unittest`) and placed at the very top of both files, before the `vl::unittest` namespace declarations.
 
 ### what to be done
 
-- Add the function declaration `bool MatchWildcardNative(const wchar_t* wildcard, const wchar_t* text, bool caseSensitive)` to `UnitTest.h` in the `vl` namespace, positioned at the top of the file before `vl::unittest` namespace.
+- Add the function declaration `bool MatchWildcardNaive(const wchar_t* wildcard, const wchar_t* text, bool caseSensitive)` to `UnitTest.h` in the `vl` namespace, positioned at the top of the file before `vl::unittest` namespace.
 - Add the cross-platform compatibility macro in `UnitTest.cpp`:
   ```cpp
   #ifdef VCZH_GCC
@@ -60,7 +60,7 @@ Implement the `MatchWildcardNative` function in `UnitTest.h` and `UnitTest.cpp` 
   - Use a while loop to process tokens sequentially:
     - For token type a: Use `wcsncmp` (case-sensitive) or `_wcsnicmp` (case-insensitive) to match literal characters.
     - For token type b: Match any single character, fail if text reaches the end.
-    - For token type c: Implement backtracking by recursively calling `MatchWildcardNative` with different positions in the text, advancing by the number of `?` characters in the token, trying all possibilities until reaching the end of text.
+    - For token type c: Implement backtracking by recursively calling `MatchWildcardNaive` with different positions in the text, advancing by the number of `?` characters in the token, trying all possibilities until reaching the end of text.
   - Ensure the match covers the entire text, not just a substring.
 
 ### how to test it
@@ -78,9 +78,9 @@ Implement the `MatchWildcardNative` function in `UnitTest.h` and `UnitTest.cpp` 
 - The lazy tokenization approach is memory-efficient and avoids unnecessary allocations for pattern matching.
 - The backtracking algorithm for `*` wildcard is a well-established technique that ensures correct matching for complex patterns like `*?*` or `a*b*c`.
 
-## TASK No.2: Create Unit Tests for MatchWildcardNative
+## TASK No.2: Create Unit Tests for MatchWildcardNaive
 
-Create a new test file `TestUnitTestUtilities.cpp` in the `Test/Source` directory and add it to the UnitTest project. Implement comprehensive test cases to verify the correctness of the `MatchWildcardNative` function.
+Create a new test file `TestUnitTestUtilities.cpp` in the `Test/Source` directory and add it to the UnitTest project. Implement comprehensive test cases to verify the correctness of the `MatchWildcardNaive` function.
 
 ### what to be done
 
@@ -114,7 +114,7 @@ Create a new test file `TestUnitTestUtilities.cpp` in the `Test/Source` director
 
 - Run the "Build Unit Tests" task to ensure the new test file compiles without errors.
 - Run the "Run Unit Tests" task to execute all test cases.
-- Verify that all test cases pass, confirming the `MatchWildcardNative` function works correctly.
+- Verify that all test cases pass, confirming the `MatchWildcardNaive` function works correctly.
 - The test results should show clear success/failure for each test case category.
 
 ### rationale
@@ -131,7 +131,7 @@ Create a new test file `TestUnitTestUtilities.cpp` in the `Test/Source` director
 
 ## Vlpp
 
-No significant changes to the knowledge base are needed at this time. The `MatchWildcardNative` function is a utility function for wildcard pattern matching that:
+No significant changes to the knowledge base are needed at this time. The `MatchWildcardNaive` function is a utility function for wildcard pattern matching that:
 
 - Is a low-level helper function in the `vl` namespace rather than a major API or design pattern.
 - Does not introduce new concepts or frameworks that would benefit from knowledge base documentation.
