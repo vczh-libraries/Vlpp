@@ -71,81 +71,70 @@ MatchWildcardNaive
 		{
 			const wchar_t* tokenStart = wcPtr;
 			vint tokenType = WildcardNextToken(wcPtr);
-			
-			if (tokenType == -3)
+
+			switch (tokenType)
 			{
-				break;
-			}
-			
-			if (tokenType == -1)
-			{
-				vint literalLen = wcPtr - tokenStart;
-				
-				vint cmpResult = caseSensitive 
-					? wcsncmp(tokenStart, textPtr, literalLen)
-					: _wcsnicmp(tokenStart, textPtr, literalLen);
-				
-				if (cmpResult != 0)
-				{
-					return false;
-				}
-				
-				textPtr += literalLen;
-			}
-			else if (tokenType == -2)
-			{
-				if (*textPtr == L'\0')
-				{
-					return false;
-				}
+			case -3:
+				return *textPtr == L'\0';
+			case -2:
+				if (*textPtr == L'\0') return false;
 				textPtr++;
-			}
-			else
-			{
-				vint minSkip = tokenType;
-				
-				if (*wcPtr != L'\0')
+				break;
+			case -1:
 				{
-					const wchar_t* tryPtr = textPtr;
-					vint skipCount = 0;
+					vint literalLen = wcPtr - tokenStart;
+					vint cmpResult = caseSensitive
+						? wcsncmp(tokenStart, textPtr, literalLen)
+						: _wcsnicmp(tokenStart, textPtr, literalLen);
+					if (cmpResult != 0) return false;
+					textPtr += literalLen;
+				}
+				break;
+			default:
+				{
+					vint minSkip = tokenType;
 					
-					while (true)
+					if (*wcPtr != L'\0')
 					{
-						if (skipCount >= minSkip)
+						const wchar_t* tryPtr = textPtr;
+						vint skipCount = 0;
+						
+						while (true)
 						{
-							if (MatchWildcardNaive(wcPtr, tryPtr, caseSensitive))
+							if (skipCount >= minSkip)
 							{
-								return true;
+								if (MatchWildcardNaive(wcPtr, tryPtr, caseSensitive))
+								{
+									return true;
+								}
 							}
+							
+							if (*tryPtr == L'\0')
+							{
+								break;
+							}
+							tryPtr++;
+							skipCount++;
 						}
 						
-						if (*tryPtr == L'\0')
-						{
-							break;
-						}
-						tryPtr++;
-						skipCount++;
+						return false;
 					}
-					
-					return false;
-				}
-				else
-				{
-					const wchar_t* checkPtr = textPtr;
-					for (vint i = 0; i < minSkip; i++)
+					else
 					{
-						if (*checkPtr == L'\0')
+						const wchar_t* checkPtr = textPtr;
+						for (vint i = 0; i < minSkip; i++)
 						{
-							return false;
+							if (*checkPtr == L'\0')
+							{
+								return false;
+							}
+							checkPtr++;
 						}
-						checkPtr++;
+						return true;
 					}
-					return true;
 				}
 			}
 		}
-		
-		return *textPtr == L'\0';
 #undef ERROR_MESSAGE_PREFIX
 	}
 
