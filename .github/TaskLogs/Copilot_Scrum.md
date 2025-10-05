@@ -35,7 +35,7 @@ Complete it in two tasks, the first one implements the function, the second one 
 # TASKS
 
 - [x] TASK No.1: Implement MatchWildcardNaive Function
-- [ ] TASK No.2: Create Unit Tests for MatchWildcardNaive
+- [x] TASK No.2: Create Unit Tests for MatchWildcardNaive
 
 ## TASK No.1: Implement MatchWildcardNaive Function
 
