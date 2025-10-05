@@ -64,30 +64,27 @@ MatchWildcardNaive
 		CHECK_ERROR(wildcard != nullptr, ERROR_MESSAGE_PREFIX L"wildcard cannot be nullptr");
 		CHECK_ERROR(text != nullptr, ERROR_MESSAGE_PREFIX L"text cannot be nullptr");
 		
-		const wchar_t* wcPtr = wildcard;
-		const wchar_t* textPtr = text;
-		
 		while (true)
 		{
-			const wchar_t* tokenStart = wcPtr;
-			vint tokenType = WildcardNextToken(wcPtr);
+			const wchar_t* tokenStart = wildcard;
+			vint tokenType = WildcardNextToken(wildcard);
 
 			switch (tokenType)
 			{
 			case -3:
-				return *textPtr == L'\0';
+				return *text == L'\0';
 			case -2:
-				if (*textPtr == L'\0') return false;
-				textPtr++;
+				if (*text == L'\0') return false;
+				text++;
 				break;
 			case -1:
 				{
-					vint literalLen = wcPtr - tokenStart;
+					vint literalLen = wildcard - tokenStart;
 					vint cmpResult = caseSensitive
-						? wcsncmp(tokenStart, textPtr, literalLen)
-						: _wcsnicmp(tokenStart, textPtr, literalLen);
+						? wcsncmp(tokenStart, text, literalLen)
+						: _wcsnicmp(tokenStart, text, literalLen);
 					if (cmpResult != 0) return false;
-					textPtr += literalLen;
+					text += literalLen;
 				}
 				break;
 			default:
@@ -95,16 +92,16 @@ MatchWildcardNaive
 					vint minSkip = tokenType;
 					for (vint i = 0; i < minSkip; i++)
 					{
-						if (*textPtr++ == L'\0') return false;
+						if (*text++ == L'\0') return false;
 					}
 
 					while (true)
 					{
-						if (MatchWildcardNaive(wcPtr, textPtr, caseSensitive))
+						if (MatchWildcardNaive(wildcard, text, caseSensitive))
 						{
 							return true;
 						}
-						if (*textPtr++ == L'\0') return false;
+						if (*text++ == L'\0') return false;
 					}
 				}
 			}
