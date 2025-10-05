@@ -93,44 +93,18 @@ MatchWildcardNaive
 			default:
 				{
 					vint minSkip = tokenType;
-					
-					if (*wcPtr != L'\0')
+					for (vint i = 0; i < minSkip; i++)
 					{
-						const wchar_t* tryPtr = textPtr;
-						vint skipCount = 0;
-						
-						while (true)
-						{
-							if (skipCount >= minSkip)
-							{
-								if (MatchWildcardNaive(wcPtr, tryPtr, caseSensitive))
-								{
-									return true;
-								}
-							}
-							
-							if (*tryPtr == L'\0')
-							{
-								break;
-							}
-							tryPtr++;
-							skipCount++;
-						}
-						
-						return false;
+						if (*textPtr++ == L'\0') return false;
 					}
-					else
+
+					while (true)
 					{
-						const wchar_t* checkPtr = textPtr;
-						for (vint i = 0; i < minSkip; i++)
+						if (MatchWildcardNaive(wcPtr, textPtr, caseSensitive))
 						{
-							if (*checkPtr == L'\0')
-							{
-								return false;
-							}
-							checkPtr++;
+							return true;
 						}
-						return true;
+						if (*textPtr++ == L'\0') return false;
 					}
 				}
 			}
