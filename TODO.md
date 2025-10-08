@@ -2,6 +2,9 @@
 
 ## Known Issues
 
+- Is it possible to print memory leaks directly to the screen when running unit test with `/C`?
+  - In case when it is too many, we can clip it at the first 100 lines.
+
 ## Progressing
 
 - Use `GetSystemTimeAsFileTime` by `GetProcAddress` with `GetModuleHandle` if exists.
