@@ -24,6 +24,7 @@
   - Support Workflow
     - Generate `Union` if there is no hint.
 - Use concept on `ReferenceCounterOperator` and fix comment.
+- `BitSet` move from VlppParser2
 
 ## Enumerable and enumerator fail when container is deleted
 
