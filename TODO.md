@@ -11,6 +11,7 @@
 - Union type
   - `Variant<T...>`
     - Finish the rest of the features and tests.
+    - predefined `operator<=>` and `operator==`, remove `SlotValue` implementation in `VlppParser2`'s `AstBase.h`
   - `Union<T...>`.
     - If any type is `T*`, `Ptr<T>` or `Nullable<T>`, A `nullptr_t` is added automatically.
       - Any `Nullable<T>` becomes `T`.
