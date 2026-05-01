@@ -241,6 +241,28 @@ TEST_FILE
 			TEST_ASSERT(h2->IsAttached() == false);
 		});
 
+
+		TEST_CASE(L"Test Event<T> with rvalue arguments")
+		{
+			WString original = L"vczh";
+			WString h1Arg;
+			WString h2Arg;
+			Event<void(WString)> e;
+
+			e.Add([&](WString value)
+			{
+				h1Arg = value;
+			});
+			e.Add([&](WString value)
+			{
+				h2Arg = value;
+			});
+
+			e(WString::CopyFrom(original.Buffer(), original.Length()));
+
+			TEST_ASSERT(h1Arg == original);
+			TEST_ASSERT(h2Arg == original);
+		});
 		TEST_CASE(L"Test Event<T> with member functions")
 		{
 			EhObj o;
