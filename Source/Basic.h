@@ -7,6 +7,7 @@ Licensed under https://github.com/vczh-libraries/License
 #define VCZH_BASIC
 
 #include <stdlib.h>
+#include <stdio.h>
 
 #ifdef VCZH_CHECK_MEMORY_LEAKS
 #define _CRTDBG_MAP_ALLOC

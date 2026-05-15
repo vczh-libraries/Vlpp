@@ -144,6 +144,9 @@ UnitTest
 			vint							totalCases = 0;
 			vint							passedCases = 0;
 			UnitTest::FailureMode			failureMode = UnitTest::FailureMode::NotRunning;
+			vint							debugOutputArgIndex = -1;
+			constexpr const wchar_t*		DebugOutputPrefix = L"/DebugOutput:";
+			constexpr vint					DebugOutputPrefixLength = 13;
 
 			template<typename TMessage>
 			void RecordFailure(TMessage errorMessage)
@@ -281,7 +284,7 @@ UnitTest
 
 		int UnitTest::PrintUsages()
 		{
-			PrintMessage(L"Usage: [/D | /R | /C] {/F:TestFile}", MessageKind::Error);
+			PrintMessage(L"Usage: [/D | /R | /C] {/F:TestFile} [/DebugOutput:File]", MessageKind::Error);
 			return 1;
 		}
 
@@ -295,9 +298,11 @@ UnitTest
 			bool _R = false;
 			bool _C = false;
 			List<AString> _Fs;
+			debugOutputArgIndex = -1;
 
-			for (auto&& option : From(options))
+			for (vint i = 0; i < options.Count(); i++)
 			{
+				auto&& option = options[i];
 				if (option == L"/D")
 				{
 					_D = true;
@@ -313,6 +318,14 @@ UnitTest
 				else if (option.Length() > 3 && option.Left(3) == L"/F:")
 				{
 					_Fs.Add(wtoa(option.Sub(3, option.Length() - 3)));
+				}
+				else if (option.Length() > DebugOutputPrefixLength && wcsncmp(option.Buffer(), DebugOutputPrefix, DebugOutputPrefixLength) == 0)
+				{
+					if (debugOutputArgIndex != -1)
+					{
+						unrecognized = true;
+					}
+					debugOutputArgIndex = i;
 				}
 				else
 				{
@@ -458,6 +471,52 @@ UnitTest
 				}
 				return RunAndDisposeTests(options);
 			}
+		}
+
+		void UnitTest::DumpMemoryLeak(int argc, wchar_t* argv[])
+		{
+#if defined VCZH_MSVC && defined VCZH_CHECK_MEMORY_LEAKS
+			if (debugOutputArgIndex != -1 && debugOutputArgIndex + 1 < argc)
+			{
+				auto option = argv[debugOutputArgIndex + 1];
+				auto fileName = option + DebugOutputPrefixLength;
+				FILE* file = nullptr;
+				if (_wfopen_s(&file, fileName, L"w") == 0 && file)
+				{
+					auto oldMode = _CrtSetReportMode(_CRT_WARN, _CRTDBG_MODE_FILE);
+					auto oldFile = _CrtSetReportFile(_CRT_WARN, file);
+					_CrtDumpMemoryLeaks();
+					_CrtSetReportFile(_CRT_WARN, oldFile);
+					_CrtSetReportMode(_CRT_WARN, oldMode);
+					fclose(file);
+					return;
+				}
+			}
+			_CrtDumpMemoryLeaks();
+#endif
+		}
+
+		void UnitTest::DumpMemoryLeak(int argc, char* argv[])
+		{
+#if defined VCZH_MSVC && defined VCZH_CHECK_MEMORY_LEAKS
+			if (debugOutputArgIndex != -1 && debugOutputArgIndex + 1 < argc)
+			{
+				auto option = argv[debugOutputArgIndex + 1];
+				auto fileName = option + DebugOutputPrefixLength;
+				FILE* file = nullptr;
+				if (fopen_s(&file, fileName, "w") == 0 && file)
+				{
+					auto oldMode = _CrtSetReportMode(_CRT_WARN, _CRTDBG_MODE_FILE);
+					auto oldFile = _CrtSetReportFile(_CRT_WARN, file);
+					_CrtDumpMemoryLeaks();
+					_CrtSetReportFile(_CRT_WARN, oldFile);
+					_CrtSetReportMode(_CRT_WARN, oldMode);
+					fclose(file);
+					return;
+				}
+			}
+			_CrtDumpMemoryLeaks();
+#endif
 		}
 
 		void UnitTest::RegisterTestFile(UnitTestLink* link)
