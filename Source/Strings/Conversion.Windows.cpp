@@ -4,6 +4,7 @@ Licensed under https://github.com/vczh-libraries/License
 ***********************************************************************/
 
 #include "Conversion.h"
+#define _WINSOCKAPI_
 #include <Windows.h>
 
 #ifndef VCZH_MSVC
