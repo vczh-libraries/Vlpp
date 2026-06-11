@@ -176,7 +176,7 @@ TEST_FILE
 
 		List<vint> dst;
 		CopyFrom(dst, From(src)
-			.OrderByKey([](Tuple<vint, WString> t)->decltype(auto) { return t.template get<1>(); })
+			.OrderByKey([](Tuple<vint, WString> t) { return t.template get<1>(); })
 			.Select([](Tuple<vint, WString> t) { auto&& [x, y] = t; return x; })
 		);
 		CHECK_LIST_ITEMS(dst, { 3 _ 2 _ 1 });

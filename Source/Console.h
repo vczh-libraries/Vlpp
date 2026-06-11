@@ -6,6 +6,7 @@ Licensed under https://github.com/vczh-libraries/License
 #ifndef VCZH_CONSOLE
 #define VCZH_CONSOLE
 
+#include "Primitives/Nullable.h"
 #include "Strings/String.h"
 
 namespace vl
@@ -33,8 +34,12 @@ namespace vl
 			/// <param name="string">Content to write.</param>
 			static void WriteLine(const WString& string);
 
-			/// <summary>Read a string from the command-line window.</summary>
-			/// <returns>The whole line read from the command-line window.</returns>
+			/// <summary>Try to read a string from the command-line window or redirected input.</summary>
+			/// <returns>The whole line read from the command-line window or redirected input. Returns null if no line is available.</returns>
+			static Nullable<WString> TryRead();
+
+			/// <summary>Read a string from the command-line window or redirected input.</summary>
+			/// <returns>The whole line read from the command-line window or redirected input. Returns an empty string if no line is available.</returns>
 			static WString Read();
 
 			static void SetColor(bool red, bool green, bool blue, bool light);
