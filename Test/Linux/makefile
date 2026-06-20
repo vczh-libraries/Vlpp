@@ -122,10 +122,10 @@ all:pre-build ./Bin/UnitTest
 ./Obj/PartialOrdering.o: ../../Source/Collections/PartialOrdering.cpp ../../Source/Collections/PartialOrdering.h ../../Source/Collections/Dictionary.h ../../Source/Collections/List.h ../../Source/Collections/Interfaces.h ../../Source/Collections/../Basic.h ../../Source/Collections/../Primitives/Pointer.h ../../Source/Collections/../Primitives/../Basic.h ../../Source/Collections/Pair.h ../../Source/Collections/../Primitives/Nullable.h
 	$(CPP_COMPILE)
 
-./Obj/Console.o: ../../Source/Console.cpp ../../Source/Console.h ../../Source/Strings/String.h ../../Source/Strings/../Basic.h
+./Obj/Console.o: ../../Source/Console.cpp ../../Source/Console.h ../../Source/Primitives/Nullable.h ../../Source/Primitives/../Basic.h ../../Source/Strings/String.h ../../Source/Strings/../Basic.h
 	$(CPP_COMPILE)
 
-./Obj/Console.Linux.o: ../../Source/Console.Linux.cpp ../../Source/Console.h ../../Source/Strings/String.h ../../Source/Strings/../Basic.h
+./Obj/Console.Linux.o: ../../Source/Console.Linux.cpp ../../Source/Console.h ../../Source/Primitives/Nullable.h ../../Source/Primitives/../Basic.h ../../Source/Strings/String.h ../../Source/Strings/../Basic.h
 	$(CPP_COMPILE)
 
 ./Obj/Exception.o: ../../Source/Exception.cpp ../../Source/Exception.h ../../Source/Strings/String.h ../../Source/Strings/../Basic.h
