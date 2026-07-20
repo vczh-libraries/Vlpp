@@ -18,8 +18,10 @@ For **Gaclib**: click [here](http://vczh-libraries.github.io/doc/current/home.ht
 
 For **Vlpp**: click [here](http://vczh-libraries.github.io/doc/current/vlpp/home.html)
 
-## Unit Test
+## Running the Project
 
-For **Windows**, open `Test/UnitTest/UnitTest.sln`, and run the `UnitTest` project.
+Checkout [Project.md](./Project.md) for details about compiling and running each test projects.
 
-For **Linux**, use `Test/Linux/makefile` to build and run the unit test project.
+On Windows, use MSBuild or Visual Studio to build.
+
+On Linux/macOS, run `REPO-ROOT/.github/Ubuntu/build.sh` in a project folder to update the makefile from vcxproj and build the project.

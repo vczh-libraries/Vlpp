@@ -12,7 +12,7 @@ When any *.h or *.cpp file is changed, unit test is required to run.
 
 When any test case fails, you must fix the issue immediately, even those errors are unrelated to the issue you are working on.
 
-## Linux Specific
+## Linux/macOS Specific
 
 `REPO-ROOT/Test/Linux` stores linux configurations for `UnitTest.vcxproj`.
 
