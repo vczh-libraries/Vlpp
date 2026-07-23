@@ -30,12 +30,14 @@ Console
 
 		void Console::Write(const wchar_t* string, vint length)
 		{
+			CHECK_ERROR(IsEnabled(), L"vl::console::Console::Write(const wchar_t*, vint)#Console operations are disabled.");
 			std::wstring s(string, string + length);
 			std::wcout << s << std::flush;
 		}
 
 		Nullable<WString> Console::TryRead()
 		{
+			CHECK_ERROR(IsEnabled(), L"vl::console::Console::TryRead()#Console operations are disabled.");
 			std::wstring s;
 			if (!std::getline(std::wcin, s, L'\n'))
 			{
@@ -59,6 +61,7 @@ Console
 
 		void Console::SetColor(bool red, bool green, bool blue, bool light)
 		{
+			CHECK_ERROR(IsEnabled(), L"vl::console::Console::SetColor(bool, bool, bool, bool)#Console operations are disabled.");
 			int color = (blue ? 1 : 0) * 4 + (green ? 1 : 0) * 2 + (red ? 1 : 0);
 			if (light)
 				wprintf(L"\x1B[00;3%dm", color);
@@ -68,6 +71,7 @@ Console
 
 		void Console::SetTitle(const WString& string)
 		{
+			CHECK_ERROR(IsEnabled(), L"vl::console::Console::SetTitle(const WString&)#Console operations are disabled.");
 		}
 	}
 }
