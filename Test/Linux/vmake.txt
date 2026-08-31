@@ -11,6 +11,7 @@
 ../Source/TestBasic_Pair.cpp
 ../Source/TestBasic_Tuple.cpp
 ../Source/TestBasic_Variant.cpp
+../Source/TestConsole.cpp
 ../Source/TestFunction.cpp
 ../Source/TestFeatureInjection.cpp
 ../Source/TestGlobalStorage.cpp

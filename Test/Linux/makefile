@@ -17,7 +17,7 @@ clean:
 
 all:pre-build ./Bin/UnitTest
 
-./Bin/UnitTest:./Obj/TestAString.o ./Obj/TestLoremIpsum.o ./Obj/TestStringConversion.o ./Obj/TestU16String.o ./Obj/TestU32String.o ./Obj/TestU8String.o ./Obj/TestUtfReader.o ./Obj/TestWString.o ./Obj/TestBasic.o ./Obj/TestBasic_Nullable.o ./Obj/TestBasic_Pair.o ./Obj/TestBasic_Tuple.o ./Obj/TestBasic_Variant.o ./Obj/TestFunction.o ./Obj/TestFeatureInjection.o ./Obj/TestGlobalStorage.o ./Obj/TestLinq.o ./Obj/TestLinq_GenericLambda.o ./Obj/TestLinq_NoLambda.o ./Obj/TestList_Container_Array.o ./Obj/TestList_Container_ByetObjectMap.o ./Obj/TestList_Container_Dictionary.o ./Obj/TestList_Container_Group.o ./Obj/TestList_Container_List.o ./Obj/TestList_Container_SortedList.o ./Obj/TestList_CopyFrom.o ./Obj/TestList_LoopFrom_LazyList.o ./Obj/TestList_LoopFrom_Ordered_Locked.o ./Obj/TestPartialOrdering.o ./Obj/TestSort.o ./Obj/TestUnitTestUtilities.o ./Obj/Main.o ./Obj/Basic.o ./Obj/PartialOrdering.o ./Obj/Console.o ./Obj/Console.Linux.o ./Obj/Exception.o ./Obj/GlobalStorage.o ./Obj/DateTime.o ./Obj/DateTime.Linux.o ./Obj/Conversion.o ./Obj/Conversion.Linux.o ./Obj/LoremIpsum.o ./Obj/String.o ./Obj/UnitTest.o ./Obj/UnitTest.Linux.o
+./Bin/UnitTest:./Obj/TestAString.o ./Obj/TestLoremIpsum.o ./Obj/TestStringConversion.o ./Obj/TestU16String.o ./Obj/TestU32String.o ./Obj/TestU8String.o ./Obj/TestUtfReader.o ./Obj/TestWString.o ./Obj/TestBasic.o ./Obj/TestBasic_Nullable.o ./Obj/TestBasic_Pair.o ./Obj/TestBasic_Tuple.o ./Obj/TestBasic_Variant.o ./Obj/TestConsole.o ./Obj/TestFunction.o ./Obj/TestFeatureInjection.o ./Obj/TestGlobalStorage.o ./Obj/TestLinq.o ./Obj/TestLinq_GenericLambda.o ./Obj/TestLinq_NoLambda.o ./Obj/TestList_Container_Array.o ./Obj/TestList_Container_ByetObjectMap.o ./Obj/TestList_Container_Dictionary.o ./Obj/TestList_Container_Group.o ./Obj/TestList_Container_List.o ./Obj/TestList_Container_SortedList.o ./Obj/TestList_CopyFrom.o ./Obj/TestList_LoopFrom_LazyList.o ./Obj/TestList_LoopFrom_Ordered_Locked.o ./Obj/TestPartialOrdering.o ./Obj/TestSort.o ./Obj/TestUnitTestUtilities.o ./Obj/Main.o ./Obj/Basic.o ./Obj/PartialOrdering.o ./Obj/Console.o ./Obj/Console.Linux.o ./Obj/Exception.o ./Obj/GlobalStorage.o ./Obj/DateTime.o ./Obj/DateTime.Linux.o ./Obj/Conversion.o ./Obj/Conversion.Linux.o ./Obj/LoremIpsum.o ./Obj/String.o ./Obj/UnitTest.o ./Obj/UnitTest.Linux.o
 	$(CPP_LINK)
 
 ./Obj/TestAString.o: ../Source/Strings/TestAString.cpp
@@ -57,6 +57,9 @@ all:pre-build ./Bin/UnitTest
 	$(CPP_COMPILE)
 
 ./Obj/TestBasic_Variant.o: ../Source/TestBasic_Variant.cpp
+	$(CPP_COMPILE)
+
+./Obj/TestConsole.o: ../Source/TestConsole.cpp
 	$(CPP_COMPILE)
 
 ./Obj/TestFunction.o: ../Source/TestFunction.cpp
