@@ -58,20 +58,14 @@ See `UnknownType_PrimitiveSchema` in `## Expected format of generated .d.ts file
 
 ## Implementation of rpcjson_Serialize
 
-Check if the value is null or bool or string, they can be serialized directly.
-And then try to weak cast it to any `PrimitiveType?` type.
-And then try to weak cast it to any collection interface type.
-And then try to weak cast it to any `InterfaceType^` type.
+The generated function first tries weak casts to the metadata's enum and struct types, then delegates to `system::IRpcLifecycle::JsonSerializePredefinedTypes(value, rpcjson_Serialize)` for null, primitives, internal transport structs, and collections. The callback serializes collection elements through the generated function.
 
 Weak casting failure results in `null` instead of an exception.
-Throw an exception if all type testings fail.
+RPC interface objects must be converted to `RpcObjectReference` through the lifecycle before serialization; this function does not serialize arbitrary interface pointers. Unsupported values fail in the predefined serializer.
 
 ## Implementation of rpcjson_Deserialize
 
-First check if it is `JsonArray` or `JsonObject` or `JsonLiteral` or `JsonString`,
-and then check the first element of array or "$" field of object,
-and we know the exact type.
-Throw an exception if all type testings fail.
+The generated function checks tagged `JsonArray` enum values and tagged `JsonObject` struct values from the metadata, then delegates to `system::IRpcLifecycle::JsonDeserializePredefinedTypes(node, rpcjson_Deserialize)`. The predefined helper handles literals, strings, tagged primitives, internal transport structs, and collections; it also reads untagged arrays and objects recursively and returns a bare `JsonNumber` as its token text. Unsupported nodes or unknown tags fail validation.
 
 ## JSON Return Values for Byval Collections
 

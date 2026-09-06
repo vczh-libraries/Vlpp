@@ -69,7 +69,7 @@ Sort(numbers, count, [](vint a, vint b) -> std::strong_ordering {
 Use for types where equivalent elements may not be identical:
 ```cpp
 Sort(strings, count, [](const WString& a, const WString& b) -> std::weak_ordering {
-    return a.Compare(b) <=> 0;  // Case-insensitive comparison
+    return wlower(a) <=> wlower(b);  // Case-insensitive comparison
 });
 ```
 

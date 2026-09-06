@@ -147,9 +147,9 @@ END_CLASS_MEMBER(MyClass)
 
 ## Compilation Level Support
 
-- Attribute macros are available when `VCZH_DEBUG_NO_REFLECTION` is **not** defined.
-- They are excluded when `VCZH_DEBUG_NO_REFLECTION` is defined (no reflection mode).
-- They work in both full reflection and metaonly reflection (`VCZH_DEBUG_METAONLY_REFLECTION`) builds.
+- Attribute registration macros are available in full reflection builds under `VCZH_DESCRIPTABLEOBJECT_WITH_METADATA` (`Source/Reflection/Reflection/Macros.h`).
+- They are excluded in both no-reflection and metaonly builds.
+- Metaonly builds can load and query attributes serialized by a full-reflection build.
 
 ## Error Handling
 

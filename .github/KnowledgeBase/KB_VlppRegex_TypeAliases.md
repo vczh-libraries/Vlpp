@@ -89,7 +89,7 @@ These aliases all resolve to `wchar_t`, which has platform-specific behavior:
 
 This means the same code using these aliases will handle different Unicode encodings transparently across platforms.
 
-### Integration with VlppOS String Types
+### Integration with Vlpp String Types
 
 These aliases work seamlessly with the project's string types:
 

@@ -15,7 +15,7 @@ Fixed-size collection with random access capabilities.
 An `Array<T>` provides random access to elements and can be initialized with a specific size or copied from existing data.
 
 **Initialization:**
-- `Array<T>(vint size)` - Creates array with specified size filled with random values
+- `Array<T>(vint size)` - Creates array with specified size; non-trivial elements are default-constructed and trivial elements are left uninitialized
 - `Array<T>(T* buffer, vint size)` - Creates array copied from buffer
 
 **Access and Query:**
@@ -24,7 +24,7 @@ An `Array<T>` provides random access to elements and can be initialized with a s
 - Use `Contains(value)` or `IndexOf(value)` to find a value
 
 **Modification:**
-- Use `Resize(size)` to resize an array and keep the values, if the new size is larger than the old size, the array is filled with random values at the end
+- Use `Resize(size)` to resize an array and keep the values, if the new size is larger than the old size, new non-trivial elements are default-constructed and new trivial elements are left uninitialized
 - Use `Set(index, value)` or `[index] = value` to set the value to a specified position
 
 ### List<T>
@@ -60,7 +60,7 @@ A `SortedList<T>` works like a `List<T>` but it always keeps all values in order
 
 **Modification:**
 - Use `Add(value)` to insert a value while keeping all values in order
-- Use `Remove(value)` to remove the first equivalent value
+- Use `Remove(value)` to remove one equivalent value; binary search does not guarantee the first duplicate (`Source/Collections/List.h`)
 - Use `RemoveAt(index)` to remove the value of the specified position
 - Use `RemoveRange(index, count)` to remove consecutive values
 - Use `Clear()` to remove all values
@@ -71,7 +71,7 @@ A `SortedList<T>` works like a `List<T>` but it always keeps all values in order
 
 One-to-one key-value mapping with ordered keys.
 
-A `Dictionary<K, V>` is an one-to-one map that keeps all values in the order of keys. It implements `IEnumerable<Pair<K, V>>`.
+A `Dictionary<K, V>` is an one-to-one map that keeps all values in the order of keys. It implements `IEnumerable<Pair<const K&, const V&>>` (`Source/Collections/Dictionary.h`).
 
 **Access and Query:**
 - Use `Count()` to know the size of the collection
@@ -89,7 +89,7 @@ A `Dictionary<K, V>` is an one-to-one map that keeps all values in the order of 
 
 One-to-many key-value mapping with ordered keys.
 
-A `Group<K, V>` is an one-to-many map that keeps all values in the order of keys. It implements `IEnumerable<Pair<K, V>>`.
+A `Group<K, V>` is an one-to-many map that keeps all values in the order of keys. It implements `IEnumerable<Pair<const K&, const V&>>` (`Source/Collections/Dictionary.h`).
 
 **Access and Query:**
 - Use `Count()` to know the size of keys
@@ -122,10 +122,10 @@ for (auto number : numbers)
 ```
 
 **Indexed enumeration:**
-Use the `indexed` function to convert an `IEnumerable<T>` to `IEnumerable<Pair<vint, T>>` for iteration with indices:
+Use the `indexed` function from `Source/Collections/OperationForEach.h` to create a range wrapper yielding `Tuple<const T&, vint>` values, with the element before its index:
 
 ```cpp
-for (auto [index, value] : indexed(collection))
+for (auto [value, index] : indexed(collection))
 {
     // Process value with its index
 }
@@ -138,10 +138,10 @@ This pattern works with structured binding and provides both the index and value
 All collection types can be used with LINQ operations through the `From(collection)` function, which creates a `LazyList<T>` for functional programming operations:
 
 ```cpp
-auto result = From(numbers)
+List<vint> result;
+CopyFrom(result, From(numbers)
     .Where([](vint x) { return x > 0; })
-    .Select([](vint x) { return x * 2; })
-    .ToList();
+    .Select([](vint x) { return x * 2; }));
 ```
 
 ## Common Patterns
@@ -169,7 +169,7 @@ Collections handle memory management automatically. When storing reference types
 Collections are not thread-safe by default. For concurrent access, use appropriate synchronization primitives from VlppOS.
 
 ### Collection Copying
-Collections support copy semantics - copying a collection creates a new independent instance with copies of all elements (for value types) or shared references (for `Ptr<T>` reference types).
+Use `CopyFrom(destination, source)` from `Source/Collections/OperationCopyFrom.h` to copy elements into an independent collection. Collection copy constructors and copy assignments are not generally available. Copied `Ptr<T>` elements still share their referenced objects.
 
 ### Comparison Operations
-Collections that maintain order (SortedList, Dictionary, Group) require their element types to support comparison operations. Ensure your types implement appropriate comparison operators or provide custom comparators.
+`SortedList` orders its elements, while `Dictionary` and `Group` order their keys. These containers use the types' comparison operators and do not accept custom comparator arguments (`Source/Collections/List.h` and `Source/Collections/Dictionary.h`).

@@ -166,7 +166,7 @@ When a struct is a pure lexicographic key (e.g. `{begin, end}`), prefer `auto op
 
 ## Use `collections::BinarySearchLambda` on contiguous buffers (guard empty)
 
-`collections::BinarySearchLambda` expects a contiguous buffer pointer and count (e.g. `&keys[0]`, `keys.Count()`), plus a search item, an out `index`, and an orderer that returns `std::strong_ordering`. When using it on `Dictionary::Keys()`, guard the empty-map case before taking `&Keys()[0]`.
+`collections::BinarySearchLambda` expects a contiguous buffer pointer and count (e.g. `&keys[0]`, `keys.Count()`), plus a search item, an out `index`, and an orderer that returns `std::strong_ordering` or `std::weak_ordering`. When using it on `Dictionary::Keys()`, guard the empty-map case before taking `&Keys()[0]`.
 
 If you are searching for “overlap” rather than exact ordering, provide a custom orderer that defines “before / after / overlap” semantics for your ranges.
 
@@ -390,4 +390,4 @@ Assign a stable sequence to each submitted request and buffer completed response
 
 ## Preserve an existing `Ptr` counter across asynchronous ownership handoffs
 
-When a callback or adapter must retain an object beyond the caller's synchronized scope, carry the producer's existing owning `Ptr<T>` through every layer. Never construct another `Ptr<T>` from a raw callback argument or from `.Obj()`; that creates an independent reference counter and can double-delete the same object. Use `.Obj()` only for a temporary operation that explicitly requires a raw pointer.
+When a callback or adapter must retain an object beyond the caller's synchronized scope, carry the producer's existing owning `Ptr<T>` through every layer. Never construct another `Ptr<T>` from a raw callback argument or from `.Obj()`; with the default `ReferenceCounterOperator` in `Vlpp/Source/Primitives/Pointer.h`, that creates an independent reference counter and can double-delete the same object. Use `.Obj()` only for a temporary operation that explicitly requires a raw pointer.

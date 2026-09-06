@@ -22,7 +22,7 @@ public:
 		Redraw();
 	}
 
-	void Char(const TuiCharInfo& info) override
+	void Char(const vl::presentation::NativeWindowCharInfo& info) override
 	{
 		if (info.code == L'\x1B')
 		{
@@ -148,28 +148,53 @@ All `ITuiCallback` methods have default no-op implementations, so a listener onl
 - Removing and reinstalling the same pointer creates a new registration; an old event snapshot cannot invoke that new registration.
 - A listener installed during an event begins with the next event. A nested `TUI::RunOneCycle` is a distinct event and sees the current registrations.
 
+### Shared Input Declarations
+
+[Source/TUI/TUITypes.h](../../Source/TUI/TUITypes.h) is the single declaration owner. These types remain in `vl::presentation`, depend only on Vlpp, and are consumed by GacUI and GacJS's generated protocol. GacUI owns reflection and platform key-name tables. Do not duplicate the declarations or add GacUI/reflection dependencies to VlppOS.
+
+| Declaration | Meaning and defaults |
+| --- | --- |
+| `GuiCoordinate` | `vint` alias for logical GUI coordinates; TUI mouse coordinates are terminal cells. |
+| `NativeCoordinate` | Strong `vint` wrapper for native coordinates, initially zero, with arithmetic and defaulted comparison. |
+| `CompareCoordinate` | Orders coordinates by their underlying integer values. |
+| `VKEY` | Virtual-key identifiers independent of text; UNKNOWN=-1 and MAXIMUM=255. |
+| `NativeMouseButton` | Left, Middle, Right, Mouse4, Mouse5; identifies the button for down/up/double-click. |
+| `WindowMouseInfo_<T>` | `x/y`, signed `wheel`, `ctrl/shift/alt/osSuper`, held `left/middle/right`, and `nonClient`; all zero/false. |
+| `WindowMouseInfo` | `WindowMouseInfo_<GuiCoordinate>`; TUI callback payload. |
+| `NativeWindowMouseInfo` | `WindowMouseInfo_<NativeCoordinate>`; native window payload. |
+| `NativeWindowKeyInfo` / `WindowKeyInfo` | Struct and alias: `code=KEY_UNKNOWN`; `ctrl/shift/alt/osSuper/capslock/autoRepeatKeyDown=false`. |
+| `NativeWindowCharInfo` / `WindowCharInfo` | Struct and alias: one native `wchar_t code=0`; `ctrl/shift/alt/osSuper/capslock=false`. |
+
+Alt/terminal Meta and OS Super (Windows/Command/Super) are independent. Unobservable fields remain false. TUI's `nonClient` is always false. Held-button fields cover three buttons even though the shared event-button enum has five.
+
+The complete keyboard macro chain (`GUI_DEFINE_KEYBOARD_CODE_BASIC`, `GUI_DEFINE_KEYBOARD_CODE_ADDITIONAL`, `GUI_DEFINE_KEYBOARD_CODE`, enum-item macro and its `#undef`) and VKEY bit operators live with the enum. The corrected aliases are `KEY_LEFT_BRACKET=0xDB` ([, OEM_4) and `KEY_RIGHT_BRACKET=0xDD` (], OEM_6); other numeric values are unchanged.
+
 ### Mouse Events
 
-`TuiMouseInfo` reports terminal-cell coordinates, wheel information, best-effort modifier state, and current left, middle, and right button state. `TuiMouseButton` identifies the button for down, up, and double-click callbacks.
+`MouseMove`, `MouseDown`, `MouseUp`, `MouseDoubleClick`, `MouseVerticalWheel` and `MouseHorizontalWheel` receive `WindowMouseInfo`. Coordinates are zero-based visible cells, positive X right and Y down. Wheel deltas use 120 per detent, positive vertical up and horizontal right. Held flags describe the state after the transition. DoubleClick replaces the second Down.
 
-Available callbacks are:
+Windows consumes `MOUSE_EVENT_RECORD`, subtracts the viewport origin and decodes the signed high word for both wheel axes. Ctrl/Shift/Alt and the three primary buttons are preserved. A native double-click selects the changed button while retaining other held buttons. [Microsoft mouse record contract](https://learn.microsoft.com/en-us/windows/console/mouse-event-record-str).
 
-- `MouseMove`
-- `MouseDown`
-- `MouseUp`
-- `MouseDoubleClick`
-- `MouseVerticalWheel`
-- `MouseHorizontalWheel`
+POSIX enables all-motion mode 1003 and SGR mode 1006. Coordinates must be positive before conversion. Cb bits 4/8/16 are Shift/Alt/Ctrl and 32 is motion. Base 0/1/2 mean left/middle/right; motion base 3 explicitly clears held state. Final M presses/moves, m releases. Base 64/65 gives vertical +120/-120; 66/67 gives horizontal -120/+120. Extra/overflowing parameters, impossible button codes, zero coordinates and wheel releases are discarded. A same-button down at the same cell within 500 monotonic milliseconds becomes DoubleClick and resets the candidate. [xterm input reference](https://invisible-island.net/xterm/ctlseqs/ctlseqs.html).
 
-### Key Events
+### Key Events and Production Decoders
 
-`TuiKeyInfo` carries modifier and repeat information, but `TuiKeyInfo::code` is reserved for future key-code translation. Do not depend on a portable nonzero key code. Use `ITuiCallback::Char` for text and character controls.
+Use `KeyDown/KeyUp` for key actions and `Char` for text. Printable input may produce both; consumers must not act twice.
 
-Modifier fields are best effort. A terminal protocol that cannot distinguish Shift or Caps Lock from the resulting character reports the unobservable fields as false.
+Windows translates `wVirtualKeyCode` in 1..255 directly, otherwise UNKNOWN. Each `wRepeatCount` unit emits KeyDown followed by its nonzero native character. The first press is not a repeat; later units and down records while held are repeats. One KeyUp clears held state without text. Start/Stop clears decoder state. Ctrl/Shift/Alt/Caps Lock come from the record; OS Super is unobservable. [Microsoft key record contract](https://learn.microsoft.com/en-us/windows/console/key-event-record-str).
+
+The production POSIX decoder in [TUI.Input.cpp](../../Source/TUI/TUI.Input.cpp) retains incomplete bytes and decoded events across reads:
+
+- ASCII letters/digits/space/punctuation, Tab, Enter, Backspace and Escape map to shared keys. Inferable control bytes map to Ctrl plus their key. Uppercase/shifted punctuation does not imply observable Shift.
+- CSI/SS3 arrows, Home/End, Insert/Delete, PageUp/PageDown, F1..F20 forms, Shift-Tab and SS3 application keypad forms translate to VKEY. Modifier parameters 1..16 preserve Shift/Ctrl and terminal Alt/Meta; terminal Meta maps to Alt, never OS Super. Caps Lock, OS Super and repeats remain false.
+- Text/control keys emit KeyDown then Char; special keys without text emit only KeyDown. POSIX does not synthesize KeyUp.
+- Lone Escape has a 30 ms monotonic deadline. An ordinary scalar following before expiry becomes Alt-prefixed input. Incomplete UTF-8/CSI/SS3/SGR remains pending; read boundaries do not complete events.
+- Numeric fields validate syntax, ranges and overflow before translation. Unsupported complete CSI/SS3 is consumed without suffix leakage. Overlong incomplete sequences discard through their final byte. OSC/DCS/SOS/PM/APC strings discard through their terminator; a new Escape can resynchronize.
+- Invalid UTF-8 produces replacement units without dropping later valid text. Buffered events/bytes drain before polling. The earliest timer or Escape deadline bounds blocking, and interrupted poll returns to the owner loop to recompute deadlines.
 
 ### Character Events Use Native `wchar_t` Units
 
-`TuiCharInfo::code` is exactly one platform-native `wchar_t` code unit, not necessarily one complete Unicode scalar.
+`vl::presentation::NativeWindowCharInfo::code` is exactly one platform-native `wchar_t` code unit, not necessarily one complete Unicode scalar.
 
 - On Windows, `wchar_t` is UTF-16. A supplementary scalar arrives as separate high- and low-surrogate `Char` callbacks in native order. Other event types may occur between them, and a stop requested after the high surrogate suppresses the queued low surrogate.
 - On Linux and macOS, `wchar_t` is UTF-32. A decoded scalar normally arrives in one `Char` callback.
@@ -198,12 +223,14 @@ The timer:
 
 `TuiPixel` represents one terminal cell. Its `glyph` selects the active union member:
 
-- `TuiPixelGlyph::Char` stores an empty cell (`c == 0`) or one Unicode scalar.
+- `TuiPixelGlyph::Char` selects `character`, a `TuiCharPixel` containing an empty cell (`character.c == 0`) or one Unicode scalar and its `TuiTextStyle style`.
 - `TuiPixelGlyph::Mergeable` stores four independently styled box-drawing arms.
 - `TuiPixelGlyph::Unmergeable` stores a rounded corner and its direction.
 - `TuiPixelGlyph::WideCharContinuation` marks the second cell occupied by a width-two scalar.
 
 Every pixel also contains logical RGB foreground and background colors.
+
+`TuiTextStyle` contains `bold`, `italic`, `underline`, and `strikeline`, all false by default. Only nonempty character glyphs use these flags, including literal spaces. Empty cells and geometric glyphs render with all four effects disabled. A wide character's leading cell owns its style; continuation cells do not emit text or style changes. Direct cell users must migrate the former `TuiPixel::c` access to `TuiPixel::character.c`.
 
 Each arm in `TuiMergeablePixel` is independently `None`, `ThinLine`, `ThickLine`, or `DoubleLine`. `TuiUnmergeablePixel` currently represents a `RoundCorner` with a left-top, right-top, left-bottom, or right-bottom direction.
 
@@ -225,7 +252,11 @@ Each arm in `TuiMergeablePixel` is independently `None`, `ThinLine`, `ThickLine`
 - `1` means one terminal cell.
 - `2` means two terminal cells.
 
-This API works with Unicode scalars, while `TuiCharInfo::code` works with native `wchar_t` units. Convert character input before measuring it when the native encoding can use multiple units.
+This API works with Unicode scalars, while `vl::presentation::NativeWindowCharInfo::code` works with native `wchar_t` units. Convert character input before measuring it when the native encoding can use multiple units.
+
+Windows uses `GetStringTypeW(CT_CTYPE1/CT_CTYPE3)`: invalid scalars, controls and nonspacing/diacritic/vowel marks return 0; halfwidth returns 1; supplementary scalars and fullwidth/ideograph/Hiragana/Katakana return 2; other scalars return 1. This approximates console layout.
+
+Linux/macOS use `wcwidth` under a cached environment `newlocale(LC_CTYPE_MASK, "", nullptr)`, temporarily selected using `uselocale` and restored on the calling thread. Negative widths become 0. No process-global `setlocale` or generated Unicode-width table is used. Results depend on platform/locale and may differ from the terminal/font.
 
 The cell model intentionally does not perform grapheme shaping, combining sequences, variation sequences, emoji ZWJ sequences, bidirectional layout, or complex-script layout. Each printable scalar is measured and stored independently.
 
@@ -259,7 +290,7 @@ Buffer-explicit overloads require a non-null buffer and positive dimensions.
 
 ### Printing Characters
 
-`TuiPrintOptions` supplies foreground and background colors.
+`TuiPrintOptions` supplies foreground and background colors plus a default-disabled `TuiTextStyle style`. `PrintChar` copies the complete style into the leading character cell, including when replacing a geometric glyph or differently styled text.
 
 `TUI::PrintChar`:
 
@@ -307,6 +338,70 @@ Sharp line and rectangle operations merge compatible box-drawing arms when they 
 
 Do not assume that every arbitrary thin, thick, and double four-arm combination is representable. Directly written mergeable states that have no Unicode representation fail `RenderBuffer`.
 
+### Exact Glyph Selection
+
+`GetMergeableChar` in [TUI.cpp](../../Source/TUI/TUI.cpp) maps all 80 nonempty none/thin/thick combinations exactly; all-none returns zero. Supported double/thin-double states use U+2550..U+256C; unsupported states return zero. Rounded corners use U+256D top-left, U+256E top-right, U+256F bottom-right and U+2570 bottom-left.
+
+This is the exact lookup. Arms are up/down/left/right, with 0=None, 1=Thin, 2=Thick, 3=Double.
+
+| Arms | Unicode | Arms | Unicode |
+| --- | --- | --- | --- |
+| 0011 | U+2500 | 0022 | U+2501 |
+| 1100 | U+2502 | 2200 | U+2503 |
+| 0101 | U+250C | 0102 | U+250D |
+| 0201 | U+250E | 0202 | U+250F |
+| 0110 | U+2510 | 0120 | U+2511 |
+| 0210 | U+2512 | 0220 | U+2513 |
+| 1001 | U+2514 | 1002 | U+2515 |
+| 2001 | U+2516 | 2002 | U+2517 |
+| 1010 | U+2518 | 1020 | U+2519 |
+| 2010 | U+251A | 2020 | U+251B |
+| 1101 | U+251C | 1102 | U+251D |
+| 2101 | U+251E | 1201 | U+251F |
+| 2201 | U+2520 | 2102 | U+2521 |
+| 1202 | U+2522 | 2202 | U+2523 |
+| 1110 | U+2524 | 1120 | U+2525 |
+| 2110 | U+2526 | 1210 | U+2527 |
+| 2210 | U+2528 | 2120 | U+2529 |
+| 1220 | U+252A | 2220 | U+252B |
+| 0111 | U+252C | 0121 | U+252D |
+| 0112 | U+252E | 0122 | U+252F |
+| 0211 | U+2530 | 0221 | U+2531 |
+| 0212 | U+2532 | 0222 | U+2533 |
+| 1011 | U+2534 | 1021 | U+2535 |
+| 1012 | U+2536 | 1022 | U+2537 |
+| 2011 | U+2538 | 2021 | U+2539 |
+| 2012 | U+253A | 2022 | U+253B |
+| 1111 | U+253C | 1121 | U+253D |
+| 1112 | U+253E | 1122 | U+253F |
+| 2111 | U+2540 | 1211 | U+2541 |
+| 2211 | U+2542 | 2121 | U+2543 |
+| 2112 | U+2544 | 1221 | U+2545 |
+| 1212 | U+2546 | 2122 | U+2547 |
+| 1222 | U+2548 | 2221 | U+2549 |
+| 2212 | U+254A | 2222 | U+254B |
+| 0033 | U+2550 | 3300 | U+2551 |
+| 0103 | U+2552 | 0301 | U+2553 |
+| 0303 | U+2554 | 0130 | U+2555 |
+| 0310 | U+2556 | 0330 | U+2557 |
+| 1003 | U+2558 | 3001 | U+2559 |
+| 3003 | U+255A | 1030 | U+255B |
+| 3010 | U+255C | 3030 | U+255D |
+| 1103 | U+255E | 3301 | U+255F |
+| 3303 | U+2560 | 1130 | U+2561 |
+| 3310 | U+2562 | 3330 | U+2563 |
+| 0133 | U+2564 | 0311 | U+2565 |
+| 0333 | U+2566 | 1033 | U+2567 |
+| 3011 | U+2568 | 3033 | U+2569 |
+| 1133 | U+256A | 3311 | U+256B |
+| 3333 | U+256C | 0010 | U+2574 |
+| 1000 | U+2575 | 0001 | U+2576 |
+| 0100 | U+2577 | 0020 | U+2578 |
+| 2000 | U+2579 | 0002 | U+257A |
+| 0200 | U+257B | 0012 | U+257C |
+| 1200 | U+257D | 0021 | U+257E |
+| 2100 | U+257F |  |  |
+
 ## Rendering
 
 Drawing functions only modify cells. Call `TUI::RenderBuffer()` to submit the complete active buffer to the terminal.
@@ -338,3 +433,51 @@ The public header exposes a test-only boundary in `vl::console::unittest`:
 Create or destroy a `ScopedTuiBackend` only while TUI is inactive. The backend must be non-null. While installed, it is also used by `TUI::TryGetConsoleSize`.
 
 This boundary enables deterministic lifecycle, callback, timer, resize, rendering, and failure tests without controlling a real terminal. Production applications should use the platform backend selected by `TUI::Start`.
+
+
+### Emission and Colors
+
+Pixels retain logical RGB. TrueColor emits RGB SGR. Color16 chooses from these canonical ANSI entries in index order:
+
+`000000 800000 008000 808000 000080 800080 008080 C0C0C0 808080 FF0000 00FF00 FFFF00 0000FF FF00FF 00FFFF FFFFFF`.
+
+Color256 adds a 6×6×6 cube with levels `0,95,135,175,215,255` at `16+36*r+6*g+b`, then grays `8+10*n` at `232+n` for n=0..23. Quantization minimizes squared RGB distance, choosing the lowest index on ties. Windows Color16 uses the saved active palette, reordered between ANSI/Windows bits, when queryable. Customized palettes may differ from canonical approximations.
+
+VT output skips continuation cells, renders empty cells as spaces, positions each row, coalesces equal colors and styles, and emits UTF-16 on Windows/UTF-8 on POSIX. Both renderers enable bold/italic/underline/strikeline using SGR 1/3/4/9 and disable them using 22/23/24/29. Style changes are independent of colors and each frame ends with an SGR reset. Actual appearance depends on the terminal and font; bold can follow the terminal's intensity preference. Writes handle partial progress; POSIX retries EINTR. Frames are not guaranteed atomic.
+
+Windows development targets Windows 10 or newer. The backend enables `ENABLE_VIRTUAL_TERMINAL_PROCESSING`; Auto chooses TrueColor when available and emits RGB SGR (`38;2;r;g;b` / `48;2;r;g;b`) without palette quantization. Otherwise an owned classic buffer selects Color16 even for a higher request. Classic CHAR_INFO output omits text styles and writes one physical entry per cell: width-two or supplementary leading scalars degrade to ASCII ?, and continuation cells become spaces with copied colors. No legacy DBCS flags are used as generic Unicode-width markers.
+
+POSIX requires an interactive UTF-8 xterm-compatible terminal. Auto chooses TrueColor for COLORTERM containing truecolor/24bit, Color256 for TERM containing 256color, otherwise Color16. Explicit modes override the heuristic.
+
+#### Windows Terminal Requirement
+
+Windows Terminal is the required Windows host for this project's visual verification of bold, italic, underline and strikeline. The user manually confirmed all four effects in Windows Terminal on both Windows 10 and Windows 11. Windows 11 is not required: the terminal host supplies the visual rendering. The earlier underline-only result belongs to the tested built-in console host (`conhost.exe`), not Windows 10 generally. Linux text styles were also manually confirmed. See the [verification results by terminal host](../Jobs/DebugTuiPlaygroundSOP.md#manual-text-style-verification-by-terminal-host).
+
+Install the current stable Windows Terminal app using `winget install --id Microsoft.WindowsTerminal -e`, open it with `wt`, and launch the playground from a shell tab inside it. Windows Terminal 1.11 or later provides all four effects with [configurable intense-text formatting](https://devblogs.microsoft.com/commandline/windows-terminal-preview-1-11-release/). Its profile [intense-text formatting](https://learn.microsoft.com/en-us/windows/terminal/customize-settings/profile-appearance#intense-text-formatting) defaults to `bright`, which does not request a heavier font. Set `"intenseTextStyle": "bold"` or `"all"` at profile level when testing the `bold` flag. Font choice still affects the result. The current Windows Terminal [OS requirement and installation instructions](https://github.com/microsoft/terminal#installing-and-running-windows-terminal) specify Windows 10 version 2004 (build 19041) or newer, including Windows 11; this is separate from VlppOS's Windows 10 development baseline.
+
+The shell (PowerShell or cmd), VT parsing, ConPTY attribute transport, and the terminal's visible renderer are separate parts. Enabling `ENABLE_VIRTUAL_TERMINAL_PROCESSING` establishes VT processing, not per-style drawing support. `TUI::GetColorMode` reports color emission, not font capabilities. TUI emits standard SGR attributes; it cannot make a host draw an unsupported effect. Headless decoding of ConPTY output verifies attributes, not the visible host's glyph rendering.
+
+Microsoft added [extended-attribute transport through ConPTY](https://github.com/microsoft/terminal/pull/2917) separately from [strikethrough rendering](https://github.com/microsoft/terminal/pull/7143) and [italic rendering](https://github.com/microsoft/terminal/pull/8580). [Bold font rendering in the GDI renderer](https://github.com/microsoft/terminal/pull/19441) followed much later; older intensity behavior need not change explicitly selected RGB colors. These changes explain why the tested older inbox conhost can transport attributes that its own renderer does not display. An upstream implementation does not establish availability in an installed host.
+
+### Platform Takeover and Restoration
+
+Windows validates console input/output, saves modes, cursor information, screen geometry and queryable palette/attributes. Raw record input disables line/echo/processed/Quick Edit/VT input and enables mouse/window events. VT uses alternate-screen 1049 and hides the cursor; classic uses an owned screen buffer. Active dimensions match the viewport at origin (0,0), without scrollback. Resize records trigger a fresh viewport query.
+
+Stop exits the alternate screen or reactivates the original buffer, restores buffer/window geometry, cursor position/visibility/size, attributes and modes, and closes the classic buffer. Verify original scrollback and sentinel content immediately after the application returns, before wrapper/prompt output touches the restored console.
+
+POSIX saves termios, applies cfmakeraw with VMIN/VTIME zero using TCSANOW, and saves/replaces SIGWINCH. A nonblocking close-on-exec process-lifetime self-pipe wakes poll; its handler only preserves errno and writes a byte. Size queries and callbacks stay on the owner thread. Stop disables mouse modes, resets SGR/cursor/alternate screen and restores termios, the prior signal action and owner-thread signal mask. Private modes are not portably queryable; inverse sequences are best effort under exclusive ownership.
+
+### Playground Contract
+
+[DebugTuiPlaygroundSOP.md](../Jobs/DebugTuiPlaygroundSOP.md) owns executable verification. The playground rebuilds each frame from semantic state.
+
+- Row 0 is exactly ` Canvas ` (8 cells), ` History ` (9), ` Shapes ` (8), clipped on narrow screens. Text is FFFFFF, selected background 000080, unselected 808080.
+- Canvas/History are persistent pages. Shapes is a transient flat menu. Tab/Shift-Tab cycle Canvas/History/Shapes; menu arrows clamp at the first/last of ten entries. Enter accepts; Escape dismisses. Navigation uses KeyDown; Enter/Backspace/Escape use Char once. Tab Char is ignored.
+- Canvas's double border starts on row 1; paper (0,0) is terminal (1,2). The bottom command box has background 404040, wraps complete scalars and grows to at most height-1. Width-two scalars survive one-column screens until they fit. Drafts survive navigation; disabling typing discards incomplete UTF-16.
+- One chronological list stores each parsed command and exact submitted text for both replay and History. Successful drawing/color/style/clear/type commands append once. `FS [B][I][U][S]` replaces all four current text flags; omitted flags are false and `FS` alone resets them. Flags are case-insensitive and order/duplicates do not matter. Only subsequent `TYPE` drawing consumes this style; geometric drawing and playground UI remain unstyled. HELP/EXIT/errors/canceled previews do not enter History.
+- History wraps exact text by display width below the header and starts at newest content. Vertical wheel scrolls three visual rows per 120 units, retaining partial deltas. Position persists through page switches and clamps on resize. New records do not move a user scrolled above the end. Horizontal wheel does nothing.
+- The ten styles are LINEV THIN/THICK/DOUBLE, LINEH THIN/THICK/DOUBLE, RECT THIN/THICK/DOUBLE/ROUND. Accept switches to Canvas and arms drawing, retaining draft, changing its text to 808080, and hiding the cursor. The selecting mouse gesture is consumed.
+- Only Left acts. Down (or DoubleClick replacing Down) inside paper starts a drag. Each preview replays committed commands plus the same parsed drawing operation, preserving merging/colors/clipping/wide-character repair without ghosts/history changes.
+- Release clamps to paper and commits exactly one canonical command. Lines use the anchor's fixed row/column with inclusive normalized endpoints; one-cell lines are valid. Rectangles need two distinct rows and columns; degenerate release stays armed without committing.
+- Escape, header navigation, Tab or resize cancels preview/armed mode. During a drag, motion showing left released cancels it. Middle/Right never begin, commit or cancel.
+- HELP/errors are modal rounded overlays with opaque black border/interior backgrounds and left-aligned text. Lines wrap only when they exceed the available paper width excluding the overlay border. Without wrapping, the text width is the longest original line; with wrapping, the box fills the available width. The whole box is centered and its layout is recalculated on every frame, including resize. Only Enter dismisses, without submitting. EXIT is the only application exit command; q/Q are ordinary text.

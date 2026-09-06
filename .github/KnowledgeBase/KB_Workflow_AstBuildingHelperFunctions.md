@@ -42,7 +42,7 @@ Each copy helper has overloads accepting either `Ptr<T>` or raw `T*`, so callers
 For `CopyExpression`, `CopyStatement`, `CopyDeclaration`, and `CopyModule`, the `expandVirtualExprStat` argument controls whether virtual frontend constructs are copied as written or copied through their expanded ordinary AST:
 
 - Pass `false` when the generated output should preserve the original AST shape.
-- Pass `true` when backend-ready AST is needed and expanded expressions, statements, or declarations should replace virtual nodes when available.
+- Pass `true` to copy expanded virtual expressions and statements when available, and flatten virtual declarations inside copied namespace, class, or anonymous-interface member lists. `CopyDeclaration` does not replace a virtual declaration passed as the root node.
 
 `CopyType` does not take `expandVirtualExprStat` because Workflow types do not use the same virtual expansion mechanism.
 

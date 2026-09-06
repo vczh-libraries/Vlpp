@@ -259,7 +259,7 @@ When data changes:
 
 **SelectItemsByClick**:
 - `SelectItemsByClick(itemIndex, ctrl, shift, leftButton)`: Multi-selection logic
-- Right-click without selection: skip (keep current selection for context menu)
+- Right-click on an already-selected item: keep the current selection; otherwise process selection with the same modifier rules as left-click
 - No modifiers: Clear all, select clicked item
 - Ctrl: Toggle clicked item
 - Shift: Select range from `selectedItemIndexStart` to clicked item
@@ -419,7 +419,7 @@ When data changes:
 
 **Item Template**: None initially
 - Property `itemStyleProperty` starts as empty `TemplateProperty<GuiListItemTemplate>`
-- User must set via `SetItemTemplate()` to customize dropdown item appearance
+- User can set via `SetItemTemplate()` to customize the selected item appearance in the collapsed combo box
 - When `itemStyleProperty` is null:
   - Control template's `TextVisible` is set to `true` (shows text directly)
   - Selected item text displayed in control template

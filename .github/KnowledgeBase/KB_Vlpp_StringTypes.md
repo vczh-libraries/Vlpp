@@ -70,7 +70,7 @@ auto str = WString::TakeOver(buffer, actualLength);
 ```
 - **Use case**: Take ownership of a dynamically allocated buffer
 - **Memory**: Takes ownership, `delete[]` called automatically
-- **Warning**: Buffer must be allocated with `new[]`
+- **Warning**: Buffer must be allocated with `new[]` and contain a zero terminator at `buffer[length]` (`Source/Strings/String.h`)
 
 ## String to Number Conversion
 
@@ -196,9 +196,9 @@ The string conversion system automatically handles these differences internally.
 
 ### Performance Considerations
 - **Externally owned buffers with `Unmanaged`**: Zero-copy initialization without ownership transfer
-- **Immutable strings**: Thread-safe sharing but creates new instances for modifications
+- **Immutable strings**: Separate string objects can share character storage; updating operations return new string values
 - **UTF conversions**: May involve memory allocation and encoding conversion overhead
 - **Case conversions**: Create new string instances rather than modifying in-place
 
 ### Thread Safety
-All string types are immutable and thread-safe for reading. Multiple threads can safely access the same string instance simultaneously. However, string creation and conversion operations may allocate memory and should be considered for performance in highly concurrent scenarios.
+String values are immutable, but `Buffer() const` can replace a substring object's internal storage to add a zero terminator (`Source/Strings/String.h`). Use separate string copies or synchronize access when multiple threads may call `Buffer()` on the same instance.

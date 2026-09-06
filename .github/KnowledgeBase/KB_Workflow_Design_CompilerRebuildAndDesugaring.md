@@ -147,7 +147,7 @@ Before expansion:
 - `ValidateStructureExpressionVisitor::Visit(WfBindExpression*)` rejects nested `bind`.
 - `ValidateStructureExpressionVisitor::Visit(WfObserveExpression*)` requires `observe` to appear under `bind`, rejects nested observe in observe-event expressions, checks simple observe shapes, and requires extended observe to have at least one event.
 - `ValidateStructureExpressionVisitor::Visit(WfAttachEventExpression*)` and `Visit(WfDetachEventExpression*)` reject manual attach/detach inside `bind`.
-- `BuildScopeForExpression::Visit(WfObserveExpression*)` creates a local scope for extended observe and adds the alias symbol.
+- `BuildScopeForExpressionVisitor::Visit(WfObserveExpression*)` creates a local scope for extended observe and adds the alias symbol.
 - `ValidateSemanticExpressionVisitor::Visit(WfBindExpression*)` validates the bound expression and returns readonly `Ptr<IValueSubscription>`.
 
 The runtime interface is `IValueSubscription` in `Import/VlppReflection.h`. It exposes `ValueChanged`, `Open`, `Update`, and `Close`.
@@ -243,7 +243,7 @@ Bind has three variable mechanisms:
 - `let` variables and extended-observe aliases are handled through `BindContext::renames` and may disappear from the generated expression if their value is cached;
 - outer function variables are captured by ordinary anonymous-interface capture machinery.
 
-`BuildScopeForExpression::Visit(WfNewInterfaceExpression*)` creates a `WfLexicalCapture` for the generated interface implementation. During semantic resolution, references from generated subscription methods to outer function locals are recorded in `manager->lambdaCaptures`. Bytecode metadata names those as `<captured>x`, while bind-owned state uses names such as `<bind-cache>0` and `<bind-handler>0_0`.
+`BuildScopeForExpressionVisitor::Visit(WfNewInterfaceExpression*)` creates a `WfLexicalCapture` for the generated interface implementation. During semantic resolution, references from generated subscription methods to outer function locals are recorded in `manager->lambdaCaptures`. Bytecode metadata names those as `<captured>x`, while bind-owned state uses names such as `<bind-cache>0` and `<bind-handler>0_0`.
 
 `ExpandBindExpression` therefore does not convert surrounding locals into bind-specific fields. It relies on the same closure model used by user-written `new interface` expressions.
 
@@ -272,7 +272,7 @@ The parser represents coroutine-related syntax as:
 
 ### Semantic Resolution Before Lowering
 
-`BuildScopeForStatement::Visit(WfCoProviderStatement*)` creates provider-scope symbols:
+`BuildScopeForStatementVisitor::Visit(WfCoProviderStatement*)` creates provider-scope symbols:
 
 - `$PROVIDER`: selected provider type.
 - `$IMPL`: provider implementation type passed to the generated coroutine creator.
@@ -455,7 +455,7 @@ State machines are context-sensitive declarations. The parser represents them as
 
 State machines participate in several `Rebuild` phases before `ExpandStateMachine` runs:
 
-- `BuildGlobalNameFromModules::BuildClassMemberVisitor::Visit(WfStateMachineDeclaration*)` synthesizes class member placeholders for input methods, input argument fields, state argument fields, and `<state>CreateCoroutine`.
+- `BuildClassMemberVisitor::Visit(WfStateMachineDeclaration*)` synthesizes class member placeholders for input methods, input argument fields, state argument fields, and `<state>CreateCoroutine`.
 - `BuildScopeForDeclarationVisitor::Visit(WfStateMachineDeclaration*)` creates lexical symbols for state inputs, states, state arguments, switch-case arguments, and state bodies.
 - `CompleteScopeForClassMemberVisitor::Visit(WfStateMachineDeclaration*)` fills input method signatures, generated field types, and `<state>CreateCoroutine(<state>startState:int):void`.
 - `ValidateSemanticDeclarationVisitor::Visit(WfClassDeclaration*)` requires a class containing a state machine to inherit from `system::StateMachine`.
@@ -476,7 +476,7 @@ State machines participate in several `Rebuild` phases before `ExpandStateMachin
 
 Generated fields are added to `WfStateMachineDeclaration::expandedDeclarations` as `WfVariableDeclaration` nodes with `@cpp:Private`, and connected back to reflected field metadata through `manager->declarationMemberInfos`.
 
-This is different from coroutine local conversion. Raw coroutine lowering hoists locals only when the flow chart proves they must survive a pause. State-machine lowering creates class fields up front for semantic state because input arguments and state invocation arguments must survive across input method calls, state transitions, and pushed child states.
+This is different from coroutine local conversion. Raw coroutine lowering hoists all locals declared directly in coroutine-aware blocks, plus catch and named-if variables in coroutine-aware statements; it does not perform a per-variable liveness test across pauses. State-machine lowering creates class fields up front for semantic state because input arguments and state invocation arguments must survive across input method calls, state transitions, and pushed child states.
 
 ### Generated Input Methods
 

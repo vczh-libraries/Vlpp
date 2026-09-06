@@ -9,7 +9,7 @@ Project introduction remains in [Index.md](./Index.md#vlppregex).
 Text pattern matching and searching operations with support for different UTF encodings between pattern definitions and input text.
 
 - Use `Regex_<T>` for pattern definition with `ObjectString<T>` encoding
-- Use `MatchHead<U>` for finding longest prefix matching the pattern
+- Use `MatchHead<U>` for matching a prefix, with longest-match behavior in pure mode and pattern-controlled priority in rich mode
 - Use `Match<U>` for finding earliest substring matching the pattern
 - Use `TestHead<U>` for boolean prefix matching without detailed results
 - Use `Test<U>` for boolean substring matching without detailed results

@@ -18,7 +18,7 @@ Console::Write(L"World");
 
 **Function usage:**
 ```cpp
-Console::Write(const WString& text);
+void Console::Write(const WString& text);
 ```
 
 **Key characteristics:**
@@ -41,7 +41,7 @@ Console::WriteLine(L"Second line");
 
 **Function usage:**
 ```cpp
-Console::WriteLine(const WString& text);
+void Console::WriteLine(const WString& text);
 ```
 
 **Key characteristics:**
@@ -136,7 +136,7 @@ int main(int argc, char** argv)
     
     // Application logic here
     
-    Console::WriteLine(L"Press any key to exit...");
+    Console::WriteLine(L"Application exiting...");
     return 0;
 }
 ```
@@ -223,10 +223,7 @@ Console operations handle character encoding appropriately across platforms:
 
 ### Line Endings
 
-`Console::WriteLine` uses platform-appropriate line endings:
-- **Windows**: CRLF (\\r\\n)
-- **Linux**: LF (\\n)
-- **Consistent behavior**: Code works the same way regardless of platform
+`Console::WriteLine` writes CRLF (`\r\n`) on both Windows and Linux, as implemented in `Source/Console.cpp`.
 
 ### Console Availability
 
@@ -265,12 +262,12 @@ TEST_CASE(L"MyTestCase")
     TEST_ASSERT(condition);
     
     TEST_PRINT(L"Test completed successfully");
-}
+});
 ```
 
 ### Error Handling
 
-Console operations are designed to be robust and typically don't throw exceptions, but in resource-constrained environments or when console access is unavailable, they may silently fail. For critical output, consider combining with file logging:
+Console I/O raises `Error` when disabled through `Console::Disable()` (`Source/Console.Windows.cpp` and `Source/Console.Linux.cpp`). When console access is unavailable, output may silently fail. For critical output, consider combining with file logging:
 
 ```cpp
 void LogMessage(const WString& message)

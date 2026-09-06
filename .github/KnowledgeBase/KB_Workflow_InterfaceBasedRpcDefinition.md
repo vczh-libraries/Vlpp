@@ -194,7 +194,7 @@ Refcounting tracks interested clients for local objects. It is not the same conc
 - These functions only track local objects. If `ref` does not belong to the current lifecycle, this is an implementation error.
 - The counter should track interested clients, not wrapper instances. Wrapper construction and destruction should happen once for each object/client pair, so duplicate holds or unholds for the same `(ref, remoteClientId)` should not silently create a different ownership meaning.
 
-`PtrToRef(ptr)` only converts a local object to a `RpcObjectReference`. It should allocate a new local object id when needed and attach the object-to-ref internal property, but it must not increase the interested-client counter.
+`PtrToRef(ptr)` returns the original remote reference for a tracked wrapper, or converts a local object to a `RpcObjectReference`. For a local object, it allocates a new local object id when needed and attaches the object-to-ref internal property, but it does not increase the interested-client counter.
 
 For a normal non-service object, the counter becomes 1 only after the first remote client actually receives the ref and creates its wrapper:
 
@@ -205,7 +205,7 @@ For a normal non-service object, the counter becomes 1 only after the first remo
 
 When the interested-client counter decreases to 0, the lifecycle should remove all resources and tracking for that local object reference. After this removal, a later `PtrToRef(ptr)` on the same object should allocate a new object id.
 
-There is a special case when `PtrToRef(ptr)` is called but no remote client ever receives the returned ref, so no wrapper constructor sends `ObjectHold(..., true)`. The object-to-ref internal property is the final fallback for this case: if the local object is deleted while the lifecycle is still alive, the property cleanup removes the tracking resource. During lifecycle finalization, implementations should remove these internal properties from all tracked local objects, so objects deleted after the lifecycle is gone do not call back into a finalized lifecycle.
+There is a special case when `PtrToRef(ptr)` is called but no remote client ever receives the returned ref, so no wrapper constructor sends `ObjectHold(..., true)`. `RpcLifecycleBase::CreateLocalObject` stores an owning pointer even with no interested clients, so the tracked object remains alive until a later hold/unhold cycle removes it or lifecycle finalization clears it. During lifecycle finalization, implementations remove the object-to-ref internal properties from all tracked local objects, so objects deleted after the lifecycle is gone do not call back into a finalized lifecycle.
 
 Services use the same local-object tracking, but `RegisterLocalService` adds an owner hold:
 
@@ -223,7 +223,7 @@ When a wrapper performs a method call or list operation, the message is sent to 
 - List operations use `IRpcDispatcher::SendToClient_ObjectOps(ref.clientId)->InvokeMethod(...)` with predefined list method ids through `RpcCallerListOps`.
 - Array resize uses its own predefined method id through `IRpcListOps::ArrayResize`; list-only mutation ids such as clear and remove-at should not be accepted as array resize shortcuts.
 
-The returned ops object is the target client's local operation object. The caller should not know or store the target lifecycle directly.
+The returned ops object routes calls to the target client's local operations. The caller should not know or store the target lifecycle directly.
 
 ### Event Broadcasts
 

@@ -87,13 +87,13 @@ BroadcastStream is useful for:
 These additional streams can be combined with basic streams and encoding streams to create sophisticated data processing pipelines:
 
 1. **Cached File Processing**: `CacheStream` wrapping a `FileStream` for improved random access performance
-2. **Recorded Encoding**: `RecorderStream` capturing the output of an `EncoderStream` for debugging
+2. **Recorded Decoding**: `RecorderStream` capturing the output of a `DecoderStream` for debugging
 3. **Broadcast with Compression**: `BroadcastStream` sending data to both compressed and uncompressed destinations
 
 ### Performance Considerations
 
 - **CacheStream**: Trades memory usage for reduced I/O operations
-- **RecorderStream**: Doubles the write operations but provides valuable audit capabilities  
+- **RecorderStream**: Adds one target write per source read to record the returned bytes
 - **BroadcastStream**: Multiplies write operations by the number of targets
 
 ### Error Handling
@@ -105,10 +105,10 @@ Each specialized stream type has specific error scenarios:
 
 ### Memory Management
 
-- **CacheStream**: Automatically manages cache size and eviction policies
+- **CacheStream**: Allocates one fixed-size cache block selected at construction
 - **RecorderStream**: Doesn't store data itself, just passes it through
 - **BroadcastStream**: Minimal memory overhead as it doesn't buffer data
 
 ### Thread Safety
 
-These stream types inherit the thread safety characteristics of their underlying streams. Additional synchronization may be needed when using them in multi-threaded scenarios, especially with `BroadcastStream` where multiple targets might be accessed concurrently.
+These stream types do not add synchronization. Protect shared wrapper state and compound operations even when the underlying streams synchronize individual calls; for example, `CacheStream` mutates its own buffer and position, and `BroadcastStream` iterates a mutable target list.

@@ -68,7 +68,7 @@ The core side operates synchronously from its own perspective despite the underl
 3. `GuiRemoteGraphicsResourceManager` — implements `GuiGraphicsResourceManager` and `IGuiGraphicsLayoutProvider`
 4. `GuiHostedGraphicsResourceManager` — wraps the above for hosted mode rendering
 
-Initialization order: remote → resource manager → hosted controller. Finalization order: reverse. Then `GuiApplicationMain()` runs.
+Initialization order: remote → resource manager → hosted controller. Then `GuiApplicationMain()` runs. Finalization order: reverse.
 
 ### Connection Establishing
 
@@ -112,7 +112,7 @@ When the hosted controller determines that rendering has become idle, `GuiRemote
 
 ### Timer-Driven Rendering
 
-`IsActivelyRefreshing()` returns `true`, forcing hosted mode to render every cycle. `RedrawContent()` is a no-op because rendering is driven by the timer in `RunOneCycle`, not on-demand.
+`IsActivelyRefreshing()` returns `true`. Hosted mode checks rendering needs on each timer cycle and skips rendering once idle. `RedrawContent()` is a no-op because rendering is driven by the timer in `RunOneCycle`.
 
 ### Size and Bounds
 
@@ -308,9 +308,9 @@ The combinator pattern allows composing protocol transformations as a pipeline. 
 
 ## Protocol Filter Layer
 
-`GuiRemoteProtocolFilter` wraps `IGuiRemoteProtocol` via `GuiRemoteProtocolCombinator<GuiRemoteEventFilter>` and optimizes traffic by dropping redundant messages/events:
-- `[@DropRepeat]`: drop messages or events with identical arguments to the previous send, regardless of what happened in between
-- `[@DropConsecutive]`: drop events with identical arguments to the immediately preceding event of the same type
+`GuiRemoteProtocolFilter` wraps `IGuiRemoteProtocol` via `GuiRemoteProtocolCombinator<GuiRemoteEventFilter>` and filters queued traffic by protocol type, without comparing argument values:
+- `[@DropRepeat]` messages: keep the last queued request of each annotated type within a submitted batch.
+- Event `[@DropRepeat]` and `[@DropConsecutive]` use per-type queue-index tracking during submission; events received outside submission are forwarded directly. The current event macros record `filteredEvents.Count() - 1` before appending, so their dropping behavior must not be equated with the message path.
 
 The filter queues messages internally and applies drop logic in `ProcessRequests()` before `Submit()`.
 

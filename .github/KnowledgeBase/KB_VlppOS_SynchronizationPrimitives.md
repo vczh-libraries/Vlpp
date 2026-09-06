@@ -109,8 +109,8 @@ The `Sleep*` function temporarily releases the lock from the current thread, and
 
 - Before calling the `Sleep*` function, the current thread must own the lock.
 - Calling the `Sleep*` function releases the lock from the current thread, and block the current thread.
-- The `Sleep*` function returns when `WakeOnePending` or `WakeAllPendings` is called.
-  - The `Sleep*ForTime` function could also return when it reaches the timeout. But this will not always happen, because:
+- The `Sleep*` function can return after `WakeOnePending` or `WakeAllPendings`, or after a spurious wakeup. Recheck the protected condition in a loop.
+  - The `Sleep*ForTime` function can also return after its timeout; reacquiring the lock can delay its return beyond that timeout.
     - `WakeOnePending` only activates one thread pending on the condition variable.
     - `WakeAllPendings` activates all thread but they are also controlled by the lock.
   - When `Sleep*` returns, the current thread owns the lock.

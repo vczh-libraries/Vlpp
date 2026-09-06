@@ -43,17 +43,17 @@ Both methods take a `WString` storing a number as input. You can use `itow` and 
 
 The locale system provides comprehensive string manipulation functions with cultural awareness:
 
-- Use `Compare`, `CompareOrdinal`, `CompareOrdinalIgnoreCase` for locale-aware string comparison
+- Use `Compare` for locale-aware comparison, and `CompareOrdinal` or `CompareOrdinalIgnoreCase` for ordinal comparison
 - Use `FindFirst`, `FindLast` for normalized string searching
 - Use `StartsWith`, `EndsWith` for normalized string matching
 
-The comparison functions (`Compare`, `CompareOrdinal`, and `CompareOrdinalIgnoreCase`) compare two strings using different approaches based on locale-specific rules.
+`Compare` uses the selected locale and normalization flags. `CompareOrdinal` and `CompareOrdinalIgnoreCase` do not use the selected locale name.
 
 The search functions (`FindFirst` and `FindLast`) find one string within another. Since strings are normalized before searching, these functions return a pair of numbers indicating the matched substring. The matched substring might not be identical to the substring being searched for, but they are equivalent under the given locale's normalization rules.
 
 The `StartsWith` and `EndsWith` functions test if a substring appears at the expected location, using locale-aware normalization.
 
-All these string manipulation functions internally rewrite the input strings using specified normalization rules before performing their operations, ensuring culturally appropriate behavior.
+Normalization support depends on the implementation: Windows delegates comparison and searching to NLS APIs, while the default non-Windows `EnUsLocaleImpl` supports only `None` and `IgnoreCase` for these operations.
 
 ## Extra Content
 
@@ -61,7 +61,7 @@ All these string manipulation functions internally rewrite the input strings usi
 You can replace the default locale implementation with a custom one for testing and specialized scenarios:
 
 - Use `InjectLocaleImpl(impl)` to set a custom `ILocaleImpl` implementation
-- Use `EjectLocaleImpl(impl)` to remove a specific injected implementation
+- Use `EjectLocaleImpl(impl)` to remove that implementation and all implementations injected after it
 - Use `EjectLocaleImpl(nullptr)` to reset to the default OS-specific implementation by ejecting all injected implementations
 - Use `GetOSLocaleImpl()` to get the OS-dependent default implementation (function not in header file, declare manually)
 
@@ -79,7 +79,7 @@ The `EnUsLocaleImpl` class provides a platform-independent implementation that o
 - This is the default implementation for non-Windows platform
 
 ### Character Normalization
-The locale system performs character normalization as part of its string operations. This means that characters that appear different but have the same semantic meaning (such as composed vs. decomposed Unicode characters) are treated as equivalent during comparisons and searches.
+Windows locale-aware comparisons and searches apply the requested NLS normalization rules. Ordinal comparisons and the non-Windows `EnUsLocaleImpl` do not provide general Unicode canonical-equivalence matching.
 
 ### Performance Considerations
 Locale-aware operations are generally more expensive than simple string operations because they involve character normalization and culture-specific rules. For performance-critical code that doesn't need localization, consider using the invariant locale or simple string operations.

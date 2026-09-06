@@ -62,7 +62,7 @@ bool isEqual = (pair1 == pair2); // false
 
 ### Structured Binding with Collections
 
-You can convert an `IEnumerable<T>` to `IEnumerable<Pair<vint, T>>` using the `indexed` function, which is designed for `for(auto [index, x] : indexed(xs))` to iterate xs with an index. This is also an example of `Pair<K, V>` with structured binding.
+Use `indexed(xs)` for `for(auto [x, index] : indexed(xs))`. The range wrapper yields `Tuple<const T&, vint>` values with the element before its index (`Source/Collections/OperationForEach.h`).
 
 ```cpp
 List<WString> names;
@@ -70,7 +70,7 @@ names.Add(L"Alice");
 names.Add(L"Bob");
 
 // Iterate with index using structured binding
-for(auto [index, name] : indexed(names)) {
+for(auto [name, index] : indexed(names)) {
     // index is vint, name is WString
     Console::WriteLine(itow(index) + L": " + name);
 }
@@ -80,7 +80,7 @@ for(auto [index, name] : indexed(names)) {
 
 `Tuple<...>` is an easy way to organize multiple values without defining a `struct`.
 
-`Tuple(a, b, c...)` could be used to initialize a tuple without specifying data types, make the code more readable. Values cannot be changed in a tuple, but you can assign it with another tuple.
+`Tuple(a, b, c...)` could be used to initialize a tuple without specifying data types, make the code more readable. Elements of a non-const tuple can be changed through `get<index>()`, and you can assign it with another tuple (`Source/Primitives/Tuple.h`).
 
 `get<0>` method can be used to access the first value. You can use any other index but it has to be a compiled time constant.
 
@@ -113,7 +113,7 @@ auto tuple3 = tuple1; // Copy assignment
 
 ## Variant<T...>
 
-`Variant<T...>` represents any but only one value of different types. It must be initialized or assigned with a value, a `Variant<T...>` could not be empty.
+`Variant<T...>` represents any but only one value of different types. A `Variant<T...>` cannot be empty; its default constructor initializes the first alternative when that type is default-constructible (`Source/Primitives/Variant.h`).
 
 If you really want a nullable variable, add `nullptr_t` to the type list instead of using `Nullable<Variant<...>>`.
 
@@ -133,7 +133,7 @@ The `TryApply` method is similar to `Apply`, but you don't have to handle every 
 
 ```cpp
 // Create variant that can hold string, int, or bool
-Variant<WString, vint, bool> value = L"Hello";
+Variant<WString, vint, bool> value = WString(L"Hello");
 
 // Check which type is stored
 vint typeIndex = value.Index(); // 0 for WString, 1 for vint, 2 for bool
@@ -191,7 +191,7 @@ if (nullableValue.Index() == 3) {
 }
 
 // Assign a real value
-nullableValue = L"Not null anymore";
+nullableValue = WString(L"Not null anymore");
 ```
 
 ## Extra Content
@@ -200,7 +200,7 @@ nullableValue = L"Not null anymore";
 
 The primitive value types in Vlpp are designed to be:
 
-1. **Immutable by design**: Values inside these containers cannot be modified directly, promoting safer code patterns
+1. **Mutability**: `Nullable<T>::Value()` is read-only, while `Pair`, `Tuple`, and `Variant` expose mutable access to their stored values
 2. **C++20 compatible**: Full support for structured binding and modern C++ features
 3. **Performance optimized**: Value types with minimal overhead compared to standard library equivalents
 4. **Type-safe**: Strong typing prevents common errors while providing flexibility
@@ -215,7 +215,7 @@ The primitive value types in Vlpp are designed to be:
 
 ### Memory and Performance Notes
 
-- All primitive value types are stack-allocated and have minimal memory overhead
+- These types store their values inline; their own allocation and any allocations by contained values depend on how they are used
 - `Variant<T...>` uses union-like storage, only occupying space for the largest type plus type information
 - Structured binding operations have zero runtime cost in optimized builds
 - Comparison operations use lexicographical ordering for `Pair` and `Tuple`

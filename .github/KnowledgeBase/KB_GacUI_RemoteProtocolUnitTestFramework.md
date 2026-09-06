@@ -13,6 +13,7 @@ Below is a complete example demonstrating the key concepts of the framework: tes
 The test executable's `main` function initializes the framework once, runs all test cases, and finalizes:
 
 ```cpp
+template<typename T>
 int UnitTestMain(int argc, T* argv[])
 {
     UnitTestFrameworkConfig config;
@@ -38,7 +39,7 @@ const auto resource = LR"GacUISrc(
       <Window ref.Name="self" Text="Hello, world!" ClientSize="x:320 y:240">
         <Button ref.Name="buttonOK" Text="OK">
           <att.BoundsComposition-set AlignmentToParent="left:5 top:5 right:-1 bottom:-1"/>
-          <ev.Clicked-eval><![CDATA {
+          <ev.Clicked-eval><![CDATA[{
             Application::GetApplication().InvokeInMainThread(self, func():void{
               // changing UI structures that affects the sender of an event
               // is supposed to be put in InvokeInMainThread
@@ -101,7 +102,7 @@ TEST_CASE(L"Click Button")
 - **`LClick(location)`**: Simulates a full left mouse click (mouse move + button down + button up) at the given location. Use this for simple clicks instead of separate `_LDown`/`_LUp` calls.
 - **`GacUIUnitTest_StartFast_WithResourceAsText<Theme>`**: Compiles the XML resource, registers the theme, creates the window, runs the application, and captures snapshots — all in one call.
 - **Frame name semantics**: `"Ready"` names the initial rendering. Each snapshot file (`frame_0.json`) records the full rendering DOM at that point.
-- **Closing the window**: The button's click handler uses `InvokeInMainThread` to defer `self.Close()`. This is necessary because `Close()` would otherwise be called synchronously inside the IO event dispatch, which could block the frame callback (see the blocking function caveat below). If user interaction does not cause the application to exit, an extra frame must be added at the end to call `window->Hide()` explicitly.
+- **Closing the window**: The button's click handler uses `InvokeInMainThread` to defer `self.Close()`. This defers changes to the event sender's UI structure until the current IO event dispatch completes. If user interaction does not cause the application to exit, an extra frame must be added at the end to call `window->Hide()` explicitly.
 
 ## Test Executable Initialization and Finalization
 

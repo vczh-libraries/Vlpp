@@ -35,7 +35,9 @@ Detailed project guidance: [Index_Vlpp.md](./Index_Vlpp.md)
 Files from Import:
 - VlppOS.h
 - VlppOS.cpp
+- VlppOS.Windows.h
 - VlppOS.Windows.cpp
+- VlppOS.Linux.h
 - VlppOS.Linux.cpp
 
 Online documentation: https://gaclib.net/doc/current/vlppos/home.html
@@ -89,6 +91,8 @@ Detailed project guidance: [Index_VlppReflection.md](./Index_VlppReflection.md)
 Files from Import:
 - VlppGlrParser.h
 - VlppGlrParser.cpp
+- VlppGlrParserCompiler.h
+- VlppGlrParserCompiler.cpp
 
 Online documentation: https://gaclib.net/doc/current/vlppparser2/home.html
 

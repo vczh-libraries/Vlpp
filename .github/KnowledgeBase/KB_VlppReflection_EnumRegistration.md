@@ -46,7 +46,7 @@ END_ENUM_ITEM(MyEnum)
 - Use `ENUM_ITEM_NAMESPACE` and `ENUM_NAMESPACE_ITEM` for enums (not enum classes) defined inside other types
 - `ENUM_ITEM_NAMESPACE` declares the type name
 - `ENUM_NAMESPACE_ITEM` lists each member
-- Handles enums that are nested within classes or namespaces
+- Handles enums that are nested within classes or structs; `ENUM_ITEM_NAMESPACE` requires a type, not a namespace
 
 ## Usage Patterns
 

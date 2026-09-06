@@ -12,7 +12,7 @@ Cross-platform file and directory manipulation with path handling and content ac
 
 ## File Class
 
-When `FilePath::IsFile` returns true, `File` could be initialized with such path. It offers:
+`File` can be initialized with an existing file path or a path where a file will be written; `FilePath::IsFile` need not already return true. It offers:
 
 - Text reading by `ReadAllTextWithEncodingTesting`, `ReadAllTextByBom` and `ReadAllLinesByBom`.
 - Text writing by `WriteAllText`, `WriteAllLines`.
@@ -78,7 +78,7 @@ Initializing a `Folder` with a file path with `IsRoot` returning true, is just c
 You can replace the default file system implementation with a custom one for testing and specialized scenarios:
 
 - Use `InjectFileSystemImpl(impl)` to set a custom `IFileSystemImpl` implementation
-- Use `EjectFileSystemImpl(impl)` to remove a specific injected implementation
+- Use `EjectFileSystemImpl(impl)` to remove that implementation and all implementations injected after it
 - Use `EjectFileSystemImpl(nullptr)` to reset to the default OS-specific implementation by ejecting all injected implementations
 - Use `GetOSFileSystemImpl()` to get the OS-dependent default implementation (function not in header file, declare manually)
 
@@ -108,7 +108,7 @@ When working with file paths, always use `FilePath` for cross-platform compatibi
 
 ### Error Handling
 
-File and folder operations may throw exceptions when encountering permission issues, missing files, or other I/O errors. Always consider wrapping file operations in appropriate exception handling.
+File and folder operations such as `Delete`, `Rename`, `Create` and the text I/O overloads returning `bool` report ordinary I/O failures through their return value. Check that value; exception handling alone does not detect these failures.
 
 ### Performance Considerations
 

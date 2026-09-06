@@ -146,7 +146,7 @@ Testing:
 - Allocating target-bound resources in the constructor or `InitializeInternal()` instead of `RenderTargetChangedInternal()` leads to null target usage or leaks.
 - Not releasing resources in `FinalizeInternal()` or when `RenderTargetChangedInternal(new == nullptr)` => leaks on device reset.
 - Failing to update min size after relevant property change (text/font/wrap) => layout flickers or stale size.
-- Omitting `Register()` call => element silently renders nothing (renderer never created).
+- Omitting `Register()` call => `GuiElementBase<T>::Create()` fails with `CHECK_ERROR` because no renderer factory is registered.
 - Using element state directly inside `Render()` without caching expensive conversions (e.g., text layout) => per-frame overhead.
 
 ## 13. End-to-End Flow Summary

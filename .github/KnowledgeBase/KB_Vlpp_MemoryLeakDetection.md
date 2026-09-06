@@ -2,7 +2,7 @@
 
 ## Overview
 
-Vlpp provides memory leak detection capabilities for debugging and testing C++ applications on Windows. The system addresses the problem of global variables being destructed after the `main` function returns, which can cause false negatives in memory leak detection tools. The framework offers both basic detection mechanisms and a global storage system for managing application-wide resources that need explicit lifecycle control.
+Vlpp provides memory leak detection capabilities for debugging and testing C++ applications on Windows. The system addresses the problem of global variables being destructed after the `main` function returns, which can cause false positives in memory leak detection tools. The framework offers both basic detection mechanisms and a global storage system for managing application-wide resources that need explicit lifecycle control.
 
 ## Basic Memory Leak Detection
 
@@ -30,7 +30,7 @@ int main(int argc, char** argv)
 
 ### The Global Variable Problem
 
-Global variables are destructed after `main` returns, which causes `_CrtDumpMemoryLeaks()` to report false negatives. This happens because:
+Global variables are destructed after `main` returns, which causes `_CrtDumpMemoryLeaks()` to report false positives. This happens because:
 
 - Global destructors run after `main` completes
 - Memory allocated by global variables appears as leaks to the detection tool
@@ -89,7 +89,7 @@ if (GetMyGlobalStorage().IsInitialized())
 **Access patterns:**
 - **Availability checking**: Use `IsInitialized()` to verify storage state
 - **Resource access**: Direct member access through the storage object
-- **Post-finalization**: Returns `false` after `FinalizeGlobalStorage()` is called
+- **Post-finalization**: `IsInitialized()` on a retained storage reference returns `false` after `FinalizeGlobalStorage()`. Calling `GetMyGlobalStorage()` initializes it again (`Source/GlobalStorage.h`).
 - **Thread safety**: No automatic synchronization - add locks if needed
 
 ## Integration with Applications
@@ -210,7 +210,7 @@ END_GLOBAL_STORAGE_CLASS(LegacyStorage)
 - Global storage initialization occurs on first access (lazy initialization)
 - `IsInitialized()` checks have minimal performance impact
 - Access through storage objects is essentially direct member access
-- Finalization is a one-time operation during shutdown
+- Finalization releases currently initialized storage; subsequent access through a generated getter initializes it again
 
 **Memory overhead:**
 - Storage objects themselves use minimal memory
@@ -226,12 +226,22 @@ BEGIN_GLOBAL_STORAGE_CLASS(UIStorage)
 	Ptr<FontManager>	fontManager;
 	Ptr<ImageCache>		imageCache;
 	// ... UI-related resources
+	INITIALIZE_GLOBAL_STORAGE_CLASS
+		// Initialize resources here.
+	FINALIZE_GLOBAL_STORAGE_CLASS
+		fontManager = nullptr;
+		imageCache = nullptr;
 END_GLOBAL_STORAGE_CLASS(UIStorage)
 
 BEGIN_GLOBAL_STORAGE_CLASS(NetworkStorage)
 	Ptr<ConnectionPool>	connectionPool;
 	Ptr<CertificateStore>	certificates;
 	// ... network-related resources
+	INITIALIZE_GLOBAL_STORAGE_CLASS
+		// Initialize resources here.
+	FINALIZE_GLOBAL_STORAGE_CLASS
+		connectionPool = nullptr;
+		certificates = nullptr;
 END_GLOBAL_STORAGE_CLASS(NetworkStorage)
 ```
 

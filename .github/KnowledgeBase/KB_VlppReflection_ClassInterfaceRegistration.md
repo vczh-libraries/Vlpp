@@ -39,6 +39,7 @@ VlppReflection provides extensive macros for registering classes and interfaces,
 - Use `CLASS_MEMBER_METHOD_RENAME` to register a non-overloaded member function under a different reflected name
 - Use `CLASS_MEMBER_METHOD_OVERLOAD` for overloaded method registration
 - Use `CLASS_MEMBER_METHOD_OVERLOAD_RENAME` to register a specific overload under a different reflected name
+- Use `CLASS_MEMBER_METHOD_OVERLOAD_RENAME_TEMPLATE` for member methods needing custom generated C++ invocation and closure code (`Source/Reflection/Reflection/Macros.h`)
 - Use `CLASS_MEMBER_EXTERNALMETHOD` for external function methods
 - Use `CLASS_MEMBER_EXTERNALMETHOD_TEMPLATE` when an external method needs custom generated C++ code templates
 - Use `CLASS_MEMBER_STATIC_METHOD` for static method registration
@@ -136,10 +137,10 @@ END_CLASS_MEMBER(MyClass)
 ### Proxy Requirements
 Using `BEGIN_INTERFACE_MEMBER` requires a proxy to EXIST in the header file, which means the interface can be inherited in Workflow script.
 
-Using `BEGIN_INTERFACE_MEMBER_NOPROXY` requires a proxy to NOT EXIST in the header file, which means the interface cannot be inherited in Workflow script.
+`BEGIN_INTERFACE_MEMBER_NOPROXY` does not register a proxy constructor, so the interface cannot be implemented through that constructor in Workflow script. It does not require a proxy class to be absent (`Source/Reflection/Reflection/Macros.h`).
 
 ### Constructor Limitations
-There is no constructor in an interface registration - only classes support constructor registration.
+`BEGIN_INTERFACE_MEMBER` automatically registers an external constructor taking `Ptr<IValueInterfaceProxy>`; do not register an ordinary C++ interface constructor (`Source/Reflection/Reflection/Macros.h`).
 
 ## Extra Content
 

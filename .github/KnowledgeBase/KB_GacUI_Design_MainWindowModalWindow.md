@@ -45,7 +45,7 @@ The Windows implementation follows traditional Win32 message pump patterns:
 `GuiRemoteController` completely abstracts platform dependencies:
 - Processes events through `IGuiRemoteProtocol` instead of OS message queues
 - All windows are virtualized and rendered through protocol messages
-- Application exits when protocol connection terminates
+- Application exits when the virtual main window is destroyed; renderer disconnection alone allows the core to wait for reconnection
 
 ## Modal Window System
 

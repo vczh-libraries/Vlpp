@@ -151,17 +151,17 @@ Use `class` for defining new `Error` or `Exception` sub classes, although they a
 class MyCustomError : public Error
 {
 public:
-    MyCustomError(const WString& message) : Error(message) {}
+    MyCustomError(const wchar_t* message) : Error(message) {}
 };
 ```
 
 ### Function and Event Types
 
-`Func<F>` and `Event<F>` are also classes, although they are value types.
+`Func<F>` is also a class, although it is a value type. `Event<F>` is non-copyable (`Source/Primitives/Event.h`).
 
 ### Collection Types
 
-Collection types are also value types, although they implements `IEnumerable<T>` and `IEnumerator<T>`.
+Collection types are also value types, although they implement `IEnumerable<T>`; their enumerators implement `IEnumerator<T>`.
 This is also a reason we always use references instead of pointers on `IEnumerable<T>` and `IEnumerator<T>`.
 
 ### Struct in Ptr<T>
@@ -169,7 +169,7 @@ This is also a reason we always use references instead of pointers on `IEnumerab
 When really necessary, a struct could be used in `Ptr<T>` for sharing. But prefer `Nullable<T>` when `nullptr` is helpful but sharing is not necessary.
 
 ```cpp
-struct SharedData : public Object
+struct SharedData
 {
     vint value;
     WString name;
@@ -192,6 +192,8 @@ Since there's no weak pointer equivalent, be careful of circular references:
 
 ```cpp
 // Potential circular reference problem
+class Child;
+
 class Parent : public Object
 {
 public:

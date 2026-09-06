@@ -111,7 +111,7 @@ Pure virtual callbacks used by `GuiHostedController`:
 Each `Window<T>` holds:
 - `parent` — parent window pointer forming a tree structure
 - `children` — child windows list
-- `bounds` — position and size in the parent's client coordinate space
+- `bounds` — position and size in the single native window's client coordinate space
 - `topMost`, `visible`, `enabled`, `active`, `renderedAsActive` — state flags
 
 Key operations:
@@ -152,7 +152,7 @@ Two separate lists (`ordinaryWindowsInOrder` and `topMostedWindowsInOrder`) trac
 ### Coordinate System
 
 - `GetRenderingOffset()` returns the window's top-left position in the native window's client space as `NativeSize`
-- `GetBounds()` returns `wmWindow.bounds` directly (position is in parent's client space)
+- `GetBounds()` returns `wmWindow.bounds` directly (position is in the single native window's client space)
 - `GetClientSize()` equals `GetBounds().GetSize()` (no frame for hosted windows)
 - `GetClientBoundsInScreen()` equals `GetBounds()` (screen = client area of native window)
 - DPI conversion functions delegate to the real native window

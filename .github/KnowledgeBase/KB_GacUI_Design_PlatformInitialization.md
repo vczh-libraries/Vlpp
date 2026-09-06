@@ -26,7 +26,7 @@ Entry-point names are platform-specific. Windows puts `Hosted` or `Raw` before t
 - `SetupOSXCoreGraphicsRenderer()` - Full macOS application (implementation in separate repository)
 - `SetupRemoteNativeController(protocol)` - Full remote application with protocol communication
 
-Standard mode provides the complete GacUI application framework including `GuiApplication`, native window management for each GacUI window, event handling, tooltips, global shortcuts, and all system services.
+Native standard mode provides the complete GacUI application framework including `GuiApplication`, native window management for each GacUI window, event handling, tooltips, global shortcuts, and all system services. Remote mode instead uses hosted virtual windows and substituted services.
 
 ### Hosted Mode Entry Points  
 - `SetupHostedWindowsDirect2DRenderer()` - Direct2D embedded within a single native OS window
@@ -189,7 +189,7 @@ Remote mode always operates through hosted mode with a layered controller archit
 Remote mode inherently requires hosted mode because it has no real native windows, only virtual windows managed through protocol messages, and all rendering occurs within a single host window.
 
 ### Protocol Communication
-The remote controller implements all native controller services through bidirectional protocol communication:
+The remote controller uses bidirectional protocol communication for window, rendering, resource, screen, and input operations; clipboard, dialog, and automation services use framework substitutes:
 
 **Outgoing Requests**: Font configuration queries, screen configuration requests, window operations, input state queries
 **Incoming Events**: Connection lifecycle, input events (keyboard/mouse), window state changes

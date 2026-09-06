@@ -17,7 +17,7 @@ There are also static functions `WaitAll`, `WaitAllForTime`, `WaitAny`, `WaitAny
 
 ## Platform Naming Convention
 
-All following classes are named after Windows API. Their Linux version works exactly like Windows but with less features.
+All following classes are named after Windows API. Their GCC implementations have differences: `Mutex` is implemented using a semaphore, and named `EventObject` operations are unavailable.
 
 ## Mutex
 
@@ -27,10 +27,10 @@ Use `Mutex` for cross-process mutual exclusion.
 
 ### Mutex Lifecycle
 
-- The constructor does not actually create a mutex. You must call `Create` and `Open` later.
+- The constructor does not actually create a mutex. You must call `Create` or `Open` later.
 - The `Create` method creates a mutex.
   - If the name is not empty, the mutex is associated to a name, which works across different processes.
-  - No thread owns a mutex that is just created.
+  - `Create(true, name)` requests initial ownership; `Create(false, name)` leaves a newly created mutex unowned.
 - The `Open` method shares a created mutex with a name.
 
 ### Mutex Operations
@@ -47,7 +47,7 @@ Use `Semaphore` for counting semaphore operations across processes.
 
 ### Semaphore Lifecycle
 
-- The constructor does not actually create a semaphore. You must call `Create` and `Open` later.
+- The constructor does not actually create a semaphore. You must call `Create` or `Open` later.
 - The `Create` method creates a semaphore.
   - If the name is not empty, the semaphore is associated to a name, which works across different processes.
   - No thread owns a semaphore that is just created.
@@ -61,15 +61,15 @@ Calling `Wait` will block the current thread until it owns the semaphore.
 
 ## EventObject
 
-Use `EventObject` for event signaling across processes.
+Use `EventObject` for event signaling between threads, or across processes on Windows.
 
 ### EventObject Lifecycle
 
-- The constructor does not actually create an event object. You must call `CreateAutoUnsignal`, `CreateManualUnsignal` and `Open` later.
+- The constructor does not actually create an event object. You must call `CreateAutoUnsignal`, `CreateManualUnsignal` or, on Windows, `Open` later.
 - The `CreateAutoUnsignal` and `CreateManualUnsignal` method creates an event object.
   - An auto unsignal event object means, when it is owned by a thread, it automatically unsignaled. So only one thread will be unblocked. Otherwise multiple threads waiting for this event object will be unblocked at the same time.
-  - If the name is not empty, the event object is associated to a name, which works across different processes.
-- The `Open` method shares a created event object with a name.
+  - On Windows, a nonempty name associates the event with a name shared across processes. GCC implementations reject nonempty names.
+- The `Open` method shares a created event object with a name on Windows; it has no GCC implementation.
 
 ### EventObject Operations
 

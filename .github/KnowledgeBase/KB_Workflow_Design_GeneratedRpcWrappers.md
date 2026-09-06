@@ -36,7 +36,7 @@ Use these JSON ops instead of the non-JSON ops on a JSON lifecycle:
 
 The wrapper factory still calls `rpcwrapper_Create(ref, lc, ops)`, but the `ops` argument should be the JSON caller-side ops. Generated wrappers do not need a separate JSON wrapper type; the difference is in the ops object they delegate to.
 
-The generated `rpcjson_Serialize_*` and `rpcjson_Deserialize_*` functions are for known enum, struct, and collection types. The generated `rpcjson_Serialize(value)` and `rpcjson_Deserialize(node)` functions are for unknown values, including collection elements and other values whose exact static type is not known at the call site. `RpcObjectReference` and `RpcException` serialization is handled by the predefined RPC JSON serializer instead of per-assembly generated struct functions.
+The generated `rpcjson_Serialize_*` and `rpcjson_Deserialize_*` functions are for known enum and struct types. Known collection serialization is emitted inline at its use sites; unknown collections use the predefined serializer with generated callbacks for their elements. The generated `rpcjson_Serialize(value)` and `rpcjson_Deserialize(node)` functions are for unknown values, including collection elements and other values whose exact static type is not known at the call site. `RpcObjectReference` and `RpcException` serialization is handled by the predefined RPC JSON serializer instead of per-assembly generated struct functions.
 
 ## How Generated Functions Finish Their Work
 

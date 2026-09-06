@@ -321,7 +321,7 @@ void GuiMyControl::SetMyState(bool value)
     if (myState != value)
     {
         myState = value;
-        TypedControlTemplateObject(false)->SetMyState(myState);
+        TypedControlTemplateObject(true)->SetMyState(myState);
         StateChanged.Execute(compositions::GuiEventArgs(boundsComposition));
     }
 }
@@ -353,7 +353,7 @@ BEGIN_CLASS_MEMBER(GuiMyControl)
     CONTROL_CONSTRUCTOR_CONTROLT_TEMPLATE(GuiMyControl)
     
     CLASS_MEMBER_GUIEVENT(StateChanged)
-    CLASS_MEMBER_PROPERTY_GUIEVENT_FAST(MyState)
+    CLASS_MEMBER_PROPERTY_EVENT_FAST(MyState, StateChanged)
 END_CLASS_MEMBER(GuiMyControl)
 ```
 

@@ -90,7 +90,7 @@ Finding the next focusable control:
 
 TAB key processing in `GuiTabActionManager::KeyDown`:
 
-- Only processes TAB key when CTRL and ALT are NOT pressed
+- Only processes TAB key when CTRL, ALT, and the OS Super key are NOT pressed
 - If focused composition's control has `GetAcceptTabInput() == true`, TAB is NOT intercepted (returns false to let control handle it)
 - Otherwise, calls `GetNextFocusControl` with offset based on SHIFT key state
 - If next control found: calls `next->SetFocused()` and sets `supressTabOnce = true` to prevent TAB character insertion
@@ -148,7 +148,7 @@ ALT action collection from controls (`IGuiAltActionHost::CollectAltActionsFromCo
 
 #### Activation
 
-Pressing ALT (KEY_MENU) without CTRL or SHIFT:
+Pressing ALT (KEY_MENU) without CTRL, SHIFT, or the OS Super key:
 
 - `GuiAltActionManager::KeyDown` checks if control host implements `IGuiAltActionHost`
 - Calls `EnterAltHost` to enter ALT mode

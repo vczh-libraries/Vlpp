@@ -27,9 +27,9 @@ Here are all streams that guaranteed to be readable so no further checking is ne
 - `MemoryStream`
 - `MemoryWrapperStream`
 - `DecoderStream`
-- `RecorderStream`
 - The following streams are readable when their underlying streams are readable
   - `CacheStream`
+  - `RecorderStream` (also requires an available writable recording target)
 
 #### Peekable Streams
 
@@ -57,7 +57,7 @@ Here are all streams that guaranteed to be writable so no further checking is ne
 
 #### Seekable Streams
 
-A stream is random accessible when `CanSeek` returns true. `Seek`, `SeekFromBegin` can only be used in this case. `SeekFromEnd` can only be used when both `CanSeek` and `IsLimited` returns true.
+A stream is random accessible when `CanSeek` returns true. `Seek`, `SeekFromBegin` and `SeekFromEnd` can only be used in this case. `SeekFromEnd` uses the current size; it also works for growable streams such as `MemoryStream`.
 Use `Position` to know the current seeking position.
 `Read` and `Peek` will read the data at the seeking position.
 
@@ -70,8 +70,8 @@ Here are all streams that guaranteed to be seekable so no further checking is ne
 
 #### Limited/Finite Streams
 
-A stream is finite when `IsLimited` returns true. A finite stream means there is limited data in the stream. An infinite stream means you can `Read` from the stream forever before it is broken or closed.
-The `Size` and `SeekFromEnd` method only make sense for a finite stream.
+A stream is finite when `IsLimited` returns true. A finite stream means there is limited data in the stream. An unlimited stream can grow through writes; it can still reach the end of its current readable data.
+`Size` reports the current size when known, even for growable streams, and returns `-1` when the size is unavailable. `EncoderStream` and `DecoderStream` return `-1` even when their underlying stream is finite.
 
 Here are all streams that guaranteed to be limited/finite so no further checking is needed:
 - `FileStream` with `FileStream::ReadOnly` in the constructor.

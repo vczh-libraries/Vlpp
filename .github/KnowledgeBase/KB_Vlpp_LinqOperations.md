@@ -30,18 +30,18 @@ From(xs)
 
 The C++ range based for loop also works with any collection objects implementing `IEnumerable<T>`.
 
-You can convert an `IEnumerable<T>` to `IEnumerable<Pair<vint, T>>` using the `indexed` function, which is designed for `for(auto [index, x] : indexed(xs))` to iterate xs with an index. This is also an example of `Pair<K, V>` with structured binding.
+Use `indexed(xs)` for `for(auto [x, index] : indexed(xs))`. The range wrapper yields `Tuple<const T&, vint>` values with the element before its index (`Source/Collections/OperationForEach.h`); it is not an `IEnumerable<Pair<vint, T>>`.
 
 ## Extra Content
 
 Check out comments before `#ifndef VCZH_COLLECTIONS_OPERATION` for a full list of operators available in the LINQ implementation.
 
-The LINQ operations in Vlpp provide lazy evaluation, meaning operations are not executed immediately but are deferred until the results are actually needed. This allows for efficient chaining of operations without creating intermediate collections.
+Many LINQ operations in Vlpp defer evaluation until enumeration. `OrderBy()` and `Reverse()` materialize their input, and `Evaluate()` can cache unevaluated input, while aggregations evaluate immediately (`Source/Collections/Operation.h`).
 
 Common LINQ operations include:
-- Filtering operations: `Where()`, `Take()`, `Skip()`, `TakeWhile()`, `SkipWhile()`
+- Filtering operations: `Where()`, `Take()`, `Skip()`
 - Projection operations: `Select()`, `SelectMany()`
-- Ordering operations: `OrderBy()`, `OrderByDescending()`, `Reverse()`
+- Ordering operations: `OrderBy()`, `OrderByKey()`, `OrderBySelf()`, `Reverse()`
 - Aggregation operations: `Aggregate()`, `All()`, `Any()`, `Count()`, `First()`, `Last()`
 - Set operations: `Distinct()`, `Concat()`, `Union()`, `Intersect()`, `Except()`
 - Conversion operations: converting to other collection types

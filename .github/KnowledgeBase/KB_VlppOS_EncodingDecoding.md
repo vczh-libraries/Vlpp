@@ -6,7 +6,7 @@ Text encoding conversion between different UTF formats with BOM support and bina
 
 Use `BomEncoder` and `BomDecoder` for UTF encoding with BOM support.
 
-`BomEncoder` and `BomDecoder` convert data between `wchar_t` and a specified UTF encoding with BOM added to the very beginning.
+`BomEncoder` converts `wchar_t` to a specified encoding and adds its BOM when applicable. `BomDecoder` detects and consumes a UTF-8 or UTF-16 BOM, then converts to `wchar_t`; without a recognized BOM it uses `MbcsDecoder`.
 
 ## UTF Encoding without BOM
 
@@ -31,7 +31,7 @@ There are aliases for them to convert between `wchar_t` and any other UTF encodi
 
 Use `MbcsEncoder` and `MbcsDecoder` for ASCII/MBCS conversion.
 
-`MbcsEncoder` and `MbcsDecoder` convert data between `wchar_t` and `char`, which is ASCII.
+`MbcsEncoder` and `MbcsDecoder` convert data between `wchar_t` and `char` in the active multibyte encoding, which is not limited to ASCII.
 
 `BomEncoder::Mbcs` also handles ASCII meanwhile there is no BOM for ASCII. A `BomEncoder(BomEncoder::Mbcs)` works like a `MbcsEncoder`.
 
@@ -111,7 +111,7 @@ When choosing between different encoding methods:
 ### Performance Considerations
 
 Different encoding operations have varying performance characteristics:
-- ASCII/MBCS encoding is fastest but limited to basic character sets
+- MBCS character coverage depends on the active multibyte encoding
 - UTF-8 encoding provides good balance between space efficiency and Unicode support
 - UTF-16 and UTF-32 provide different trade-offs between processing speed and memory usage
 

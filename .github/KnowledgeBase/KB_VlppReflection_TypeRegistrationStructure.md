@@ -74,6 +74,9 @@ namespace vl::reflection::description
 #ifdef VCZH_DESCRIPTABLEOBJECT_WITH_METADATA
 #define _ ,
 
+    BEGIN_CLASS_MEMBER(::my::namespaces::First)
+    END_CLASS_MEMBER(::my::namespaces::First)
+
     BEGIN_INTERFACE_MEMBER(::my::namespaces::ISecond)
         CLASS_MEMBER_METHOD(ThisFunction, NO_PARAMETER)
         CLASS_MEMBER_METHOD(ThatFunction, { L"arg1" _ L"arg2" })

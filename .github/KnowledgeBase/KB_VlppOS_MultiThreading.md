@@ -46,6 +46,7 @@ queue->QueueTask([]()
     // Runs on the task queue thread
 });
 queue->QueueExitTask();
+thread->Wait();
 ```
 
 Use `TaskQueue` instead of `ThreadPoolLite` when the order and single-threaded execution context of tasks matters.
@@ -68,7 +69,7 @@ Use static function `Thread::GetCurrentThreadId` to get an identifier for the OS
 
 Use `Thread::CreateAndStart` only when thread pool is insufficient.
 
-`Thread::CreateAndStart` could be used to run a function in another thread while returning a `Thread*` to control it, but this is not recommended.
+`Thread::CreateAndStart` could be used to run a function in another thread while returning a `Thread*` to control it, but this is not recommended. Pass `deleteAfterStopped = false` when retaining that pointer; the default is self-deleting and the returned pointer must not be used.
 Always use `ThreadPoolLite` if possible. Use `TaskQueue` when a long-lived single-threaded task loop is required.
 
 ### When to Use Manual Threads
@@ -112,7 +113,7 @@ The threading API provides a unified interface across platforms:
 ### Memory Management
 
 - Thread pool automatically manages worker threads
-- Manual threads require explicit cleanup
+- Manual threads require explicit cleanup when created with `deleteAfterStopped = false`; the default is self-deleting
 - Lambda captures should be carefully managed for thread safety
 - Avoid capturing references to stack variables in threaded lambdas
 

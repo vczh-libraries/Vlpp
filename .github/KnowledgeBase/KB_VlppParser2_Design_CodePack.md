@@ -78,7 +78,7 @@ CodePack also recognizes standalone source annotations:
 
 Their behavior is:
 
-- `BeginIgnore()` starts a region whose ordinary contents and includes are omitted from both generated forms.
+- `BeginIgnore()` starts a region whose ordinary contents are omitted from the amalgamated text and whose includes are ignored during dependency scanning. `IncludeOnly` wrappers still include the original source files, so those source regions remain active when compiling the wrappers.
 - `EndIgnore()` ends that region.
 - `ConditionOff(MACRO, relative-file)` records a dependency on the categorized relative file. The instruction is commonly placed inside an ignored region that contains the source-tree include. CodePack replaces it in the generated preamble with `#ifndef MACRO`, an include of the target category's `{filename}.h`, and `#endif`.
 - `ConditionOn(MACRO, relative-file)` is also recognized and is meant to produce the corresponding `#ifdef` dependency. There are no current monorepo call sites for it, while `ConditionOff` is exercised extensively. The current implementation performs an additional output-map lookup for `ConditionOn`; verify that path with a focused generator test before introducing the first production use.

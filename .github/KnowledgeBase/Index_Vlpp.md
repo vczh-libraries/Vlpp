@@ -15,7 +15,7 @@ Immutable string types for text processing across different encodings with UTF c
 - Use `ObjectString<T>` template when you need custom character types
 - Use `Unmanaged`, `CopyFrom`, `TakeOver` static functions for string initialization
 - Use `wtoi`, `wtoi64`, `wtou`, `wtou64` for string to integer conversion
-- Use `itow`, `i64tou`, `utow`, `u64tow` for integer to string conversion
+- Use `itow`, `i64tow`, `utow`, `u64tow` for integer to string conversion
 - Use `ftow`, `wtof` for double and string conversion
 - Use `wupper`, `wlower` for case conversion
 - Use `ConvertUtfString<From, To>` for template-based UTF string conversion
@@ -160,3 +160,9 @@ Testing infrastructure with hierarchical test organization and assertion capabil
 [API Explanation](./KB_Vlpp_UnitTesting.md)
 
 ### Design Explanation
+
+#### Implementing Injectable Features
+
+`FeatureInjection<TImpl>` in `Source/FeatureInjection.h` manages replaceable implementation chains, including the DateTime implementation.
+
+[Design Explanation](./KB_Vlpp_Design_ImplementingInjectableFeature.md)

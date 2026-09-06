@@ -10,7 +10,7 @@ Three different compilation modes for reflection support with varying runtime ca
 
 The reflection system supports three compilation levels:
 - Full reflection: Complete metadata and runtime support for type registration and function calls
-- Metadata-only (`VCZH_DESCRIPTABLEOBJECT_WITH_METADATA`): Type metadata without runtime support
+- Metadata-only (`VCZH_DEBUG_METAONLY_REFLECTION`): Type metadata without runtime support
 - No reflection (`VCZH_DEBUG_NO_REFLECTION`): Reflection disabled entirely
 Always prefer code compatible with `VCZH_DEBUG_NO_REFLECTION` when possible.
 
@@ -86,6 +86,7 @@ Comprehensive registration system for classes and interfaces with methods, prope
 - Use `CLASS_MEMBER_EXTERNALCTOR`, `CLASS_MEMBER_EXTERNALCTOR_TEMPLATE` for external function constructors
 - Use `CLASS_MEMBER_METHOD`, `CLASS_MEMBER_METHOD_RENAME` for method registration with parameter names
 - Use `CLASS_MEMBER_METHOD_OVERLOAD`, `CLASS_MEMBER_METHOD_OVERLOAD_RENAME` for overloaded method registration
+- Use `CLASS_MEMBER_METHOD_OVERLOAD_RENAME_TEMPLATE` for member methods needing custom generated C++ invocation and closure code
 - Use `CLASS_MEMBER_EXTERNALMETHOD`, `CLASS_MEMBER_EXTERNALMETHOD_TEMPLATE` for external function methods
 - Use `CLASS_MEMBER_STATIC_METHOD`, `CLASS_MEMBER_STATIC_METHOD_OVERLOAD` for static method registration
 - Use `CLASS_MEMBER_STATIC_EXTERNALMETHOD`, `CLASS_MEMBER_STATIC_EXTERNALMETHOD_TEMPLATE` for global functions registered as static methods

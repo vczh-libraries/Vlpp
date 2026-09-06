@@ -2,7 +2,7 @@
 
 ## Runtime type information retrieval and manipulation through the reflection system.
 
-When reflection is enabled (when `VCZH_DEBUG_NO_REFLECTION` is not defined), you can access type metadata and perform dynamic operations. The reflection system provides comprehensive runtime type information that can be used for dynamic programming scenarios.
+When `VCZH_DEBUG_NO_REFLECTION` is not defined, you can access type metadata; dynamic invocation additionally requires full reflection. The reflection system provides comprehensive runtime type information that can be used for dynamic programming scenarios.
 
 ## Core APIs
 
@@ -25,11 +25,11 @@ When reflection is enabled (when `VCZH_DEBUG_NO_REFLECTION` is not defined), you
 ## Type Hierarchy Requirements
 
 A reflectable class must inherit from `public vl::reflection::Description<the class itself>`.
-Use `AggregatableDescription` to allow a class being inherited in a Workflow script class.
+Use `AggregatableDescription` to allow a class being inherited in a Workflow script class, and call `FinalizeAggregation()` in that class's destructor (`Source/Reflection/DescriptableObject.h`).
 Sub types of reflectable classes or interfaces do not automatically become reflectable, they must use `Description<T>` or `AggregatableDescription<T>`.
 
 A reflectable interface must inherit from `public vl::reflection::Description<the class itself>`.
-If such interface does not implement any other interface, it must inherit from `public vl::reflection::IDescriptable`.
+If such interface does not implement any other interface, it must inherit from `public virtual vl::reflection::IDescriptable`.
 
 ## Usage Patterns
 

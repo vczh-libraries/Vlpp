@@ -16,10 +16,10 @@ Cross-platform localization and globalization with culture-aware string operatio
 - Use `FormatDate` and `FormatTime` for locale-aware date/time formatting
 - Use `Get*Name` methods for localized week day and month names
 - Use `FormatNumber` and `FormatCurrency` for locale-aware number formatting
-- Use `Compare`, `CompareOrdinal`, `CompareOrdinalIgnoreCase` for locale-aware string comparison
+- Use `Compare` for locale-aware comparison, and `CompareOrdinal` or `CompareOrdinalIgnoreCase` for ordinal comparison
 - Use `FindFirst`, `FindLast`, `StartsWith`, `EndsWith` for normalized string searching
 - Use `InjectLocaleImpl` to replace `Locale` implementation for testing and customization
-- Use `EjectLocaleImpl` to remove specific injected implementations or reset to default
+- Use `EjectLocaleImpl` to eject an implementation and all later injections, or reset to default
 - Use `EnUsLocaleImpl` class as platform-independent en-US fallback implementation
 
 [API Explanation](./KB_VlppOS_LocaleSupport.md)
@@ -31,7 +31,7 @@ Cross-platform file and directory manipulation with path handling and content ac
 - Use `FilePath` for path representation and manipulation
 - Use `GetPathDelimiter`, `operator/`, `GetName`, `GetFolder`, `GetFullPath`, `GetRelativePathFor` for path operations
 - Use `IsFile`, `IsFolder`, `IsRoot` to determine path object types
-- Use `File` class for file operations when `FilePath::IsFile` returns true
+- Use `File` class for existing files or paths where a file will be written
 - Use `ReadAllTextWithEncodingTesting`, `ReadAllTextByBom`, `ReadAllLinesByBom` for text reading
 - Use `WriteAllText`, `WriteAllLines` for text writing
 - Use `Exists`, `Delete`, `Rename` for file operations
@@ -39,7 +39,7 @@ Cross-platform file and directory manipulation with path handling and content ac
 - Use `GetFolders`, `GetFiles` for directory content enumeration
 - Use `Create(bool recursively)`, `Delete(bool recursively)`, `Rename` for folder operations
 - Use `InjectFileSystemImpl` to replace file system implementation for testing and customization
-- Use `EjectFileSystemImpl` to remove specific injected implementations or reset to default
+- Use `EjectFileSystemImpl` to eject an implementation and all later injections, or reset to default
 
 [API Explanation](./KB_VlppOS_FileSystemOperations.md)
 
@@ -116,7 +116,7 @@ Cross-process synchronization objects that support waiting operations with timeo
 
 - Use `Mutex` for cross-process mutual exclusion
 - Use `Semaphore` for counting semaphore operations across processes
-- Use `EventObject` for event signaling across processes
+- Use `EventObject` for event signaling between threads, or across processes on Windows
 - Use `Create` and `Open` methods for establishing named synchronization objects
 - Use `Wait`, `WaitForTime` for blocking operations with optional timeout
 - Use `WaitAll`, `WaitAllForTime`, `WaitAny`, `WaitAnyForTime` for multiple object synchronization
@@ -156,10 +156,12 @@ Cross-platform owner-thread terminal takeover with input, resize and timer callb
 - Use `TUI::TryGetConsoleSize` to query the visible terminal before startup.
 - Use `TUI::InstallListener`, `TUI::Start`, `TUI::RunOneCycle`, `TUI::Stop`, `TUI::IsInUse`, `TUI::IsStopRequested` and `TUI::UninstallListener` for lifecycle and owner-thread event processing.
 - Use `TuiStartOptions`, `TuiColorMode` and `TUI::GetColorMode` to request and inspect terminal color emission.
-- Use `ITuiCallback` with `TuiMouseInfo`, `TuiKeyInfo` and `TuiCharInfo` for startup, shutdown, resize, input and timer callbacks.
+- Use shared `vl::presentation::VKEY` and input types from `Source/TUI/TUITypes.h` for key identities and independent Alt/OS Super; GacUI consumes these declarations.
+- Use `ITuiCallback` with `vl::presentation::WindowMouseInfo`, `vl::presentation::NativeWindowKeyInfo` and `vl::presentation::NativeWindowCharInfo` from `Source/TUI/TUITypes.h` for startup, shutdown, resize, input and timer callbacks.
 - Use `TUI::StartTimer` and `TUI::StopTimer` for deadline-driven callbacks on the TUI owner thread.
 - Use `TUI::GetBuffer`, `TUI::GetBufferWidth`, `TUI::GetBufferHeight` and `TUI::RenderBuffer` for retained cell-buffer rendering.
 - Use `TuiPixel`, `TuiPixelGlyph`, `TuiColor` and `TUI::MeasureChar` to represent and validate terminal cells and scalar widths.
+- Use `TuiCharPixel`, `TuiTextStyle` and `TuiPrintOptions` for character cells with bold, italic, underline and strikeline styles.
 - Use `TUI::PrintChar`, `TUI::DrawLineV`, `TUI::DrawLineH`, `TUI::DrawRect` and `TUI::Clear` for clipped drawing on the active buffer or a caller-owned buffer.
 - Use `vl::console::unittest::ScopedTuiBackend` with `vl::console::unittest::ITuiBackend` for deterministic TUI tests.
 

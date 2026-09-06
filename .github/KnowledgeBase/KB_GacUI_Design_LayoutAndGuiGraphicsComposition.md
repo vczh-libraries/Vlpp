@@ -126,8 +126,8 @@ Add adaptive multi-level representations (compact to expanded) without duplicati
 - Transition methods: `LevelUp()`, `LevelDown()` return bool (true if level changed) enabling parent fallbacks.
 - `GuiResponsiveViewComposition` maintains `currentView` pointer; switching occurs only when leaf view can't further down/up inside itself (delegation to child fails) then advances to next/previous view; fires `BeforeSwitchingView` event before installing new view child.
 - Aggregation formulas:
-  * View: `levelCount` = ?(child.levelCount or 1 if direction mismatch); `currentLevel` computed by reverse accumulation.
-  * Stack: `levelCount` = ?(children.levelCount - 1) + 1; `currentLevel` = ?(children.currentLevel); change selects best candidate child by size heuristic.
+  * View: `levelCount` = sum(child.levelCount or 1 if direction mismatch), or 1 when there are no views; `currentLevel` computed by reverse accumulation.
+  * Stack: `levelCount` = sum(children.levelCount - 1) + 1; `currentLevel` = sum(children.currentLevel); change selects best candidate child by size heuristic.
   * Group: `levelCount` = max(children.levelCount); `currentLevel` = max(children.currentLevel); change broadcasts attempts.
   * Fixed: constants (1,0).
 

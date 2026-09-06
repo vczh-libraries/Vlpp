@@ -6,8 +6,7 @@ Function objects and event handling with type-safe callable containers for Vlpp.
 
 Prefer lambda expressions for callbacks, unless for handling GacUI events or when the source file shows a trend for native functions.
 
-Prefer lambda expressions as local functions, since C++ doesn't directly support local functions, it is not possible to make lambda local functions recursive in any way.
-A lambda local function can only call other lambda local functions that defined before itself, by capturing their names as references.
+Prefer lambda expressions as local functions. A lambda can call itself through a previously declared `Func<F>` captured by reference; ordinary captures require the captured name to have been declared before the lambda.
 
 ## Func<T(TArgs...)>
 
@@ -31,11 +30,11 @@ When an `Event<F>` is called, all assigned callable objects are executed.
 
 ### Performance Considerations
 
-`Func<F>` uses type erasure similar to `std::function<F>`, which may involve heap allocation for large callable objects. For performance-critical code, consider using templates to avoid the overhead of function object wrapping.
+`Func<F>` uses type erasure and heap-allocates its invoker when wrapping a new callable, regardless of callable size (`Source/Primitives/Function.h`). For performance-critical code, consider using templates to avoid the overhead of function object wrapping.
 
 ### Memory Management
 
-Both `Func<F>` and `Event<F>` follow value semantics and manage their internal resources automatically. They can safely capture objects by value or by reference, but be careful with reference captures when the referenced objects may be destroyed before the callable object is invoked.
+`Func<F>` is copyable and shares its invoker between copies; `Event<F>` is non-copyable. Both manage their internal resources automatically (`Source/Primitives/Function.h` and `Source/Primitives/Event.h`). They can safely capture objects by value or by reference, but be careful with reference captures when the referenced objects may be destroyed before the callable object is invoked.
 
 ### Thread Safety
 
@@ -50,8 +49,8 @@ auto result = addFunc(3, 4); // result is 7
 
 // Event usage
 Event<void(vint)> numberEvent;
-auto handle1 = numberEvent.Add([](vint x) { Console::WriteLine(itow(x)); });
-auto handle2 = numberEvent.Add([](vint x) { Console::WriteLine(L"Number: " + itow(x)); });
+auto handle1 = numberEvent.Add(Func([](vint x) { Console::WriteLine(itow(x)); }));
+auto handle2 = numberEvent.Add(Func([](vint x) { Console::WriteLine(L"Number: " + itow(x)); }));
 
 numberEvent(42); // Both handlers will be called
 
