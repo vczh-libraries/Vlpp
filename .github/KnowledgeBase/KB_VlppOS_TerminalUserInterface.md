@@ -181,16 +181,27 @@ POSIX enables all-motion mode 1003 and SGR mode 1006. Coordinates must be positi
 
 Use `KeyDown/KeyUp` for key actions and `Char` for text. Printable input may produce both; consumers must not act twice.
 
-Windows translates `wVirtualKeyCode` in 1..255 directly, otherwise UNKNOWN. Each `wRepeatCount` unit emits KeyDown followed by its nonzero native character. The first press is not a repeat; later units and down records while held are repeats. One KeyUp clears held state without text. Start/Stop clears decoder state. Ctrl/Shift/Alt/Caps Lock come from the record; OS Super is unobservable. [Microsoft key record contract](https://learn.microsoft.com/en-us/windows/console/key-event-record-str).
+Windows translates `wVirtualKeyCode` in 1..255 directly, otherwise UNKNOWN. Each `wRepeatCount` unit emits KeyDown followed by its nonzero native character. The first press is not a repeat; later units and down records while held are repeats. One KeyUp clears held state without text. Start/Stop clears decoder state. Ctrl/Shift/Alt/Caps Lock come from the record. [Microsoft key record contract](https://learn.microsoft.com/en-us/windows/console/key-event-record-str).
+
+Windows Terminal extends `dwControlKeyState` with right Win `0x0200` and left Win `0x0400`, as defined in its [ControlKeyStates.hpp](https://github.com/microsoft/terminal/blob/v1.24.11911.0/src/cascadia/TerminalCore/ControlKeyStates.hpp). The Windows decoder maps either bit to `osSuper` in key and mouse records and copies it into each accompanying Char event. These flags are host extensions, absent from the public console flag list. Native Windows Terminal 1.24.11911.0 tracing observed Q with Ctrl+Alt+left Win as `0x040A` and right Win as `0x020A`, without separate Win-key transitions. Read each event's bits directly; asynchronous key polling would substitute current state for queued event state. Hosts that omit these bits continue to report false; the decoder does not synthesize missing Win transitions or make intercepted OS chords available.
 
 The production POSIX decoder in [TUI.Input.cpp](../../Source/TUI/TUI.Input.cpp) retains incomplete bytes and decoded events across reads:
 
 - ASCII letters/digits/space/punctuation, Tab, Enter, Backspace and Escape map to shared keys. Inferable control bytes map to Ctrl plus their key. Uppercase/shifted punctuation does not imply observable Shift.
-- CSI/SS3 arrows, Home/End, Insert/Delete, PageUp/PageDown, F1..F20 forms, Shift-Tab and SS3 application keypad forms translate to VKEY. Modifier parameters 1..16 preserve Shift/Ctrl and terminal Alt/Meta; terminal Meta maps to Alt, never OS Super. Caps Lock, OS Super and repeats remain false.
-- Text/control keys emit KeyDown then Char; special keys without text emit only KeyDown. POSIX does not synthesize KeyUp.
+- CSI/SS3 arrows, Home/End, Insert/Delete, PageUp/PageDown, F1..F20 forms, Shift-Tab and SS3 application keypad forms translate to VKEY. Legacy modifier parameters 1..16 preserve Shift/Ctrl and terminal Alt/Meta; legacy Meta maps to Alt, never OS Super.
+- The POSIX backend pushes Kitty disambiguation mode (`CSI >1u`) and queries its flags. A supported-mode response enables Kitty modifiers for functional keys; CSI-u keys use that encoding directly. Shift/Alt/Ctrl/Super and Caps Lock remain independent; Kitty Meta maps to Alt. Modified printable CSI-u keys produce KeyDown without inventing committed text. Escape, Enter, Tab and Backspace retain Char semantics. Unsupported enhancements and invalid scalars are discarded. The backend pops the mode before leaving the alternate screen. See the [Kitty keyboard protocol](https://sw.kovidgoyal.net/kitty/keyboard-protocol/).
+- Text/control keys emit KeyDown then Char; special keys without text emit only KeyDown. POSIX DEL Backspace and LF Enter are normalized to Char backspace (U+0008) and carriage return (U+000D), matching their native key identities and preventing a second edit after KeyDown. POSIX does not synthesize KeyUp.
 - Lone Escape has a 30 ms monotonic deadline. An ordinary scalar following before expiry becomes Alt-prefixed input. Incomplete UTF-8/CSI/SS3/SGR remains pending; read boundaries do not complete events.
 - Numeric fields validate syntax, ranges and overflow before translation. Unsupported complete CSI/SS3 is consumed without suffix leakage. Overlong incomplete sequences discard through their final byte. OSC/DCS/SOS/PM/APC strings discard through their terminator; a new Escape can resynchronize.
 - Invalid UTF-8 produces replacement units without dropping later valid text. Buffered events/bytes drain before polling. The earliest timer or Escape deadline bounds blocking, and interrupted poll returns to the owner loop to recompute deadlines.
+
+### Terminal Limits on OS Super
+
+Every input payload initializes `osSuper` to false. Windows fills it from each key or mouse record, including mouse movement, buttons, double-clicks and both wheel axes, and copies each key event's flag to accompanying Char events. Linux/macOS fill it from Kitty keyboard modifiers and preserve it in accompanying Char events.
+
+Standard SGR mouse reports encode only Shift, Alt and Ctrl; their `osSuper` remains false even in Kitty. Legacy text has no independent Super bit either. Do not infer mouse Super from the last keyboard event: the current keyboard mode does not report standalone modifier releases, so that state could remain stale indefinitely.
+
+The terminal application matters independently of the operating system. GNOME Terminal 3.52.0 with VTE 0.76.0 does not transmit Super. Its [key mapper](https://github.com/GNOME/vte/blob/0.76.0/src/keymap.cc) removes unsupported modifiers. A probe of that installed VTE widget produced identical bytes with and without Super: Ctrl+Alt+Q emitted hex `1b 11`, and Ctrl+Alt+Shift+F8 emitted `ESC [19;8~`. VlppOS cannot reconstruct a missing modifier from identical input. Local Super shortcuts require a terminal that reports it through the Kitty keyboard protocol. Native global shortcuts are handled by the downstream platform's separate input service.
 
 ### Character Events Use Native `wchar_t` Units
 
@@ -254,7 +265,7 @@ Each arm in `TuiMergeablePixel` is independently `None`, `ThinLine`, `ThickLine`
 
 This API works with Unicode scalars, while `vl::presentation::NativeWindowCharInfo::code` works with native `wchar_t` units. Convert character input before measuring it when the native encoding can use multiple units.
 
-Windows uses `GetStringTypeW(CT_CTYPE1/CT_CTYPE3)`: invalid scalars, controls and nonspacing/diacritic/vowel marks return 0; halfwidth returns 1; supplementary scalars and fullwidth/ideograph/Hiragana/Katakana return 2; other scalars return 1. This approximates console layout.
+Windows uses `GetStringTypeW(CT_CTYPE1/CT_CTYPE3)`: invalid scalars, controls and nonspacing/vowel marks return 0; halfwidth returns 1; supplementary scalars and fullwidth/ideograph/Hiragana/Katakana return 2; other scalars return 1. `C3_DIACRITIC` alone does not imply zero width: spacing ASCII circumflex and grave accent carry that flag and occupy one cell. This approximates console layout.
 
 Linux/macOS use `wcwidth` under a cached environment `newlocale(LC_CTYPE_MASK, "", nullptr)`, temporarily selected using `uselocale` and restored on the calling thread. Negative widths become 0. No process-global `setlocale` or generated Unicode-width table is used. Results depend on platform/locale and may differ from the terminal/font.
 
@@ -286,7 +297,13 @@ The operations are:
 - `TUI::DrawRect`
 - `TUI::Clear`
 
-Buffer-explicit overloads require a non-null buffer and positive dimensions.
+Buffer-explicit overloads require a non-null buffer and non-negative dimensions. A zero-sized buffer paints nothing, while invalid drawing arguments still fail validation.
+
+Both overload families append `const TuiClipper* clipper = nullptr`. `TuiClipper` in `Source/TUI/TUI.h` contains `vint x1, y1, x2, y2` with half-open bounds `[x1, x2) x [y1, y2)`. Null selects the whole current buffer. Every operation normalizes the clip against that buffer; empty, inverted and disjoint intersections paint nothing. Drawing endpoints remain inclusive and retain their original geometry, so an interior clip cannot invent rectangle edges or corners. Argument validation precedes clipping.
+
+A new width-two character requires both cells inside the normalized clip before either cell changes. Overwriting an existing lead or continuation may clear its partner immediately outside the clip; this is the only repair spill, preserves the partner background and never changes unrelated cells. Active-buffer operations reacquire the current buffer after resize rather than retaining its previous pointer or dimensions.
+
+`TuiLineOptions::foregroundColorBlending` and `TuiRectOptions::foregroundColorBlending` optionally transform the destination foreground for each accepted painted cell, before wide-cell repair. When absent, `foregroundColor` is used directly. The transform performs synchronous, pure color calculation; it must not mutate or pump TUI state. This lets clients retain destination-dependent RGB policies without duplicating raster clipping or copying a buffer. No transform runs for clipped cells or rectangle interiors, and its work is proportional to painted cells. TUI colors remain RGB, without a GUI alpha dependency.
 
 ### Printing Characters
 
