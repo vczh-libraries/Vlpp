@@ -95,6 +95,34 @@ TEST_FILE
 		TEST_CASE_ASSERT(u16tou8(textU16) == textU8);
 	});
 
+	TEST_CASE(L"Explicit-length UTF-16 interchange buffers")
+	{
+		const char16_t buffer[] = { u'A', u'\u4E2D', 0xD83D, 0xDE00 };
+		auto encoded = U16String::CopyFrom(buffer, 4);
+		auto text = u16tow(encoded);
+		TEST_ASSERT(text == L"A\u4E2D\U0001F600");
+		TEST_ASSERT(wtou16(text) == encoded);
+		TEST_ASSERT(wcslen(text.Buffer()) == text.Length());
+		TEST_ASSERT(u16tow(U16String::Empty) == WString::Empty);
+		TEST_ASSERT(wtou16(WString::Empty) == U16String::Empty);
+#if defined VCZH_WCHAR_UTF32
+		TEST_ASSERT(text.Length() == 3);
+#elif defined VCZH_WCHAR_UTF16
+		TEST_ASSERT(text.Length() == 4);
+#endif
+	});
+
+#if defined VCZH_WASM
+	TEST_CASE(L"Wasm narrow strings use UTF-8")
+	{
+		auto narrow = AString::CopyFrom(reinterpret_cast<const char*>(textU8), sizeof(textU8) - 1);
+		TEST_ASSERT(atow(narrow) == textL);
+		TEST_ASSERT(wtoa(textL) == narrow);
+		TEST_ASSERT(atow(AString::Empty) == WString::Empty);
+		TEST_ASSERT(wtoa(WString::Empty) == AString::Empty);
+	});
+#endif
+
 	TEST_CATEGORY(L"Unicode String Conversion 2")
 	{
 		TEST_CASE_ASSERT((ConvertUtfString<wchar_t, char32_t>(WString::Unmanaged(textL)) == textU32));

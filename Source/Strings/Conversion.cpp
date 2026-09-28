@@ -4,7 +4,7 @@ Licensed under https://github.com/vczh-libraries/License
 ***********************************************************************/
 
 #include "Conversion.h"
-#if defined VCZH_GCC
+#if defined VCZH_GCC || defined VCZH_WASM
 #include <stdio.h>
 #include <ctype.h>
 #include <wctype.h>

@@ -4,12 +4,11 @@ Licensed under https://github.com/vczh-libraries/License
 ***********************************************************************/
 
 #include "Console.h"
+
+#if defined VCZH_MSVC
 #define _WINSOCKAPI_
 #include <Windows.h>
 
-#ifndef VCZH_MSVC
-static_assert(false, "Do not build this file for non-Windows applications.");
-#endif
 
 namespace vl
 {
@@ -150,3 +149,5 @@ Console
 		}
 	}
 }
+
+#endif

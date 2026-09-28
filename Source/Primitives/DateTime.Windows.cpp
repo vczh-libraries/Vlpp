@@ -4,13 +4,12 @@ Licensed under https://github.com/vczh-libraries/License
 ***********************************************************************/
 
 #include "DateTime.h"
+
+#if defined VCZH_MSVC
 #include <time.h>
 #define _WINSOCKAPI_
 #include <Windows.h>
 
-#ifndef VCZH_MSVC
-static_assert(false, "Do not build this file for non-Windows applications.");
-#endif
 
 namespace vl
 {
@@ -147,3 +146,5 @@ DateTime
 		return &osDateTimeImpl;
 	}
 }
+
+#endif

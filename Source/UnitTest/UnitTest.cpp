@@ -8,11 +8,11 @@ Licensed under https://github.com/vczh-libraries/License
 #include "../Strings/Conversion.h"
 #include "../Collections/Operation.h"
 
-#ifdef VCZH_MSVC
+#if defined VCZH_MSVC
 #include <io.h>
 #endif
 
-#ifdef VCZH_GCC
+#if defined VCZH_GCC || defined VCZH_WASM
 #define _wcsnicmp wcsncasecmp
 #endif
 
@@ -220,7 +220,7 @@ UnitTest
 			template<typename TCallback>
 			void SuppressCFailure(TCallback&& callback)
 			{
-#ifdef VCZH_MSVC
+#if defined VCZH_MSVC
 				__try
 				{
 					SuppressCppFailure(std::forward<TCallback&&>(callback));
@@ -229,7 +229,7 @@ UnitTest
 				{
 					RecordFailure(L"Runtime exception occurred!");
 				}
-#else
+#elif defined VCZH_GCC || defined VCZH_WASM
 				SuppressCppFailure(callback);
 #endif
 			}
@@ -294,7 +294,7 @@ UnitTest
 
 		int UnitTest::RunAndDisposeTests(const collections::Array<WString>& options)
 		{
-#ifdef VCZH_MSVC
+#if defined VCZH_MSVC
 			_set_abort_behavior(0, _WRITE_ABORT_MSG);
 #ifdef VCZH_CHECK_MEMORY_LEAKS
 			auto debugFlag = _CrtSetDbgFlag(_CRTDBG_REPORT_FLAG);

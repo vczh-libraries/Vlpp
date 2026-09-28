@@ -4,13 +4,12 @@ Licensed under https://github.com/vczh-libraries/License
 ***********************************************************************/
 
 #include "DateTime.h"
+
+#if defined VCZH_GCC
 #include <time.h>
 #include <memory.h>
 #include <sys/time.h>
 
-#ifndef VCZH_GCC
-static_assert(false, "Do not build this file for Windows applications.");
-#endif
 
 namespace vl
 {
@@ -149,3 +148,5 @@ DateTime
 		return &osDateTimeImpl;
 	}
 }
+
+#endif

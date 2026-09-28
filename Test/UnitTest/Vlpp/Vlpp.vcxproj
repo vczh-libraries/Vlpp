@@ -202,10 +202,12 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="..\..\..\Source\Console.Wasm.cpp" />
     <ClCompile Include="..\..\..\Source\Console.Windows.cpp" />
     <ClCompile Include="..\..\..\Source\Exception.cpp" />
     <ClCompile Include="..\..\..\Source\GlobalStorage.cpp" />
     <ClCompile Include="..\..\..\Source\Primitives\DateTime.cpp" />
+    <ClCompile Include="..\..\..\Source\Primitives\DateTime.Wasm.cpp" />
     <ClCompile Include="..\..\..\Source\Primitives\DateTime.Windows.cpp" />
     <ClCompile Include="..\..\..\Source\Primitives\DateTime.Linux.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -220,6 +222,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="..\..\..\Source\Strings\Conversion.Wasm.cpp" />
     <ClCompile Include="..\..\..\Source\Strings\Conversion.Windows.cpp" />
     <ClCompile Include="..\..\..\Source\Strings\LoremIpsum.cpp" />
     <ClCompile Include="..\..\..\Source\Strings\String.cpp" />
@@ -230,6 +233,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="..\..\..\Source\UnitTest\UnitTest.Wasm.cpp" />
     <ClCompile Include="..\..\..\Source\UnitTest\UnitTest.Windows.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

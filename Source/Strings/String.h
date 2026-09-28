@@ -683,7 +683,7 @@ namespace vl
 	/// <param name="string">The string to convert.</param>
 	extern WString				wupper(const WString& string);
 
-#if defined VCZH_GCC
+#if defined VCZH_GCC || defined VCZH_WASM
 	extern void					_itoa_s(vint32_t value, char* buffer, size_t size, vint radix);
 	extern void					_itow_s(vint32_t value, wchar_t* buffer, size_t size, vint radix);
 	extern void					_i64toa_s(vint64_t value, char* buffer, size_t size, vint radix);

@@ -5,21 +5,17 @@ Licensed under https://github.com/vczh-libraries/License
 
 #include "UnitTest.h"
 
-#if defined VCZH_GCC
+#if defined VCZH_WASM
 
-
-namespace vl
+namespace vl::unittest
 {
-	namespace unittest
-	{
 /***********************************************************************
 UnitTest
 ***********************************************************************/
 
-		bool UnitTest::IsDebuggerAttached()
-		{
-			return false;
-		}
+	bool UnitTest::IsDebuggerAttached()
+	{
+		return false;
 	}
 }
 

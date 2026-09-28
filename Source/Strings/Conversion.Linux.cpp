@@ -4,6 +4,8 @@ Licensed under https://github.com/vczh-libraries/License
 ***********************************************************************/
 
 #include "Conversion.h"
+
+#if defined VCZH_GCC
 #include <stdio.h>
 #include <ctype.h>
 #include <wctype.h>
@@ -24,3 +26,5 @@ String Conversions (buffer walkthrough)
 		return mbstowcs(w, a, chars - 1) + 1;
 	}
 }
+
+#endif

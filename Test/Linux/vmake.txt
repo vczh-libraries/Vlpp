@@ -35,13 +35,17 @@
 ../../Source/Collections/PartialOrdering.cpp
 ../../Source/Console.cpp
 ../../Source/Console.Linux.cpp
+../../Source/Console.Wasm.cpp
 ../../Source/Exception.cpp
 ../../Source/GlobalStorage.cpp
 ../../Source/Primitives/DateTime.cpp
+../../Source/Primitives/DateTime.Wasm.cpp
 ../../Source/Primitives/DateTime.Linux.cpp
 ../../Source/Strings/Conversion.cpp
 ../../Source/Strings/Conversion.Linux.cpp
+../../Source/Strings/Conversion.Wasm.cpp
 ../../Source/Strings/LoremIpsum.cpp
 ../../Source/Strings/String.cpp
 ../../Source/UnitTest/UnitTest.cpp
 ../../Source/UnitTest/UnitTest.Linux.cpp
+../../Source/UnitTest/UnitTest.Wasm.cpp

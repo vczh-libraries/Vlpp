@@ -2,7 +2,7 @@
 .DEFAULT_GOAL := all
 
 CPP_TARGET=./Bin/UnitTest
-CPP_OBJECTS=./Obj/TestAString.o ./Obj/TestLoremIpsum.o ./Obj/TestStringConversion.o ./Obj/TestU16String.o ./Obj/TestU32String.o ./Obj/TestU8String.o ./Obj/TestUtfReader.o ./Obj/TestWString.o ./Obj/TestBasic.o ./Obj/TestBasic_Nullable.o ./Obj/TestBasic_Pair.o ./Obj/TestBasic_Tuple.o ./Obj/TestBasic_Variant.o ./Obj/TestConsole.o ./Obj/TestFunction.o ./Obj/TestFeatureInjection.o ./Obj/TestGlobalStorage.o ./Obj/TestLinq.o ./Obj/TestLinq_GenericLambda.o ./Obj/TestLinq_NoLambda.o ./Obj/TestList_Container_Array.o ./Obj/TestList_Container_ByetObjectMap.o ./Obj/TestList_Container_Dictionary.o ./Obj/TestList_Container_Group.o ./Obj/TestList_Container_List.o ./Obj/TestList_Container_SortedList.o ./Obj/TestList_CopyFrom.o ./Obj/TestList_LoopFrom_LazyList.o ./Obj/TestList_LoopFrom_Ordered_Locked.o ./Obj/TestPartialOrdering.o ./Obj/TestSort.o ./Obj/TestUnitTestUtilities.o ./Obj/Main.o ./Obj/Basic.o ./Obj/PartialOrdering.o ./Obj/Console.o ./Obj/Console.Linux.o ./Obj/Exception.o ./Obj/GlobalStorage.o ./Obj/DateTime.o ./Obj/DateTime.Linux.o ./Obj/Conversion.o ./Obj/Conversion.Linux.o ./Obj/LoremIpsum.o ./Obj/String.o ./Obj/UnitTest.o ./Obj/UnitTest.Linux.o
+CPP_OBJECTS=./Obj/TestAString.o ./Obj/TestLoremIpsum.o ./Obj/TestStringConversion.o ./Obj/TestU16String.o ./Obj/TestU32String.o ./Obj/TestU8String.o ./Obj/TestUtfReader.o ./Obj/TestWString.o ./Obj/TestBasic.o ./Obj/TestBasic_Nullable.o ./Obj/TestBasic_Pair.o ./Obj/TestBasic_Tuple.o ./Obj/TestBasic_Variant.o ./Obj/TestConsole.o ./Obj/TestFunction.o ./Obj/TestFeatureInjection.o ./Obj/TestGlobalStorage.o ./Obj/TestLinq.o ./Obj/TestLinq_GenericLambda.o ./Obj/TestLinq_NoLambda.o ./Obj/TestList_Container_Array.o ./Obj/TestList_Container_ByetObjectMap.o ./Obj/TestList_Container_Dictionary.o ./Obj/TestList_Container_Group.o ./Obj/TestList_Container_List.o ./Obj/TestList_Container_SortedList.o ./Obj/TestList_CopyFrom.o ./Obj/TestList_LoopFrom_LazyList.o ./Obj/TestList_LoopFrom_Ordered_Locked.o ./Obj/TestPartialOrdering.o ./Obj/TestSort.o ./Obj/TestUnitTestUtilities.o ./Obj/Main.o ./Obj/Basic.o ./Obj/PartialOrdering.o ./Obj/Console.o ./Obj/Console.Linux.o ./Obj/Console.Wasm.o ./Obj/Exception.o ./Obj/GlobalStorage.o ./Obj/DateTime.o ./Obj/DateTime.Wasm.o ./Obj/DateTime.Linux.o ./Obj/Conversion.o ./Obj/Conversion.Linux.o ./Obj/Conversion.Wasm.o ./Obj/LoremIpsum.o ./Obj/String.o ./Obj/UnitTest.o ./Obj/UnitTest.Linux.o ./Obj/UnitTest.Wasm.o
 
 include $(VCPROOT)/vl/makefile-cpp
 
@@ -137,6 +137,9 @@ $(CPP_TARGET):$(CPP_OBJECTS)
 ./Obj/Console.Linux.o: ../../Source/Console.Linux.cpp
 	$(CPP_COMPILE)
 
+./Obj/Console.Wasm.o: ../../Source/Console.Wasm.cpp
+	$(CPP_COMPILE)
+
 ./Obj/Exception.o: ../../Source/Exception.cpp
 	$(CPP_COMPILE)
 
@@ -146,6 +149,9 @@ $(CPP_TARGET):$(CPP_OBJECTS)
 ./Obj/DateTime.o: ../../Source/Primitives/DateTime.cpp
 	$(CPP_COMPILE)
 
+./Obj/DateTime.Wasm.o: ../../Source/Primitives/DateTime.Wasm.cpp
+	$(CPP_COMPILE)
+
 ./Obj/DateTime.Linux.o: ../../Source/Primitives/DateTime.Linux.cpp
 	$(CPP_COMPILE)
 
@@ -153,6 +159,9 @@ $(CPP_TARGET):$(CPP_OBJECTS)
 	$(CPP_COMPILE)
 
 ./Obj/Conversion.Linux.o: ../../Source/Strings/Conversion.Linux.cpp
+	$(CPP_COMPILE)
+
+./Obj/Conversion.Wasm.o: ../../Source/Strings/Conversion.Wasm.cpp
 	$(CPP_COMPILE)
 
 ./Obj/LoremIpsum.o: ../../Source/Strings/LoremIpsum.cpp
@@ -165,4 +174,7 @@ $(CPP_TARGET):$(CPP_OBJECTS)
 	$(CPP_COMPILE)
 
 ./Obj/UnitTest.Linux.o: ../../Source/UnitTest/UnitTest.Linux.cpp
+	$(CPP_COMPILE)
+
+./Obj/UnitTest.Wasm.o: ../../Source/UnitTest/UnitTest.Wasm.cpp
 	$(CPP_COMPILE)

@@ -5,6 +5,19 @@
 
 using namespace vl;
 
+static_assert(sizeof(vint) == sizeof(void*));
+static_assert(sizeof(vuint) == sizeof(void*));
+#if (defined VCZH_MSVC + defined VCZH_GCC + defined VCZH_WASM) != 1
+#error Exactly one compiler platform must be selected.
+#endif
+#if defined VCZH_WASM
+static_assert(sizeof(void*) == 4);
+static_assert(sizeof(wchar_t) == sizeof(char32_t));
+#if !defined VCZH_WCHAR_UTF32
+#error Wasm requires the SDK UTF-32 wchar_t ABI.
+#endif
+#endif
+
 namespace TestBasic_TestObjects
 {
 	class Base : public Object

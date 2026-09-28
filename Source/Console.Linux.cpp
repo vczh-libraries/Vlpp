@@ -4,12 +4,11 @@ Licensed under https://github.com/vczh-libraries/License
 ***********************************************************************/
 
 #include "Console.h"
+
+#if defined VCZH_GCC
 #include <iostream>
 #include <string>
 
-#ifndef VCZH_GCC
-static_assert(false, "Do not build this file for Windows applications.");
-#endif
 
 namespace vl
 {
@@ -67,3 +66,5 @@ Console
 		}
 	}
 }
+
+#endif

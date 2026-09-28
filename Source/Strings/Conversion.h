@@ -365,7 +365,7 @@ UtfToUtfReaderBase<TFrom, TTo, TConsumer>
 		// in order to keep SourceCluster correct, only char32_t<->char32_t gets the special implementation
 		DEFINE_UTF32_DIRECT_READER(char32_t, char32_t);
 
-#ifdef VCZH_WCHAR_UTF32
+#if defined VCZH_WCHAR_UTF32
 		DEFINE_UTF32_DIRECT_READER(wchar_t, char32_t);
 		DEFINE_UTF32_DIRECT_READER(char32_t, wchar_t);
 #endif

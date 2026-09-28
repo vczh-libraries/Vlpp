@@ -20,9 +20,11 @@ Licensed under https://github.com/vczh-libraries/License
 #define VCZH_64
 #endif
 
-#if defined _MSC_VER
+#if defined __EMSCRIPTEN__
+#define VCZH_WASM
+#elif defined _MSC_VER
 #define VCZH_MSVC
-#else
+#elif defined __clang__ || defined __GNUC__
 #define VCZH_GCC
 #if defined(__APPLE__)
 #define VCZH_APPLE
@@ -35,7 +37,7 @@ Licensed under https://github.com/vczh-libraries/License
 
 #if defined VCZH_MSVC
 #define VCZH_WCHAR_UTF16
-#elif defined VCZH_GCC
+#elif defined VCZH_GCC || defined VCZH_WASM
 #define VCZH_WCHAR_UTF32
 #endif
 
@@ -43,11 +45,10 @@ Licensed under https://github.com/vczh-libraries/License
 static_assert(sizeof(wchar_t) == sizeof(char16_t), "wchar_t is not UTF-16.");
 #elif defined VCZH_WCHAR_UTF32
 static_assert(sizeof(wchar_t) == sizeof(char32_t), "wchar_t is not UTF-32.");
-#else
-static_assert(false, "wchar_t configuration is not right.");
+
 #endif
 
-#if defined VCZH_GCC
+#if defined VCZH_GCC || defined VCZH_WASM
 #include <stdint.h>
 #include <stddef.h>
 #include <wchar.h>
@@ -67,9 +68,9 @@ static_assert(false, "wchar_t configuration is not right.");
 #define _I32_MAX    ((vint32_t)0x7FFFFFFF)
 #define _UI32_MAX   ((vuint32_t)0xFFFFFFFF)
 
-#define _I64_MIN    ((vint64_t)0x8000000000000000L)
-#define _I64_MAX    ((vint64_t)0x7FFFFFFFFFFFFFFFL)
-#define _UI64_MAX   ((vuint64_t)0xFFFFFFFFFFFFFFFFL)
+#define _I64_MIN    ((vint64_t)0x8000000000000000ULL)
+#define _I64_MAX    ((vint64_t)0x7FFFFFFFFFFFFFFFLL)
+#define _UI64_MAX   ((vuint64_t)0xFFFFFFFFFFFFFFFFULL)
 #endif
 
 #include <type_traits>
@@ -102,7 +103,7 @@ x86 and x64 Compatbility
 	typedef signed __int64			vint64_t;
 	/// <summary>8-bytes unsigned integer.</summary>
 	typedef unsigned __int64		vuint64_t;
-#elif defined VCZH_GCC
+#elif defined VCZH_GCC || defined VCZH_WASM
 	typedef int8_t					vint8_t;
 	typedef uint8_t					vuint8_t;
 	typedef int16_t					vint16_t;
@@ -113,14 +114,14 @@ x86 and x64 Compatbility
 	typedef uint64_t				vuint64_t;
 #endif
 
-#ifdef VCZH_64
+#if defined VCZH_64
 	/// <summary>Signed interface whose size equals to sizeof(void*).</summary>
 	typedef vint64_t				vint;
 	/// <summary>Signed interface whose size equals to sizeof(void*).</summary>
 	typedef vint64_t				vsint;
 	/// <summary>Unsigned interface whose size equals to sizeof(void*).</summary>
 	typedef vuint64_t				vuint;
-#else
+#elif !defined VCZH_64
 	/// <summary>Signed interface whose size equals to sizeof(void*).</summary>
 	typedef vint32_t				vint;
 	/// <summary>Signed interface whose size equals to sizeof(void*).</summary>
@@ -136,7 +137,7 @@ x86 and x64 Compatbility
 #define INCRC(ATOMIC) ((ATOMIC)->fetch_add(1) + 1)
 #define DECRC(ATOMIC) ((ATOMIC)->fetch_sub(1) - 1)
 
-#ifdef VCZH_64
+#if defined VCZH_64
 #define ITOA_S		_i64toa_s
 #define ITOW_S		_i64tow_s
 #define I64TOA_S	_i64toa_s
@@ -145,7 +146,7 @@ x86 and x64 Compatbility
 #define UITOW_S		_ui64tow_s
 #define UI64TOA_S	_ui64toa_s
 #define UI64TOW_S	_ui64tow_s
-#else
+#elif !defined VCZH_64
 #define ITOA_S		_itoa_s
 #define ITOW_S		_itow_s
 #define I64TOA_S	_i64toa_s
@@ -171,7 +172,7 @@ Basic Types
 		const wchar_t*		Description()const;
 	};
 
-#if defined VCZH_MSVC || defined VCZH_GCC || defined _DEBUG
+#if defined VCZH_MSVC || defined VCZH_GCC || defined VCZH_WASM || defined _DEBUG
 #define CHECK_ERROR(CONDITION,DESCRIPTION) do{if(!(CONDITION))throw Error(DESCRIPTION);}while(0)
 #elif defined NDEBUG
 #define CHECK_ERROR(CONDITION,DESCRIPTION)

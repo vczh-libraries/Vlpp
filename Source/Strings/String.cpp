@@ -8,7 +8,7 @@ Licensed under https://github.com/vczh-libraries/License
 #include "Conversion.h"
 #if defined VCZH_MSVC
 #include <string.h>
-#elif defined VCZH_GCC
+#elif defined VCZH_GCC || defined VCZH_WASM
 #include <stdio.h>
 #include <ctype.h>
 #include <wctype.h>
@@ -26,7 +26,7 @@ namespace vl
 	template class ObjectString<char16_t>;
 	template class ObjectString<char32_t>;
 
-#if defined VCZH_GCC
+#if defined VCZH_GCC || defined VCZH_WASM
 	void _itoa_s(vint32_t value, char* buffer, size_t size, vint radix)
 	{
 		snprintf(buffer, size, "%d", value);

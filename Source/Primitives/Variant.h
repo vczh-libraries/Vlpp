@@ -24,7 +24,7 @@ namespace vl
 	struct Overloading : TCallbacks ...
 	{
 		using TCallbacks::operator()...;
-#ifdef VCZH_GCC
+#if defined VCZH_GCC || defined VCZH_WASM
 		Overloading(const Overloading<TCallbacks...>&) = default;
 		Overloading(Overloading<TCallbacks...>&&) = default;
 		Overloading<TCallbacks...>& operator=(const Overloading<TCallbacks...>&) = default;

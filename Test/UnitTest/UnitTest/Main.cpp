@@ -3,9 +3,10 @@
 
 using namespace vl;
 
-#ifdef VCZH_MSVC
+#if defined VCZH_MSVC || defined VCZH_GCC
+#if defined VCZH_MSVC
 int wmain(int argc , wchar_t* argv[])
-#else
+#elif defined VCZH_GCC
 int main(int argc, char** argv)
 #endif
 {
@@ -14,3 +15,4 @@ int main(int argc, char** argv)
 	unittest::UnitTest::DumpMemoryLeak(argc, argv);
 	return result;
 }
+#endif
