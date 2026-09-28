@@ -163,3 +163,7 @@ Implement the requested stages in order. Keep one stable source inventory and in
 ### CODE CHANGE
 
 Stage 1 updates `Tools/Ubuntu/vl/vmake-cpp`, `cmd/vmake`, `cmd/vbuild`, `makefile-cpp`, `build.sh`, and `cmd/vgo`, and adds `wasm.sh`. The browser HTML is supplied in stage 3; before then, verify dispatch independently. Track effective options in ignored `Obj` state before make evaluates build prerequisites. Pass only object inputs to the linker, invalidate incomplete packages on failure, and make missing package members trigger linking. Commit canonical Tools changes before propagation.
+
+Stage 1: canonical Tools commit `46b8943` was pushed before `vgo uci Vlpp`. Fourteen build aliases, help, failure propagation, shell syntax, and the propagated native build passed. Native baseline and propagated build both pass 32 files / 464 cases. The HTML worker was added with the packaging infrastructure so propagation always copies a complete set of required files; C++ entry integration and browser validation follow in stage 3.
+
+Stage 2 will add positive platform guards, `VCZH_WASM` detection and UTF-32 selection, portable numeric/string compatibility, four Wasm implementations, and matching project/filter entries. Wasm date/time uses the SDK calendar functions with milliseconds encoding wall-clock fields as UTC, keeping timezone conversion explicit. Existing native date/time behavior remains covered by its suite. Platform-size assertions and Wasm narrow/UTF conversion checks will accompany the port.

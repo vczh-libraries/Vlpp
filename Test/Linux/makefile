@@ -1,6 +1,9 @@
 .PHONY: all clean pre-build
 .DEFAULT_GOAL := all
 
+CPP_TARGET=./Bin/UnitTest
+CPP_OBJECTS=./Obj/TestAString.o ./Obj/TestLoremIpsum.o ./Obj/TestStringConversion.o ./Obj/TestU16String.o ./Obj/TestU32String.o ./Obj/TestU8String.o ./Obj/TestUtfReader.o ./Obj/TestWString.o ./Obj/TestBasic.o ./Obj/TestBasic_Nullable.o ./Obj/TestBasic_Pair.o ./Obj/TestBasic_Tuple.o ./Obj/TestBasic_Variant.o ./Obj/TestConsole.o ./Obj/TestFunction.o ./Obj/TestFeatureInjection.o ./Obj/TestGlobalStorage.o ./Obj/TestLinq.o ./Obj/TestLinq_GenericLambda.o ./Obj/TestLinq_NoLambda.o ./Obj/TestList_Container_Array.o ./Obj/TestList_Container_ByetObjectMap.o ./Obj/TestList_Container_Dictionary.o ./Obj/TestList_Container_Group.o ./Obj/TestList_Container_List.o ./Obj/TestList_Container_SortedList.o ./Obj/TestList_CopyFrom.o ./Obj/TestList_LoopFrom_LazyList.o ./Obj/TestList_LoopFrom_Ordered_Locked.o ./Obj/TestPartialOrdering.o ./Obj/TestSort.o ./Obj/TestUnitTestUtilities.o ./Obj/Main.o ./Obj/Basic.o ./Obj/PartialOrdering.o ./Obj/Console.o ./Obj/Console.Linux.o ./Obj/Exception.o ./Obj/GlobalStorage.o ./Obj/DateTime.o ./Obj/DateTime.Linux.o ./Obj/Conversion.o ./Obj/Conversion.Linux.o ./Obj/LoremIpsum.o ./Obj/String.o ./Obj/UnitTest.o ./Obj/UnitTest.Linux.o
+
 include $(VCPROOT)/vl/makefile-cpp
 
 pre-build:
@@ -10,6 +13,7 @@ pre-build:
 	if ! [ -d ../Output ]; then mkdir ../Output; fi
 
 clean:
+	rm -f "$(CPP_TARGET)" "$(dir $(CPP_TARGET))app.mjs" "$(dir $(CPP_TARGET))app.wasm" "$(dir $(CPP_TARGET))app.html"
 	if [ -d ./Bin ]; then rm -r ./Bin; fi
 	if [ -d ./Obj ]; then rm -r ./Obj; fi
 	if [ -d ./Coverage ]; then rm -r ./Coverage; fi
@@ -17,7 +21,9 @@ clean:
 
 all:pre-build ./Bin/UnitTest
 
-./Bin/UnitTest:./Obj/TestAString.o ./Obj/TestLoremIpsum.o ./Obj/TestStringConversion.o ./Obj/TestU16String.o ./Obj/TestU32String.o ./Obj/TestU8String.o ./Obj/TestUtfReader.o ./Obj/TestWString.o ./Obj/TestBasic.o ./Obj/TestBasic_Nullable.o ./Obj/TestBasic_Pair.o ./Obj/TestBasic_Tuple.o ./Obj/TestBasic_Variant.o ./Obj/TestConsole.o ./Obj/TestFunction.o ./Obj/TestFeatureInjection.o ./Obj/TestGlobalStorage.o ./Obj/TestLinq.o ./Obj/TestLinq_GenericLambda.o ./Obj/TestLinq_NoLambda.o ./Obj/TestList_Container_Array.o ./Obj/TestList_Container_ByetObjectMap.o ./Obj/TestList_Container_Dictionary.o ./Obj/TestList_Container_Group.o ./Obj/TestList_Container_List.o ./Obj/TestList_Container_SortedList.o ./Obj/TestList_CopyFrom.o ./Obj/TestList_LoopFrom_LazyList.o ./Obj/TestList_LoopFrom_Ordered_Locked.o ./Obj/TestPartialOrdering.o ./Obj/TestSort.o ./Obj/TestUnitTestUtilities.o ./Obj/Main.o ./Obj/Basic.o ./Obj/PartialOrdering.o ./Obj/Console.o ./Obj/Console.Linux.o ./Obj/Exception.o ./Obj/GlobalStorage.o ./Obj/DateTime.o ./Obj/DateTime.Linux.o ./Obj/Conversion.o ./Obj/Conversion.Linux.o ./Obj/LoremIpsum.o ./Obj/String.o ./Obj/UnitTest.o ./Obj/UnitTest.Linux.o
+$(CPP_TARGET) $(CPP_OBJECTS): | pre-build
+
+$(CPP_TARGET):$(CPP_OBJECTS)
 	$(CPP_LINK)
 
 ./Obj/TestAString.o: ../Source/Strings/TestAString.cpp
