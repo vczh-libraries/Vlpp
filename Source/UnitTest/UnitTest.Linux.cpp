@@ -5,7 +5,7 @@ Licensed under https://github.com/vczh-libraries/License
 
 #include "UnitTest.h"
 
-#if defined VCZH_GCC
+#if defined VCZH_GCC || defined VCZH_WASM
 
 
 namespace vl

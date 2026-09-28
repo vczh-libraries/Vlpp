@@ -5,7 +5,7 @@ Licensed under https://github.com/vczh-libraries/License
 
 #include "DateTime.h"
 
-#if defined VCZH_GCC
+#if defined VCZH_GCC || defined VCZH_WASM
 #include <time.h>
 #include <memory.h>
 #include <sys/time.h>
@@ -35,7 +35,13 @@ DateTime
 
 		static vuint64_t ConvertTMTToOSInternal(tm* timeinfo, vint milliseconds)
 		{
+#if defined VCZH_GCC
 			time_t timer = mktime(timeinfo);
+#elif defined VCZH_WASM
+			// Wasm encodes calendar fields as UTC milliseconds, independently of the local timezone.
+			time_t timer = timegm(timeinfo);
+			gmtime_r(&timer, timeinfo);
+#endif
 			vuint64_t osInternal;
 			TimeToOSInternal(timer, milliseconds, osInternal);
 			return osInternal;
@@ -43,7 +49,7 @@ DateTime
 
 		static DateTime ConvertTMToDateTime(tm* timeinfo, vint milliseconds)
 		{
-			time_t timer = mktime(timeinfo);
+			auto osInternal = ConvertTMTToOSInternal(timeinfo, milliseconds);
 			DateTime dt;
 			dt.year = timeinfo->tm_year + 1900;
 			dt.month = timeinfo->tm_mon + 1;
@@ -54,8 +60,7 @@ DateTime
 			dt.second = timeinfo->tm_sec;
 			dt.milliseconds = milliseconds;
 
-			// in Linux and macOS, filetime will be mktime(t) * 1000 + gettimeofday().tv_usec / 1000
-			TimeToOSInternal(timer, milliseconds, dt.osInternal);
+			dt.osInternal = osInternal;
 			dt.osMilliseconds = dt.osInternal;
 			return dt;
 		}
@@ -81,7 +86,11 @@ DateTime
 			OSInternalToTime(osInternal, timer, milliseconds);
 
 			tm timeinfo;
+#if defined VCZH_GCC
 			localtime_r(&timer, &timeinfo);
+#elif defined VCZH_WASM
+			gmtime_r(&timer, &timeinfo);
+#endif
 			return ConvertTMToDateTime(&timeinfo, milliseconds);
 		}
 
@@ -111,7 +120,11 @@ DateTime
 
 			tm timeinfo;
 			gmtime_r(&timer, &timeinfo);
-			return ConvertTMTToOSInternal(&timeinfo, milliseconds);
+#if defined VCZH_WASM
+			timeinfo.tm_isdst = -1;
+#endif
+			TimeToOSInternal(mktime(&timeinfo), milliseconds, osInternal);
+			return osInternal;
 		}
 
 		vuint64_t UtcToLocalTime(vuint64_t osInternal) override
@@ -120,12 +133,17 @@ DateTime
 			vint milliseconds;
 			OSInternalToTime(osInternal, timer, milliseconds);
 
-			tm localTimeInfo, utcTimeInfo;
+			tm localTimeInfo;
 			localtime_r(&timer, &localTimeInfo);
+#if defined VCZH_GCC
+			tm utcTimeInfo;
 			gmtime_r(&timer, &utcTimeInfo);
 			time_t localTimer = mktime(&localTimeInfo);
 			time_t utcTimer = mktime(&utcTimeInfo);
 			timer += localTimer - utcTimer;
+#elif defined VCZH_WASM
+			timer = timegm(&localTimeInfo);
+#endif
 
 			TimeToOSInternal(timer, milliseconds, osInternal);
 			return osInternal;

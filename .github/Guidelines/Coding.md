@@ -194,8 +194,9 @@ object, causing missing of a complete picture.
 ## Keep C++ Code Cross Platform
 
 - All source files must aim for cross platform unless the file name has `.Windows.`, `.Linux.`, `.macOS.` or `.Wasm.`.
-  - `.macOS.` will be used only when the macOS version can't share the Linux implementation.
-  - It is acceptable to add macro guard to fix `.Linux.` for macOS, when the macOS version has only very few differences to the Linux version.
+  - When macOS or WebAssembly can mostly reuse the Linux implementation, keep the shared code in `*.Linux.*` and guard the few platform differences inside that file.
+  - Use `#if defined VCZH_GCC || defined VCZH_WASM` for Linux files shared by native Linux/macOS and WebAssembly. Use explicit `#if` / `#elif` conditions for the platform differences.
+  - Use separate `*.macOS.*` or `*.Wasm.*` files only when the implementation cannot substantially share the Linux code.
 - Use FilePath to normalize file path, for file path operations and delimiter access.
 - If platform specific API could be used, avoid hard-coding a table.
 - If not all OS provides enough platform specific API for a requirement:
@@ -246,7 +247,7 @@ object, causing missing of a complete picture.
 
 ## Working with Web Assembly
 
-- Use `*.Wasm.*` for WebAssembly compiled with `em++`.
+- WebAssembly compiled with `em++` should reuse `*.Linux.*` when the implementation is mostly shared, with macro guards for small differences. Use `*.Wasm.*` for implementations that need separate platform code.
 - `VCZH_WASM` detects `__EMSCRIPTEN__`, before testing native compiler macros. Exactly one of `VCZH_MSVC`, `VCZH_GCC` and `VCZH_WASM` is selected. `VCZH_GCC` covers native `clang++` and `g++`; `VCZH_APPLE` only refines that branch.
 - Use `#if` and `#elif` with explicit compiler/platform conditions. Do not use `#ifdef` or `#else` for platform selection, and do not assume non-MSVC means GCC. Fix violations when encountered, including unrelated code. Header guards and unrelated feature switches keep their existing meaning. Unsupported compilers should fail, without a fallback implementation.
 - Put platform-only includes and definitions inside positive platform guards. Inactive platform files must compile harmlessly in the shared source inventory.

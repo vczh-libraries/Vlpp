@@ -40,13 +40,13 @@
 ## Cross Platform Naming Convention
 
 - Windows specific source file in `Source` folder should be named after `*.Windows.(h|cpp)`.
-- When a source file could be shared between Linux and macOS, use `*.Linux.(h|cpp)`.
-- Otherwise macOS specific file should use `*.macOS.(h|cpp)`.
-- WebAssembly compiled with `em++` uses `*.Wasm.(h|cpp)`.
+- When macOS or WebAssembly can mostly reuse the Linux implementation, keep it in `*.Linux.(h|cpp)` and use macro guards for the few platform differences.
+- Use `*.macOS.(h|cpp)` or `*.Wasm.(h|cpp)` only when that platform needs an implementation that cannot substantially share the Linux code. WebAssembly is compiled with `em++`.
 
 Platform guard macros should be used even when in platform specific source files:
 - `#if defined VCZH_MSVC` for Windows.
 - `#if defined VCZH_GCC` for native Linux and macOS shared source.
+- `#if defined VCZH_GCC || defined VCZH_WASM` for Linux source also shared with WebAssembly.
 - `#if defined VCZH_GCC && !defined VCZH_APPLE` for Linux only.
 - `#if defined VCZH_GCC && defined VCZH_APPLE` for macOS only.
 - `#if defined VCZH_WASM` for WebAssembly.

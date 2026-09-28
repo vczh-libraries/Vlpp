@@ -167,6 +167,14 @@ What do you think it the issue? I would like you to repro this issue and figure 
 
 I would like to do this, during link `wasm.sh` should also copy `wasm-unittest.sh` to `app.sh`, which starts the `Bin` folder using npx with port 8888, or when `app.sh 1234` uses port 1234, and if possible make `app.html` default, if this is not doable it is still fine. Remember to also refresh Vlpp's ubuntu folder
 
+## UPDATE
+
+One more refactoring. From the original Vlpp C++ source change commits, I can see that:
+- DateTime.Wasm.cpp is pretty much repeat DateTime.Linux.cpp. So as UnitTest.Wasm.cpp.
+- Conversion.Wsam.cpp maybe could just use the same code in Conversion.Linux.cpp? Ignore this if it can't.
+- I would like you to delete those repeating *.Wasm.cpp, just use `#if defined VCZH_GCC || defined VCZH_WASM` in those *.Linux.cpp files, so that this file could server all non-msvc platforms. If only minor thing is different, it is fine to only use macro guard to pre-process that a few difference in *.Linux.cpp.
+- In Tools/Copilot/Guidelines/Coding.md, say that if macOS or wasm version could pretty much reuse Linux code, we can write everything to the *.Linux.* file, only use macro guard to pre-process that a few difference in it, in your own language.
+
 # TEST [CONFIRMED]
 
 The task file is named `TODO_Task.md` on this case-sensitive checkout. No previous investigation log exists to archive.
@@ -179,6 +187,8 @@ Firefox local-file follow-up: compare the same generated `Bin/app.html`, `app.mj
 
 Launcher follow-up: verify packaging creates an executable `app.sh` and makes `app.html` the root page. Run the launcher from another working directory, including an output path containing spaces; verify default port 8888, explicit port 1234, valid MIME types, disabled caching, and foreground Ctrl-C shutdown. Check invalid arguments fail. Confirm an unchanged Wasm build does no work, missing launcher/index outputs and changed launcher input trigger repair without recompiling C++, and packaging failures leave the make target absent and permit a retry. Run the full browser suite through the generated launcher with normal Firefox file-origin restrictions, and check the native build after changing the shared template. Canonical Tools changes must be committed and pushed before refreshing Vlpp.
 
+Platform consolidation follow-up: build and run the full native Clang and GCC suites and the Wasm suite in Firefox over the generated npx launcher. Exercise the browser in UTC, America/Los_Angeles, Asia/Tokyo, and Australia/Sydney to cover both offset directions and daylight saving zones. Retain the existing date/time round-trip and Unicode conversion tests. Check that the three deleted Wasm files disappear from the owning project/filter and generated source inventories, that the inventory remains identical across compilers, and that canonical and propagated guidance match.
+
 # PROPOSALS
 
 - No.1 Add an explicit Wasm compiler, platform implementation, and worker runner [CONFIRMED]
@@ -188,6 +198,8 @@ Launcher follow-up: verify packaging creates an executable `app.sh` and makes `a
 Implement the requested stages in order. Keep one stable source inventory and invalidate ignored build products whenever the effective compiler/options change. Link an ES module and package all four outputs as a successful unit. Select `VCZH_WASM` separately from native compilers, preserve the SDK wide-character ABI, and convert only at JavaScript boundaries. Run the exception-catching entry point inside a dedicated worker, forwarding console operations in order. Update canonical Tools guidance and propagate it.
 
 ### CODE CHANGE
+
+Platform consolidation follow-up implementation: widened the guards in `DateTime.Linux.cpp`, `UnitTest.Linux.cpp`, and `Conversion.Linux.cpp` to `VCZH_GCC || VCZH_WASM`, deleted their corresponding Wasm files, and removed the deleted registrations from the project and filter files. The shared date/time implementation retains small explicit branches for native local-time encoding versus Wasm UTC wall-clock encoding and their inverse timezone conversions. The Wasm calendar conversion still normalizes fields through `gmtime_r` after `timegm`. The conversion file retains native locale-based conversion and Wasm's locale-independent UTF-8 conversion behind short guards; the SDK's multibyte routines depend on the active C locale. Unit-test debugger detection is identical and needs no inner branches. Regenerated the Linux source inventory through the build wrapper. Canonical Tools commit `abfafe5` updates coding and source-management guidance to prefer Linux files for mostly shared macOS/Wasm implementations; it was pushed before both guidance files were copied into Vlpp.
 
 Launcher follow-up implementation: canonical `Tools/Ubuntu/vl/wasm-unittest.sh` serves its own directory through `npx --yes http-server` on loopback with port 8888 or one supplied port and caching disabled. `wasm.sh` copies it to executable `app.sh` and creates a relative `index.html` symlink to `app.html`, publishing the make target after all packaging steps succeed. The launcher input and both new outputs participate in incremental dependencies, missing-output repair, and generated clean rules. Tools commit `dd4588b` includes the new `vgo uci` copy-list entry and README instructions; it was pushed before `vgo uci Vlpp` refreshed all ten shared files. Updated Vlpp's `Project.md`, and regenerated `Test/Linux/makefile` through the repository-local wrapper. The existing Wasm C++ implementation is retained.
 
@@ -267,3 +279,11 @@ Real npx servers passed on both ports. The default launcher ran from `/tmp`, and
 The unchanged Wasm build compiles and links nothing and preserves package timestamps. Removing `app.sh` or `index.html`, or touching the launcher template, causes exactly one link with zero C++ recompiles; all 51 object timestamps remain unchanged. A directory collision at `app.sh` makes packaging fail with the target absent, and removing the collision allows the next incremental build to repair the package. Isolated launcher-copy, chmod, and symlink failures also prevent target publication and succeed on retry. The generated clean rule includes both new outputs.
 
 Native full Clang and incremental GCC builds each pass 32/32 files and 465/465 cases. A subsequent full Wasm build regenerates the complete package, and real headless Firefox 146.0.1 with `security.fileuri.strict_origin_policy=true` passes 32/32 files and 469/469 cases at the launcher's root URL, with exactly one successful completion and no console errors. Generated makefile/source inventory bytes remain identical across compiler switches. All ten propagated files match canonical Tools contents and permissions. The final test server was stopped after verification; Windows and macOS were not executed. Local build and repair evidence is retained in `/tmp/vlpp-launcher-*.log`, and the browser response record is `/tmp/vlpp-launcher-browser.json`.
+
+#### Shared Linux/Wasm implementation verification
+
+Removed `DateTime.Wasm.cpp`, `Conversion.Wasm.cpp`, and `UnitTest.Wasm.cpp`. Their shared Linux files now serve both `VCZH_GCC` and `VCZH_WASM`; `Console.Wasm.cpp` remains because its JavaScript console bridge is platform-specific. The date/time guards preserve the different calendar encodings and explicit timezone conversions. Conversion keeps Wasm narrow strings as UTF-8 independently of the active C locale, while native conversion still uses `wcstombs` and `mbstowcs`.
+
+The full Clang build and subsequent GCC compiler switch each compile 48 sources without warnings/errors and pass all 32 files / 465 cases. A full Wasm build compiles the same 48 sources without warnings/errors. Firefox 146.0.1 passes all 32 files / 469 cases separately in UTC, America/Los_Angeles, Asia/Tokyo, and Australia/Sydney, with one return-0 completion and no browser errors in every run. Each browser process receives its own `TZ`; a worker probe confirms the actual timezone and January/July offsets. Firefox's context-only timezone override did not reach workers, so it was not used as evidence of timezone coverage. Normal strict file-origin policy remains enabled, and the browser loads the package over HTTP through `./Bin/app.sh` on port 8888.
+
+Project and filter registrations agree, every registered source exists, and each shared implementation appears exactly once in the generated inventory. The three deleted Wasm paths are absent from both project metadata and generated build files. The generated `makefile` and `vmake.txt` have identical hashes under all three compilers. Both propagated guideline files match Tools byte for byte. `Bin/UnitTest` matches `app.wasm`; the test server was stopped after verification. Windows and macOS were not executed. Local evidence is retained in `/tmp/vlpp-consolidate-*-build.log`, `/tmp/vlpp-consolidate-*-tests.log`, and `/tmp/vlpp-consolidate-browser.json`.
