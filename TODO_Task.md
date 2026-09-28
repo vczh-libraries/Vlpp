@@ -16,8 +16,14 @@ This script is in `../Tools/Ubuntu/vl/cmd`. You need to update them so that:
     - When `CPP_COMPILER=EMPP`, use `em++`.
 - During wasm linking one more thing needs to do, since `makefile` already has the `CPP_TARGET` variable:
   - From the folder having `makefile`, calculate the target folder and the target name.
-  - Copy from `../Tools/Ubuntu/vl/wasm.html` to the target folder's target.html, replacing the referencing inside `wasm.html` to use the target with a relative path.
+  - Copy from `../Tools/Ubuntu/vl/wasm-unittest.html` to the target folder's `app.html`.
   - You can make a `../Tools/Ubuntu/vl/wasm.sh target` and pass `CPP_TARGET` directly to it, called in `makefile-cpp`. We can assume the pwd will be the folder having `makefile` which is already ensured by `vbuild` (because it fails when `makefile` is not available).
+
+Since the makefile hardcoded the `CPP_TARGET` by `vmake`, we don't change it, instead during linking
+- Figure out the folder for `CPP_TARGET`.
+- Generate `$app.wasm` and `app.mjs`.
+- Copy `app.wasm` to `CPP_TARGET` so that `make` is tricked and the incremental build works correctly.
+- Copy `wasm-unittest.html` and renamed it to `app.html` which always load `app.mjs`, making it simpler.
 
 2) Fix C++ source code to run under emscripten.
 
@@ -29,11 +35,11 @@ There are some `*.Windows.cpp` and `*.Linux.cpp` files, you will have to add `*.
 
 3) Unit Test
 
-When running the copied `UnitTest.html`, it will load `UnitTest` which is a web assembly file and start it. And the main function starts, unit test starts, all text printing by `Console` will be printed to the web page, preserving the color.
+When running the copied `wasm-unittest.html`, it will load `UnitTest` which is a web assembly file and start it. And the main function starts, unit test starts, all text printing by `Console` will be printed to the web page, preserving the color.
 
-Always assume the `wasm.html` will be used, so we can redirect `Console` classes to functions exposed from `wasm.html`.
+Always assume the `wasm-unittest.html` will be used, so we can redirect `Console` classes to functions exposed from `wasm-unittest.html`.
 
-In this request I don't think we need to expose any function to `wasm.html`, except the main function.
+In this request I don't think we need to expose any function to `wasm-unittest.html`, except the main function. In `wasm-unittest.html`, run the main function in another thread, so that it don't block the web page, and when the main function finishes, append a new line in black+italic saying: `wasm_main returns <return-value>.`
 
 4) Documentation
 
@@ -50,7 +56,8 @@ In `Tools` repo you can find `Coding.md` and `SourceFileManagement.md` saying ab
 - Any exposed C++ functions should have 2 version:
   - `FUNCTION-NAME`: for calling by C++, exception is allowed.
   - `wasm_FUNCTION-NAME`: for calling by JavaScript, only used in `EMSCRIPTEN_BINDINGS`, C++ exceptions are caught in here.
-- In any application, the main function is exposed via `wasm_main` from `EMSCRIPTEN_BINDINGS(CppApplication)`.
+- In any application, the main function is exposed via `wasm_main` from `EMSCRIPTEN_BINDINGS(CppApplication)`, its C++ version named `WasmMain`.
+  - For unit test application, `WasmMain` passes `/D` to the unit test framework.
 WASM specific coding rules should be adding to `Coding.md` in the new section at the end `## Working with Web Assembly`.
 You should use the same language, short and imformative, to update these files, feeling like they are from the same author.
 And you should also follow the above rules when doing the work.
