@@ -144,6 +144,10 @@ No unresolved review comments. The implementation decisions and verification req
 
 # UPDATES
 
+## UPDATE
+
+You have changed .github/Ubuntu, which is good, please also apply the same change to ../Tools/Ubuntu, commit and push
+
 # TEST [CONFIRMED]
 
 The task file is named `TODO_Task.md` on this case-sensitive checkout. No previous investigation log exists to archive.
@@ -203,3 +207,5 @@ The build state invalidates incompatible products before make evaluates prerequi
 Canonical and propagated build scripts, helper, HTML and guidance match byte for byte. Generated makefiles/source lists came from the canonical template through the repository-local wrapper, remain compiler-independent, and include each of the four Wasm implementations once. Final review found no unexpected skipped tests or remaining task changes to implement. Verification used Linux, Emscripten 3.1.6, and real headless Firefox 146.0.1 over HTTP; Windows and macOS were not executed.
 
 Reproduce the normal browser run from `Test/Linux` with `../../.github/Ubuntu/build.sh -bw`, serve `Bin` with `python3 -m http.server 4173 --bind 127.0.0.1 --directory Bin`, and open `http://127.0.0.1:4173/app.html`. Native verification uses the default wrapper or `--build-gcc`, followed by `Bin/UnitTest /C`. The Tools Ubuntu README records these commands and the supported aliases.
+
+Follow-up synchronization verification: all seven files changed under `.github/Ubuntu` already match their canonical `Tools/Ubuntu` counterparts in content and permissions. All nine files in `vgo`'s `RefreshGithubUbuntu` manifest match as well. The pre-existing `.github/Ubuntu/vl/cmd/makefile` is unchanged from before this task and is outside that manifest. Canonical Tools commits `46b8943`, `207b29a`, `29c67c3`, and `bfc64d0` contain the implementation and subsequent refinements; `git ls-remote` confirms Tools `origin/master` is already at `bfc64d0`. No additional script or source changes are needed. This follow-up records synchronization and remote verification; the previously recorded native and browser test results apply to the unchanged implementation.
