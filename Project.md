@@ -21,8 +21,5 @@ For native Linux builds, only configuration "debug x64" is available, no need to
 
 ## WebAssembly
 
-From `Test/Linux`, use `../../.github/Ubuntu/build.sh -bw` for an incremental Wasm build or `-fbw` for a full build. This target uses Emscripten's 32-bit pointers and 32-bit `wchar_t`.
-
-The project-local `vbuild` file opts in with `WASM=YES`. With Node.js installed, run `./Bin/app.sh`, then open `http://127.0.0.1:8888/`. Use `./Bin/app.sh 1234` to select port 1234. The launcher serves the generated files from its own folder, includes COOP/COEP headers, and keeps running until Ctrl-C. An `index.html` symlink makes `app.html` the default page. Direct `file://` loading is unsupported. The complete suite runs in a Web Worker and must finish with all tests passing and exactly one `wasm_main returns 0.` line. Do not execute the Wasm copy at `Bin/UnitTest` as a native binary.
-
-Changes affecting the Wasm port require browser verification as well as native unit tests. Use `--build-gcc` to verify GCC and the default build command to verify Clang; compiler switches invalidate incompatible build products automatically.
+The following unit test projects could be built to web assembly and run with a browser:
+- `REPO-ROOT/Test/Linux`
