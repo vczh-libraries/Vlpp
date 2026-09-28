@@ -148,6 +148,21 @@ No unresolved review comments. The implementation decisions and verification req
 
 You have changed .github/Ubuntu, which is good, please also apply the same change to ../Tools/Ubuntu, commit and push
 
+## UPDATE
+
+I ran `vbuild -fbw` and here is was I get from `Bin/app.htm.`
+
+```
+WebAssembly Unit Tests
+
+Failed
+
+Run failed: TypeError: error loading dynamically imported module: file:///home/vczh/Desktop/vczh-libraries/Vlpp/Test/Linux/Bin/app.mjs
+
+```
+
+What do you think it the issue? I would like you to repro this issue and figure out the root cause. Did you run it by yourself yet? If yes, you night need to figure out why I can't just load it with my Firefox, is there any issue in Firefox or in the way I open the web page?
+
 # TEST [CONFIRMED]
 
 The task file is named `TODO_Task.md` on this case-sensitive checkout. No previous investigation log exists to archive.
@@ -155,6 +170,8 @@ The task file is named `TODO_Task.md` on this case-sensitive checkout. No previo
 Initial reproduction: from `Test/Linux`, the repository-local `build.sh -bw` exits 1 with the old usage; canonical `vbuild -bw` and `vbuild --full-build-wasm` only print help and incorrectly exit 0. Emscripten 3.1.6 is installed. There is no Wasm platform selection, platform implementation, or browser runner.
 
 Acceptance checks follow the four verification lists in the problem description: script dispatch and compiler flags; stable generated source inventory; full native and browser suites; Unicode and console boundaries; missing-output repair and failure/retry; compiler transitions; canonical/propagated documentation. Tests use the repository-local build wrapper from `Test/Linux`, isolated temporary fixtures for intentional failures, and a real browser over local HTTP. Windows/macOS results will not be claimed without execution.
+
+Firefox local-file follow-up: compare the same generated `Bin/app.html`, `app.mjs`, and `app.wasm` through `file://` and local HTTP. Record the browser version, exact visible failure, module/worker behavior, and HTTP unit-test totals. Test the installed Firefox as well as the earlier automation browser where feasible. The suspected failure is at the dynamic module import before Wasm initialization; verify this against observed browser behavior and Mozilla's module-loading documentation before concluding. Retain the confirmed implementation while investigating; this request asks for reproduction and root-cause analysis.
 
 # PROPOSALS
 
@@ -209,3 +226,26 @@ Canonical and propagated build scripts, helper, HTML and guidance match byte for
 Reproduce the normal browser run from `Test/Linux` with `../../.github/Ubuntu/build.sh -bw`, serve `Bin` with `python3 -m http.server 4173 --bind 127.0.0.1 --directory Bin`, and open `http://127.0.0.1:4173/app.html`. Native verification uses the default wrapper or `--build-gcc`, followed by `Bin/UnitTest /C`. The Tools Ubuntu README records these commands and the supported aliases.
 
 Follow-up synchronization verification: all seven files changed under `.github/Ubuntu` already match their canonical `Tools/Ubuntu` counterparts in content and permissions. All nine files in `vgo`'s `RefreshGithubUbuntu` manifest match as well. The pre-existing `.github/Ubuntu/vl/cmd/makefile` is unchanged from before this task and is outside that manifest. Canonical Tools commits `46b8943`, `207b29a`, `29c67c3`, and `bfc64d0` contain the implementation and subsequent refinements; `git ls-remote` confirms Tools `origin/master` is already at `bfc64d0`. No additional script or source changes are needed. This follow-up records synchronization and remote verification; the previously recorded native and browser test results apply to the unchanged implementation.
+
+#### Firefox local-file root cause
+
+Reproduced the reported error verbatim in the installed Firefox 156.0.1 and in Playwright's Firefox 146.0.1. Both ran headlessly with `security.fileuri.strict_origin_policy` explicitly set to `true` in isolated automation profiles, preserving Firefox's normal local-file restriction. No user browser profile was changed. The installed browser was controlled with geckodriver 0.37.1.
+
+| Browser with strict file-origin policy | Open `file:///home/vczh/Desktop/vczh-libraries/Vlpp/Test/Linux/Bin/app.html` | Open `http://127.0.0.1:4173/app.html` |
+|---|---|---|
+| Installed Firefox 156.0.1 | Exact reported dynamic-import failure; no completion line | 32/32 files, 469/469 cases, exactly one `wasm_main returns 0.` |
+| Playwright Firefox 146.0.1 | Same failure; console identifies `CORS request not http` | Same complete passing suite, no console errors |
+
+The same generated files were used for each comparison, without rebuilding or changing the package. `Bin/app.html` matches the HTML template, and `Bin/UnitTest` matches `Bin/app.wasm` byte for byte. HTTP returns 200 for all three resources with `text/html`, `text/javascript`, and `application/wasm` respectively. This isolates the opening method from compiler output, packaging, and browser version.
+
+The HTML resolves `app.mjs` against `location.href` and passes that URL to its Blob worker. With a local-file page, this produces the exact `file:///.../Bin/app.mjs` URL in the report. The worker rejects at `await import(moduleUrl)` in `vl/wasm-unittest.html`, before `createModule()` or `wasm_main()` can run. Firefox's console identifies its same-origin/CORS policy as the reason. Local files have opaque origins under the normal browser policy; sharing a directory does not make the module import permitted. [Mozilla's local-file CORS explanation](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CORS/Errors/CORSRequestNotHttp) and [JavaScript module testing guidance](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules#other_differences_between_modules_and_classic_scripts) both prescribe serving the files through a local web server.
+
+An initial automation run misleadingly accepted the file URL. Playwright's bundled `firefox/playwright.cfg` explicitly sets `security.fileuri.strict_origin_policy` to `false`; geckodriver's log also records the Remote Agent setting that recommended preference to `false`. Explicitly restoring `true` reproduces the failure in both versions while leaving HTTP successful. Future checks of local-file behavior must restore this preference instead of assuming automation defaults match normal Firefox. The earlier successful task verification did run in Firefox, but only through HTTP; it did not establish that double-clicking the HTML would work.
+
+The confirmed remedy for this package is to run the following from `Test/Linux`, keep the server running, and open `http://127.0.0.1:4173/app.html` in Firefox:
+
+```bash
+python3 -m http.server 4173 --bind 127.0.0.1 --directory Bin
+```
+
+This is normal Firefox module-loading behavior and an HTTP-serving requirement of the current output. No compiler, C++, or runner edits are needed for the supported HTTP launch. The generated filename is `app.html`. This follow-up changes only the investigation document. Detailed local evidence is in `/tmp/vlpp-file-http-installed-strict.json` and `/tmp/vlpp-file-http-playwright-strict.json`; the corresponding Firefox screenshots show the failed file launch and passing HTTP launch.
