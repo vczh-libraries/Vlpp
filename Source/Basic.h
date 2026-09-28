@@ -45,7 +45,6 @@ Licensed under https://github.com/vczh-libraries/License
 static_assert(sizeof(wchar_t) == sizeof(char16_t), "wchar_t is not UTF-16.");
 #elif defined VCZH_WCHAR_UTF32
 static_assert(sizeof(wchar_t) == sizeof(char32_t), "wchar_t is not UTF-32.");
-
 #endif
 
 #if defined VCZH_GCC || defined VCZH_WASM
@@ -76,6 +75,7 @@ static_assert(sizeof(wchar_t) == sizeof(char32_t), "wchar_t is not UTF-32.");
 #include <type_traits>
 #include <utility>
 #include <compare>
+#include <concepts>
 #include <new>
 #include <atomic>
 
@@ -248,6 +248,33 @@ Type Traits
 
 	namespace ordering_decision
 	{
+#if defined __cpp_lib_three_way_comparison
+		template<typename T>
+		concept ThreeWayComparable = std::three_way_comparable<T>;
+
+		template<typename T, typename U>
+		concept ThreeWayComparableWith = std::three_way_comparable_with<T, U>;
+#elif !defined __cpp_lib_three_way_comparison
+		// Older SDKs provide comparison categories but not the comparison concepts.
+		template<typename T>
+		concept PartialOrdering = std::same_as<std::common_comparison_category_t<T, std::partial_ordering>, std::partial_ordering>;
+
+		template<typename T>
+		concept ThreeWayComparable = std::totally_ordered<T> && requires(const std::remove_reference_t<T>& a, const std::remove_reference_t<T>& b)
+		{
+			{ a <=> b } -> PartialOrdering;
+		};
+
+		template<typename T, typename U>
+		concept ThreeWayComparableWith = ThreeWayComparable<T> && ThreeWayComparable<U> && std::totally_ordered_with<T, U>
+			&& ThreeWayComparable<std::common_reference_t<const std::remove_reference_t<T>&, const std::remove_reference_t<U>&>>
+			&& requires(const std::remove_reference_t<T>& a, const std::remove_reference_t<U>& b)
+			{
+				{ a <=> b } -> PartialOrdering;
+				{ b <=> a } -> PartialOrdering;
+			};
+#endif
+
 		template<bool PO, bool WO, bool SO>
 		struct OrderingSelection
 		{

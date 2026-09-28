@@ -61,7 +61,7 @@
         const result = module.wasm_main();
         postMessage({ kind: "complete", result });
       } catch (error) {
-        postMessage({ kind: "failure", text: String(error.stack || error) });
+        postMessage({ kind: "failure", text: String(error) + (error?.stack ? "\n" + error.stack : "") });
       }
       self.close();
     };

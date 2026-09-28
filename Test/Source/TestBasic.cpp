@@ -7,6 +7,11 @@ using namespace vl;
 
 static_assert(sizeof(vint) == sizeof(void*));
 static_assert(sizeof(vuint) == sizeof(void*));
+static_assert(ordering_decision::ThreeWayComparable<vint>);
+static_assert(ordering_decision::ThreeWayComparable<double>);
+static_assert(ordering_decision::ThreeWayComparableWith<vint16_t, vint32_t>);
+static_assert(!ordering_decision::ThreeWayComparableWith<vint32_t, vuint32_t>);
+static_assert(!ordering_decision::ThreeWayComparable<Object>);
 #if (defined VCZH_MSVC + defined VCZH_GCC + defined VCZH_WASM) != 1
 #error Exactly one compiler platform must be selected.
 #endif

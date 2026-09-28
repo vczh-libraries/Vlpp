@@ -7,7 +7,7 @@ Licensed under https://github.com/vczh-libraries/License
 
 #if defined VCZH_WASM
 #include <time.h>
-#include <emscripten.h>
+#include <sys/time.h>
 
 namespace vl
 {
@@ -57,7 +57,9 @@ DateTime
 
 		vuint64_t UtcTime() override
 		{
-			return static_cast<vuint64_t>(emscripten_date_now());
+			timeval now;
+			gettimeofday(&now, nullptr);
+			return static_cast<vuint64_t>(now.tv_sec) * 1000 + now.tv_usec / 1000;
 		}
 
 		vuint64_t LocalToUtcTime(vuint64_t osInternal) override

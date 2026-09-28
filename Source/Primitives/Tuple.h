@@ -256,7 +256,7 @@ namespace vl
 
 		template<typename ...UArgs>
 		auto operator<=>(const TCompatible<UArgs...>& t)const
-			requires (true && ... && std::three_way_comparable_with<TArgs, UArgs>)
+			requires (true && ... && ordering_decision::ThreeWayComparableWith<TArgs, UArgs>)
 		{
 			return this->Compare(t);
 		}
