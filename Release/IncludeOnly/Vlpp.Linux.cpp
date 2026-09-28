@@ -9,3 +9,4 @@ DEVELOPER: Zihan Chen(vczh)
 #include "..\..\Source\Strings\Conversion.Linux.cpp"
 #include "..\..\Source\UnitTest\UnitTest.Linux.cpp"
 #include "..\..\Source\Console.Wasm.cpp"
+#include "..\..\Source\Strings\Conversion.Wasm.cpp"

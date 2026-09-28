@@ -261,7 +261,7 @@ Licensed under https://github.com/vczh-libraries/License
 ***********************************************************************/
 
 
-#if defined VCZH_GCC || defined VCZH_WASM
+#if defined VCZH_GCC
 #include <stdio.h>
 #include <ctype.h>
 #include <wctype.h>
@@ -274,21 +274,12 @@ String Conversions (buffer walkthrough)
 
 	vint _wtoa(const wchar_t* w, char* a, vint chars)
 	{
-#if defined VCZH_GCC
 		return wcstombs(a, w, chars - 1) + 1;
-#elif defined VCZH_WASM
-		// Wasm narrow strings use UTF-8 regardless of the active C locale.
-		return _utftoutf<wchar_t, char8_t>(w, reinterpret_cast<char8_t*>(a), chars);
-#endif
 	}
 
 	vint _atow(const char* a, wchar_t* w, vint chars)
 	{
-#if defined VCZH_GCC
 		return mbstowcs(w, a, chars - 1) + 1;
-#elif defined VCZH_WASM
-		return _utftoutf<char8_t, wchar_t>(reinterpret_cast<const char8_t*>(a), w, chars);
-#endif
 	}
 }
 
@@ -336,6 +327,7 @@ Licensed under https://github.com/vczh-libraries/License
 
 #if defined VCZH_WASM
 #include <emscripten.h>
+#include <emscripten/val.h>
 
 namespace vl::console
 {
@@ -345,6 +337,12 @@ namespace vl::console
 
 	EM_JS(int, WasmConsoleColor, (bool red, bool green, bool blue, bool light), {
 		return globalThis["vlConsoleColor"](red, green, blue, light);
+	});
+
+	EM_JS(emscripten::EM_VAL, WasmConsoleRead, (), {
+		try {
+			return Emval.toHandle(globalThis["vlConsoleRead"]());
+		} catch { return 0; }
 	});
 
 	EM_JS(int, WasmConsoleTitle, (const char16_t* text, vint length), {
@@ -368,7 +366,14 @@ Console
 	{
 #define ERROR_MESSAGE_PREFIX L"vl::console::Console::TryRead()#"
 		CHECK_ERROR(IsEnabled(), ERROR_MESSAGE_PREFIX L"Console operations are disabled.");
-		return {};
+		auto handle = WasmConsoleRead();
+		CHECK_ERROR(handle, ERROR_MESSAGE_PREFIX L"JavaScript console read failed.");
+		auto value = emscripten::val::take_ownership(handle);
+		if (value.isUndefined()) return {};
+		CHECK_ERROR(value.isString(), ERROR_MESSAGE_PREFIX L"JavaScript console read must return undefined or a string.");
+		// Embind accepts std::u16string; keep this adapter at the boundary.
+		auto text = value.as<std::u16string>();
+		return u16tow(U16String::CopyFrom(text.data(), text.size()));
 #undef ERROR_MESSAGE_PREFIX
 	}
 
@@ -393,6 +398,38 @@ Console
 		auto text = wtou16(string);
 		CHECK_ERROR(WasmConsoleTitle(text.Buffer(), text.Length()), ERROR_MESSAGE_PREFIX L"JavaScript console title failed.");
 #undef ERROR_MESSAGE_PREFIX
+	}
+}
+
+#endif
+
+
+/***********************************************************************
+.\STRINGS\CONVERSION.WASM.CPP
+***********************************************************************/
+/***********************************************************************
+Author: Zihan Chen (vczh)
+Licensed under https://github.com/vczh-libraries/License
+***********************************************************************/
+
+
+#if defined VCZH_WASM
+
+namespace vl
+{
+/***********************************************************************
+String Conversions (buffer walkthrough)
+***********************************************************************/
+
+	vint _wtoa(const wchar_t* w, char* a, vint chars)
+	{
+		// Wasm narrow strings use UTF-8 regardless of the active C locale.
+		return _utftoutf<wchar_t, char8_t>(w, reinterpret_cast<char8_t*>(a), chars);
+	}
+
+	vint _atow(const char* a, wchar_t* w, vint chars)
+	{
+		return _utftoutf<char8_t, wchar_t>(reinterpret_cast<const char8_t*>(a), w, chars);
 	}
 }
 

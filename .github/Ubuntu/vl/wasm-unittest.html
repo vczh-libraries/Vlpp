@@ -32,6 +32,7 @@
         return 1;
       } catch { return 0; }
     };
+    globalThis.vlConsoleRead = () => undefined;
     globalThis.vlConsoleColor = (red, green, blue, light) => {
       try {
         postMessage({ kind: "color", red, green, blue, light });

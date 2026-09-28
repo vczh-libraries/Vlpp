@@ -14,6 +14,19 @@ Licensed under https://github.com/vczh-libraries/License
 using namespace vl;
 using namespace vl::console;
 
+#if defined VCZH_WASM
+struct WasmConsoleReadScope
+{
+	emscripten::val global = emscripten::val::global();
+	emscripten::val callback = global["vlConsoleRead"];
+
+	~WasmConsoleReadScope()
+	{
+		global.set("vlConsoleRead", callback);
+	}
+};
+#endif
+
 TEST_FILE
 {
 #if defined VCZH_WASM
@@ -36,6 +49,33 @@ TEST_FILE
 	{
 		TEST_ASSERT(!Console::TryRead());
 		TEST_ASSERT(Console::Read() == WString::Empty);
+	});
+
+	TEST_CASE(L"Browser console reads JavaScript strings")
+	{
+		WasmConsoleReadScope scope;
+		const WString samples[] = { L"", L"ASCII", L"\u4E2D\u6587", L"\U0001F600", L"A\u4E2D\U0001F600", WString::CopyFrom(L"A\0B", 3) };
+		for (auto&& text : samples)
+		{
+			auto encoded = wtou16(text);
+			auto value = emscripten::val(std::u16string(encoded.Buffer(), encoded.Length()));
+			scope.global.set("vlConsoleRead", value["valueOf"].call<emscripten::val>("bind", value));
+			auto result = Console::TryRead();
+			TEST_ASSERT(result);
+			TEST_ASSERT(result.Value() == text);
+			TEST_ASSERT(Console::Read() == text);
+		}
+	});
+
+	TEST_CASE(L"Browser console read failures become C++ errors")
+	{
+		WasmConsoleReadScope scope;
+		auto value = emscripten::val(42);
+		scope.global.set("vlConsoleRead", value["valueOf"].call<emscripten::val>("bind", value));
+		TEST_ERROR(Console::TryRead());
+		auto parse = scope.global["JSON"]["parse"];
+		scope.global.set("vlConsoleRead", parse.call<emscripten::val>("bind", emscripten::val::undefined(), emscripten::val("invalid JSON")));
+		TEST_ERROR(Console::TryRead());
 	});
 
 	TEST_CASE(L"Browser console renders text and colors in order")

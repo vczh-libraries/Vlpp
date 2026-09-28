@@ -95,6 +95,34 @@ TEST_FILE
 		TEST_CASE_ASSERT(u16tou8(textU16) == textU8);
 	});
 
+	TEST_CASE(L"String conversions preserve embedded zero code units")
+	{
+		const wchar_t wideBuffer[] = L"\0A\0\0\u4E2D\U0001F600\0";
+		const char8_t utf8Buffer[] = u8"\0A\0\0\u4E2D\U0001F600\0";
+		const char16_t utf16Buffer[] = u"\0A\0\0\u4E2D\U0001F600\0";
+		const char32_t utf32Buffer[] = U"\0A\0\0\u4E2D\U0001F600\0";
+		auto wide = WString::CopyFrom(wideBuffer, sizeof(wideBuffer) / sizeof(*wideBuffer) - 1);
+		auto utf8 = U8String::CopyFrom(utf8Buffer, sizeof(utf8Buffer) / sizeof(*utf8Buffer) - 1);
+		auto utf16 = U16String::CopyFrom(utf16Buffer, sizeof(utf16Buffer) / sizeof(*utf16Buffer) - 1);
+		auto utf32 = U32String::CopyFrom(utf32Buffer, sizeof(utf32Buffer) / sizeof(*utf32Buffer) - 1);
+		TEST_ASSERT(wtou8(wide) == utf8);
+		TEST_ASSERT(wtou16(wide) == utf16);
+		TEST_ASSERT(wtou32(wide) == utf32);
+		TEST_ASSERT(u8tow(utf8) == wide);
+		TEST_ASSERT(u16tow(utf16) == wide);
+		TEST_ASSERT(u32tow(utf32) == wide);
+		TEST_ASSERT(u8tou16(utf8) == utf16);
+		TEST_ASSERT(u8tou32(utf8) == utf32);
+		TEST_ASSERT(u16tou8(utf16) == utf8);
+		TEST_ASSERT(u16tou32(utf16) == utf32);
+		TEST_ASSERT(u32tou8(utf32) == utf8);
+		TEST_ASSERT(u32tou16(utf32) == utf16);
+		auto narrow = AString::CopyFrom("\0A\0\0B\0", 6);
+		auto ascii = WString::CopyFrom(L"\0A\0\0B\0", 6);
+		TEST_ASSERT(wtoa(ascii) == narrow);
+		TEST_ASSERT(atow(narrow) == ascii);
+	});
+
 	TEST_CASE(L"Explicit-length UTF-16 interchange buffers")
 	{
 		const char16_t buffer[] = { u'A', u'\u4E2D', 0xD83D, 0xDE00 };

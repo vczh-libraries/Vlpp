@@ -221,6 +221,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="..\..\..\Source\Strings\Conversion.Wasm.cpp" />
     <ClCompile Include="..\..\..\Source\Strings\Conversion.Windows.cpp" />
     <ClCompile Include="..\..\..\Source\Strings\LoremIpsum.cpp" />
     <ClCompile Include="..\..\..\Source\Strings\String.cpp" />

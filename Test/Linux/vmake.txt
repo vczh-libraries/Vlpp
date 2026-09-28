@@ -42,6 +42,7 @@
 ../../Source/Primitives/DateTime.Linux.cpp
 ../../Source/Strings/Conversion.cpp
 ../../Source/Strings/Conversion.Linux.cpp
+../../Source/Strings/Conversion.Wasm.cpp
 ../../Source/Strings/LoremIpsum.cpp
 ../../Source/Strings/String.cpp
 ../../Source/UnitTest/UnitTest.cpp

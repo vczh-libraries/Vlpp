@@ -179,6 +179,9 @@
     <ClCompile Include="..\..\..\Source\Strings\Conversion.Linux.cpp">
       <Filter>Common\Strings</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\Source\Strings\Conversion.Wasm.cpp">
+      <Filter>Common\Strings</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\..\Source\Strings\Conversion.Windows.cpp">
       <Filter>Common\Strings</Filter>
     </ClCompile>

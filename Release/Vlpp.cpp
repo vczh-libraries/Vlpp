@@ -734,11 +734,24 @@ String Conversions (ObjectString)
 	template<typename TFrom, typename TTo, vint(*Convert)(const TFrom*, TTo*, vint)>
 	ObjectString<TTo> ConvertStringDirect(const ObjectString<TFrom>& source)
 	{
-		vint len = Convert(source.Buffer(), nullptr, 0);
+		auto input = source.Buffer();
+		auto convert = [&](TTo* output, vint capacity)
+		{
+			vint length = 0;
+			for (vint offset = 0; offset <= source.Length(); offset++)
+			{
+				auto count = Convert(input + offset, output ? output + length : nullptr, output ? capacity - length : 0);
+				if (count < 1) return vint(0);
+				length += count;
+				while (input[offset]) offset++;
+			}
+			return length;
+		};
+		vint len = convert(nullptr, 0);
 		if (len < 1) return {};
 		TTo* buffer = new TTo[len];
 		memset(buffer, 0, len * sizeof(TTo));
-		Convert(source.Buffer(), buffer, len);
+		convert(buffer, len);
 		return ObjectString<TTo>::TakeOver(buffer, len - 1);
 	}
 

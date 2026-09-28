@@ -8,6 +8,7 @@ Licensed under https://github.com/vczh-libraries/License
 #if defined VCZH_WASM
 #include "Strings/Conversion.h"
 #include <emscripten.h>
+#include <emscripten/val.h>
 
 namespace vl::console
 {
@@ -17,6 +18,12 @@ namespace vl::console
 
 	EM_JS(int, WasmConsoleColor, (bool red, bool green, bool blue, bool light), {
 		return globalThis["vlConsoleColor"](red, green, blue, light);
+	});
+
+	EM_JS(emscripten::EM_VAL, WasmConsoleRead, (), {
+		try {
+			return Emval.toHandle(globalThis["vlConsoleRead"]());
+		} catch { return 0; }
 	});
 
 	EM_JS(int, WasmConsoleTitle, (const char16_t* text, vint length), {
@@ -40,7 +47,14 @@ Console
 	{
 #define ERROR_MESSAGE_PREFIX L"vl::console::Console::TryRead()#"
 		CHECK_ERROR(IsEnabled(), ERROR_MESSAGE_PREFIX L"Console operations are disabled.");
-		return {};
+		auto handle = WasmConsoleRead();
+		CHECK_ERROR(handle, ERROR_MESSAGE_PREFIX L"JavaScript console read failed.");
+		auto value = emscripten::val::take_ownership(handle);
+		if (value.isUndefined()) return {};
+		CHECK_ERROR(value.isString(), ERROR_MESSAGE_PREFIX L"JavaScript console read must return undefined or a string.");
+		// Embind accepts std::u16string; keep this adapter at the boundary.
+		auto text = value.as<std::u16string>();
+		return u16tow(U16String::CopyFrom(text.data(), text.size()));
 #undef ERROR_MESSAGE_PREFIX
 	}
 
