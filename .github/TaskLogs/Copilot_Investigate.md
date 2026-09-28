@@ -163,6 +163,10 @@ Run failed: TypeError: error loading dynamically imported module: file:///home/v
 
 What do you think it the issue? I would like you to repro this issue and figure out the root cause. Did you run it by yourself yet? If yes, you night need to figure out why I can't just load it with my Firefox, is there any issue in Firefox or in the way I open the web page?
 
+## UPDATE
+
+I would like to do this, during link `wasm.sh` should also copy `wasm-unittest.sh` to `app.sh`, which starts the `Bin` folder using npx with port 8888, or when `app.sh 1234` uses port 1234, and if possible make `app.html` default, if this is not doable it is still fine. Remember to also refresh Vlpp's ubuntu folder
+
 # TEST [CONFIRMED]
 
 The task file is named `TODO_Task.md` on this case-sensitive checkout. No previous investigation log exists to archive.
@@ -173,6 +177,8 @@ Acceptance checks follow the four verification lists in the problem description:
 
 Firefox local-file follow-up: compare the same generated `Bin/app.html`, `app.mjs`, and `app.wasm` through `file://` and local HTTP. Record the browser version, exact visible failure, module/worker behavior, and HTTP unit-test totals. Test the installed Firefox as well as the earlier automation browser where feasible. The suspected failure is at the dynamic module import before Wasm initialization; verify this against observed browser behavior and Mozilla's module-loading documentation before concluding. Retain the confirmed implementation while investigating; this request asks for reproduction and root-cause analysis.
 
+Launcher follow-up: verify packaging creates an executable `app.sh` and makes `app.html` the root page. Run the launcher from another working directory, including an output path containing spaces; verify default port 8888, explicit port 1234, valid MIME types, disabled caching, and foreground Ctrl-C shutdown. Check invalid arguments fail. Confirm an unchanged Wasm build does no work, missing launcher/index outputs and changed launcher input trigger repair without recompiling C++, and packaging failures leave the make target absent and permit a retry. Run the full browser suite through the generated launcher with normal Firefox file-origin restrictions, and check the native build after changing the shared template. Canonical Tools changes must be committed and pushed before refreshing Vlpp.
+
 # PROPOSALS
 
 - No.1 Add an explicit Wasm compiler, platform implementation, and worker runner [CONFIRMED]
@@ -182,6 +188,8 @@ Firefox local-file follow-up: compare the same generated `Bin/app.html`, `app.mj
 Implement the requested stages in order. Keep one stable source inventory and invalidate ignored build products whenever the effective compiler/options change. Link an ES module and package all four outputs as a successful unit. Select `VCZH_WASM` separately from native compilers, preserve the SDK wide-character ABI, and convert only at JavaScript boundaries. Run the exception-catching entry point inside a dedicated worker, forwarding console operations in order. Update canonical Tools guidance and propagate it.
 
 ### CODE CHANGE
+
+Launcher follow-up implementation: canonical `Tools/Ubuntu/vl/wasm-unittest.sh` serves its own directory through `npx --yes http-server` on loopback with port 8888 or one supplied port and caching disabled. `wasm.sh` copies it to executable `app.sh` and creates a relative `index.html` symlink to `app.html`, publishing the make target after all packaging steps succeed. The launcher input and both new outputs participate in incremental dependencies, missing-output repair, and generated clean rules. Tools commit `dd4588b` includes the new `vgo uci` copy-list entry and README instructions; it was pushed before `vgo uci Vlpp` refreshed all ten shared files. Updated Vlpp's `Project.md`, and regenerated `Test/Linux/makefile` through the repository-local wrapper. The existing Wasm C++ implementation is retained.
 
 Stage 1 updates `Tools/Ubuntu/vl/vmake-cpp`, `cmd/vmake`, `cmd/vbuild`, `makefile-cpp`, `build.sh`, and `cmd/vgo`, and adds `wasm.sh`. The browser HTML is supplied in stage 3; before then, verify dispatch independently. Track effective options in ignored `Obj` state before make evaluates build prerequisites. Pass only object inputs to the linker, invalidate incomplete packages on failure, and make missing package members trigger linking. Commit canonical Tools changes before propagation.
 
@@ -249,3 +257,13 @@ python3 -m http.server 4173 --bind 127.0.0.1 --directory Bin
 ```
 
 This is normal Firefox module-loading behavior and an HTTP-serving requirement of the current output. No compiler, C++, or runner edits are needed for the supported HTTP launch. The generated filename is `app.html`. This follow-up changes only the investigation document. Detailed local evidence is in `/tmp/vlpp-file-http-installed-strict.json` and `/tmp/vlpp-file-http-playwright-strict.json`; the corresponding Firefox screenshots show the failed file launch and passing HTTP launch.
+
+#### Generated launcher verification
+
+The launcher extension is confirmed. A Wasm link now packages `app.sh` and the relative `index.html -> app.html` symlink before publishing `CPP_TARGET`. From `Test/Linux`, run `./Bin/app.sh` and open `http://127.0.0.1:8888/`, or run `./Bin/app.sh 1234` and open `http://127.0.0.1:1234/`. The launcher stays in the foreground until Ctrl-C. Node.js with npm/npx is required; `npx --yes` downloads `http-server` on first use. The verified package version is 14.1.1.
+
+Real npx servers passed on both ports. The default launcher ran from `/tmp`, and the custom-port launcher served a relocated package whose directory contained spaces, from `/`. At both ports, `/` and `/app.html` return the same HTML; `.mjs` and `.wasm` use valid JavaScript and `application/wasm` MIME types. Responses disable caching. Ctrl-C stopped both servers and released their ports. Argument checks cover default/custom ports, invalid and extra arguments, and propagation of an npx failure status.
+
+The unchanged Wasm build compiles and links nothing and preserves package timestamps. Removing `app.sh` or `index.html`, or touching the launcher template, causes exactly one link with zero C++ recompiles; all 51 object timestamps remain unchanged. A directory collision at `app.sh` makes packaging fail with the target absent, and removing the collision allows the next incremental build to repair the package. Isolated launcher-copy, chmod, and symlink failures also prevent target publication and succeed on retry. The generated clean rule includes both new outputs.
+
+Native full Clang and incremental GCC builds each pass 32/32 files and 465/465 cases. A subsequent full Wasm build regenerates the complete package, and real headless Firefox 146.0.1 with `security.fileuri.strict_origin_policy=true` passes 32/32 files and 469/469 cases at the launcher's root URL, with exactly one successful completion and no console errors. Generated makefile/source inventory bytes remain identical across compiler switches. All ten propagated files match canonical Tools contents and permissions. The final test server was stopped after verification; Windows and macOS were not executed. Local build and repair evidence is retained in `/tmp/vlpp-launcher-*.log`, and the browser response record is `/tmp/vlpp-launcher-browser.json`.

@@ -38,9 +38,9 @@ CPP_COMPILE=$(CPP_CXX) $(CPP_COMPILE_FLAGS) $(CPP_DEPENDENCY_OPTIONS) -o $@ -c $
 CPP_LINK=mkdir -p "$(dir $(CPP_TARGET))" && $(CPP_CXX) -o "$@" $(filter %.o,$^) $(CPP_LINK_FLAGS)
 
 ifeq ($(CPP_COMPILER),EMPP)
-CPP_WASM_OUTPUTS=$(addprefix $(dir $(CPP_TARGET)),app.mjs app.wasm app.html)
-$(CPP_TARGET): $(VCPROOT)/vl/wasm.sh $(VCPROOT)/vl/wasm-unittest.html
-ifneq ($(words $(wildcard $(CPP_WASM_OUTPUTS))),3)
+CPP_WASM_OUTPUTS=$(addprefix $(dir $(CPP_TARGET)),app.mjs app.wasm app.html app.sh index.html)
+$(CPP_TARGET): $(VCPROOT)/vl/wasm.sh $(VCPROOT)/vl/wasm-unittest.html $(VCPROOT)/vl/wasm-unittest.sh
+ifneq ($(words $(wildcard $(CPP_WASM_OUTPUTS))),$(words $(CPP_WASM_OUTPUTS)))
 .PHONY: cpp-wasm-missing
 $(CPP_TARGET): cpp-wasm-missing
 endif
