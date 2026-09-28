@@ -25,6 +25,27 @@ Since the makefile hardcoded the `CPP_TARGET` by `vmake`, we don't change it, in
 - Copy `app.wasm` to `CPP_TARGET` so that `make` is tricked and the incremental build works correctly.
 - Copy `wasm-unittest.html` and renamed it to `app.html` which always load `app.mjs`, making it simpler.
 
+### DETAILS
+
+- `Task/Linux` means `Test/Linux`, and `$app.wasm` means the literal file name `app.wasm`. Keep the configured `CPP_TARGET`; for this project it is `./Bin/UnitTest`.
+- The makefile template is `../Tools/Ubuntu/vl/vmake-cpp`; `cmd/vmake` only evaluates it. Emit `CPP_TARGET` before including `makefile-cpp`, and keep the generated source list independent of the selected compiler. Regenerate `makefile` and `vmake.txt` instead of editing them.
+- Use `CPP_COMPILER=CLANG` by default and pass `GCC` or `EMPP` from the corresponding `vbuild` commands. Keep coverage instrumentation exclusive to Clang. The Wasm branch must not inherit native `-pthread`, Linux `-luring`, or macOS framework options from the host machine.
+- The installed `em++` reports Emscripten 3.1.6. Use options supported by that version. Link to `app.mjs` with Embind, modularized ES-module output, a worker environment, and no native entry point: `--bind`, `-sMODULARIZE=1`, `-sEXPORT_ES6=1`, `-sENVIRONMENT=worker`, and `--no-entry`. The application entry will be the bound `wasm_main`, called by the HTML's worker after initialization. See [compiler output options](https://emscripten.org/docs/tools_reference/emcc.html) and [modularized output](https://emscripten.org/docs/compiling/Modularized-Output.html).
+- Enable C++ exception catching with `-fexceptions` during both compilation and linking. This is needed by existing `TEST_ERROR` / `TEST_EXCEPTION` cases as well as the exported wrapper. Disallowing exceptions across the JavaScript boundary does not disable exceptions inside C++. See [Emscripten exception support](https://emscripten.org/docs/porting/exceptions.html).
+- Objects, dependency files, and `CPP_TARGET` currently share the same paths for every compiler. Track the selected compiler and effective build options in ignored build state, and invalidate incompatible objects and the target before building after a configuration change. Copying Wasm bytes to `CPP_TARGET` alone cannot make switching between native and Wasm builds correct. Keep an unchanged configuration incremental.
+- Treat `app.mjs`, `app.wasm`, `app.html`, and the copy at `CPP_TARGET` as outputs of one successful Wasm build. Copy to `CPP_TARGET` only after linking and HTML preparation succeed. Missing output files must be restored on the next incremental build even when `CPP_TARGET` exists. Changes to `wasm-unittest.html` or the packaging helper must also update the packaged output. Keep these dependencies out of the object arguments passed to the linker, since the current link command uses `$^`.
+- Resolve the helper through `$(VCPROOT)/vl/wasm.sh` and the HTML relative to the helper, so installed Tools and propagated `.github/Ubuntu` copies both work. Quote the target argument and create its parent directory. Propagate link and copy failures as a nonzero build result, and leave the next build able to retry.
+- Extend the canonical `../Tools/Ubuntu/build.sh` wrapper to forward the Wasm and GCC build modes while retaining its existing default and `-f` behavior. Add the new helper and HTML to the copy list in `../Tools/Ubuntu/vl/cmd/vgo`'s `RefreshGithubUbuntu`. Otherwise `vgo uci Vlpp` would omit files required by the repository-local build. Follow the knowledge-base rule to commit the canonical Tools changes before propagating them.
+
+### VERIFICATION
+
+- Check help and command dispatch for both Wasm aliases, both GCC modes, default Clang, and coverage. Perform project builds through `.github/Ubuntu/build.sh` from `Test/Linux` after its canonical update is propagated. Verify script dispatch independently while the C++ port and browser runner are still pending.
+- Regenerate the makefile and confirm that `CPP_TARGET` matches `vmake`, every required `.Wasm.cpp` occurs once, and selecting another compiler does not change the tracked source inventory. Check the actual compile and link commands for the correct compiler and options.
+- After tasks 2 and 3, perform a full Wasm build and verify the four output files. Require `CPP_TARGET` and `app.wasm` to be byte-identical. A second unchanged build must not recompile or relink; changing a source file or an included header must rebuild the affected objects and relink.
+- Switch Clang -> Wasm -> GCC -> Wasm -> Clang using incremental commands. Each transition must produce the correct artifact type without reusing incompatible objects, and the native executables must still run the unit tests.
+- Remove each Wasm output separately and rebuild. Also change the HTML template without changing C++ sources. Verify the missing or stale output is repaired. Exercise link and packaging failures and require a nonzero result followed by a successful retry after the failure is removed.
+- Verify a non-default relative `CPP_TARGET` folder and basename with the same fixed `app.*` names. Check the propagated build from `.github/Ubuntu` so a working global Tools installation cannot hide a missing copied helper.
+
 2) Fix C++ source code to run under emscripten.
 
 You need to create the `VCZH_WASM` macro, just like `VCZH_MSVC`, `VCZH_GCC` and `VCZH_APPLE`. But unlike `VCZH_APPLE` which need to be used with `VCZH_GCC`, `VCZH_WASM` is parallel with `VCZH_MSGC` and `VCZH_GCC`. You can do this by detecting `__EMSCRIPTEN__`.
@@ -33,6 +54,22 @@ Under `VCZH_WASM`, `wchar_t` should be Utf-16, because JavaScript is also using 
 
 There are some `*.Windows.cpp` and `*.Linux.cpp` files, you will have to add `*.Wasm.cpp` for them. Add `*.Wasm.cpp` to used `vcxproj` files so that they are available when calling `vmake`, but those garding macro should be enough to make sure `vbuild -b` and `vbuild --build-gcc` will preprocess any `*.Wasm.cpp` file to an empty file. The same way will also make `*.(Linux|macOS).cpp` becoming empty when running `vbuild -bw`.
 
+### DETAILS
+
+- `VCZH_MSGC` means `VCZH_MSVC`. Detect `__EMSCRIPTEN__` before the native Clang/GCC branch, since Emscripten also defines Clang/GCC compatibility macros. Exactly one of `VCZH_MSVC`, `VCZH_GCC`, and `VCZH_WASM` must be selected; `VCZH_APPLE` remains a modifier of native `VCZH_GCC`.
+- Review all platform selections in `Source` and the unit tests, including `Source/Basic.h`'s integer aliases, compatibility macros, `CHECK_ERROR`, and pointer-size selection. The installed Wasm target has 32-bit pointers even on this x64 host, so `vint` / `vuint` must remain pointer-sized without forcing `VCZH_64`.
+- JavaScript strings contain UTF-16 code units; JavaScript does not have a C++ `wchar_t` type. Compiler preprocessing confirmed that the installed Emscripten defaults to a 4-byte `wchar_t`, and `-fshort-wchar` changes it to 2 bytes. Apply that option consistently to the project's Wasm translation units and keep the `VCZH_WCHAR_UTF16` size assertion. Emscripten's own [3.1.6 Unicode test](https://github.com/emscripten-core/emscripten/blob/3.1.6/tests/utf32.cpp) includes this short-wchar mode.
+- Changing the project's `wchar_t` does not rebuild the SDK's wide-character library interfaces. Preserve the requested 16-bit representation by removing Wasm calls that pass those buffers to stock wide-character libc/libc++ functions. Audit `Source/Console.cpp`, `Source/Strings/String.cpp`, `Source/Strings/LoremIpsum.cpp`, `Source/UnitTest/UnitTest.cpp`, and `Test/Source/Strings/TestWString.cpp`: they use `wcslen`, wide comparisons/copies, wide numeric parsing, or wide formatting. Reuse Vlpp string/UTF operations and narrow numeric conversion where appropriate, preserving validation and overflow behavior. Do not override libc symbols globally or bind a short-wchar `std::wstring` through the SDK's prebuilt Embind registration.
+- Add Wasm implementations for console operations, date/time, narrow/wide conversion, and debugger detection, corresponding to the existing platform files. Reuse existing UTF conversion algorithms; define Wasm narrow/wide conversion as UTF-8 <-> UTF-16. Preserve the existing date/time contract and return false for native debugger detection in the browser.
+- Put platform-only includes and definitions inside positive platform guards. Existing Linux files are not all guarded this way: some deliberately fail when `VCZH_GCC` is absent, and `Conversion.Linux.cpp` is currently unguarded. Make inactive platform implementations harmless before including Wasm files in the shared source inventory. Update the owning `.vcxproj` files and their `.filters` files together.
+
+### VERIFICATION
+
+- Check platform selection and type sizes for Wasm, and check native Clang/GCC retain their existing macros and wide-character widths. Build the Wasm source list with inactive native implementations and the native source list with inactive Wasm implementations; require exactly one implementation of every platform API.
+- Run the complete existing unit test suite under Wasm after task 3, including string conversion, numeric conversion, wildcard matching, console enable/disable, date/time, and feature-injection tests. Preserve test assertions when replacing incompatible wide-library calls in test helpers.
+- Cover ASCII, non-ASCII BMP text, supplementary characters represented by surrogate pairs, empty strings, and explicit-length buffers at the JavaScript boundary. Exercise numeric limits and invalid input so narrow-library reuse does not weaken the current conversion contract. Verify expected C++ exceptions are caught by the existing test macros.
+- Rebuild and run the complete native Linux suite with Clang and GCC. Record Windows/macOS checks only if actually performed; Linux verification does not establish those platforms' results.
+
 3) Unit Test
 
 When running the copied `wasm-unittest.html`, it will load `UnitTest` which is a web assembly file and start it. And the main function starts, unit test starts, all text printing by `Console` will be printed to the web page, preserving the color.
@@ -40,6 +77,26 @@ When running the copied `wasm-unittest.html`, it will load `UnitTest` which is a
 Always assume the `wasm-unittest.html` will be used, so we can redirect `Console` classes to functions exposed from `wasm-unittest.html`.
 
 In this request I don't think we need to expose any function to `wasm-unittest.html`, except the main function. In `wasm-unittest.html`, run the main function in another thread, so that it don't block the web page, and when the main function finishes, append a new line in black+italic saying: `wasm_main returns <return-value>.`
+
+### DETAILS
+
+- The browser loads `app.mjs`, which loads `app.wasm`; `UnitTest` is the duplicate build target, not the browser entry URL. Serve the output folder over HTTP with JavaScript-module and Wasm MIME types. Opening `app.html` as a `file://` URL is not the supported execution path.
+- Use a dedicated JavaScript Web Worker to instantiate the module and call the bound `wasm_main` once. This satisfies the background-execution requirement without adding C++ pthreads. An async function on the page would still block rendering during a synchronous Wasm call. The HTML can create a worker from embedded script text; resolve the `app.mjs` URL against the page before handing it to a Blob worker.
+- Install console callbacks on the worker's `globalThis` before module initialization, then await the module factory before calling `wasm_main`. The page and worker have separate global objects, and the worker cannot update the DOM. Send console operations and completion through one ordered message channel to the page. See [Web Worker execution and messaging](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Using_web_workers).
+- Implement `WasmMain` in the unit test entry point and expose only its exception-catching `wasm_main` wrapper through `EMSCRIPTEN_BINDINGS(CppApplication)`. Pass a program name and `/D` through the public `argc`/`argv` overload of `vl::unittest::UnitTest::RunAndDisposeTests` in `Source/UnitTest/UnitTest.h`, and retain normal successful-run finalization. Do not also auto-run a native `main`.
+- Return the test result from `wasm_main`, using a nonzero value for any caught failure. Handle Vlpp errors/exceptions and the framework's assertion/configuration errors, which do not all derive from `std::exception`, plus a final catch-all. Print available diagnostics directly through the console bridge; do not re-enter framework logging after `/D` unwinds its test context. Stop after the first failure and use a fresh worker/module for another run.
+- Keep `EM_JS` bodies as calls to named JavaScript helpers. Decode/copy the requested UTF-16 buffer while the C++ call is active, honoring its explicit length, and send owned text to the page. JavaScript helpers must translate failures into return values before returning to C++. Keep heap views and raw pointers inside that synchronous boundary.
+- Preserve write order, whitespace, line endings, RGB color, and intensity without requiring a newline for output to appear. Render text as text nodes, not HTML. Keep the page responsive while applying output, and append the black italic `wasm_main returns <return-value>.` line exactly once after all preceding output, on a readable background. Report module-load failures and runtime traps visibly as failed runs; those failures do not produce a normal return value.
+- Keep `Console::Enable` / `Disable` checks effective. This runner has no interactive input UI, so enabled `TryRead` returns EOF and `Read` returns an empty string; `SetTitle` can send a title update to the page. Do not block the worker waiting for unavailable stdin.
+
+### VERIFICATION
+
+- Load the generated `app.html` in a real browser over HTTP. Require all test-file and test-case totals to pass, no unexpected skipped tests, and exactly one `wasm_main returns 0.` line after the summaries. Inspect browser console/network errors as well as the rendered result.
+- Verify execution occurs in the worker and the page remains interactive while tests run and output arrives. Do not count a Node-only test run as browser verification.
+- Exercise consecutive writes without newlines, color changes within a line, all color/intensity combinations, CRLF, Unicode, explicit-length non-terminated buffers, and text containing `<`, `>`, and `&`. Assert output text/order and resulting DOM styles, including the black italic completion line.
+- Use an isolated failure fixture to verify `/D` stops at the first assertion or thrown error, the wrapper returns nonzero with a diagnostic, and later tests do not run. Keep the normal suite passing. Also verify an `EM_JS` helper failure is returned to C++ as an error value instead of throwing through the boundary.
+- Verify a missing module/Wasm file and a runtime trap produce a visible terminal failure without a fabricated successful return line. These are reporting checks, not recovery or retry requirements.
+- Reload the page and require one fresh run with no duplicate output. Verify the existing console-disable tests and the defined EOF/title behavior.
 
 4) Documentation
 
@@ -61,3 +118,20 @@ In `Tools` repo you can find `Coding.md` and `SourceFileManagement.md` saying ab
 WASM specific coding rules should be adding to `Coding.md` in the new section at the end `## Working with Web Assembly`.
 You should use the same language, short and imformative, to update these files, feeling like they are from the same author.
 And you should also follow the above rules when doing the work.
+
+### DETAILS
+
+- The canonical files are `../Tools/Copilot/Guidelines/Coding.md` and `../Tools/Copilot/Guidelines/SourceFileManagement.md`. Update those first and propagate the shared guidance through the existing Tools workflow; do not make Vlpp's copied guidance the source of truth.
+- Apply the `#if` / `#elif` rule to compiler/platform selection and platform implementation guards. Header inclusion guards and unrelated feature switches retain their existing meaning. Document positive `VCZH_MSVC`, `VCZH_GCC`, and `VCZH_WASM` branches, with `VCZH_APPLE` refining only the GCC branch. Correct the current source-management examples that accidentally use `VCZH_MSVC` for Linux-only and macOS-only conditions.
+- The new Web Assembly section must explain the 16-bit Wasm project ABI and its SDK wide-library boundary, worker-local JavaScript callbacks, exception-to-return-value wrappers, and the special `WasmMain` / `wasm_main` entry contract. General JavaScript built-ins may be used directly in `EM_JS`; application logic belongs in named C++ or JavaScript/TypeScript functions.
+- Document the actual build and HTTP-serving commands, expected `app.*` outputs, compiler-switch behavior, and tested Emscripten/browser versions. Keep instructions for untested platforms explicitly separate from recorded verification.
+
+### VERIFICATION
+
+- Check the canonical and propagated guidance agree on platform macros, file names, UTF-16 handling, exceptions, and entry-point naming. Ensure source-management examples agree with the implemented guards and project metadata.
+- Follow the documented native and Wasm commands from `Test/Linux`, including the repository-local build wrapper, and load the output by the documented HTTP URL.
+- Before finishing implementation, review the changes in both Tools and Vlpp, check generated files came from the canonical scripts, and commit and push both repositories as requested. This review changes only the task document; the build, source, and browser checks above are acceptance criteria for its later execution.
+
+## REVIEW COMMENTS
+
+No unresolved review comments. The implementation decisions and verification requirements are recorded under each task above.
