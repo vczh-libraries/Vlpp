@@ -4,11 +4,12 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>WebAssembly Unit Tests</title>
+  <link rel="icon" href="data:,">
   <style>
     body { margin: 1rem; background: #eee; color: #000; font-family: sans-serif; }
-    #output { white-space: pre-wrap; overflow-wrap: anywhere; font-family: monospace; }
-    .completion { color: #000; font-style: italic; }
-    .failure { color: #a00; }
+    #output { white-space: pre-wrap; overflow-wrap: anywhere; font-family: monospace; background: #222; padding: 1rem; }
+    .completion { color: #000; font-style: italic; background: #eee; }
+    .failure { color: #f55; }
   </style>
 </head>
 <body>
@@ -72,7 +73,7 @@
     const pending = [];
     let scheduled = false;
     let finished = false;
-    let color = "rgb(0, 0, 0)";
+    let color = "rgb(192, 192, 192)";
     let lastCharacter = "\n";
 
     function flush() {

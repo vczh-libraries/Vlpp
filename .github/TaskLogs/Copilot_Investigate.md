@@ -154,7 +154,7 @@ Acceptance checks follow the four verification lists in the problem description:
 
 # PROPOSALS
 
-- No.1 Add an explicit Wasm compiler, platform implementation, and worker runner
+- No.1 Add an explicit Wasm compiler, platform implementation, and worker runner [CONFIRMED]
 
 ## No.1 Add an explicit Wasm compiler, platform implementation, and worker runner
 
@@ -185,3 +185,21 @@ Build verification: the unchanged Wasm build recompiles/relinks nothing; touchin
 The incremental Clang -> Wasm -> GCC -> Wasm -> Clang transitions rebuild all 51 objects and emit the correct ELF/Wasm format. Coverage on/off also invalidates the configuration. A final full Wasm build succeeds. All generated `makefile` and `vmake.txt` bytes stay identical across compiler switches. Both the installed command and propagated wrapper dispatch checks pass all 14 aliases (and wrapper default). No Wasm compile/link command contains native pthread, uring, framework, coverage, or short-wchar flags. Both compilation and linking enable C++ exceptions.
 
 Stage 4 will update canonical coding/source-management guidance and Tools' Ubuntu README with the implemented platform guards, UTF-32 ABI, UTF-16 boundary, exception wrappers, worker runner, commands, and actual verification versions, then propagate the two shared guidance files using the Linux equivalent of `copilotInit.ps1`'s guideline copy.
+
+Final review identified one more packaging failure case: a failed copy to `CPP_TARGET` could leave a partial target newer than its inputs. Publish the target through a temporary sibling and rename it only after the copy succeeds. Reject directory destinations, and verify a partial second-copy failure leaves no target and is retried successfully. Add an empty data favicon to avoid an unrelated browser request for a nonexistent favicon.
+
+Stage 4: canonical Tools commit `29c67c3` contains the final guidance, Ubuntu usage/verification record, atomic target publication, and the data favicon. It was pushed before propagation with `vgo uci Vlpp`. The two guideline files were copied as the Linux equivalent of the guideline portion of `copilotInit.ps1`; their contents match the canonical files byte for byte. `Project.md` distinguishes native x64 verification from the 32-bit Wasm/browser target.
+
+Final visual review improved contrast with a dark console panel and a light background behind the black italic completion line. Canonical Tools commit `bfc64d0` was pushed before propagating the final HTML. A partial target-copy failure, successful retry, and quoted-path/directory-destination helper checks all passed.
+
+### CONFIRMED
+
+The single proposal is implemented and retained. Compiler selection is explicit and platform APIs have positive guards, so the same project-derived inventory compiles under Clang, GCC, and Emscripten without duplicate platform definitions. SDK-compatible wide characters keep all existing string/numeric tests valid; UTF-16 adapters remain confined to JavaScript boundaries. Emscripten 3.1.6's missing comparison concepts are handled internally without modifying `std` or relaxing the existing tests.
+
+The dedicated worker runs only the bound exception-catching entry. Its ordered console messages preserve explicit text, Unicode, colors and line endings while bounded DOM updates leave the page responsive. The browser suite passes 32/32 files and 469/469 cases, and native Clang, GCC and Clang coverage pass 32/32 files and 465/465 cases. The four extra browser cases are intentional. Fail-fast fixtures, helper failures, missing files, runtime traps, reloads and completion styling all pass.
+
+The build state invalidates incompatible products before make evaluates prerequisites, while unchanged builds compile/link nothing. Source/header dependencies, every missing output, changed packaging inputs, non-default target paths, compiler/coverage transitions and full Wasm builds are verified. Link failures, HTML-copy failures, and a deliberately partial final-target copy all return nonzero and permit a successful retry. Atomic publication keeps a partial copy from becoming a valid make target. The helper also handles quoted paths containing spaces and rejects directory destinations.
+
+Canonical and propagated build scripts, helper, HTML and guidance match byte for byte. Generated makefiles/source lists came from the canonical template through the repository-local wrapper, remain compiler-independent, and include each of the four Wasm implementations once. Final review found no unexpected skipped tests or remaining task changes to implement. Verification used Linux, Emscripten 3.1.6, and real headless Firefox 146.0.1 over HTTP; Windows and macOS were not executed.
+
+Reproduce the normal browser run from `Test/Linux` with `../../.github/Ubuntu/build.sh -bw`, serve `Bin` with `python3 -m http.server 4173 --bind 127.0.0.1 --directory Bin`, and open `http://127.0.0.1:4173/app.html`. Native verification uses the default wrapper or `--build-gcc`, followed by `Bin/UnitTest /C`. The Tools Ubuntu README records these commands and the supported aliases.
