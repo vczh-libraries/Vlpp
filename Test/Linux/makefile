@@ -13,7 +13,7 @@ pre-build:
 	if ! [ -d ../Output ]; then mkdir ../Output; fi
 
 clean:
-	rm -f "$(CPP_TARGET)" "$(dir $(CPP_TARGET))app.mjs" "$(dir $(CPP_TARGET))app.wasm" "$(dir $(CPP_TARGET))app.html" "$(dir $(CPP_TARGET))app.sh" "$(dir $(CPP_TARGET))index.html"
+	rm -f "$(CPP_TARGET)" "$(dir $(CPP_TARGET))app.mjs" "$(dir $(CPP_TARGET))app.wasm" "$(dir $(CPP_TARGET))app.worker.js" "$(dir $(CPP_TARGET))app.html" "$(dir $(CPP_TARGET))app.sh" "$(dir $(CPP_TARGET))index.html"
 	if [ -d ./Bin ]; then rm -r ./Bin; fi
 	if [ -d ./Obj ]; then rm -r ./Obj; fi
 	if [ -d ./Coverage ]; then rm -r ./Coverage; fi

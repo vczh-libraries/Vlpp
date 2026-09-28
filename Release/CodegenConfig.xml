@@ -7,9 +7,10 @@
     <category name="vlpp" pattern="\Source\">
       <except pattern=".Windows."/>
       <except pattern=".Linux."/>
+      <except pattern=".Wasm."/>
     </category>
     <category name="vlpp.windows" pattern=".Windows."/>
-    <category name="vlpp.linux" pattern=".Linux."/>
+    <category name="vlpp.linux" pattern=".Linux.;.Wasm."/>
   </categories>
   <output path=".">
     <codepair category="vlpp" filename="Vlpp" generate="true"/>

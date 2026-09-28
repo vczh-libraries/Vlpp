@@ -56,6 +56,7 @@
       try {
         const { default: createModule } = await import(moduleUrl);
         const module = await createModule({
+          mainScriptUrlOrBlob: moduleUrl,
           print: text => postMessage({ kind: "write", text: text + "\n" }),
           printErr: text => postMessage({ kind: "diagnostic", text: text + "\n" })
         });

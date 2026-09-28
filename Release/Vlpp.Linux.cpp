@@ -12,12 +12,11 @@ Author: Zihan Chen (vczh)
 Licensed under https://github.com/vczh-libraries/License
 ***********************************************************************/
 
+
+#if defined VCZH_GCC
 #include <iostream>
 #include <string>
 
-#ifndef VCZH_GCC
-static_assert(false, "Do not build this file for Windows applications.");
-#endif
 
 namespace vl
 {
@@ -76,6 +75,8 @@ Console
 	}
 }
 
+#endif
+
 
 /***********************************************************************
 .\PRIMITIVES\DATETIME.LINUX.CPP
@@ -85,13 +86,12 @@ Author: Zihan Chen (vczh)
 Licensed under https://github.com/vczh-libraries/License
 ***********************************************************************/
 
+
+#if defined VCZH_GCC || defined VCZH_WASM
 #include <time.h>
 #include <memory.h>
 #include <sys/time.h>
 
-#ifndef VCZH_GCC
-static_assert(false, "Do not build this file for Windows applications.");
-#endif
 
 namespace vl
 {
@@ -117,7 +117,13 @@ DateTime
 
 		static vuint64_t ConvertTMTToOSInternal(tm* timeinfo, vint milliseconds)
 		{
+#if defined VCZH_GCC
 			time_t timer = mktime(timeinfo);
+#elif defined VCZH_WASM
+			// Wasm encodes calendar fields as UTC milliseconds, independently of the local timezone.
+			time_t timer = timegm(timeinfo);
+			gmtime_r(&timer, timeinfo);
+#endif
 			vuint64_t osInternal;
 			TimeToOSInternal(timer, milliseconds, osInternal);
 			return osInternal;
@@ -125,7 +131,7 @@ DateTime
 
 		static DateTime ConvertTMToDateTime(tm* timeinfo, vint milliseconds)
 		{
-			time_t timer = mktime(timeinfo);
+			auto osInternal = ConvertTMTToOSInternal(timeinfo, milliseconds);
 			DateTime dt;
 			dt.year = timeinfo->tm_year + 1900;
 			dt.month = timeinfo->tm_mon + 1;
@@ -136,8 +142,7 @@ DateTime
 			dt.second = timeinfo->tm_sec;
 			dt.milliseconds = milliseconds;
 
-			// in Linux and macOS, filetime will be mktime(t) * 1000 + gettimeofday().tv_usec / 1000
-			TimeToOSInternal(timer, milliseconds, dt.osInternal);
+			dt.osInternal = osInternal;
 			dt.osMilliseconds = dt.osInternal;
 			return dt;
 		}
@@ -163,7 +168,11 @@ DateTime
 			OSInternalToTime(osInternal, timer, milliseconds);
 
 			tm timeinfo;
+#if defined VCZH_GCC
 			localtime_r(&timer, &timeinfo);
+#elif defined VCZH_WASM
+			gmtime_r(&timer, &timeinfo);
+#endif
 			return ConvertTMToDateTime(&timeinfo, milliseconds);
 		}
 
@@ -193,7 +202,11 @@ DateTime
 
 			tm timeinfo;
 			gmtime_r(&timer, &timeinfo);
-			return ConvertTMTToOSInternal(&timeinfo, milliseconds);
+#if defined VCZH_WASM
+			timeinfo.tm_isdst = -1;
+#endif
+			TimeToOSInternal(mktime(&timeinfo), milliseconds, osInternal);
+			return osInternal;
 		}
 
 		vuint64_t UtcToLocalTime(vuint64_t osInternal) override
@@ -202,12 +215,17 @@ DateTime
 			vint milliseconds;
 			OSInternalToTime(osInternal, timer, milliseconds);
 
-			tm localTimeInfo, utcTimeInfo;
+			tm localTimeInfo;
 			localtime_r(&timer, &localTimeInfo);
+#if defined VCZH_GCC
+			tm utcTimeInfo;
 			gmtime_r(&timer, &utcTimeInfo);
 			time_t localTimer = mktime(&localTimeInfo);
 			time_t utcTimer = mktime(&utcTimeInfo);
 			timer += localTimer - utcTimer;
+#elif defined VCZH_WASM
+			timer = timegm(&localTimeInfo);
+#endif
 
 			TimeToOSInternal(timer, milliseconds, osInternal);
 			return osInternal;
@@ -231,6 +249,8 @@ DateTime
 	}
 }
 
+#endif
+
 
 /***********************************************************************
 .\STRINGS\CONVERSION.LINUX.CPP
@@ -240,6 +260,8 @@ Author: Zihan Chen (vczh)
 Licensed under https://github.com/vczh-libraries/License
 ***********************************************************************/
 
+
+#if defined VCZH_GCC || defined VCZH_WASM
 #include <stdio.h>
 #include <ctype.h>
 #include <wctype.h>
@@ -252,14 +274,25 @@ String Conversions (buffer walkthrough)
 
 	vint _wtoa(const wchar_t* w, char* a, vint chars)
 	{
+#if defined VCZH_GCC
 		return wcstombs(a, w, chars - 1) + 1;
+#elif defined VCZH_WASM
+		// Wasm narrow strings use UTF-8 regardless of the active C locale.
+		return _utftoutf<wchar_t, char8_t>(w, reinterpret_cast<char8_t*>(a), chars);
+#endif
 	}
 
 	vint _atow(const char* a, wchar_t* w, vint chars)
 	{
+#if defined VCZH_GCC
 		return mbstowcs(w, a, chars - 1) + 1;
+#elif defined VCZH_WASM
+		return _utftoutf<char8_t, wchar_t>(reinterpret_cast<const char8_t*>(a), w, chars);
+#endif
 	}
 }
+
+#endif
 
 
 /***********************************************************************
@@ -271,9 +304,8 @@ Licensed under https://github.com/vczh-libraries/License
 ***********************************************************************/
 
 
-#ifndef VCZH_GCC
-static_assert(false, "Do not build this file for Windows applications.");
-#endif
+#if defined VCZH_GCC || defined VCZH_WASM
+
 
 namespace vl
 {
@@ -289,4 +321,80 @@ UnitTest
 		}
 	}
 }
+
+#endif
+
+
+/***********************************************************************
+.\CONSOLE.WASM.CPP
+***********************************************************************/
+/***********************************************************************
+Author: Zihan Chen (vczh)
+Licensed under https://github.com/vczh-libraries/License
+***********************************************************************/
+
+
+#if defined VCZH_WASM
+#include <emscripten.h>
+
+namespace vl::console
+{
+	EM_JS(int, WasmConsoleWrite, (const char16_t* text, vint length), {
+		return globalThis["vlConsoleWrite"](HEAPU16, text, length);
+	});
+
+	EM_JS(int, WasmConsoleColor, (bool red, bool green, bool blue, bool light), {
+		return globalThis["vlConsoleColor"](red, green, blue, light);
+	});
+
+	EM_JS(int, WasmConsoleTitle, (const char16_t* text, vint length), {
+		return globalThis["vlConsoleTitle"](HEAPU16, text, length);
+	});
+
+/***********************************************************************
+Console
+***********************************************************************/
+
+	void Console::Write(const wchar_t* string, vint length)
+	{
+#define ERROR_MESSAGE_PREFIX L"vl::console::Console::Write(const wchar_t*, vint)#"
+		CHECK_ERROR(IsEnabled(), ERROR_MESSAGE_PREFIX L"Console operations are disabled.");
+		auto text = wtou16(WString::CopyFrom(string, length));
+		CHECK_ERROR(WasmConsoleWrite(text.Buffer(), text.Length()), ERROR_MESSAGE_PREFIX L"JavaScript console write failed.");
+#undef ERROR_MESSAGE_PREFIX
+	}
+
+	Nullable<WString> Console::TryRead()
+	{
+#define ERROR_MESSAGE_PREFIX L"vl::console::Console::TryRead()#"
+		CHECK_ERROR(IsEnabled(), ERROR_MESSAGE_PREFIX L"Console operations are disabled.");
+		return {};
+#undef ERROR_MESSAGE_PREFIX
+	}
+
+	WString Console::Read()
+	{
+		auto result = TryRead();
+		return result ? result.Value() : WString::Empty;
+	}
+
+	void Console::SetColor(bool red, bool green, bool blue, bool light)
+	{
+#define ERROR_MESSAGE_PREFIX L"vl::console::Console::SetColor(bool, bool, bool, bool)#"
+		CHECK_ERROR(IsEnabled(), ERROR_MESSAGE_PREFIX L"Console operations are disabled.");
+		CHECK_ERROR(WasmConsoleColor(red, green, blue, light), ERROR_MESSAGE_PREFIX L"JavaScript console color failed.");
+#undef ERROR_MESSAGE_PREFIX
+	}
+
+	void Console::SetTitle(const WString& string)
+	{
+#define ERROR_MESSAGE_PREFIX L"vl::console::Console::SetTitle(const WString&)#"
+		CHECK_ERROR(IsEnabled(), ERROR_MESSAGE_PREFIX L"Console operations are disabled.");
+		auto text = wtou16(string);
+		CHECK_ERROR(WasmConsoleTitle(text.Buffer(), text.Length()), ERROR_MESSAGE_PREFIX L"JavaScript console title failed.");
+#undef ERROR_MESSAGE_PREFIX
+	}
+}
+
+#endif
 

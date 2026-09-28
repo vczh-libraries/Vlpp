@@ -19,8 +19,10 @@ function Help {
     echo "    Rebuild the current folder using G++."
     echo "-bw, --build-wasm"
     echo "    Incrementally build the current folder using em++."
+    echo "    Requires WASM=YES in ./vbuild."
     echo "-fbw, --full-build-wasm"
     echo "    Rebuild the current folder using em++."
+    echo "    Requires WASM=YES in ./vbuild."
     echo "-g, --generate"
     echo "    Generate coverage data."
     echo "-r, --read"
@@ -37,6 +39,13 @@ function Check {
 function Clean {
     Check
     make clean
+}
+
+function CheckWasm {
+    if ! [ -f ./vbuild ] || ! grep -Fq 'WASM=YES' ./vbuild; then
+        echo "WebAssembly is not enabled for this project. Requires WASM=YES in ./vbuild." >&2
+        exit 1
+    fi
 }
 
 function Build {
@@ -98,10 +107,12 @@ case $1 in
     ;;
 
     -bw|--build-wasm)
+    CheckWasm
     Build CPP_COMPILER=EMPP COVERAGE=NO
     ;;
 
     -fbw|--full-build-wasm)
+    CheckWasm
     FullBuild CPP_COMPILER=EMPP COVERAGE=NO
     ;;
 

@@ -8,3 +8,4 @@ DEVELOPER: Zihan Chen(vczh)
 #include "..\..\Source\Primitives\DateTime.Linux.cpp"
 #include "..\..\Source\Strings\Conversion.Linux.cpp"
 #include "..\..\Source\UnitTest\UnitTest.Linux.cpp"
+#include "..\..\Source\Console.Wasm.cpp"
