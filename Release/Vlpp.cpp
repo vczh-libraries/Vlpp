@@ -1120,7 +1120,7 @@ namespace vl
 	{
 		while(*buffer)
 		{
-			*buffer=(char)towlower(*buffer);
+			*buffer=(wchar_t)towlower(*buffer);
 			buffer++;
 		}
 	}
@@ -1129,7 +1129,7 @@ namespace vl
 	{
 		while(*buffer)
 		{
-			*buffer=(char)towupper(*buffer);
+			*buffer=(wchar_t)towupper(*buffer);
 			buffer++;
 		}
 	}

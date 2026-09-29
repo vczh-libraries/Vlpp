@@ -171,6 +171,14 @@ TEST_FILE
 			CheckString(WString(L"[vczh is genius]").Sub(1,14).Insert(8,L" a ").Remove(4,4),L"vczh a genius");
 		});
 
+		TEST_CASE(L"Wide case conversion preserves non-ASCII characters")
+		{
+			WString text = L"aZ战斗𩰪";
+			CheckString(wlower(text), L"az战斗𩰪");
+			CheckString(wupper(text), L"AZ战斗𩰪");
+			CheckString(text, L"aZ战斗𩰪");
+		});
+
 		TEST_CASE(L"Test wloer() / wupper()")
 		{
 			WString a = L"vczh IS genius";
