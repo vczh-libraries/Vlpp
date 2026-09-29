@@ -149,6 +149,8 @@
 
     const workerUrl = URL.createObjectURL(new Blob([document.getElementById("worker-source").textContent], { type: "text/javascript" }));
     const worker = new Worker(workerUrl);
+    // Keep the worker reachable while OPFS and module initialization await promises.
+    window.addEventListener("pagehide", () => worker.terminate(), { once: true });
     worker.onmessage = ({ data }) => enqueue(data);
     worker.onerror = event => {
       enqueue({ kind: "failure", text: event.message });

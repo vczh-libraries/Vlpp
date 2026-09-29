@@ -180,11 +180,7 @@ Basic Types
 		const wchar_t*		Description()const;
 	};
 
-#if defined VCZH_MSVC || defined VCZH_GCC || defined VCZH_WASM || defined _DEBUG
 #define CHECK_ERROR(CONDITION,DESCRIPTION) do{if(!(CONDITION))throw Error(DESCRIPTION);}while(0)
-#elif defined NDEBUG
-#define CHECK_ERROR(CONDITION,DESCRIPTION)
-#endif
 
 #define CHECK_FAIL(DESCRIPTION) do{throw Error(DESCRIPTION);}while(0)
 
