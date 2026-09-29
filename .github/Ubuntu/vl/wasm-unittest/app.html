@@ -52,16 +52,42 @@
       } catch { return 0; }
     };
 
+    async function prefillOpfs(moduleUrl) {
+      const response = await fetch(new URL("/OPFS", moduleUrl));
+      if (!response.ok) throw new Error(`OPFS manifest: HTTP ${response.status}`);
+      const manifest = await response.json();
+      const root = await navigator.storage.getDirectory();
+      for await (const name of root.keys()) await root.removeEntry(name, { recursive: true });
+      async function folder(parts) {
+        let current = root;
+        for (const name of parts) current = await current.getDirectoryHandle(name, { create: true });
+        return current;
+      }
+      for (const name of manifest.folders) await folder(name.split("/"));
+      for (const name of manifest.files) {
+        const parts = name.split("/");
+        const fileName = parts.pop();
+        const parent = await folder(parts);
+        const response = await fetch(new URL("/OPFS/" + name.split("/").map(encodeURIComponent).join("/"), moduleUrl));
+        if (!response.ok) throw new Error(`OPFS fixture ${name}: HTTP ${response.status}`);
+        const file = await parent.getFileHandle(fileName, { create: true });
+        const writer = await file.createWritable();
+        await writer.write(await response.arrayBuffer());
+        await writer.close();
+      }
+    }
+
     self.onmessage = async ({ data: moduleUrl }) => {
       self.onmessage = null;
       try {
+        await prefillOpfs(moduleUrl);
         const { default: createModule } = await import(moduleUrl);
         const module = await createModule({
           mainScriptUrlOrBlob: moduleUrl,
           print: text => postMessage({ kind: "write", text: text + "\n" }),
           printErr: text => postMessage({ kind: "diagnostic", text: text + "\n" })
         });
-        const result = module.wasm_main();
+        const result = await module.wasm_main();
         postMessage({ kind: "complete", result });
       } catch (error) {
         postMessage({ kind: "failure", text: String(error) + (error?.stack ? "\n" + error.stack : "") });

@@ -9,7 +9,7 @@ CPP_PLATFORM_LINK_OPTIONS=
 ifeq ($(CPP_COMPILER),EMPP)
 CPP_CXX=em++
 CPP_PLATFORM_COMPILE_OPTIONS=-fexceptions
-CPP_PLATFORM_LINK_OPTIONS=-fexceptions --bind -sMODULARIZE=1 -sEXPORT_ES6=1 -sENVIRONMENT=worker --no-entry
+CPP_PLATFORM_LINK_OPTIONS=-fexceptions --bind -sMODULARIZE=1 -sEXPORT_ES6=1 -sENVIRONMENT=worker -sASYNCIFY=1 -sASYNCIFY_STACK_SIZE=65536 --no-entry
 ifneq ($(CPP_WASM_PTHREAD_POOL_SIZE),)
 CPP_PLATFORM_COMPILE_OPTIONS+=-pthread
 CPP_PLATFORM_LINK_OPTIONS+=-pthread -sPTHREAD_POOL_SIZE=$(CPP_WASM_PTHREAD_POOL_SIZE) -sPTHREAD_POOL_SIZE_STRICT=2 -sINITIAL_MEMORY=134217728 -sALLOW_MEMORY_GROWTH=1
@@ -42,11 +42,11 @@ CPP_COMPILE=$(CPP_CXX) $(CPP_COMPILE_FLAGS) $(CPP_DEPENDENCY_OPTIONS) -o $@ -c $
 CPP_LINK=mkdir -p "$(dir $(CPP_TARGET))" && $(CPP_CXX) -o "$@" $(filter %.o,$^) $(CPP_LINK_FLAGS)
 
 ifeq ($(CPP_COMPILER),EMPP)
-CPP_WASM_OUTPUTS=$(addprefix $(dir $(CPP_TARGET)),app.mjs app.wasm app.html app.sh index.html)
+CPP_WASM_OUTPUTS=$(addprefix $(dir $(CPP_TARGET)),app.mjs app.wasm app.html app.sh app.js index.html)
 ifneq ($(CPP_WASM_PTHREAD_POOL_SIZE),)
 CPP_WASM_OUTPUTS+=$(dir $(CPP_TARGET))app.worker.js
 endif
-$(CPP_TARGET): $(VCPROOT)/vl/wasm.sh $(VCPROOT)/vl/wasm-unittest.html $(VCPROOT)/vl/wasm-unittest.sh
+$(CPP_TARGET): $(VCPROOT)/vl/wasm.sh $(wildcard $(VCPROOT)/vl/wasm-unittest/*)
 ifneq ($(words $(wildcard $(CPP_WASM_OUTPUTS))),$(words $(CPP_WASM_OUTPUTS)))
 .PHONY: cpp-wasm-missing
 $(CPP_TARGET): cpp-wasm-missing
