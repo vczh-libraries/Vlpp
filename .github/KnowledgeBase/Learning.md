@@ -2,11 +2,11 @@
 
 # Orders
 
-- Verify generated artifacts with downstream consumer checks [29]
+- Verify generated artifacts with downstream consumer checks [30]
 - Keep design documentation aligned with code after refactoring [25]
 - Proactively remove code made redundant by refactoring [24]
-- Process staged tasks one by one with verification [23]
-- Port fixes from imports to source repositories [21]
+- Process staged tasks one by one with verification [24]
+- Port fixes from imports to source repositories [22]
 - Verify and localize portability on every target OS [18]
 - Crash early instead of adding error-tolerance fallbacks [16]
 - Extract abstractions only for real shared behavior [16]
@@ -160,6 +160,8 @@ If a Workflow task exposes a `VlppReflection` collection-wrapper issue, fix the 
 
 When a VlppOS public namespace refactor changes released APIs, regenerate the VlppOS release and update Workflow and GacUI from that release before repairing downstream build breaks; do not patch imported copies.
 
+When an upstream fix already exists but downstream suites reproduce the old failure, compare the imported amalgamation with the current owning release before changing source again. Regenerate and propagate the existing fix, then rebuild the affected consumers; stale imports can preserve an already-fixed optimization or encoding defect.
+
 ## Validate expectations against implementation and existing tests
 
 Before encoding expectations (especially for return value conventions and error semantics), read the relevant implementation and check existing tests for established patterns. This reduces churn from mismatched assumptions (e.g. public API returning a normalized error value even if internals use different sentinel codes).
@@ -283,6 +285,8 @@ When relocating manually maintained configuration beside generated types, valida
 When a new platform backend is packed into an existing release pair, compile and run a separate consumer of that generated pair. A passing source-project build cannot prove that release guards expose supported APIs exactly once or that deliberately unavailable services still fail as specified.
 
 For compiler refactors intended to preserve valid resource behavior, rebuild the deployed release tools, invalidate resource caches that do not track compiler binaries, and inspect each downstream architecture's outputs. A driver that catches errors and continues cannot be validated by its exit alone. Explain the complete generated diff, including unchanged consumers, and avoid inserting runtime checks for constraints that the authoring compiler can validate directly.
+
+After refreshing shared release imports, rebuild every requested browser-compatible consumer and run its complete retained suite through the generated HTTP launcher. Require readable output, the expected case counts, exactly one successful completion marker, cross-origin isolation and no browser diagnostics; a passing foundational library does not establish that its downstream amalgamations are current.
 
 ## `vl::regex` separator regex: `L"[\\/\\\\]+"`
 
