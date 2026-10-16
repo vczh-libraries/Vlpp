@@ -22,7 +22,7 @@ The raw element has no intrinsic picture size. Specify `PreferredMinSize` or oth
 
 The standalone `<Release repo>/Tutorial/GacUI_Windows/RawClock` demonstrates XML-owned `HH:mm:ss` updates with Direct2D by default and GDI under `/Gdi`. FullControlTest's `<GacUI repo>/Test/Resources/App/FullControlTest/RawElementTabPage.xml` uses `Id="FullControlTest.Clock"`; platform-owned C++ helpers and the GacJS canvas attachment draw the received state without independent ticking timers. The native snapshot viewer represents a recorded raw element as an ellipsized `Id + ": " + Data` label; it does not run application painters.
 
-See [XML authoring](../Guidelines/GacUIXmlResource.md#ownerdraw-with-raw) and [native remote and browser lifecycle](./KB_GacUI_Design_RemoteProtocolRendererAndSerialization.md#raw-element-state-and-lifetime).
+See `<GacUI repo>/.github/Guidelines/GacUIXmlResource.md` for XML authoring and [native remote and browser lifecycle](./KB_GacUI_Design_RemoteProtocolRendererAndSerialization.md#raw-element-state-and-lifetime) for remote attachment rules.
 
 ## 1. Core Interfaces and Their Responsibilities
 
